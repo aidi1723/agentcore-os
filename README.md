@@ -1,15 +1,14 @@
-# OpenClaw OS — Industry AI Workspace
+# OpenClaw OS — 行业智能工作台
 
 [![CI](https://github.com/aidi1723/openclaw-os/actions/workflows/ci.yml/badge.svg)](https://github.com/aidi1723/openclaw-os/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A Next.js + Tailwind **desktop-style AI workspace** that runs in the browser.
+一个基于 Next.js + Tailwind 构建、运行在浏览器中的**桌面式 AI 工作台**。
 
-It combines a desktop shell, industry workspaces, scenario-based app bundles, local-first state,
-and AI-powered workflow apps into a single entry point.
+它把桌面外壳、行业化工作空间、场景化 App 组合、本地优先状态管理，以及 AI 驱动的工作流应用整合成一个统一入口。
 
-The project is no longer just a UI shell. It is now aimed at giving non-technical users a fast way
-to enter real-world AI workflows by opening packaged apps instead of assembling tools from scratch.
+这个项目已经不再只是一个展示型 UI 外壳，而是面向真实业务场景的智能自动化工作台：
+让非技术用户也能通过封装好的应用快速进入 AI 工作流，而不必从零拼装工具链。
 
 ## Project status
 

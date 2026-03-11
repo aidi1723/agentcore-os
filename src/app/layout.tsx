@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OpenClaw OS",
-  description: "A Windows 11-like desktop experience",
+  title: "AgentCore OS",
+  description: "A business solution operating system for industry workflows, role desks, and AI-powered execution.",
 };
 
 export default function RootLayout({

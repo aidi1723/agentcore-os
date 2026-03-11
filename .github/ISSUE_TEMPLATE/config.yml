@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security policy
-    url: https://github.com/aidi1723/openclaw-os/blob/main/SECURITY.md
+    url: https://github.com/aidi1723/agentcore-os/blob/main/SECURITY.md
     about: Please review the security guidance before reporting sensitive issues.

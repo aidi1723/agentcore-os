@@ -1303,7 +1303,7 @@ function SolutionCenterPanel({
         eyebrow: "Solution Center",
         title: "Start from the business scenario, not the app shelf.",
         desc:
-          "OpenClaw OS now surfaces runnable hero workflows first. Pick your industry, enter the matching role desk, and let the system carry the default apps, workflow stages, and assets with you.",
+          "AgentCore OS now surfaces runnable hero workflows first. Pick your industry, enter the matching role desk, and let the system carry the default apps, workflow stages, and assets with you.",
         active: "Current workspace",
         launch: "Launch hero workflow",
         role: "Enter role desk",
@@ -1323,7 +1323,7 @@ function SolutionCenterPanel({
         eyebrow: "Solution Center",
         title: "最初に選ぶのは App ではなく、業務シナリオです。",
         desc:
-          "OpenClaw OS は実行可能な Hero Workflow を最初に前面表示します。業界とロールを選ぶと、対応するアプリ、進行段階、残す資産が一緒に立ち上がります。",
+          "AgentCore OS は実行可能な Hero Workflow を最初に前面表示します。業界とロールを選ぶと、対応するアプリ、進行段階、残す資産が一緒に立ち上がります。",
         active: "現在のワークスペース",
         launch: "Hero Workflow を起動",
         role: "ロールデスクに入る",
@@ -1342,7 +1342,7 @@ function SolutionCenterPanel({
       eyebrow: "Solution Center",
       title: "先从业务方案进入，而不是先找 App。",
       desc:
-        "openclaw-os 现在把已经跑通的 Hero Workflow 前置为业务入口。先选行业，再进角色桌面，系统会把默认应用、流程阶段和资产沉淀逻辑一起带出来。",
+        "AgentCore OS 现在把已经跑通的 Hero Workflow 前置为业务入口。先选行业，再进角色桌面，系统会把默认应用、流程阶段和资产沉淀逻辑一起带出来。",
       active: "当前工作台",
       launch: "启动这条 Hero Workflow",
       role: "进入角色桌面",

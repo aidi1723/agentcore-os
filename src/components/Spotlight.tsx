@@ -338,11 +338,31 @@ export function Spotlight({
     await run(item.message);
   };
 
+  const activateIndex = async (idx: number) => {
+    setActiveIndex(idx);
+    const item = items[idx];
+    if (!item) return;
+
+    if (item.kind === "app") {
+      pushHistory({ kind: "app", id: item.app.id, name: item.app.name });
+      onOpenApp?.(item.app.id);
+      onClose();
+      return;
+    }
+
+    if (item.kind === "action") {
+      await item.action();
+      return;
+    }
+
+    await run(item.message);
+  };
+
   if (!open) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[999] flex items-start justify-center pt-28"
+      className="fixed inset-0 z-[999] flex items-start justify-center px-3 pt-6 sm:px-6 sm:pt-16 lg:pt-28"
       role="dialog"
       aria-modal="true"
       aria-label="Spotlight"
@@ -352,7 +372,7 @@ export function Spotlight({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[820px] mx-6">
+      <div className="relative w-full max-w-[820px]">
         <div className="rounded-[28px] border border-white/20 bg-white/10 backdrop-blur-2xl shadow-[0_25px_80px_rgba(0,0,0,0.45)] overflow-hidden">
           <div className="px-6 py-5">
             <input
@@ -383,7 +403,7 @@ export function Spotlight({
             />
           </div>
           <div className="h-px bg-white/10" />
-          <div className="px-6 py-4">
+          <div className="max-h-[min(72vh,720px)] overflow-auto px-4 py-4 sm:px-6">
             <div className="space-y-3">
               {items.length > 0 ? (
                 <div
@@ -400,11 +420,8 @@ export function Spotlight({
                           type="button"
                           role="option"
                           aria-selected={active}
-                          onClick={() => setActiveIndex(idx)}
-                          onDoubleClick={() => {
-                            setActiveIndex(idx);
-                            activate();
-                          }}
+                          onMouseEnter={() => setActiveIndex(idx)}
+                          onClick={() => void activateIndex(idx)}
                           className={[
                             "w-full text-left px-4 py-3 transition-colors",
                             active ? "bg-white/10" : "hover:bg-white/5",
@@ -426,11 +443,8 @@ export function Spotlight({
                           type="button"
                           role="option"
                           aria-selected={active}
-                          onClick={() => setActiveIndex(idx)}
-                          onDoubleClick={() => {
-                            setActiveIndex(idx);
-                            activate();
-                          }}
+                          onMouseEnter={() => setActiveIndex(idx)}
+                          onClick={() => void activateIndex(idx)}
                           className={[
                             "w-full text-left px-4 py-3 transition-colors",
                             active ? "bg-white/10" : "hover:bg-white/5",
@@ -451,12 +465,8 @@ export function Spotlight({
                         type="button"
                         role="option"
                         aria-selected={active}
-                        onClick={() => {
-                          setActiveIndex(idx);
-                          pushHistory({ kind: "app", id: item.app.id, name: item.app.name });
-                          onOpenApp?.(item.app.id);
-                          onClose();
-                        }}
+                        onMouseEnter={() => setActiveIndex(idx)}
+                        onClick={() => void activateIndex(idx)}
                         className={[
                           "w-full flex items-center justify-between gap-3 text-left px-4 py-3 transition-colors",
                           active ? "bg-white/10" : "hover:bg-white/5",
@@ -485,7 +495,7 @@ export function Spotlight({
 
               <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
                 {isRunning ? (
-                  <div className="text-xs text-white/65">Assistant is thinking...</div>
+                  <div className="text-xs text-white/65">Assistant 正在处理...</div>
                 ) : result ? (
                   <pre className="max-h-[32vh] overflow-auto whitespace-pre-wrap text-xs leading-relaxed text-white/85">
                     {result}

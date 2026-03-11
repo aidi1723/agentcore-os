@@ -15,6 +15,15 @@ export type Playbook = {
 };
 
 const STORAGE_KEY = "openclaw.playbooks.v1";
+type Listener = () => void;
+const listeners = new Set<Listener>();
+
+function emit() {
+  for (const listener of listeners) listener();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("openclaw:playbooks"));
+  }
+}
 
 function newId() {
   try {
@@ -55,6 +64,12 @@ export function loadPlaybooks(): Playbook[] {
 
 export function savePlaybooks(next: Playbook[]) {
   setJsonToStorage(STORAGE_KEY, next.slice(0, 100));
+  emit();
+}
+
+export function subscribePlaybooks(listener: Listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
 }
 
 export function upsertPlaybook(playbook: Partial<Playbook>) {
@@ -112,4 +127,3 @@ export function importPlaybooksFromText(text: string): { ok: true; imported: num
     return { ok: false, error: msg };
   }
 }
-

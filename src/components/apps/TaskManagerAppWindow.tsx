@@ -6,7 +6,9 @@ import type { AppWindowProps } from "@/apps/types";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
 import {
   cancelTask,
+  clearFinishedTasks,
   getTasks,
+  removeTask,
   subscribeTasks,
   type TaskRecord,
   type TaskStatus,
@@ -100,78 +102,101 @@ export function TaskManagerAppWindow({
           <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
             <div className="px-5 py-3 border-b border-white/10 flex items-center justify-between">
               <div className="text-sm font-semibold text-white/90">任务列表</div>
-              <div className="text-xs text-white/50">{tasks.length} 项</div>
+              <div className="flex items-center gap-2">
+                <div className="text-xs text-white/50">{tasks.length} 项</div>
+                <button
+                  type="button"
+                  onClick={() => clearFinishedTasks()}
+                  disabled={!tasks.some((task) => task.status !== "running" && task.status !== "queued")}
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  清理已结束
+                </button>
+              </div>
             </div>
 
-            <div className="divide-y divide-white/10">
-              {tasks.map((task) => {
-                const badge = statusBadge(task.status);
-                return (
-                  <div key={task.id} className="px-5 py-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="min-w-0">
-                        <div className="font-mono text-sm text-white/95 truncate">
-                          {task.name}
+            {tasks.length === 0 ? (
+              <div className="px-5 py-12 text-center">
+                <div className="text-sm font-semibold text-white/80">还没有任务</div>
+                <div className="mt-2 text-xs text-white/45">
+                  从 Spotlight、AI 文案、视觉工坊或发布中心触发动作后，这里会出现任务记录。
+                </div>
+              </div>
+            ) : (
+              <div className="divide-y divide-white/10">
+                {tasks.map((task) => {
+                  const badge = statusBadge(task.status);
+                  return (
+                    <div key={task.id} className="px-5 py-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                          <div className="font-mono text-sm text-white/95 truncate">
+                            {task.name}
+                          </div>
+                          <div className="mt-1 flex items-center gap-2">
+                            <span
+                              className={[
+                                "inline-flex items-center gap-2 px-2.5 py-1 rounded-full border text-xs font-semibold",
+                                badge.className,
+                              ].join(" ")}
+                            >
+                              {badge.text}
+                              {task.status === "running" && typeof task.progress === "number"
+                                ? ` ${task.progress}%`
+                                : ""}
+                            </span>
+                            {task.status === "running" && (
+                              <span className="text-xs text-white/50">
+                                | pipeline: openclaw
+                              </span>
+                            )}
+                            {task.status === "error" && task.detail && (
+                              <span className="text-xs text-red-200/80">
+                                | {task.detail}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <div className="mt-1 flex items-center gap-2">
-                          <span
-                            className={[
-                              "inline-flex items-center gap-2 px-2.5 py-1 rounded-full border text-xs font-semibold",
-                              badge.className,
-                            ].join(" ")}
+
+                        {task.status === "running" ? (
+                          <button
+                            type="button"
+                            onClick={() => cancelTask(task.id)}
+                            className="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs font-semibold hover:bg-red-500/20 transition-colors"
+                            title="停止任务"
                           >
-                            {badge.text}
-                            {task.status === "running" && typeof task.progress === "number"
-                              ? ` ${task.progress}%`
-                              : ""}
-                          </span>
-                          {task.status === "running" && (
-                            <span className="text-xs text-white/50">
-                              | pipeline: openclaw
-                            </span>
-                          )}
-                          {task.status === "error" && task.detail && (
-                            <span className="text-xs text-red-200/80">
-                              | {task.detail}
-                            </span>
-                          )}
-                        </div>
+                            <Square className="h-4 w-4" />
+                            停止
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => removeTask(task.id)}
+                            className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/70 transition-colors hover:bg-white/10"
+                          >
+                            移除
+                          </button>
+                        )}
                       </div>
 
-                      {task.status === "running" ? (
-                        <button
-                          type="button"
-                          onClick={() => cancelTask(task.id)}
-                          className="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs font-semibold hover:bg-red-500/20 transition-colors"
-                          title="停止任务"
-                        >
-                          <Square className="h-4 w-4" />
-                          停止
-                        </button>
-                      ) : (
-                        <div className="shrink-0 text-xs text-white/40">
-                          —
+                      {task.status === "running" && typeof task.progress === "number" && (
+                        <div className="mt-3">
+                          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-[width] duration-500"
+                              style={{ width: `${task.progress}%` }}
+                            />
+                          </div>
+                          <div className="mt-2 text-xs text-white/50 font-mono">
+                            ETA: {Math.max(1, Math.round((100 - task.progress) / 2))}s
+                          </div>
                         </div>
                       )}
                     </div>
-
-                    {task.status === "running" && typeof task.progress === "number" && (
-                      <div className="mt-3">
-                        <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-[width] duration-500"
-                            style={{ width: `${task.progress}%` }}
-                          />
-                        </div>
-                        <div className="mt-2 text-xs text-white/50 font-mono">
-                          ETA: {Math.max(1, Math.round((100 - task.progress) / 2))}s
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="text-xs text-white/45 font-mono">

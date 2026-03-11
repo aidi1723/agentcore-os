@@ -3,8 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CloudUpload, Folder, HardDrive, Search } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
+import { AppToast } from "@/components/AppToast";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
+import { useTimedToast } from "@/hooks/useTimedToast";
 import { createTask, updateTask, type TaskId } from "@/lib/tasks";
+import type { KnowledgeVaultPrefill } from "@/lib/ui-events";
 
 type VaultFolderId = "trade_products" | "social_assets" | "contracts";
 
@@ -66,10 +69,7 @@ export function KnowledgeVaultAppWindow({
   const [answer, setAnswer] = useState("");
   const [isAsking, setIsAsking] = useState(false);
   const taskIdRef = useRef<TaskId | null>(null);
-  const [toast, setToast] = useState<
-    null | { message: string; tone: "ok" | "error" }
-  >(null);
-  const toastTimerRef = useRef<number | null>(null);
+  const { toast, showToast } = useTimedToast(2000);
 
   useEffect(() => {
     if (state === "open" || state === "opening") {
@@ -84,19 +84,15 @@ export function KnowledgeVaultAppWindow({
   }, [files, state]);
 
   useEffect(() => {
-    return () => {
-      if (toastTimerRef.current !== null) window.clearTimeout(toastTimerRef.current);
+    const onPrefill = (event: Event) => {
+      const detail = (event as CustomEvent<KnowledgeVaultPrefill>).detail;
+      setAsk(detail?.query ?? "");
+      setAnswer("");
+      showToast("已带入知识库问题", "ok");
     };
-  }, []);
-
-  const showToast = (message: string, tone: "ok" | "error" = "ok") => {
-    setToast({ message, tone });
-    if (toastTimerRef.current !== null) window.clearTimeout(toastTimerRef.current);
-    toastTimerRef.current = window.setTimeout(() => {
-      setToast(null);
-      toastTimerRef.current = null;
-    }, 2000);
-  };
+    window.addEventListener("openclaw:vault-prefill", onPrefill);
+    return () => window.removeEventListener("openclaw:vault-prefill", onPrefill);
+  }, [showToast]);
 
   const fileCount = files.length;
 
@@ -187,25 +183,10 @@ export function KnowledgeVaultAppWindow({
       onClose={onClose}
     >
       <div className="relative bg-white">
-        {toast && (
-          <div className="absolute right-5 top-5 z-10">
-            <div
-              className={[
-                "px-4 py-2.5 rounded-xl shadow-lg border text-sm font-semibold backdrop-blur",
-                toast.tone === "ok"
-                  ? "bg-emerald-600/90 border-emerald-400/40 text-white"
-                  : "bg-red-600/90 border-red-400/40 text-white",
-              ].join(" ")}
-              role="status"
-              aria-live="polite"
-            >
-              {toast.message}
-            </div>
-          </div>
-        )}
+        <AppToast toast={toast} />
 
-        <div className="flex min-h-[560px]">
-          <aside className="w-64 border-r border-gray-200 bg-gray-50/60">
+        <div className="flex min-h-[560px] flex-col lg:flex-row">
+          <aside className="w-full border-b border-gray-200 bg-gray-50/60 lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
             <div className="p-5">
               <div className="text-xs font-semibold text-gray-500">
                 Knowledge Vault
@@ -217,7 +198,7 @@ export function KnowledgeVaultAppWindow({
               </div>
             </div>
 
-            <nav className="px-2 pb-4 space-y-1">
+            <nav className="grid grid-cols-1 gap-1 px-2 pb-4 sm:grid-cols-2 lg:grid-cols-1">
               {folders.map((f) => {
                 const active = f.id === activeFolder;
                 return (
@@ -247,8 +228,8 @@ export function KnowledgeVaultAppWindow({
             </nav>
           </aside>
 
-          <main className="flex-1 p-6 space-y-4">
-            <div className="flex items-center justify-between gap-3">
+          <main className="flex-1 space-y-4 p-4 sm:p-6">
+            <div className="flex flex-col justify-between gap-3 xl:flex-row xl:items-center">
               <div>
                 <div className="text-lg font-bold text-gray-900">
                   {folderName}
@@ -258,25 +239,25 @@ export function KnowledgeVaultAppWindow({
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row lg:items-center">
                 <div className="relative">
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="搜索文件..."
-                    className="w-[200px] rounded-xl border border-gray-200 bg-white pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 lg:w-[220px]"
                   />
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
                     <Search className="h-4 w-4" />
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <input
                     value={ask}
                     onChange={(e) => setAsk(e.target.value)}
                     placeholder="提问…"
-                    className="w-[240px] rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 sm:w-[260px]"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") askAssistant();
                     }}
@@ -321,8 +302,14 @@ export function KnowledgeVaultAppWindow({
               onDrop={onDrop}
               role="button"
               tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div className="h-12 w-12 rounded-2xl bg-gray-100 flex items-center justify-center border border-gray-200">
                   <CloudUpload className="h-6 w-6 text-gray-700" />
                 </div>
@@ -349,7 +336,7 @@ export function KnowledgeVaultAppWindow({
                   </div>
                 ) : (
                   filteredFiles.map((f) => (
-                    <div key={f.id} className="px-5 py-4 flex items-center justify-between gap-4">
+                    <div key={f.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
                         <div className="text-sm font-semibold text-gray-900 truncate">
                           {f.name}

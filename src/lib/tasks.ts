@@ -13,29 +13,49 @@ export type TaskRecord = {
 };
 
 type Listener = () => void;
+const TASKS_KEY = "openclaw.tasks.v1";
 
-let tasks: TaskRecord[] = [
-  {
-    id: "seed-1",
-    name: "Assistant - Extract cover & highlights",
-    status: "queued",
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  },
-  {
-    id: "seed-2",
-    name: "Assistant - Generate & distribute multilingual copy",
-    status: "queued",
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  },
-];
+let tasks: TaskRecord[] | null = null;
 
 const cancelById = new Map<TaskId, () => void>();
 const listeners = new Set<Listener>();
 
+function loadTasks(): TaskRecord[] {
+  if (tasks) return tasks;
+  if (typeof window === "undefined") {
+    tasks = [];
+    return tasks;
+  }
+  try {
+    const raw = window.localStorage.getItem(TASKS_KEY);
+    if (!raw) {
+      tasks = [];
+      return tasks;
+    }
+    const parsed = JSON.parse(raw) as unknown;
+    tasks = Array.isArray(parsed) ? (parsed as TaskRecord[]) : [];
+    return tasks;
+  } catch {
+    tasks = [];
+    return tasks;
+  }
+}
+
+function saveTasks(next: TaskRecord[]) {
+  tasks = next.slice(0, 120);
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+  } catch {
+    // ignore
+  }
+}
+
 function emit() {
   for (const l of listeners) l();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("openclaw:tasks"));
+  }
 }
 
 export function subscribeTasks(listener: Listener) {
@@ -46,7 +66,9 @@ export function subscribeTasks(listener: Listener) {
 }
 
 export function getTasks() {
-  return tasks.slice().sort((a, b) => b.updatedAt - a.updatedAt);
+  return loadTasks()
+    .slice()
+    .sort((a, b) => b.updatedAt - a.updatedAt);
 }
 
 export function createTask(input: { name: string; status?: TaskStatus; progress?: number; detail?: string }) {
@@ -61,14 +83,14 @@ export function createTask(input: { name: string; status?: TaskStatus; progress?
     createdAt: now,
     updatedAt: now,
   };
-  tasks = [task, ...tasks];
+  saveTasks([task, ...loadTasks()]);
   emit();
   return id;
 }
 
 export function updateTask(taskId: TaskId, patch: Partial<Omit<TaskRecord, "id" | "createdAt">>) {
   const now = Date.now();
-  tasks = tasks.map((t) =>
+  saveTasks(loadTasks().map((t) =>
     t.id === taskId
       ? {
           ...t,
@@ -76,7 +98,7 @@ export function updateTask(taskId: TaskId, patch: Partial<Omit<TaskRecord, "id" 
           updatedAt: now,
         }
       : t,
-  );
+  ));
   emit();
 }
 
@@ -93,6 +115,13 @@ export function cancelTask(taskId: TaskId) {
 
 export function removeTask(taskId: TaskId) {
   cancelById.delete(taskId);
-  tasks = tasks.filter((t) => t.id !== taskId);
+  saveTasks(loadTasks().filter((t) => t.id !== taskId));
+  emit();
+}
+
+export function clearFinishedTasks() {
+  saveTasks(
+    loadTasks().filter((t) => t.status === "running" || t.status === "queued"),
+  );
   emit();
 }

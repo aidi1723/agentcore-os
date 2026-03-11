@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Clapperboard, CloudUpload, Download } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
+import { AppToast } from "@/components/AppToast";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
+import { useTimedToast } from "@/hooks/useTimedToast";
 import { loadSettings } from "@/lib/settings";
 import {
   createTask,
@@ -34,33 +36,20 @@ export function CreativeStudioAppWindow({
   const [instruction, setInstruction] = useState("");
   const [output, setOutput] = useState<Output>({ videoSrc: null, coverSrc: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toast, setToast] = useState<
-    null | { message: string; tone: "ok" | "error" }
-  >(null);
-  const toastTimerRef = useRef<number | null>(null);
+  const { toast, showToast } = useTimedToast(2200);
   const abortRef = useRef<AbortController | null>(null);
   const taskIdRef = useRef<TaskId | null>(null);
+  const runIdRef = useRef(0);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     return () => {
-      if (toastTimerRef.current !== null) {
-        window.clearTimeout(toastTimerRef.current);
-      }
+      mountedRef.current = false;
+      runIdRef.current += 1;
       abortRef.current?.abort();
       if (localVideoPreviewSrc) URL.revokeObjectURL(localVideoPreviewSrc);
     };
   }, [localVideoPreviewSrc]);
-
-  const showToast = (message: string, tone: "ok" | "error" = "ok") => {
-    setToast({ message, tone });
-    if (toastTimerRef.current !== null) {
-      window.clearTimeout(toastTimerRef.current);
-    }
-    toastTimerRef.current = window.setTimeout(() => {
-      setToast(null);
-      toastTimerRef.current = null;
-    }, 2200);
-  };
 
   const videoLabel = useMemo(() => {
     if (!videoFile) return "拖拽视频到这里，或点击选择文件";
@@ -91,6 +80,8 @@ export function CreativeStudioAppWindow({
 
   const onSend = async () => {
     const text = instruction.trim();
+    const runId = runIdRef.current + 1;
+    runIdRef.current = runId;
     if (!videoFile) {
       showToast("请先选择视频文件", "error");
       return;
@@ -146,6 +137,7 @@ export function CreativeStudioAppWindow({
           (engineUrl
             ? `无法连接到 OpenClaw 引擎，请检查 ${engineUrl} 是否运行`
             : "执行失败：本地 video-frames 处理未能完成");
+        if (runId !== runIdRef.current || !mountedRef.current) return;
         showToast(message, "error");
         setOutput({ videoSrc: null, coverSrc: null });
         if (taskIdRef.current) {
@@ -161,6 +153,7 @@ export function CreativeStudioAppWindow({
 
       if (!nextOutput.videoSrc && !nextOutput.coverSrc) {
         const message = "引擎未返回可预览的成果";
+        if (runId !== runIdRef.current || !mountedRef.current) return;
         showToast(message, "error");
         setOutput({ videoSrc: null, coverSrc: null });
         if (taskIdRef.current) {
@@ -169,6 +162,7 @@ export function CreativeStudioAppWindow({
         return;
       }
 
+      if (runId !== runIdRef.current || !mountedRef.current) return;
       setOutput(nextOutput);
       showToast(data.note?.trim() ? data.note.trim() : "处理完成", "ok");
       if (taskIdRef.current) {
@@ -184,6 +178,7 @@ export function CreativeStudioAppWindow({
         }
         return;
       }
+      if (runId !== runIdRef.current || !mountedRef.current) return;
       setOutput({ videoSrc: null, coverSrc: null });
       const message = `无法连接到 OpenClaw 引擎，请检查 ${engineUrl} 是否运行`;
       showToast(message, "error");
@@ -191,7 +186,9 @@ export function CreativeStudioAppWindow({
         updateTask(taskIdRef.current, { status: "error", detail: message });
       }
     } finally {
-      setIsSubmitting(false);
+      if (runId === runIdRef.current && mountedRef.current) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -225,26 +222,11 @@ export function CreativeStudioAppWindow({
       }}
     >
       <div className="relative bg-white">
-        {toast && (
-          <div className="absolute right-5 top-5 z-10">
-            <div
-              className={[
-                "px-4 py-2.5 rounded-xl shadow-lg border text-sm font-semibold backdrop-blur",
-                toast.tone === "ok"
-                  ? "bg-emerald-600/90 border-emerald-400/40 text-white"
-                  : "bg-red-600/90 border-red-400/40 text-white",
-              ].join(" ")}
-              role="status"
-              aria-live="polite"
-            >
-              {toast.message}
-            </div>
-          </div>
-        )}
+        <AppToast toast={toast} />
 
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* 左侧：选择与指令 */}
-          <div className="p-6 space-y-5 border-b md:border-b-0 md:border-r border-gray-200">
+          <div className="space-y-5 border-b border-gray-200 p-4 md:border-b-0 md:border-r md:p-6">
             <div className="text-sm font-semibold text-gray-900">素材与指令区</div>
 
             <input
@@ -275,6 +257,12 @@ export function CreativeStudioAppWindow({
               onDrop={onDrop}
               role="button"
               tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onPickFile();
+                }
+              }}
             >
               <div className="flex flex-col items-center text-center gap-2">
                 <div className="h-12 w-12 rounded-2xl bg-gray-100 flex items-center justify-center border border-gray-200">
@@ -320,7 +308,7 @@ export function CreativeStudioAppWindow({
           </div>
 
           {/* 右侧：预览 */}
-          <div className="p-6">
+          <div className="p-4 md:p-6">
             <div className="text-sm font-semibold text-gray-900 mb-4">产出成果区</div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

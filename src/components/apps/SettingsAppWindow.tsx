@@ -9,8 +9,16 @@ import {
   Settings as SettingsIcon,
   ShieldCheck,
 } from "lucide-react";
-import type { AppWindowProps } from "@/apps/types";
+import type { AppId, AppWindowProps } from "@/apps/types";
+import { AppToast } from "@/components/AppToast";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
+import { useTimedToast } from "@/hooks/useTimedToast";
+import {
+  appCatalog,
+  getAppDisplayName,
+  getCategoryLabel,
+} from "@/lib/app-display";
+import { getAssistantPromptHint } from "@/lib/language";
 import type { AppSettings } from "@/lib/settings";
 import {
   defaultSettings,
@@ -19,6 +27,12 @@ import {
   saveSettings,
   type LlmProviderId,
 } from "@/lib/settings";
+import type { SettingsTargetTab } from "@/lib/ui-events";
+import {
+  getWorkspaceScenario,
+  listWorkspaceScenarios,
+  workspaceIndustries,
+} from "@/lib/workspace-presets";
 
 type TabId = "llm" | "engine" | "matrix" | "personalization";
 
@@ -73,10 +87,7 @@ export function SettingsAppWindow({
     storefront: false,
   });
 
-  const [toast, setToast] = useState<
-    null | { message: string; tone: "ok" | "error" }
-  >(null);
-  const toastTimerRef = useRef<number | null>(null);
+  const { toast, showToast } = useTimedToast(2000);
   const autosaveTimerRef = useRef<number | null>(null);
   const hydratedRef = useRef(false);
 
@@ -102,23 +113,21 @@ export function SettingsAppWindow({
   }, [isWindowVisible]);
 
   useEffect(() => {
+    const onFocusSettings = (event: Event) => {
+      const detail = (event as CustomEvent<{ tab?: SettingsTargetTab }>).detail;
+      if (!detail?.tab) return;
+      setActiveTab(detail.tab);
+    };
+    window.addEventListener("openclaw:settings-focus", onFocusSettings);
+    return () => window.removeEventListener("openclaw:settings-focus", onFocusSettings);
+  }, []);
+
+  useEffect(() => {
     return () => {
-      if (toastTimerRef.current !== null) window.clearTimeout(toastTimerRef.current);
       if (autosaveTimerRef.current !== null)
         window.clearTimeout(autosaveTimerRef.current);
     };
   }, []);
-
-  const showToast = (message: string, tone: "ok" | "error" = "ok") => {
-    setToast({ message, tone });
-    if (toastTimerRef.current !== null) {
-      window.clearTimeout(toastTimerRef.current);
-    }
-    toastTimerRef.current = window.setTimeout(() => {
-      setToast(null);
-      toastTimerRef.current = null;
-    }, 2000);
-  };
 
   // Auto-save: any change persists to localStorage with debounce.
   useEffect(() => {
@@ -136,8 +145,8 @@ export function SettingsAppWindow({
   }, [form, isWindowVisible]);
 
   const assistantPromptHint = useMemo(() => {
-    return "例如：你是我的系统助手。说话简洁、注重可执行步骤；默认中文回答；需要时给出安全提醒。";
-  }, []);
+    return getAssistantPromptHint(form.personalization);
+  }, [form.personalization]);
 
   const providerMeta = useMemo(
     () =>
@@ -173,6 +182,87 @@ export function SettingsAppWindow({
     ],
     [],
   );
+
+  const languageOptions = useMemo(
+    () => [
+      { id: "zh-CN" as const, label: "中文", desc: "桌面壳和 AI 输出优先中文" },
+      { id: "en-US" as const, label: "English", desc: "Shell labels and generated output prefer English" },
+      { id: "ja-JP" as const, label: "日本語", desc: "桌面壳与 AI 输出优先日文" },
+      { id: "custom" as const, label: "其他", desc: "自定义输出语言名称" },
+    ],
+    [],
+  );
+
+  const workspaceScenarios = useMemo(
+    () => listWorkspaceScenarios(form.personalization.activeIndustry),
+    [form.personalization.activeIndustry],
+  );
+
+  const selectedScenario = useMemo(
+    () => getWorkspaceScenario(form.personalization.activeScenarioId),
+    [form.personalization.activeScenarioId],
+  );
+
+  const appGroups = useMemo(() => {
+    const grouped = new Map<string, typeof appCatalog>();
+    for (const item of appCatalog) {
+      const group = grouped.get(item.category) ?? [];
+      group.push(item);
+      grouped.set(item.category, group);
+    }
+    return Array.from(grouped.entries());
+  }, []);
+
+  const applyWorkspaceScenario = (scenarioId: string) => {
+    const scenario = getWorkspaceScenario(scenarioId);
+    if (!scenario) return;
+    setForm((prev) => ({
+      ...prev,
+      personalization: {
+        ...prev.personalization,
+        activeIndustry: scenario.industryId,
+        activeScenarioId: scenario.id,
+        useCustomWorkspace: true,
+        customDesktopApps: scenario.desktopApps,
+        customDockApps: scenario.dockApps,
+      },
+    }));
+    showToast(`已切换到场景：${scenario.title}`, "ok");
+  };
+
+  const toggleDesktopApp = (appId: AppId) => {
+    setForm((prev) => {
+      const current = prev.personalization.customDesktopApps;
+      const next = current.includes(appId)
+        ? current.filter((id) => id !== appId)
+        : [...current, appId];
+      return {
+        ...prev,
+        personalization: {
+          ...prev.personalization,
+          useCustomWorkspace: true,
+          customDesktopApps: next,
+        },
+      };
+    });
+  };
+
+  const toggleDockApp = (appId: AppId) => {
+    setForm((prev) => {
+      const current = prev.personalization.customDockApps;
+      const next = current.includes(appId)
+        ? current.filter((id) => id !== appId)
+        : [...current, appId];
+      return {
+        ...prev,
+        personalization: {
+          ...prev.personalization,
+          useCustomWorkspace: true,
+          customDockApps: next,
+        },
+      };
+    });
+  };
 
   const handleTestActiveProvider = async () => {
     const active = getActiveLlmConfig(form);
@@ -277,26 +367,11 @@ export function SettingsAppWindow({
       }}
     >
       <div className="relative bg-white">
-        {toast && (
-          <div className="absolute right-5 top-5 z-10">
-            <div
-              className={[
-                "px-4 py-2.5 rounded-xl shadow-lg border text-sm font-semibold backdrop-blur",
-                toast.tone === "ok"
-                  ? "bg-emerald-600/90 border-emerald-400/40 text-white"
-                  : "bg-red-600/90 border-red-400/40 text-white",
-              ].join(" ")}
-              role="status"
-              aria-live="polite"
-            >
-              {toast.message}
-            </div>
-          </div>
-        )}
+        <AppToast toast={toast} />
 
-        <div className="flex min-h-[560px]">
+        <div className="flex min-h-[560px] flex-col lg:flex-row">
           {/* Left nav */}
-          <aside className="w-64 border-r border-gray-200 bg-gray-50/60">
+          <aside className="w-full border-b border-gray-200 bg-gray-50/60 lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
             <div className="p-5">
               <div className="text-xs font-semibold text-gray-500">
                 系统中枢控制台
@@ -304,7 +379,7 @@ export function SettingsAppWindow({
               <div className="mt-1 text-lg font-bold text-gray-900">OpenClaw</div>
             </div>
 
-            <nav className="px-2 pb-4 space-y-1">
+            <nav className="grid grid-cols-1 gap-1 px-2 pb-4 sm:grid-cols-2 lg:grid-cols-1">
               {tabs.map((tab) => {
                 const active = tab.id === activeTab;
                 return (
@@ -333,13 +408,13 @@ export function SettingsAppWindow({
               })}
             </nav>
 
-            <div className="px-5 pb-5 text-xs text-gray-500">
+            <div className="px-5 pb-5 text-xs text-gray-500 lg:pt-0">
               {savedAt ? `已自动保存：${new Date(savedAt).toLocaleTimeString()}` : "将自动保存到本机"}
             </div>
           </aside>
 
           {/* Right panel */}
-          <main className="flex-1 p-6 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6">
             {activeTab === "llm" && (
               <section className="space-y-6">
                 <div>
@@ -350,7 +425,7 @@ export function SettingsAppWindow({
                 </div>
 
                 <div className="rounded-2xl border border-gray-200 p-5 bg-white space-y-4">
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <div className="text-sm font-semibold text-gray-900">
                         模型库列表
@@ -363,7 +438,7 @@ export function SettingsAppWindow({
                       type="button"
                       onClick={handleTestActiveProvider}
                       disabled={isTestingLlm}
-                      className="px-4 py-2.5 rounded-xl bg-white text-gray-900 font-semibold border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 font-semibold transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:self-start"
                     >
                       {isTestingLlm ? "测试中..." : "测试连接"}
                     </button>
@@ -536,7 +611,7 @@ export function SettingsAppWindow({
                 </div>
 
                 <div className="rounded-2xl border border-gray-200 p-5 bg-white space-y-4">
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <div className="text-sm font-semibold text-gray-900">
                         OpenClaw 引擎连接
@@ -549,7 +624,7 @@ export function SettingsAppWindow({
                       type="button"
                       onClick={handleTestEngine}
                       disabled={isTestingEngine}
-                      className="px-4 py-2.5 rounded-xl bg-white text-gray-900 font-semibold border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 font-semibold transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:self-start"
                     >
                       {isTestingEngine ? "测试中..." : "测试引擎连通性"}
                     </button>
@@ -749,8 +824,70 @@ export function SettingsAppWindow({
                 <div>
                   <div className="text-lg font-bold text-gray-900">个性化</div>
                   <div className="text-sm text-gray-500 mt-1">
-                    选择桌面背景主题（点击即可生效）。
+                    配置桌面语言、行业工作台和功能按钮配备。
                   </div>
+                </div>
+
+                <div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-4">
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">界面与输出语言</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      会影响桌面壳主要文案，以及摘要/晨报/邮件等 AI 输出语言偏好。
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    {languageOptions.map((option) => {
+                      const selected = form.personalization.interfaceLanguage === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => {
+                            setForm((prev) => ({
+                              ...prev,
+                              personalization: {
+                                ...prev.personalization,
+                                interfaceLanguage: option.id,
+                              },
+                            }));
+                            showToast(`已切换语言：${option.label}`, "ok");
+                          }}
+                          className={[
+                            "rounded-2xl border p-4 text-left transition-colors",
+                            selected
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-gray-200 bg-white hover:bg-gray-50",
+                          ].join(" ")}
+                        >
+                          <div className="text-sm font-semibold text-gray-900">{option.label}</div>
+                          <div className="mt-1 text-xs text-gray-500">{option.desc}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {form.personalization.interfaceLanguage === "custom" && (
+                    <div>
+                      <label className="mb-2 block text-xs font-semibold text-gray-600">
+                        自定义语言名称
+                      </label>
+                      <input
+                        value={form.personalization.customLanguageLabel}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            personalization: {
+                              ...prev.personalization,
+                              customLanguageLabel: e.target.value,
+                            },
+                          }))
+                        }
+                        placeholder="例如：Deutsch / Français / Bahasa Indonesia"
+                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -797,6 +934,199 @@ export function SettingsAppWindow({
                       </button>
                     );
                   })}
+                </div>
+
+                <div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-5">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">行业工作台配置</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        先选行业和使用场景，再自由勾选桌面图标与 Dock 按钮。
+                      </div>
+                    </div>
+                    <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-900">
+                      <input
+                        type="checkbox"
+                        checked={form.personalization.useCustomWorkspace}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            personalization: {
+                              ...prev.personalization,
+                              useCustomWorkspace: e.target.checked,
+                            },
+                          }))
+                        }
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      启用自定义工作台
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 lg:grid-cols-5">
+                    {workspaceIndustries.map((industry) => {
+                      const selected = form.personalization.activeIndustry === industry.id;
+                      return (
+                        <button
+                          key={industry.id}
+                          type="button"
+                          onClick={() =>
+                            setForm((prev) => ({
+                              ...prev,
+                              personalization: {
+                                ...prev.personalization,
+                                activeIndustry: industry.id,
+                              },
+                            }))
+                          }
+                          className={[
+                            "rounded-2xl border p-4 text-left transition-colors",
+                            selected
+                              ? "border-gray-900 bg-gray-900 text-white"
+                              : "border-gray-200 bg-white hover:bg-gray-50",
+                          ].join(" ")}
+                        >
+                          <div className="text-sm font-semibold">{industry.title}</div>
+                          <div className={["mt-1 text-xs", selected ? "text-white/75" : "text-gray-500"].join(" ")}>
+                            {industry.desc}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                    {workspaceScenarios.map((scenario) => {
+                      const selected = form.personalization.activeScenarioId === scenario.id;
+                      return (
+                        <div
+                          key={scenario.id}
+                          className={[
+                            "rounded-2xl border p-4",
+                            selected ? "border-blue-500 bg-blue-50/60" : "border-gray-200 bg-gray-50/50",
+                          ].join(" ")}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="text-sm font-semibold text-gray-900">{scenario.title}</div>
+                              <div className="mt-1 text-xs text-gray-500">{scenario.desc}</div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => applyWorkspaceScenario(scenario.id)}
+                              className={[
+                                "rounded-xl px-3 py-2 text-xs font-semibold transition-colors",
+                                selected
+                                  ? "bg-blue-600 text-white"
+                                  : "border border-gray-200 bg-white text-gray-900 hover:bg-gray-100",
+                              ].join(" ")}
+                            >
+                              {selected ? "当前场景" : "应用场景"}
+                            </button>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-700">
+                              Desktop {scenario.desktopApps.length}
+                            </span>
+                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-700">
+                              Dock {scenario.dockApps.length}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <div className="text-sm font-semibold text-gray-900">
+                          当前工作台预览
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {selectedScenario
+                            ? `当前场景：${selectedScenario.title}`
+                            : "尚未选择场景"}
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-700">
+                          Desktop {form.personalization.customDesktopApps.length}
+                        </span>
+                        <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-700">
+                          Dock {form.personalization.customDockApps.length}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedScenario) return;
+                            applyWorkspaceScenario(selectedScenario.id);
+                          }}
+                          disabled={!selectedScenario}
+                          className="rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          重置为场景默认
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">App 配备</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        你可以按自己的使用场景勾选桌面图标和 Dock 功能按钮。
+                      </div>
+                    </div>
+
+                    {appGroups.map(([category, items]) => (
+                      <div key={category} className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
+                        <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-900">
+                          {getCategoryLabel(category as any)}
+                        </div>
+                        <div className="divide-y divide-gray-100">
+                          {items.map((item) => {
+                            const desktopEnabled = form.personalization.customDesktopApps.includes(item.id);
+                            const dockEnabled = form.personalization.customDockApps.includes(item.id);
+                            return (
+                              <div
+                                key={item.id}
+                                className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                              >
+                                <div className="text-sm font-medium text-gray-900">
+                                  {getAppDisplayName(
+                                    item.id,
+                                    item.id,
+                                    form.personalization.interfaceLanguage,
+                                  )}
+                                </div>
+                                <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-gray-700">
+                                  <label className="inline-flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={desktopEnabled}
+                                      onChange={() => toggleDesktopApp(item.id)}
+                                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    Desktop
+                                  </label>
+                                  <label className="inline-flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={dockEnabled}
+                                      onChange={() => toggleDockApp(item.id)}
+                                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    Dock
+                                  </label>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </section>
             )}

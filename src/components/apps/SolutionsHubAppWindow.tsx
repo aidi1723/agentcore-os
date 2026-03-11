@@ -4,8 +4,22 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { BookOpen, Copy, Layers, Plus, ShieldCheck } from "lucide-react";
 
 import type { AppWindowProps } from "@/apps/types";
+import { AppToast } from "@/components/AppToast";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
-import { createPlaybook, loadPlaybooks, type PlaybookAction } from "@/lib/playbooks";
+import { useTimedToast } from "@/hooks/useTimedToast";
+import {
+  getAppDisplayName,
+  getCategoryLabel,
+  getDisplayLanguage,
+} from "@/lib/app-display";
+import {
+  createPlaybook,
+  loadPlaybooks,
+  subscribePlaybooks,
+  type PlaybookAction,
+} from "@/lib/playbooks";
+import { sourceUseCaseIndustries } from "@/lib/openclaw-usecase-map";
+import { defaultSettings, loadSettings, type InterfaceLanguage } from "@/lib/settings";
 import { requestOpenApp } from "@/lib/ui-events";
 
 type Solution = {
@@ -21,6 +35,272 @@ type Solution = {
 
 function buildSolutions(): Solution[] {
   return [
+    {
+      id: "tech-news-radar",
+      category: "信息摄取",
+      tags: ["news digest", "tech", "market", "multi-source"],
+      title: "Tech / Market Radar（多源信息摄取 → 摘要 → 行动）",
+      desc: "参考 Multi-Source Tech News Digest 一类案例，把 RSS、X、GitHub、newsletter 等来源压成一份可行动摘要。",
+      stacks: [
+        { title: "输入", items: ["多源来源列表", "关注主题", "面向对象"] },
+        { title: "输出", items: ["今日 3-5 个重要信号", "内容选题方向", "今日优先级调整建议"] },
+      ],
+      playbooks: [
+        {
+          title: "先看市场，再定今天动作",
+          desc: "先做 digest，再把可做内容送去 Creator Radar，把影响执行的点送去 Morning Brief。",
+          actions: [
+            { type: "open_app", appId: "tech_news_digest", label: "打开 Tech News Digest" },
+            { type: "open_app", appId: "creator_radar", label: "打开 Creator Radar" },
+            { type: "open_app", appId: "morning_brief", label: "打开 Morning Brief" },
+          ],
+        },
+      ],
+      setupChecklist:
+        "Tech / Market Radar 搭建清单：\n" +
+        "1) 固定维护信息来源池。\n" +
+        "2) 明确你真正关心的是产品、模型、分发还是增长。\n" +
+        "3) 每次 digest 之后只保留 1-2 个真正要行动的点。",
+    },
+    {
+      id: "creator-radar",
+      category: "内容增长",
+      tags: ["youtube digest", "creator", "research", "ideas"],
+      title: "Creator Radar（日更选题 / 频道情报 / 评论区问题）",
+      desc: "参考 Daily YouTube Digest 一类高频场景，把频道动态、评论区问题和可做角度压成一份日更摘要。",
+      stacks: [
+        { title: "输入", items: ["频道 / 创作者来源", "近期主题", "评论区高频问题"] },
+        { title: "输出", items: ["今日 3 个值得做的角度", "推荐 hook", "下一步 app 动作"] },
+      ],
+      playbooks: [
+        {
+          title: "日更选题整理",
+          desc: "先做一份雷达摘要，再把最值得跟进的一条送去拆内容。",
+          actions: [
+            { type: "open_app", appId: "creator_radar", label: "打开 Creator Radar" },
+            { type: "open_app", appId: "content_repurposer", label: "打开 Content Repurposer" },
+          ],
+        },
+      ],
+      setupChecklist:
+        "Creator Radar 搭建清单：\n" +
+        "1) 维护固定关注来源和频道池。\n" +
+        "2) 把评论区反复出现的问题写进 notes。\n" +
+        "3) 每天只挑 1 条最值得做的内容推进到下一步。",
+    },
+    {
+      id: "content-repurposer",
+      category: "内容增长",
+      tags: ["repurpose", "shorts", "podcast", "youtube"],
+      title: "Content Repurposer（长视频 / 播客 / 直播 → Shorts）",
+      desc: "参考 YouTube Content Pipeline、Podcast Production Pipeline 一类案例，把长内容快速拆成多平台内容包。",
+      stacks: [
+        { title: "输入", items: ["逐字稿 / 摘要", "目标受众", "内容目标"] },
+        { title: "输出", items: ["短视频口播", "社媒帖子", "newsletter 摘要"] },
+      ],
+      playbooks: [
+        {
+          title: "一稿多拆",
+          desc: "先生成 repurpose pack，再发到发布中心继续排程。",
+          actions: [
+            { type: "open_app", appId: "content_repurposer", label: "打开 Content Repurposer" },
+            { type: "open_app", appId: "publisher", label: "打开 发布中心" },
+          ],
+        },
+      ],
+      setupChecklist:
+        "Content Repurposer 搭建清单：\n" +
+        "1) 先准备长内容摘要或逐字稿。\n" +
+        "2) 统一定义目标受众和本轮目标。\n" +
+        "3) 生成后先人工校对，再送去发布中心。",
+    },
+    {
+      id: "habit-system",
+      category: "个人生活",
+      tags: ["habit", "routine", "accountability", "review"],
+      title: "Habit System（打卡 + 复盘 + accountability）",
+      desc: "把习惯打卡、连续 streak 和每日复盘放进一个轻量操作台，适合长期高频使用。",
+      stacks: [
+        { title: "输入", items: ["习惯列表", "daily / weekly cadence", "完成记录"] },
+        { title: "输出", items: ["今日完成情况", "streak 变化", "简短复盘"] },
+      ],
+      playbooks: [
+        {
+          title: "每日复盘",
+          desc: "先打卡，再生成一份简短复盘，明确明天最需要保持的一项习惯。",
+          actions: [
+            { type: "open_app", appId: "habit_tracker", label: "打开 Habit Tracker" },
+            { type: "open_app", appId: "second_brain", label: "打开 Second Brain" },
+          ],
+        },
+      ],
+      setupChecklist:
+        "Habit System 搭建清单：\n" +
+        "1) 先维护 1-3 个高价值习惯。\n" +
+        "2) 每天只做最小可完成动作，先确保连续性。\n" +
+        "3) 定期复盘并把卡点写进 Second Brain。",
+    },
+    {
+      id: "health-rhythm",
+      category: "个人生活",
+      tags: ["health", "symptom", "sleep", "energy"],
+      title: "Health Rhythm（睡眠 / 精力 / 症状记录）",
+      desc: "把健康记录做成轻量追踪器，用于整理模式与就医前准备，不用于诊断。",
+      stacks: [
+        { title: "记录", items: ["睡眠", "精力", "症状", "药物/补剂"] },
+        { title: "输出", items: ["近 7 天摘要", "模式整理", "线下就医前备忘"] },
+      ],
+      playbooks: [
+        {
+          title: "一周健康整理",
+          desc: "记录变化，整理近期模式，必要时导出给自己或医生查看。",
+          actions: [
+            { type: "open_app", appId: "health_tracker", label: "打开 Health Tracker" },
+          ],
+        },
+      ],
+      setupChecklist:
+        "Health Rhythm 搭建清单：\n" +
+        "1) 按天记录睡眠、精力、症状和药物。\n" +
+        "2) 只做整理和观察，不做自我诊断。\n" +
+        "3) 如症状持续或恶化，及时线下就医。",
+    },
+    {
+      id: "family-ops",
+      category: "个人生活",
+      tags: ["family", "calendar", "household", "morning brief"],
+      title: "Family Ops（日程 + 家务 + 补货）",
+      desc: "把家庭日程、补货清单和晨间计划放进一个轻量操作台，减少每天的重复协调。",
+      stacks: [
+        { title: "日程", items: ["家庭活动", "接送安排", "成员提醒"] },
+        { title: "家务与补货", items: ["库存不足提醒", "购物清单", "临时家务事项"] },
+        { title: "晨间计划", items: ["当日家庭安排", "高优先级提醒", "写入任务中心"] },
+      ],
+      playbooks: [
+        {
+          title: "家庭晨间计划",
+          desc: "先看今天日程，再整理需要采购和提醒的事项。",
+          actions: [
+            { type: "open_app", appId: "family_calendar", label: "打开 Family Calendar" },
+            { type: "open_app", appId: "task_manager", label: "打开 任务中心" },
+          ],
+        },
+      ],
+      setupChecklist:
+        "Family Ops 搭建清单：\n" +
+        "1) 先录入一周家庭日程。\n" +
+        "2) 把高频补货项和家务项维护成清单。\n" +
+        "3) 每天早晨生成一份家庭计划，并把必要事项转到任务中心。",
+    },
+    {
+      id: "language-practice-desk",
+      category: "个人成长",
+      tags: ["translation", "language", "speaking", "tutor", "practice"],
+      title: "Language Practice Desk（翻译 + 口语练习 + 复习）",
+      desc: "对应 Language Learning Desk 一类高频场景，把翻译、重点表达、角色扮演和复习动作收口到一个 app 里。",
+      stacks: [
+        { title: "输入", items: ["母语", "目标语言", "使用场景", "原文或练习素材"] },
+        { title: "输出", items: ["重点表达", "角色扮演", "说法纠正", "复习动作"] },
+      ],
+      playbooks: [
+        {
+          title: "先练再沉淀",
+          desc: "先生成一份学习包，再把高频表达沉淀到知识库，并把复习写入任务中心。",
+          actions: [
+            { type: "open_app", appId: "language_learning_desk", label: "打开 Language Learning Desk" },
+            { type: "open_app", appId: "knowledge_vault", label: "打开 知识库" },
+            { type: "open_app", appId: "task_manager", label: "打开 任务中心" },
+          ],
+        },
+      ],
+      setupChecklist:
+        "Language Practice Desk 搭建清单：\n" +
+        "1) 每次只练一个高频场景，例如旅行、会议或客服回复。\n" +
+        "2) 先保留 5-10 个最常用表达，不要一次收太多。\n" +
+        "3) 把下一次复习动作写入任务中心，形成真正的闭环。",
+    },
+    {
+      id: "founder-os",
+      category: "个人操作系统",
+      tags: ["morning brief", "meeting", "crm", "second brain", "inbox", "email", "deal"],
+      title: "Founder / Solo Operator OS（日启动 → 收口 → 沉淀）",
+      desc: "把晨报、会议、收件箱、联系人跟进和知识沉淀串成一个单人运营系统。",
+      stacks: [
+        { title: "日启动", items: ["Morning Brief：今天主线", "任务中心：待办与阻塞", "Inbox Digest：先处理关键信息"] },
+        { title: "协同与跟进", items: ["Meeting Copilot：会后纪要与待办", "Personal CRM：联系人推进", "Support Copilot：统一客服回复", "Email Assistant：邮件推进", "Deal Desk：线索判断"] },
+        { title: "沉淀", items: ["Second Brain：整理洞察", "知识库：沉淀可复用资产", "草稿：把洞察转成可发布内容"] },
+      ],
+      playbooks: [
+        {
+          title: "每日开机 SOP",
+          desc: "先看晨报，再收口 inbox，最后明确今天最重要的推进动作。",
+          actions: [
+            { type: "open_app", appId: "morning_brief", label: "打开 Morning Brief" },
+            { type: "open_app", appId: "inbox_declutter", label: "打开 Inbox" },
+            { type: "open_app", appId: "task_manager", label: "打开 任务中心" },
+          ],
+        },
+        {
+          title: "会后闭环：纪要 → CRM → Second Brain",
+          desc: "把会后结论快速转成待办、联系人推进和长期知识。",
+          actions: [
+            { type: "open_app", appId: "meeting_copilot", label: "打开 Meeting Copilot" },
+            { type: "open_app", appId: "personal_crm", label: "打开 Personal CRM" },
+            { type: "open_app", appId: "second_brain", label: "打开 Second Brain" },
+          ],
+        },
+        {
+          title: "外联推进：Email + Deal Desk",
+          desc: "先判断线索，再生成邮件推进草稿，避免只停留在模糊线索。",
+          actions: [
+            { type: "open_app", appId: "deal_desk", label: "打开 Deal Desk" },
+            { type: "open_app", appId: "email_assistant", label: "打开 Email Assistant" },
+            { type: "open_app", appId: "personal_crm", label: "打开 Personal CRM" },
+          ],
+        },
+      ],
+      setupChecklist:
+        "Founder OS 搭建清单：\n" +
+        "1) 每天先用 Morning Brief 确定主线，再清收件箱。\n" +
+        "2) 会后立刻生成纪要并写入任务中心。\n" +
+        "3) 重要联系人在 CRM 里维护推进状态。\n" +
+        "4) 每周把重复问题和洞察整理到 Second Brain / 知识库。",
+    },
+    {
+      id: "email-ops",
+      category: "外联与沟通",
+      tags: ["email", "follow-up", "outreach", "reply"],
+      title: "Email Ops（首封 / 跟进 / 回复）",
+      desc: "用统一上下文写邮件，减少重写和催进度时的脑力浪费。",
+      stacks: [
+        { title: "输入", items: ["收件人", "背景", "目标", "语气"] },
+        { title: "输出", items: ["主题 + 正文", "跟进版本", "写入草稿箱"] },
+      ],
+      playbooks: [
+        {
+          title: "跟进邮件：提醒但不冒犯",
+          desc: "适合催进度、催反馈、再次确认时间。",
+          actions: [
+            { type: "open_app", appId: "email_assistant", label: "打开 Email Assistant" },
+            {
+              type: "copy",
+              label: "复制跟进邮件模板",
+              text:
+                "请写一封跟进邮件：\n" +
+                "- 背景：<上次沟通内容>\n" +
+                "- 当前目标：<希望对方给出反馈/确认时间>\n" +
+                "- 语气：礼貌、专业、简洁\n" +
+                "输出：主题 + 正文。",
+            },
+          ],
+        },
+      ],
+      setupChecklist:
+        "Email Ops 搭建清单：\n" +
+        "1) 统一记录背景和目标，避免每次重写。\n" +
+        "2) 对关键邮件同步到 CRM / 任务中心。\n" +
+        "3) 将高频场景沉淀为邮件模板。",
+    },
     {
       id: "content-pipeline",
       category: "内容增长",
@@ -97,6 +377,8 @@ function buildSolutions(): Solution[] {
           title: "标准回复：同问题 3 种语气",
           desc: "生成标准回复 + 1 句引导 CTA（关注/私信/下单）。",
           actions: [
+            { type: "open_app", appId: "support_copilot", label: "打开 Support Copilot" },
+            { type: "open_app", appId: "personal_crm", label: "打开 Personal CRM" },
             {
               type: "copy",
               label: "复制 Spotlight 指令",
@@ -288,6 +570,7 @@ function buildSolutions(): Solution[] {
           title: "周报大纲：3 栏目固定结构",
           desc: "把素材整理成：洞察/案例/行动建议。",
           actions: [
+            { type: "open_app", appId: "inbox_declutter", label: "打开 Inbox" },
             { type: "open_app", appId: "knowledge_vault", label: "打开 知识库" },
             { type: "open_app", appId: "media_ops", label: "打开 AI 文案" },
             {
@@ -397,6 +680,8 @@ function buildSolutions(): Solution[] {
           title: "每日 30 分钟 Ops",
           desc: "固定 5 步快速推进：收集→生产→发布→跟进→沉淀。",
           actions: [
+            { type: "open_app", appId: "morning_brief", label: "打开 Morning Brief" },
+            { type: "open_app", appId: "inbox_declutter", label: "打开 Inbox Digest" },
             { type: "open_app", appId: "solo_ops", label: "打开 Workflow Playbooks" },
             { type: "open_app", appId: "task_manager", label: "打开 任务调度" },
             {
@@ -416,6 +701,7 @@ function buildSolutions(): Solution[] {
           title: "周复盘：有效模板与下周实验",
           desc: "把结果回流到模板库与实验计划。",
           actions: [
+            { type: "open_app", appId: "second_brain", label: "打开 Second Brain" },
             { type: "open_app", appId: "knowledge_vault", label: "打开 知识库" },
             {
               type: "copy",
@@ -570,6 +856,9 @@ function buildSolutions(): Solution[] {
           title: "外联邮件：3 封序列（冷启动）",
           desc: "首封 + 跟进 1 + 跟进 2，适配不同语气。",
           actions: [
+            { type: "open_app", appId: "deal_desk", label: "打开 Deal Desk" },
+            { type: "open_app", appId: "email_assistant", label: "打开 Email Assistant" },
+            { type: "open_app", appId: "personal_crm", label: "打开 Personal CRM" },
             { type: "open_app", appId: "media_ops", label: "打开 AI 文案" },
             {
               type: "copy",
@@ -590,6 +879,7 @@ function buildSolutions(): Solution[] {
           title: "跟进节奏：7 天任务化",
           desc: "把外联变成任务队列，避免遗漏。",
           actions: [
+            { type: "open_app", appId: "personal_crm", label: "打开 Personal CRM" },
             { type: "open_app", appId: "task_manager", label: "打开 任务调度" },
             {
               type: "copy",
@@ -686,31 +976,145 @@ export function SolutionsHubAppWindow({
 }: AppWindowProps) {
   const isVisible = state === "open" || state === "opening";
   const solutions = useMemo(() => buildSolutions(), []);
+  const [interfaceLanguage, setInterfaceLanguage] = useState<InterfaceLanguage>(
+    defaultSettings.personalization.interfaceLanguage,
+  );
+  const displayLanguage = getDisplayLanguage(interfaceLanguage);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(solutions[0]?.id ?? "content-pipeline");
+  const [selectedSourceIndustry, setSelectedSourceIndustry] = useState(
+    sourceUseCaseIndustries[0]?.industry ?? "Content & Media",
+  );
   const [installedCount, setInstalledCount] = useState(0);
-  const [toast, setToast] = useState<string | null>(null);
+  const { toast, showToast } = useTimedToast(1600);
+  const t = useMemo(
+    () =>
+      displayLanguage === "en"
+        ? {
+            copied: "Copied to clipboard",
+            copyFailed: "Copy failed",
+            installed: "Installed into My Playbooks",
+            installFailed: "Already exists or install failed",
+            title: "Solutions Hub",
+            subtitle: "Turn proven workflows into Playbooks and connectors inside WebOS.",
+            compliant: "Compliance first: official APIs / approved tools / webhook connectors",
+            localFirst: "Local first: Playbooks are stored in browser localStorage",
+            openPlaybooks: "Open Playbooks",
+            installCurrent: "Install Current Solution",
+            installedCount: "Installed Playbooks",
+            searchPlaceholder: "Search solutions (keywords / tags)…",
+            total: "Total",
+            current: "Visible",
+            noMatch: "No matching solution. Try a shorter keyword or search by category / tag.",
+            structure: "Solution Structure",
+            playbooks: "Playbooks (installable)",
+            playbooksHint: "Installing the current solution will add these Playbooks into My Playbooks.",
+            copyJson: "Copy Playbooks JSON",
+            checklist: "Setup Checklist",
+            checklistHint: "Use this to connect external tools or connectors into this UI.",
+            copyChecklist: "Copy Checklist",
+            openSettings: "Open Settings",
+            openPublisher: "Open Publisher",
+            noResult: "No result under current search, so the previous solution is hidden.",
+            sourceMap: "Source Use Case Mapping",
+            sourceMapHint:
+              "Map source scenarios into current WebOS apps by industry, then open the packaged app set directly.",
+            ready: "Ready",
+            partial: "Partial",
+            mappedApps: "Mapped apps",
+            openPackagedFlow: "Open packaged flow",
+          }
+        : displayLanguage === "ja"
+          ? {
+              copied: "クリップボードにコピーしました",
+              copyFailed: "コピーに失敗しました",
+              installed: "My Playbooks に追加しました",
+              installFailed: "すでに存在するか、追加に失敗しました",
+              title: "Solutions Hub",
+              subtitle: "実運用の流れを Playbooks と connector として WebOS に組み込みます。",
+              compliant: "コンプライアンス優先: 公式API / 承認済みツール / webhook connector",
+              localFirst: "ローカル優先: Playbooks はブラウザ localStorage に保存されます",
+              openPlaybooks: "Playbooks を開く",
+              installCurrent: "現在の案を追加",
+              installedCount: "追加済み Playbooks",
+              searchPlaceholder: "ソリューションを検索（キーワード / タグ）…",
+              total: "合計",
+              current: "表示中",
+              noMatch: "一致するソリューションがありません。短いキーワードか分類 / タグで試してください。",
+              structure: "構成",
+              playbooks: "Playbooks（追加可能）",
+              playbooksHint: "現在の案を追加すると、これらが My Playbooks に入ります。",
+              copyJson: "Playbooks JSON をコピー",
+              checklist: "構築チェックリスト",
+              checklistHint: "外部ツールや connector をこの UI に接続するためのチェックです。",
+              copyChecklist: "チェックリストをコピー",
+              openSettings: "設定を開く",
+              openPublisher: "Publisher を開く",
+              noResult: "検索結果がないため、前の案は表示しません。",
+              sourceMap: "元ユースケース対応表",
+              sourceMapHint:
+                "元のシナリオを現在の WebOS アプリに業界別で対応付け、まとめて開けます。",
+              ready: "実装済み",
+              partial: "一部対応",
+              mappedApps: "対応アプリ",
+              openPackagedFlow: "対応フローを開く",
+            }
+          : {
+              copied: "已复制到剪贴板",
+              copyFailed: "复制失败（浏览器权限）",
+              installed: "已安装到“我的 Playbooks”",
+              installFailed: "已存在或安装失败",
+              title: "成熟落地方案库",
+              subtitle: "用“方案 → Playbooks → 连接器”把真实业务流程快速装进 WebOS。",
+              compliant: "合规优先：官方 API / 合规工具 / webhook 连接器",
+              localFirst: "本地优先：Playbooks 存在浏览器 localStorage",
+              openPlaybooks: "打开 Playbooks",
+              installCurrent: "安装当前方案",
+              installedCount: "已安装 Playbooks",
+              searchPlaceholder: "搜索方案（关键词/标签）…",
+              total: "共",
+              current: "当前",
+              noMatch: "没有匹配的方案。试试更短的关键词，或直接搜分类/标签。",
+              structure: "方案结构",
+              playbooks: "Playbooks（可直接安装）",
+              playbooksHint: "点击「安装当前方案」会把这些 Playbooks 写入“我的 Playbooks”。",
+              copyJson: "复制 Playbooks JSON",
+              checklist: "搭建清单",
+              checklistHint: "用于把外部工具/连接器“接入”到本 UI（不包含任何平台绕过自动化）。",
+              copyChecklist: "复制清单",
+              openSettings: "打开 设置",
+              openPublisher: "打开 发布中心",
+              noResult: "当前搜索没有结果，因此不会继续显示旧方案内容。",
+              sourceMap: "来源场景映射",
+              sourceMapHint: "按行业把来源场景映射到当前 WebOS 已封装的 app 和流程，可直接打开对应组合。",
+              ready: "已封装",
+              partial: "部分覆盖",
+              mappedApps: "对应 app",
+              openPackagedFlow: "打开对应流程",
+            },
+    [displayLanguage],
+  );
 
   useEffect(() => {
     if (!isVisible) return;
-    setInstalledCount(loadPlaybooks().length);
+    const syncLanguage = () => setInterfaceLanguage(loadSettings().personalization.interfaceLanguage);
+    syncLanguage();
+    const refresh = () => setInstalledCount(loadPlaybooks().length);
+    refresh();
+    const unsub = subscribePlaybooks(refresh);
     const onStorage = (e: StorageEvent) => {
       if (!e.key) return;
-      if (e.key.startsWith("openclaw.playbooks")) setInstalledCount(loadPlaybooks().length);
+      if (e.key.startsWith("openclaw.playbooks")) refresh();
+      syncLanguage();
     };
+    window.addEventListener("openclaw:settings", syncLanguage);
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    return () => {
+      unsub();
+      window.removeEventListener("openclaw:settings", syncLanguage);
+      window.removeEventListener("storage", onStorage);
+    };
   }, [isVisible]);
-
-  const showToast = useCallback((msg: string) => {
-    setToast(msg);
-    window.setTimeout(() => setToast(null), 1600);
-  }, []);
-
-  const selected = useMemo(
-    () => solutions.find((s) => s.id === selectedId) ?? solutions[0],
-    [selectedId, solutions],
-  );
 
   const filteredSolutions = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -720,6 +1124,19 @@ export function SolutionsHubAppWindow({
       return hay.includes(q);
     });
   }, [query, solutions]);
+
+  const visibleSelected = useMemo(
+    () => filteredSolutions.find((s) => s.id === selectedId) ?? filteredSolutions[0] ?? null,
+    [filteredSolutions, selectedId],
+  );
+
+  const visibleSourceIndustry = useMemo(
+    () =>
+      sourceUseCaseIndustries.find((item) => item.industry === selectedSourceIndustry) ??
+      sourceUseCaseIndustries[0] ??
+      null,
+    [selectedSourceIndustry],
+  );
 
   useEffect(() => {
     if (!filteredSolutions.some((s) => s.id === selectedId)) {
@@ -731,29 +1148,29 @@ export function SolutionsHubAppWindow({
   const copy = useCallback(async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      showToast("已复制到剪贴板");
+      showToast(t.copied, "ok");
     } catch {
-      showToast("复制失败（浏览器权限）");
+      showToast(t.copyFailed, "error");
     }
-  }, [showToast]);
+  }, [showToast, t]);
 
   const installSelected = useCallback(() => {
-    if (!selected) return;
+    if (!visibleSelected) return;
     const before = loadPlaybooks().length;
-    for (const pb of selected.playbooks) {
+    for (const pb of visibleSelected.playbooks) {
       createPlaybook({ title: pb.title, desc: pb.desc, actions: pb.actions });
     }
     const after = loadPlaybooks().length;
-    showToast(after > before ? "已安装到“我的 Playbooks”" : "已存在或安装失败");
+    showToast(after > before ? t.installed : t.installFailed, after > before ? "ok" : "error");
     setInstalledCount(after);
-  }, [selected, showToast]);
+  }, [showToast, t, visibleSelected]);
 
   return (
     <AppWindowShell
       state={state}
       zIndex={zIndex}
       active={active}
-      title="Solutions Hub"
+      title={t.title}
       icon={Layers}
       widthClassName="w-[1180px]"
       storageKey="openclaw.window.solutions_hub"
@@ -761,63 +1178,170 @@ export function SolutionsHubAppWindow({
       onMinimize={onMinimize}
       onClose={onClose}
     >
-      <div className="bg-white">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-start justify-between gap-4">
+      <div className="relative bg-white">
+        <AppToast toast={toast} />
+
+        <div className="border-b border-gray-200 p-4 sm:p-6">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <div className="text-lg font-bold text-gray-900">成熟落地方案库</div>
+              <div className="text-lg font-bold text-gray-900">{t.title}</div>
               <div className="text-sm text-gray-500 mt-1">
-                用“方案 → Playbooks → 连接器”把真实业务流程快速装进 WebOS。
+                {t.subtitle}
               </div>
               <div className="mt-3 flex items-center gap-2 text-xs text-gray-600">
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 font-semibold">
                   <ShieldCheck className="h-4 w-4" />
-                  合规优先：官方 API / 合规工具 / webhook 连接器
+                  {t.compliant}
                 </span>
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 text-gray-700 border border-gray-200 font-semibold">
                   <BookOpen className="h-4 w-4" />
-                  本地优先：Playbooks 存在浏览器 localStorage
+                  {t.localFirst}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() => requestOpenApp("solo_ops")}
+                onClick={() => requestOpenApp("industry_hub")}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-900 text-white font-semibold text-sm hover:bg-black transition-colors"
               >
                 <BookOpen className="h-4 w-4" />
-                打开 Playbooks
+                {displayLanguage === "en" ? "Open Industry App Center" : displayLanguage === "ja" ? "業界アプリセンターを開く" : "打开行业应用中心"}
               </button>
               <button
                 type="button"
                 onClick={installSelected}
+                disabled={!visibleSelected}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 transition-colors"
               >
                 <Plus className="h-4 w-4" />
-                安装当前方案
+                {t.installCurrent}
               </button>
             </div>
           </div>
           <div className="mt-3 text-xs text-gray-500">
-            已安装 Playbooks：<span className="font-semibold text-gray-800">{installedCount}</span>
+            {t.installedCount}：<span className="font-semibold text-gray-800">{installedCount}</span>
           </div>
         </div>
 
-        <div className="p-6 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="border-b border-gray-200 bg-gray-50/80 p-4 sm:p-6">
+          <div className="flex flex-col gap-4">
+            <div>
+              <div className="text-sm font-semibold text-gray-900">{t.sourceMap}</div>
+              <div className="mt-1 text-sm text-gray-600">{t.sourceMapHint}</div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {sourceUseCaseIndustries.map((industry) => {
+                const active = industry.industry === visibleSourceIndustry?.industry;
+                return (
+                  <button
+                    key={industry.industry}
+                    type="button"
+                    onClick={() => setSelectedSourceIndustry(industry.industry)}
+                    className={[
+                      "rounded-full px-3 py-2 text-xs font-semibold transition-colors",
+                      active
+                        ? "bg-gray-900 text-white"
+                        : "border border-gray-200 bg-white text-gray-800 hover:bg-gray-100",
+                    ].join(" ")}
+                  >
+                    {industry.industry}
+                  </button>
+                );
+              })}
+            </div>
+
+            {visibleSourceIndustry ? (
+              <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+                {visibleSourceIndustry.apps.map((app) => (
+                  <div
+                    key={app.id}
+                    className="rounded-2xl border border-gray-200 bg-white p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-sm font-semibold text-gray-900">{app.name}</div>
+                        <div className="mt-1 text-sm text-gray-600">{app.desc}</div>
+                      </div>
+                      <span
+                        className={[
+                          "rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                          app.coverage === "ready"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-amber-50 text-amber-700",
+                        ].join(" ")}
+                      >
+                        {app.coverage === "ready" ? t.ready : t.partial}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                      {t.mappedApps}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {app.mappedApps.map((appId) => (
+                        <span
+                          key={`${app.id}:${appId}`}
+                          className="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-semibold text-gray-700"
+                        >
+                          {getAppDisplayName(appId, appId, interfaceLanguage)}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          app.workflowActions.forEach((action, index) => {
+                            window.setTimeout(() => {
+                              if (action.type === "open_app") requestOpenApp(action.appId);
+                            }, index * 90);
+                          });
+                        }}
+                        className="rounded-xl bg-gray-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-black"
+                      >
+                        {t.openPackagedFlow}
+                      </button>
+                      {app.mappedApps.slice(0, 3).map((appId) => (
+                        <button
+                          key={`${app.id}:open:${appId}`}
+                          type="button"
+                          onClick={() => requestOpenApp(appId)}
+                          className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+                        >
+                          {getAppDisplayName(appId, appId, interfaceLanguage)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 p-4 sm:p-6 lg:grid-cols-4">
           <aside className="lg:col-span-1 space-y-2">
             <div className="rounded-2xl border border-gray-200 bg-white p-3">
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="搜索方案（关键词/标签）…"
+                placeholder={t.searchPlaceholder}
                 className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10"
               />
               <div className="mt-2 text-[11px] text-gray-500">
-                共 {solutions.length} 个 · 当前 {filteredSolutions.length} 个
+                {t.total} {solutions.length} · {t.current} {filteredSolutions.length}
               </div>
             </div>
+
+            {filteredSolutions.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-gray-500">
+                {t.noMatch}
+              </div>
+            )}
 
             {filteredSolutions.map((s) => {
               const isActive = s.id === selectedId;
@@ -839,7 +1363,18 @@ export function SolutionsHubAppWindow({
                   </div>
                   <div className={["mt-2 flex flex-wrap items-center gap-1.5", isActive ? "text-white/70" : "text-gray-500"].join(" ")}>
                     <span className={["text-[10px] px-2 py-0.5 rounded-full border font-semibold", isActive ? "border-white/20 bg-white/10" : "border-gray-200 bg-gray-50"].join(" ")}>
-                      {s.category}
+                      {getCategoryLabel(
+                        s.category === "信息摄取"
+                          ? "insight"
+                          : s.category === "内容增长" || s.category === "发布上线"
+                            ? "content"
+                            : s.category === "个人生活"
+                              ? "personal"
+                              : s.category === "外联与沟通" || s.category === "用户运营" || s.category === "增长获客" || s.category === "B2B 外联"
+                                ? "relationship"
+                                : "workflow",
+                        interfaceLanguage,
+                      )}
                     </span>
                     {s.tags.slice(0, 3).map((t) => (
                       <span
@@ -856,110 +1391,112 @@ export function SolutionsHubAppWindow({
           </aside>
 
           <main className="lg:col-span-3 space-y-4">
-            {toast && (
-              <div className="sticky top-0 z-10">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900 text-white text-xs font-semibold shadow">
-                  {toast}
+            {visibleSelected ? (
+              <>
+                <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                  <div className="text-sm font-semibold text-gray-900">{t.structure}</div>
+                  <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {visibleSelected.stacks.map((b) => (
+                      <div key={b.title} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                        <div className="text-sm font-semibold text-gray-900">{b.title}</div>
+                        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-600">
+                          {b.items.map((x) => (
+                            <li key={x}>{x}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
+                <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">{t.playbooks}</div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {t.playbooksHint}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => copy(JSON.stringify(visibleSelected.playbooks, null, 2))}
+                      className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-100"
+                    >
+                      <Copy className="h-4 w-4" />
+                      {t.copyJson}
+                    </button>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {visibleSelected.playbooks.map((p) => (
+                      <div key={p.title} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                        <div className="text-sm font-semibold text-gray-900">{p.title}</div>
+                        <div className="mt-1 text-sm text-gray-600">{p.desc}</div>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {p.actions.map((a) => (
+                            <button
+                              key={a.label}
+                              type="button"
+                              onClick={() => {
+                                if (a.type === "open_app") requestOpenApp(a.appId);
+                                if (a.type === "copy") void copy(a.text);
+                              }}
+                              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+                            >
+                              {a.type === "open_app"
+                                ? `${displayLanguage === "en" ? "Open" : displayLanguage === "ja" ? "開く" : "打开"} ${getAppDisplayName(a.appId, a.appId, interfaceLanguage)}`
+                                : a.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">{t.checklist}</div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {t.checklistHint}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => copy(visibleSelected.setupChecklist)}
+                      className="inline-flex items-center gap-2 rounded-xl bg-gray-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-black"
+                    >
+                      <Copy className="h-4 w-4" />
+                      {t.copyChecklist}
+                    </button>
+                  </div>
+                  <pre className="mt-3 whitespace-pre-wrap rounded-2xl border border-gray-200 bg-gray-50 p-4 text-xs leading-relaxed text-gray-700">
+                    {visibleSelected.setupChecklist}
+                  </pre>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => requestOpenApp("settings")}
+                      className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+                    >
+                      {t.openSettings}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => requestOpenApp("publisher")}
+                      className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+                    >
+                      {t.openPublisher}
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500">
+                {t.noResult}
               </div>
             )}
-
-            <div className="rounded-2xl border border-gray-200 bg-white p-5">
-              <div className="text-sm font-semibold text-gray-900">方案结构</div>
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                {selected.stacks.map((b) => (
-                  <div key={b.title} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                    <div className="text-sm font-semibold text-gray-900">{b.title}</div>
-                    <ul className="mt-2 space-y-1 text-sm text-gray-600 list-disc pl-5">
-                      {b.items.map((x) => (
-                        <li key={x}>{x}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-gray-200 bg-white p-5">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-sm font-semibold text-gray-900">Playbooks（可直接安装）</div>
-                  <div className="mt-1 text-xs text-gray-500">
-                    点击「安装当前方案」会把这些 Playbooks 写入“我的 Playbooks”。
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => copy(JSON.stringify(selected.playbooks, null, 2))}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 text-gray-900 font-semibold text-xs border border-gray-200 hover:bg-gray-100 transition-colors"
-                >
-                  <Copy className="h-4 w-4" />
-                  复制 Playbooks JSON
-                </button>
-              </div>
-
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                {selected.playbooks.map((p) => (
-                  <div key={p.title} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                    <div className="text-sm font-semibold text-gray-900">{p.title}</div>
-                    <div className="mt-1 text-sm text-gray-600">{p.desc}</div>
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      {p.actions.map((a) => (
-                        <button
-                          key={a.label}
-                          type="button"
-                          onClick={() => {
-                            if (a.type === "open_app") requestOpenApp(a.appId);
-                            if (a.type === "copy") void copy(a.text);
-                          }}
-                          className="px-3 py-2 rounded-xl bg-white text-gray-900 font-semibold text-xs border border-gray-200 hover:bg-gray-50 transition-colors"
-                        >
-                          {a.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-gray-200 bg-white p-5">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-sm font-semibold text-gray-900">搭建清单</div>
-                  <div className="mt-1 text-xs text-gray-500">
-                    用于把外部工具/连接器“接入”到本 UI（不包含任何平台绕过自动化）。
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => copy(selected.setupChecklist)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-900 text-white font-semibold text-xs hover:bg-black transition-colors"
-                >
-                  <Copy className="h-4 w-4" />
-                  复制清单
-                </button>
-              </div>
-              <pre className="mt-3 whitespace-pre-wrap text-xs leading-relaxed text-gray-700 rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                {selected.setupChecklist}
-              </pre>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => requestOpenApp("settings")}
-                  className="px-3 py-2 rounded-xl bg-white text-gray-900 font-semibold text-xs border border-gray-200 hover:bg-gray-50 transition-colors"
-                >
-                  打开 设置
-                </button>
-                <button
-                  type="button"
-                  onClick={() => requestOpenApp("publisher")}
-                  className="px-3 py-2 rounded-xl bg-white text-gray-900 font-semibold text-xs border border-gray-200 hover:bg-gray-50 transition-colors"
-                >
-                  打开 发布中心
-                </button>
-              </div>
-            </div>
           </main>
         </div>
       </div>

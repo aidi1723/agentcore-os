@@ -1,3 +1,5 @@
+import type { AppId } from "@/apps/types";
+import type { WorkspaceIndustryId } from "@/lib/workspace-presets";
 import { getJsonFromStorage, setJsonToStorage } from "@/lib/storage";
 
 export type LlmProviderId = "kimi" | "deepseek" | "openai" | "qwen";
@@ -30,8 +32,17 @@ export type MatrixAccountsSettings = {
   storefront: { token: string; webhookUrl: string };
 };
 
+export type InterfaceLanguage = "zh-CN" | "en-US" | "ja-JP" | "custom";
+
 export type PersonalizationSettings = {
   desktopBackground: "aurora" | "ocean" | "sunset";
+  interfaceLanguage: InterfaceLanguage;
+  customLanguageLabel: string;
+  activeIndustry: WorkspaceIndustryId;
+  activeScenarioId: string;
+  useCustomWorkspace: boolean;
+  customDesktopApps: AppId[];
+  customDockApps: AppId[];
 };
 
 export type AppSettings = {
@@ -85,10 +96,65 @@ export const defaultSettings: AppSettings = {
   },
   personalization: {
     desktopBackground: "aurora",
+    interfaceLanguage: "zh-CN",
+    customLanguageLabel: "",
+    activeIndustry: "creator",
+    activeScenarioId: "creator-studio",
+    useCustomWorkspace: false,
+    customDesktopApps: [],
+    customDockApps: [],
   },
 };
 
 const SETTINGS_KEY = "openclaw.settings.v1";
+const VALID_APP_IDS = new Set<AppId>([
+  "tech_news_digest",
+  "industry_hub",
+  "recruiting_desk",
+  "project_ops",
+  "deep_research_hub",
+  "financial_document_bot",
+  "social_media_autopilot",
+  "website_seo_studio",
+  "language_learning_desk",
+  "morning_brief",
+  "meeting_copilot",
+  "personal_crm",
+  "inbox_declutter",
+  "support_copilot",
+  "second_brain",
+  "email_assistant",
+  "deal_desk",
+  "family_calendar",
+  "habit_tracker",
+  "health_tracker",
+  "creator_radar",
+  "content_repurposer",
+  "media_ops",
+  "creative_studio",
+  "knowledge_vault",
+  "account_center",
+  "task_manager",
+  "openclaw_console",
+  "publisher",
+  "solo_ops",
+  "solutions_hub",
+  "settings",
+]);
+
+function sanitizeAppIds(input: unknown) {
+  if (!Array.isArray(input)) return [] as AppId[];
+  const seen = new Set<AppId>();
+  const result: AppId[] = [];
+  for (const value of input) {
+    if (typeof value !== "string") continue;
+    const appId = value as AppId;
+    if (!VALID_APP_IDS.has(appId) || seen.has(appId)) continue;
+    seen.add(appId);
+    result.push(appId);
+  }
+  return result;
+}
 
 function mergeSettings(saved: Partial<AppSettings> | null | undefined): AppSettings {
   const savedAny = saved as any;
@@ -163,6 +229,8 @@ function mergeSettings(saved: Partial<AppSettings> | null | undefined): AppSetti
     personalization: {
       ...defaultSettings.personalization,
       ...(saved?.personalization ?? {}),
+      customDesktopApps: sanitizeAppIds(saved?.personalization?.customDesktopApps),
+      customDockApps: sanitizeAppIds(saved?.personalization?.customDockApps),
     },
   };
 }
@@ -173,6 +241,15 @@ export function loadSettings(): AppSettings {
     defaultSettings,
   );
   return mergeSettings(saved);
+}
+
+export function hasSavedSettings() {
+  if (typeof window === "undefined") return false;
+  try {
+    return Boolean(window.localStorage.getItem(SETTINGS_KEY));
+  } catch {
+    return false;
+  }
 }
 
 export function saveSettings(next: AppSettings) {

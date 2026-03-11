@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ExternalLink, Shield, TerminalSquare } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
+import { AppToast } from "@/components/AppToast";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
+import { useTimedToast } from "@/hooks/useTimedToast";
+import { loadSettings } from "@/lib/settings";
+import { requestOpenSettings } from "@/lib/ui-events";
 
 const DEFAULT_BASE = "http://127.0.0.1:18789";
 const DEFAULT_SESSION = "agent:main:main";
@@ -25,25 +29,23 @@ export function OpenClawConsoleAppWindow({
   const [session, setSession] = useState(DEFAULT_SESSION);
   const [healthText, setHealthText] = useState<string>("");
   const [isChecking, setIsChecking] = useState(false);
-  const [toast, setToast] = useState<
-    null | { message: string; tone: "ok" | "error" }
-  >(null);
-  const toastTimerRef = useRef<number | null>(null);
+  const { toast, showToast } = useTimedToast(2000);
+  const isVisible = state === "open" || state === "opening";
 
   useEffect(() => {
-    return () => {
-      if (toastTimerRef.current !== null) window.clearTimeout(toastTimerRef.current);
+    if (!isVisible) return;
+    const syncFromSettings = () => {
+      const configured = loadSettings().openclaw.baseUrl.trim();
+      setBaseUrl(configured || DEFAULT_BASE);
     };
-  }, []);
-
-  const showToast = (message: string, tone: "ok" | "error" = "ok") => {
-    setToast({ message, tone });
-    if (toastTimerRef.current !== null) window.clearTimeout(toastTimerRef.current);
-    toastTimerRef.current = window.setTimeout(() => {
-      setToast(null);
-      toastTimerRef.current = null;
-    }, 2000);
-  };
+    syncFromSettings();
+    window.addEventListener("openclaw:settings", syncFromSettings);
+    window.addEventListener("storage", syncFromSettings);
+    return () => {
+      window.removeEventListener("openclaw:settings", syncFromSettings);
+      window.removeEventListener("storage", syncFromSettings);
+    };
+  }, [isVisible]);
 
   const dashboardUrl = useMemo(() => safeUrl(baseUrl, "/"), [baseUrl]);
   const chatUrl = useMemo(
@@ -102,38 +104,32 @@ export function OpenClawConsoleAppWindow({
       onMinimize={onMinimize}
       onClose={onClose}
     >
-      <div className="relative bg-white p-6 space-y-5">
-        {toast && (
-          <div className="absolute right-5 top-5 z-10">
-            <div
-              className={[
-                "px-4 py-2.5 rounded-xl shadow-lg border text-sm font-semibold backdrop-blur",
-                toast.tone === "ok"
-                  ? "bg-emerald-600/90 border-emerald-400/40 text-white"
-                  : "bg-red-600/90 border-red-400/40 text-white",
-              ].join(" ")}
-              role="status"
-              aria-live="polite"
-            >
-              {toast.message}
-            </div>
-          </div>
-        )}
+      <div className="relative space-y-5 bg-white p-4 sm:p-6">
+        <AppToast toast={toast} />
 
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <div className="text-lg font-bold text-gray-900">安全融合模式（推荐）</div>
             <div className="text-sm text-gray-500 mt-1">
               本窗口只提供深度链接与健康检查；不会在 WebOS 内嵌 OpenClaw 页面，避免 CSP/Token 风险。
             </div>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-700">
-            <Shield className="h-4 w-4 text-emerald-600" />
-            Token 不下发到前端
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-700">
+              <Shield className="h-4 w-4 text-emerald-600" />
+              Token 不下发到前端
+            </div>
+            <button
+              type="button"
+              onClick={() => requestOpenSettings("engine")}
+              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+            >
+              打开设置
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-4 lg:col-span-2">
             <div className="text-sm font-semibold text-gray-900">控制台链接</div>
 
@@ -149,7 +145,7 @@ export function OpenClawConsoleAppWindow({
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <div className="mt-2 text-xs text-gray-500">
-                  通常是本机：{DEFAULT_BASE}
+                  通常会跟随“设置 → 引擎核心”里的地址；默认使用 {DEFAULT_BASE}
                 </div>
               </div>
 
@@ -189,7 +185,7 @@ export function OpenClawConsoleAppWindow({
               <button
                 type="button"
                 onClick={() => copy(chatUrl)}
-                className="px-4 py-2.5 rounded-xl bg-white text-gray-900 font-semibold text-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+                className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
               >
                 复制 Chat 链接
               </button>

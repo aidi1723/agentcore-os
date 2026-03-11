@@ -100,6 +100,16 @@ function windowBounds() {
   return { left, top, right, bottom };
 }
 
+function minimumSizeForViewport(minSize?: WindowSize) {
+  const bounds = windowBounds();
+  const availableWidth = Math.max(240, bounds.right - bounds.left);
+  const availableHeight = Math.max(180, bounds.bottom - bounds.top);
+  return {
+    width: Math.min(minSize?.width ?? 420, availableWidth),
+    height: Math.min(minSize?.height ?? 260, availableHeight),
+  };
+}
+
 function toDragOffsetFromLeftTop(size: WindowSize, left: number, top: number): DragOffset {
   const baseLeft = window.innerWidth / 2 - size.width / 2;
   const baseTop = window.innerHeight / 2 - size.height / 2;
@@ -194,7 +204,7 @@ export function AppWindowShell({
 
   const chromeClassName = useMemo(() => {
     return [
-      "fixed left-1/2 top-1/2 flex max-h-[calc(100vh-116px)] flex-col overflow-hidden rounded-3xl",
+      "fixed left-1/2 top-1/2 flex max-h-[calc(100vh-106px)] max-w-[calc(100vw-20px)] flex-col overflow-hidden rounded-[24px] sm:rounded-3xl",
       "border border-white/15 bg-white/10 backdrop-blur-2xl",
       "shadow-[0_25px_80px_rgba(0,0,0,0.55)]",
       widthClassName,
@@ -216,9 +226,10 @@ export function AppWindowShell({
 
   const applyLeftTopSize = useCallback(
     (next: { left: number; top: number; width: number; height: number }, opts?: { persist?: boolean }) => {
-      const minW = minSize?.width ?? 420;
-      const minH = minSize?.height ?? 260;
       const bounds = windowBounds();
+      const minViewportSize = minimumSizeForViewport(minSize);
+      const minW = minViewportSize.width;
+      const minH = minViewportSize.height;
 
       let width = Math.max(minW, Math.round(next.width));
       let height = Math.max(minH, Math.round(next.height));
@@ -241,7 +252,7 @@ export function AppWindowShell({
       setDragOffset(offset);
       if (opts?.persist) persistGeometry();
     },
-    [minSize?.height, minSize?.width, persistGeometry],
+    [minSize, persistGeometry],
   );
 
   const onTitleBarPointerDown = (e: React.PointerEvent) => {
@@ -348,8 +359,9 @@ export function AppWindowShell({
     }
 
     // Keep opposite edge stable when clamping.
-    const minW = minSize?.width ?? 420;
-    const minH = minSize?.height ?? 260;
+    const minViewportSize = minimumSizeForViewport(minSize);
+    const minW = minViewportSize.width;
+    const minH = minViewportSize.height;
     if (width < minW) {
       width = minW;
       if (ctx.handle.includes("w")) left = startRight - width;
@@ -516,6 +528,24 @@ export function AppWindowShell({
     return () => window.removeEventListener("openclaw:window-command", onCmd);
   }, [onWindowCommand, storageKey]);
 
+  useEffect(() => {
+    if (!isDraggable) return;
+
+    const clampToViewport = () => {
+      const size = windowSizeRef.current;
+      if (!size) return;
+      const { left, top } = toLeftTopFromDragOffset(size, dragOffsetRef.current);
+      applyLeftTopSize({ left, top, width: size.width, height: size.height }, { persist: true });
+    };
+
+    const id = window.setTimeout(clampToViewport, 0);
+    window.addEventListener("resize", clampToViewport);
+    return () => {
+      window.clearTimeout(id);
+      window.removeEventListener("resize", clampToViewport);
+    };
+  }, [applyLeftTopSize, isDraggable]);
+
   return (
     <div
       ref={windowRef}
@@ -534,7 +564,7 @@ export function AppWindowShell({
       onPointerDown={() => onFocus()}
     >
       <div
-        className="flex items-center justify-between border-b border-white/10 bg-white/10 px-4 py-3 select-none"
+        className="flex items-center justify-between border-b border-white/10 bg-white/10 px-4 py-3 select-none touch-none"
         onPointerDown={onTitleBarPointerDown}
         onPointerMove={onTitleBarPointerMove}
         onPointerUp={onTitleBarPointerUp}

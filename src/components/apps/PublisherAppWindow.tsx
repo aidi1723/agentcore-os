@@ -25,7 +25,7 @@ import {
 } from "@/lib/publish";
 import { createTask, updateTask, type TaskId } from "@/lib/tasks";
 import { loadSettings } from "@/lib/settings";
-import { requestOpenApp } from "@/lib/ui-events";
+import { requestOpenApp, requestOpenSettings } from "@/lib/ui-events";
 
 const platforms: Array<{ id: PublishPlatformId; name: string; supported?: boolean }> = [
   { id: "xiaohongshu", name: "小红书" },
@@ -386,8 +386,8 @@ export function PublisherAppWindow({
       onClose={onClose}
     >
       <div className="bg-white">
-        <div className="flex min-h-[620px]">
-          <aside className="w-72 border-r border-gray-200 bg-gray-50/60">
+        <div className="flex min-h-[620px] flex-col lg:flex-row">
+          <aside className="w-full border-b border-gray-200 bg-gray-50/60 lg:w-72 lg:shrink-0 lg:border-b-0 lg:border-r">
             <div className="p-5">
               <div className="text-xs font-semibold text-gray-500">Publisher</div>
               <div className="mt-1 text-lg font-bold text-gray-900">内容库</div>
@@ -414,7 +414,7 @@ export function PublisherAppWindow({
 
             <div className="px-2 pb-4">
               <div className="px-3 pb-2 text-xs font-semibold text-gray-500">草稿列表</div>
-              <div className="space-y-1">
+              <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-1">
                 {drafts.length === 0 ? (
                   <div className="px-3 py-2 text-xs text-gray-500">
                     还没有草稿。可以从「AI 文案」里保存到内容库。
@@ -446,8 +446,8 @@ export function PublisherAppWindow({
             </div>
           </aside>
 
-          <main className="flex-1 p-6 space-y-5 overflow-y-auto">
-            <div className="flex items-start justify-between gap-3">
+          <main className="flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
               <div>
                 <div className="text-lg font-bold text-gray-900">发布工作台</div>
                 <div className="text-sm text-gray-500 mt-1">
@@ -506,7 +506,7 @@ export function PublisherAppWindow({
                 <button
                   type="button"
                   onClick={() => window.open("http://127.0.0.1:8787/", "_blank", "noopener,noreferrer")}
-                  className="px-3 py-2 rounded-xl bg-white text-gray-900 font-semibold text-xs border border-gray-200 hover:bg-gray-50 transition-colors"
+                  className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-50"
                 >
                   打开 Connector
                 </button>
@@ -632,8 +632,8 @@ export function PublisherAppWindow({
                   selectedPlatforms.some((p) => !connByPlatform[p]?.webhookUrl?.trim()) && (
                     <button
                       type="button"
-                      onClick={() => requestOpenApp("settings")}
-                      className="px-4 py-2.5 rounded-xl bg-white text-gray-900 font-semibold text-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+                      onClick={() => requestOpenSettings("matrix")}
+                      className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
                     >
                       去配置 Webhook
                     </button>
@@ -648,7 +648,7 @@ export function PublisherAppWindow({
                       setBody("");
                       setResultText("");
                     }}
-                    className="px-4 py-2.5 rounded-xl bg-white text-gray-900 font-semibold text-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
                   >
                     删除草稿
                   </button>
@@ -656,7 +656,7 @@ export function PublisherAppWindow({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <div className="rounded-2xl border border-gray-200 bg-white p-5">
                 <div className="text-sm font-semibold text-gray-900">发布预演结果</div>
                 <div className="mt-2 text-xs text-gray-500">
@@ -713,7 +713,7 @@ export function PublisherAppWindow({
                   <button
                     type="button"
                     onClick={() => requestOpenApp("task_manager")}
-                    className="px-3 py-2 rounded-xl bg-white text-gray-900 font-semibold text-xs border border-gray-200 hover:bg-gray-50 transition-colors"
+                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-50"
                   >
                     打开任务调度
                   </button>

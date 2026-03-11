@@ -3,7 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { FileText } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
+import { AppToast } from "@/components/AppToast";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
+import { useTimedToast } from "@/hooks/useTimedToast";
+import { getOutputLanguageInstruction } from "@/lib/language";
 import { getActiveLlmConfig, loadSettings } from "@/lib/settings";
 import { createTask, updateTask, type TaskId } from "@/lib/tasks";
 import { createDraft } from "@/lib/drafts";
@@ -40,34 +43,26 @@ export function MediaOpsAppWindow({
   const abortRef = useRef<AbortController | null>(null);
   const pendingRef = useRef("");
   const rafRef = useRef<number | null>(null);
-  const [toast, setToast] = useState<
-    null | { message: string; tone: "ok" | "error" }
-  >(null);
-  const toastTimerRef = useRef<number | null>(null);
+  const runIdRef = useRef(0);
+  const mountedRef = useRef(true);
+  const { toast, showToast } = useTimedToast(2000);
   const taskIdRef = useRef<TaskId | null>(null);
 
   useEffect(() => {
     return () => {
+      mountedRef.current = false;
+      runIdRef.current += 1;
       if (abortRef.current) abortRef.current.abort();
       if (rafRef.current !== null) window.cancelAnimationFrame(rafRef.current);
-      if (toastTimerRef.current !== null) {
-        window.clearTimeout(toastTimerRef.current);
-      }
     };
   }, []);
 
-  const showToast = (message: string, tone: "ok" | "error" = "ok") => {
-    setToast({ message, tone });
-    if (toastTimerRef.current !== null) {
-      window.clearTimeout(toastTimerRef.current);
-    }
-    toastTimerRef.current = window.setTimeout(() => {
-      setToast(null);
-      toastTimerRef.current = null;
-    }, 2000);
-  };
-
   const flushPending = () => {
+    if (!mountedRef.current) {
+      pendingRef.current = "";
+      rafRef.current = null;
+      return;
+    }
     if (!pendingRef.current) {
       rafRef.current = null;
       return;
@@ -78,7 +73,8 @@ export function MediaOpsAppWindow({
     rafRef.current = null;
   };
 
-  const appendStreamingText = (text: string) => {
+  const appendStreamingText = (text: string, runId: number) => {
+    if (runId !== runIdRef.current || !mountedRef.current) return;
     if (!text) return;
     pendingRef.current += text;
     if (rafRef.current === null) {
@@ -86,20 +82,33 @@ export function MediaOpsAppWindow({
     }
   };
 
-  const typewriter = async (text: string) => {
-    const full = text ?? "";
+  const resetStreamBuffer = () => {
     pendingRef.current = "";
+    if (rafRef.current !== null) {
+      window.cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+  };
+
+  const typewriter = async (text: string, runId: number) => {
+    const full = text ?? "";
+    resetStreamBuffer();
+    if (runId !== runIdRef.current || !mountedRef.current) return;
     setResult("");
     const chunkSize = 6;
     for (let i = 0; i < full.length; i += chunkSize) {
-      appendStreamingText(full.slice(i, i + chunkSize));
+      if (runId !== runIdRef.current || !mountedRef.current) return;
+      appendStreamingText(full.slice(i, i + chunkSize), runId);
       await new Promise((r) => window.setTimeout(r, 18));
     }
+    if (runId !== runIdRef.current || !mountedRef.current) return;
     flushPending();
   };
 
   const handleGenerate = async () => {
     if (!content.trim()) return;
+    const runId = runIdRef.current + 1;
+    runIdRef.current = runId;
 
     const settings = loadSettings();
     const active = getActiveLlmConfig(settings);
@@ -118,6 +127,7 @@ export function MediaOpsAppWindow({
       showToast("请先在『设置』中配置大模型（当前优先走 OpenClaw，失败则本地兜底）", "error");
     }
 
+    resetStreamBuffer();
     setIsGenerating(true);
     setResult("");
 
@@ -139,7 +149,8 @@ export function MediaOpsAppWindow({
         | null
         | { ok?: boolean; text?: string; error?: string };
       if (openclawRes.ok && openclawData?.ok) {
-        await typewriter(String(openclawData.text ?? ""));
+        await typewriter(String(openclawData.text ?? ""), runId);
+        if (runId !== runIdRef.current || !mountedRef.current) return;
         showToast("生成完成（OpenClaw）", "ok");
         if (taskIdRef.current) updateTask(taskIdRef.current, { status: "done" });
         return;
@@ -147,8 +158,8 @@ export function MediaOpsAppWindow({
 
       // 2) Secondary: direct LLM (if configured)
       if (hasDirectLlm) {
-        pendingRef.current = "";
-        const systemPrompt = systemPromptByPlatform[platform];
+        resetStreamBuffer();
+        const systemPrompt = `${systemPromptByPlatform[platform]}\n${getOutputLanguageInstruction()}`;
         const res = await fetch("/api/llm/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -167,6 +178,7 @@ export function MediaOpsAppWindow({
 
         if (!res.ok) {
           const text = await res.text().catch(() => "");
+          if (runId !== runIdRef.current || !mountedRef.current) return;
           showToast("生成失败，请检查网络或配置", "error");
           setResult(text || "生成失败，请检查网络或配置。");
           if (taskIdRef.current) updateTask(taskIdRef.current, { status: "error" });
@@ -180,6 +192,7 @@ export function MediaOpsAppWindow({
             json?.choices?.[0]?.message?.content ??
             json?.choices?.[0]?.text ??
             "";
+          if (runId !== runIdRef.current || !mountedRef.current) return;
           setResult(String(fullText || ""));
           showToast("生成完成", "ok");
           if (taskIdRef.current) updateTask(taskIdRef.current, { status: "done" });
@@ -212,13 +225,14 @@ export function MediaOpsAppWindow({
             try {
               const json = JSON.parse(payload) as any;
               const delta = json?.choices?.[0]?.delta?.content ?? "";
-              appendStreamingText(String(delta));
+              appendStreamingText(String(delta), runId);
             } catch {
               // ignore malformed chunks
             }
           }
         }
 
+        if (runId !== runIdRef.current || !mountedRef.current) return;
         flushPending();
         showToast("生成完成", "ok");
         if (taskIdRef.current) updateTask(taskIdRef.current, { status: "done" });
@@ -237,23 +251,28 @@ export function MediaOpsAppWindow({
       if (!fallback.ok || !fallbackData?.ok) {
         const error =
           openclawData?.error || fallbackData?.error || "生成失败（OpenClaw 不可用）";
+        if (runId !== runIdRef.current || !mountedRef.current) return;
         setResult(error);
         showToast("生成失败", "error");
         if (taskIdRef.current) updateTask(taskIdRef.current, { status: "error", detail: error });
         return;
       }
-      await typewriter(String(fallbackData.text ?? ""));
+      await typewriter(String(fallbackData.text ?? ""), runId);
+      if (runId !== runIdRef.current || !mountedRef.current) return;
       showToast("已生成（本地模板）", "ok");
       if (taskIdRef.current) updateTask(taskIdRef.current, { status: "done" });
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
+      if (runId !== runIdRef.current || !mountedRef.current) return;
       showToast("生成失败，请检查网络或配置", "error");
       setResult("生成失败，请检查网络或配置。");
       if (taskIdRef.current) {
         updateTask(taskIdRef.current, { status: "error", detail: "生成失败" });
       }
     } finally {
-      setIsGenerating(false);
+      if (runId === runIdRef.current && mountedRef.current) {
+        setIsGenerating(false);
+      }
     }
   };
 
@@ -270,22 +289,7 @@ export function MediaOpsAppWindow({
       onClose={onClose}
     >
       <div className="relative space-y-5 bg-white p-6">
-        {toast && (
-          <div className="absolute right-5 top-5 z-10">
-            <div
-              className={[
-                "px-4 py-2.5 rounded-xl shadow-lg border text-sm font-semibold backdrop-blur",
-                toast.tone === "ok"
-                  ? "bg-emerald-600/90 border-emerald-400/40 text-white"
-                  : "bg-red-600/90 border-red-400/40 text-white",
-              ].join(" ")}
-              role="status"
-              aria-live="polite"
-            >
-              {toast.message}
-            </div>
-          </div>
-        )}
+        <AppToast toast={toast} />
 
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700">

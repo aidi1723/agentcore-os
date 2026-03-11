@@ -1,41 +1,78 @@
-# OpenClaw OS — Web Desktop UI Framework
+# OpenClaw OS — Industry AI Workspace
 
 [![CI](https://github.com/aidi1723/openclaw-os/actions/workflows/ci.yml/badge.svg)](https://github.com/aidi1723/openclaw-os/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A Next.js + Tailwind **desktop-style UI framework** that runs in the browser.
+A Next.js + Tailwind **desktop-style AI workspace** that runs in the browser.
 
-It provides a window manager, launcher, local-first state primitives, and a few example workflow apps
-so you can build desktop-like productivity experiences on the web without starting from scratch.
+It combines a desktop shell, industry workspaces, scenario-based app bundles, local-first state,
+and AI-powered workflow apps into a single entry point.
+
+The project is no longer just a UI shell. It is now aimed at giving non-technical users a fast way
+to enter real-world AI workflows by opening packaged apps instead of assembling tools from scratch.
 
 ## Project status
 
-**Status:** `v0.2.0-alpha.1` (pre-release)
+**Status:** `main` is ahead of `v0.2.0-alpha.1` and currently represents a release candidate state.
 
-This repository is an early public foundation release:
-- the core desktop UI shell is usable
-- example apps and connector flows are included
-- the project is intentionally conservative on automation and compliance
+Current repository state:
+- the desktop shell is usable
+- industry workspace selection is available
+- multiple packaged scenario apps are included
+- language-first onboarding is included
 - production hardening is **not** complete yet
 
-## What’s new in `v0.2.0-alpha.1`
+## What’s new in current `main`
 
-- Resizable windows + keyboard tiling/restore shortcuts
-- Spotlight recent history + `?` help actions
-- Playbooks: save/export/import runnable SOPs (local-first)
-- Solutions Hub: curated “mature workflow packs” you can install as Playbooks
-- Publisher: queued dispatch with basic retry/backoff (while Publisher is open)
+- Industry App Center: switch by industry and scenario instead of browsing isolated tools
+- Solutions Hub: packaged mature workflows mapped from real-world use cases
+- Multi-language entry: top-level language switcher + first-launch language onboarding
+- Packaged business apps: research, content, CRM, meeting, operations, SEO, finance, learning
+- Desktop UX: resizable windows + keyboard tiling/restore shortcuts
+- Playbooks: local-first SOP install/save/export/import
+- Publisher: dry-run and queued dispatch with connector-based publishing
 
 ## What it includes
 
 - Window manager: z-order, focus, minimize/restore, drag, snap, position persistence
 - Spotlight launcher: app search + command execution
-- Local-first storage: settings, drafts, tasks, publish history
+- Local-first storage: settings, drafts, tasks, publish history, app records
+- Industry App Center: industry bundles and custom workspace builder
 - Solutions Hub: curated real-world workflows you can install as Playbooks
 - Playbooks: local-first SOP library (export/import as JSON)
+- Multi-language shell: Chinese, English, Japanese, custom language label
 - Publishing hub: safe-by-default dispatch with bring-your-own connectors
 - Example local webhook connector with receipts UI (`npm run webhook:dev`)
 - API routes for LLM / OpenClaw / publish dispatch workflows
+
+## Packaged app areas
+
+- Content and media
+  - Tech News Digest
+  - Creator Radar
+  - Content Repurposer
+  - Social Media Auto-pilot
+  - Website SEO Studio
+- Business operations
+  - Personal CRM
+  - Email Assistant
+  - Deal Desk
+  - Meeting Copilot
+  - Project Ops Board
+  - Financial Document Bot
+- Research and knowledge
+  - Deep Research Hub
+  - Knowledge Vault
+  - Second Brain
+  - Morning Brief
+- People and recruiting
+  - Recruiting Desk
+  - Task Manager
+- Personal productivity
+  - Family Calendar
+  - Habit Tracker
+  - Health Tracker
+  - Language Learning Desk
 
 ## What it does **not** do
 
@@ -111,7 +148,7 @@ If you build “auto publish” features, do it via:
 - approved third-party services (Buffer / Metricool / Make / Zapier), or
 - your own internal tooling with explicit user consent and ToS compliance
 
-This repository is meant to be a **UI/framework starting point**, not a loophole for bypassing platform rules.
+This repository is meant to be a practical AI workspace foundation, not a loophole for bypassing platform rules.
 
 ## Scripts
 

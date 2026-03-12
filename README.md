@@ -197,7 +197,7 @@ deploy/
 - 确认未提交 secrets、私有标识信息或构建产物
 - 运行 `npm run lint` 与 `npm run build`
 
-## 
+## Open Source License
 
 AgentCore OS is open source under the **Apache License 2.0**.
 

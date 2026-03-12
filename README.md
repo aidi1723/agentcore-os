@@ -1,7 +1,7 @@
 # AgentCore OS — Business Solution Operating System
 
 [![CI](https://github.com/aidi1723/agentcore-os/actions/workflows/ci.yml/badge.svg)](https://github.com/aidi1723/agentcore-os/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: Apache_2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 **From AI Tools Desktop to Business Solution Operating System.**
 
@@ -218,4 +218,6 @@ Before publishing changes:
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Apache License 2.0. See [LICENSE](LICENSE).
+
+Logos, trademarks, and brand assets are not granted under the software license unless explicitly stated otherwise.

@@ -1,13 +1,13 @@
-# OpenClaw OS Webhook Connector (Example)
+# AgentCore OS Webhook Connector (Example)
 
 This is a minimal **bring-your-own-connector** webhook server.
 
-Use it to turn WebOS "矩阵发布中心" into **one-click auto publish** by pointing each platform's
+Use it to turn the WebOS publish center into **one-click auto publish** by pointing each platform's
 `Publish Webhook URL` to this server.
 
 Important:
 - This example does **not** post to any real social media.
-- Implementing real posting must follow each platform's ToS and use official APIs / approved partners.
+- Real posting implementations must follow each platform's ToS and use official APIs / approved partners.
 
 ## Quick start
 

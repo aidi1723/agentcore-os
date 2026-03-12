@@ -1,10 +1,10 @@
 # Connectors (Bring Your Own)
 
-This project intentionally keeps “auto publish” as a **connector problem**:
+This project intentionally treats "auto publish" as a **connector problem**:
 
 - The UI prepares platform variants and a publish payload
-- The server optionally dispatches to your connector webhook
-- Your connector implements real posting via **official APIs** or approved services
+- The server can optionally dispatch to your connector webhook
+- Your connector handles real posting via **official APIs** or approved services
 
 ## Webhook contract
 
@@ -39,7 +39,7 @@ This repo includes a small local server:
 - Run with `npm run webhook:dev`
 - UI at `http://127.0.0.1:8787/`
 
-It only logs receipts — it does not post anywhere.
+It only logs receipts — it does not publish anywhere.
 
 ## Recommended real-world options
 
@@ -55,7 +55,7 @@ Recommended path:
 
 - keep AgentCore OS running on the desktop
 - expose the sidecar through `Cloudflare Tunnel`, `ngrok`, or `FRP`
-- configure an `Access Token` in Settings -> `移动端接入`
+- configure an `Access Token` in Settings -> `Mobile Access`
 - forward IM messages to:
   - `POST /api/im-bridge/inbound/generic`
   - `POST /api/im-bridge/inbound/feishu`
@@ -76,7 +76,7 @@ Minimal generic payload:
 
 ```json
 {
-  "text": "帮我分析这份数据并生成汇报提纲",
+  "text": "Please analyze this data and generate a reporting outline",
   "sessionId": "mobile-demo-user"
 }
 ```
@@ -88,7 +88,7 @@ Minimal DingTalk-style payload:
   "conversationId": "cid_mobile_demo",
   "senderStaffId": "staff_mobile_demo",
   "text": {
-    "content": "帮我做一份本周工作汇报 PPT"
+    "content": "Help me create this week's work report PPT"
   }
 }
 ```
@@ -105,10 +105,10 @@ Minimal Feishu-style payload:
     },
     "message": {
       "chat_id": "oc_mobile_demo",
-      "content": "{\"text\":\"帮我分析这份销售周报\"}"
+      "content": "{\"text\":\"Help me analyze this weekly sales report\"}"
     }
   }
 }
 ```
 
-When `Reply Webhook URL` is configured for the provider, AgentCore OS will push the execution result back to the IM channel after the desktop agent completes the task.
+When `Reply Webhook URL` is configured for the provider, AgentCore OS pushes the execution result back to the IM channel after the desktop agent completes the task.

@@ -107,7 +107,7 @@ Expected outcome:
 Why:
 - Solutions Hub and Playbooks already imply scenario delivery
 - today they are good reference material, but not yet strong operators for guided execution
-- this is where “场景落地” becomes visible to users
+- this is where scenario delivery becomes visible to users
 
 Scope:
 - let playbooks prefill concrete app state instead of only opening apps

@@ -59,7 +59,7 @@ Notes:
 
 - `desktop:build-sidecar` writes PyInstaller cache into `./.cache/pyinstaller` so it does not depend on the user profile directory.
 - `desktop:build-sidecar` can fall back to `python -m PyInstaller` if the standalone launcher is missing from `PATH`.
-- `tauri`, `tauri:dev`, and `tauri:build` resolve `cargo` from common install locations such as `~/.cargo/bin` when PATH is incomplete.
+- `tauri`, `tauri:dev`, and `tauri:build` resolve `cargo` from common install locations such as `~/.cargo/bin` when `PATH` is incomplete.
 
 ## IM bridge endpoints
 
@@ -75,4 +75,4 @@ Where `provider` is one of:
 - `feishu`
 - `dingtalk`
 
-The desktop UI exposes these settings under `设置 -> 移动端接入`.
+The desktop UI exposes these settings under `Settings -> Mobile Access`.

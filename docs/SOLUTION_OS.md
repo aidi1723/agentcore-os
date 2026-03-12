@@ -1,6 +1,6 @@
 # Solution OS Direction
 
-AgentCore OS should keep moving away from the feeling of “many AI apps on one desktop”.
+AgentCore OS should continue moving away from the feeling of “many AI apps on one desktop.”
 The stronger product direction is:
 
 **industry solution operating system**
@@ -94,13 +94,13 @@ This matters more than adding another generation button.
 
 Recommended UI mapping:
 
-- `自动执行`
+- `Auto Run`
   low-risk, repeatable actions with clear rules
-- `AI 辅助`
+- `AI Assisted`
   AI prepares output, but the human may still refine or route it
-- `待人工确认`
+- `Awaiting Human Approval`
   external-facing or higher-risk outputs that should not run unattended
-- `人工收口`
+- `Human Finalization`
   final judgment, assetization, or policy-sensitive steps
 
 ### 5. Asset accumulation

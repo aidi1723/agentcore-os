@@ -2,7 +2,7 @@
 
 ## Current status
 
-AgentCore OS is now **prepared for internal Windows packaging validation**, but it is **not yet fully verified** as "install on a brand-new Windows machine and use immediately" in production terms.
+AgentCore OS is now **prepared for internal Windows packaging validation**, but it is **not yet fully verified** as “install on a brand-new Windows machine and use immediately” in production terms.
 
 What is already in place:
 
@@ -83,7 +83,7 @@ Run these in order on a real Windows machine:
 
 ## Release gate
 
-Do not label the Windows build as fully "开箱即用" until all of the following are true:
+Do not label the Windows build as fully “out of the box” until all of the following are true:
 
 - clean-machine install has been tested
 - first-run onboarding succeeds

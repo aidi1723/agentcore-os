@@ -58,7 +58,7 @@ AgentCore OS 的定位，不是只服务某一个岗位，也不是只适合某�
 这些场景背后的重点不是“AI 回答了一个问题”，
 而是**AI 开始进入真实流程，并持续产生产物。**
 
-## 它的几个核心特点
+## 核心特点
 
 - **本地优先，更安全**  
   工作区、文件资产和执行链路围绕本地环境组织。敏感动作可以设置人工确认边界，避免 AI 越界执行。
@@ -75,136 +75,74 @@ AgentCore OS 的定位，不是只服务某一个岗位，也不是只适合某�
 - **既能做广，也能做深**  
   它既能承接办公、设计、客服、财务、运营、销售、编程、生产、仓储、数据分析等多类场景，也适合继续向具体行业和具体工作流深入扩展。
 
-## Project status
+## 项目现状
 
-**Status:** `main` is ahead of `v0.2.0-alpha.1` and currently represents a release candidate state.
+当前 `main` 分支可以视为一个持续演进中的发布候选版本，现阶段已经具备这些基础能力：
 
-Current repository state:
-- the desktop shell is usable
-- industry workspace selection is available
-- multiple packaged scenario apps are included
-- one cross-app hero workflow is now runnable for `Sales Desk`
-- language-first onboarding is included
-- production hardening is **not** complete yet
+- 桌面壳与多窗口交互可用
+- 行业工作区与场景入口可用
+- 多个打包业务应用已接入
+- 一个跨应用 Hero Workflow 已能跑通
+- 多语言入口与首次引导已接入
+- 生产级加固仍在持续推进
 
-## What’s new in current `main`
+## 当前产品结构
 
-- Industry App Center: switch by industry and scenario instead of browsing isolated tools
-- Solutions Hub: packaged mature workflows mapped from real-world use cases
-- Multi-language entry: top-level language switcher + first-launch language onboarding
-- Packaged business apps: research, content, CRM, meeting, operations, SEO, finance, learning
-- Desktop UX: resizable windows + keyboard tiling/restore shortcuts
-- Playbooks: local-first SOP install/save/export/import
-- Publisher: dry-run and queued dispatch with connector-based publishing
-- Publisher config/jobs: file-backed server storage for queue state and connector credentials
-- Publisher queue runner: server-side execution path via `/api/publish/queue/run`
-- Sales Hero Workflow: `Deal Desk -> Email Assistant -> Personal CRM` now shares runtime state, trigger metadata, and local asset write-back
-- Structured inquiry intake: Sales Desk now captures inquiry channel, language preference, product line, and includes a sample inbound lead for first-run demo
-- Multi-industry starters: Industry Hub now includes one-click solution starters for sales, creator, support, research, recruiting, and delivery workflows
+AgentCore OS 当前的产品结构可以概括为：
 
-## Current product positioning
+- `industry`：决定用户所处的业务上下文
+- `role`：决定默认打开的工作台与职责入口
+- `workflow`：决定标准动作顺序、人工审核边界与结果资产路径
+- `apps`：作为工作流中的执行组件，而不是唯一主角
 
-AgentCore OS is now positioned as a **business solution operating system**, not just a browser desktop full of AI apps.
+当前代表性示例：
 
-Current product spine:
-
-- `industry` decides which business context the user belongs to
-- `role` decides which desk and default working surface should open first
-- `workflow` decides the standard sequence, trigger, human review boundary, and result asset path
-- `apps` are execution components inside that workflow, not the primary product story
-
-Current flagship example:
-
-- `Sales Desk`
+- `Sales Desk`  
   `客户询盘 / 手动录入 -> Deal Desk -> Email Assistant -> Personal CRM -> 本地销售资产沉淀`
 
-## What it includes
-
-- Window manager: z-order, focus, minimize/restore, drag, snap, position persistence
-- Spotlight launcher: app search + command execution
-- Local-first storage: settings, drafts, tasks, publish history, app records
-- Industry App Center: industry bundles and custom workspace builder
-- Solutions Hub: curated real-world workflows you can install as Playbooks
-- Playbooks: local-first SOP library (export/import as JSON)
-- Multi-language shell: Chinese, English, Japanese, custom language label
-- Publishing hub: safe-by-default dispatch with bring-your-own connectors
-- Example local webhook connector with receipts UI (`npm run webhook:dev`)
-- API routes for LLM / OpenClaw / publish dispatch workflows
-
-## Packaged app areas
-
-- Content and media
-  - Tech News Digest
-  - Creator Radar
-  - Content Repurposer
-  - Social Media Auto-pilot
-  - Website SEO Studio
-- Business operations
-  - Personal CRM
-  - Email Assistant
-  - Deal Desk
-  - Meeting Copilot
-  - Project Ops Board
-  - Financial Document Bot
-- Research and knowledge
-  - Deep Research Hub
-  - Knowledge Vault
-  - Second Brain
-  - Morning Brief
-- People and recruiting
-  - Recruiting Desk
-  - Task Manager
-- Personal productivity
-  - Family Calendar
-  - Habit Tracker
-  - Health Tracker
-  - Language Learning Desk
-
-## What it does **not** do
-
-- No scraping-based social automation
-- No unofficial posting flows against platforms
-- No built-in auth / multi-tenant security model
-- No production-grade secret storage or auth model by default
-
-## Quick start
+## 快速开始
 
 ```bash
 npm install
 npm run dev
 ```
 
-Optional env template:
-- [`.env.example`](<local-user-path>)
+可选环境模板：
+- [`.env.example`](.env.example)
 
-Open:
+启动后可访问：
 - App UI: `http://localhost:3000/`
-- Optional local connector UI: `http://127.0.0.1:8787/`
+- 可选本地连接器 UI: `http://127.0.0.1:8787/`
 
-## Optional webhook connector
+### 可选本地连接器
 
-Run the local connector example:
+运行本地 connector 示例：
 
 ```bash
 npm run webhook:dev
 ```
 
-Optional: run the publish queue worker without relying on an open browser tab:
+可选：不依赖浏览器标签页，单独运行 publish queue worker：
 
 ```bash
 npm run publish-queue:worker
 ```
 
-Production examples for PM2, `systemd`, and `launchd` live under [`deploy/`](<local-user-path>).
-Template placeholders and replacement instructions are in [`deploy/README.md`](<local-user-path>).
+生产部署示例位于 [`deploy/`](deploy/)。
+模板说明位于 [`deploy/README.md`](deploy/README.md)。
 
-Then in **Settings → Accounts/Publishing**, set a platform's `Publish Webhook URL` to:
+## 主要脚本
 
-`http://127.0.0.1:8787/webhook/publish`
+- `npm run dev` — 开发模式启动
+- `npm run dev:clean` — 清理 `.next-dev` 后启动开发环境
+- `npm run build` — 生产构建
+- `npm run start` — 启动生产服务
+- `npm run stable` — 干净重建并启动稳定版本
+- `npm run lint` — 运行 lint
+- `npm run webhook:dev` — 启动本地 webhook connector 示例
+- `npm run publish-queue:worker` — 运行后台 publish queue worker
 
-This example connector only records receipts locally. It does **not** publish to any external platform.
-
-## Documentation
+## 文档入口
 
 ### Start here
 - [Getting Started](docs/GETTING_STARTED.md)
@@ -230,7 +168,7 @@ This example connector only records receipts locally. It does **not** publish to
 - [v0.2.0-alpha.1](docs/releases/v0.2.0-alpha.1.md)
 - [v0.2.0 (draft)](docs/releases/v0.2.0-draft.md)
 
-## Repository structure
+## 仓库结构
 
 ```text
 src/
@@ -243,41 +181,23 @@ docs/
 deploy/
 ```
 
-## Safety & compliance
+## 安全与合规
 
-If you build “auto publish” features, do it via:
-- official platform APIs, or
-- approved third-party services (Buffer / Metricool / Make / Zapier), or
-- your own internal tooling with explicit user consent and ToS compliance
+如果你要构建“自动发布”类能力，请通过：
+- 官方平台 API，或
+- 合规的第三方服务（如 Buffer / Metricool / Make / Zapier），或
+- 具备明确用户授权的自有内部工具
 
-This repository is meant to be a practical AI workspace foundation, not a loophole for bypassing platform rules.
+这个仓库的目标是成为一个务实的 AI 工作底座，而不是绕过平台规则的漏洞工具。
 
-## Scripts
+## 开源前检查
 
-- `npm run dev` — run the app in development mode
-- `npm run dev:clean` — clear `.next-dev` and start dev server
-- `npm run build` — production build
-- `npm run start` — run production server
-- `npm run stable` — rebuild cleanly and run production server on port 3000
-- `npm run lint` — lint
-- `npm run webhook:dev` — run local webhook connector example
-- `npm run publish-queue:worker` — poll `/api/publish/queue/run` as a background worker
+在对外发布前建议：
+- 检查 [docs/OPEN_SOURCE_CHECKLIST.md](docs/OPEN_SOURCE_CHECKLIST.md)
+- 确认未提交 secrets、私有标识信息或构建产物
+- 运行 `npm run lint` 与 `npm run build`
 
-Queue deployment examples:
-- [`deploy/pm2/ecosystem.config.cjs`](<local-user-path>)
-- [`deploy/systemd/openclaw-publish-queue-worker.service`](<local-user-path>)
-- [`deploy/systemd/openclaw-publish-queue-trigger.service`](<local-user-path>)
-- [`deploy/systemd/openclaw-publish-queue-worker.timer`](<local-user-path>)
-- [`deploy/launchd/com.openclaw.publish-queue-worker.plist`](<local-user-path>)
-
-## Open-source hygiene
-
-Before publishing changes:
-- review [docs/OPEN_SOURCE_CHECKLIST.md](docs/OPEN_SOURCE_CHECKLIST.md)
-- make sure no secrets, private identifiers, or build artifacts are committed
-- run `npm run lint` and `npm run build`
-
-## Open Source License
+## 
 
 AgentCore OS is open source under the **Apache License 2.0**.
 

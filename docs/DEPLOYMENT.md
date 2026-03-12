@@ -118,8 +118,8 @@ When this env var is present:
 
 Template reference:
 
-- copy values from [`.env.example`](<local-user-path>)
-- edit deploy templates in [`deploy/`](<local-user-path>)
+- copy values from [`.env.example`](../.env.example)
+- edit deploy templates in [`deploy/`](../deploy)
 
 ## Quick production start
 
@@ -177,7 +177,7 @@ If you need faster pickup, call it every 15 or 30 seconds using your platform sc
 
 Example file:
 
-- [`deploy/pm2/ecosystem.config.cjs`](<local-user-path>)
+- [`deploy/pm2/ecosystem.config.cjs`](../deploy/pm2/ecosystem.config.cjs)
 
 Run:
 
@@ -191,15 +191,15 @@ This template runs:
 - the Next.js app
 - the publish queue worker
 
-Before running it, replace placeholders described in [`deploy/README.md`](<local-user-path>).
+Before running it, replace placeholders described in [`deploy/README.md`](../deploy/README.md).
 
 ## 4. systemd
 
 Example files:
 
-- [`deploy/systemd/openclaw-publish-queue-worker.service`](<local-user-path>)
-- [`deploy/systemd/openclaw-publish-queue-trigger.service`](<local-user-path>)
-- [`deploy/systemd/openclaw-publish-queue-worker.timer`](<local-user-path>)
+- [`deploy/systemd/agentcore-publish-queue-worker.service`](../deploy/systemd/agentcore-publish-queue-worker.service)
+- [`deploy/systemd/agentcore-publish-queue-trigger.service`](../deploy/systemd/agentcore-publish-queue-trigger.service)
+- [`deploy/systemd/agentcore-publish-queue-worker.timer`](../deploy/systemd/agentcore-publish-queue-worker.timer)
 
 Two common patterns:
 
@@ -212,19 +212,19 @@ This repository includes the continuous worker example by default.
 
 Example file:
 
-- [`deploy/launchd/com.openclaw.publish-queue-worker.plist`](<local-user-path>)
+- [`deploy/launchd/com.agentcore.publish-queue-worker.plist`](../deploy/launchd/com.agentcore.publish-queue-worker.plist)
 
 Load it:
 
 ```bash
-launchctl load ~/Library/LaunchAgents/com.openclaw.publish-queue-worker.plist
-launchctl start com.openclaw.publish-queue-worker
+launchctl load ~/Library/LaunchAgents/com.agentcore.publish-queue-worker.plist
+launchctl start com.agentcore.publish-queue-worker
 ```
 
 ## Template cleanup before use
 
-The example files in [`deploy/`](<local-user-path>) now use placeholders on purpose.
-Replace them exactly as described in [`deploy/README.md`](<local-user-path>).
+The example files in [`deploy/`](../deploy) now use placeholders on purpose.
+Replace them exactly as described in [`deploy/README.md`](../deploy/README.md).
 
 ## Vercel notes
 

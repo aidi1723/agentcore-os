@@ -69,10 +69,10 @@ The bundled worker script `npm run publish-queue:worker` supports this automatic
 
 Operational examples for PM2, `systemd`, and `launchd` are available under:
 
-- [`deploy/pm2/`](<local-user-path>)
-- [`deploy/systemd/`](<local-user-path>)
-- [`deploy/launchd/`](<local-user-path>)
+- [`deploy/pm2/`](../deploy/pm2)
+- [`deploy/systemd/`](../deploy/systemd)
+- [`deploy/launchd/`](../deploy/launchd)
 
 Base environment variable examples are in:
 
-- [`.env.example`](<local-user-path>)
+- [`.env.example`](../.env.example)

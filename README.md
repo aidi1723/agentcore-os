@@ -216,8 +216,16 @@ Before publishing changes:
 - make sure no secrets, private identifiers, or build artifacts are committed
 - run `npm run lint` and `npm run build`
 
-## License
+## Open Source License
 
-Apache License 2.0. See [LICENSE](LICENSE).
+AgentCore OS is open source under the **Apache License 2.0**.
 
-Logos, trademarks, and brand assets are not granted under the software license unless explicitly stated otherwise.
+We chose Apache-2.0 to support broad adoption across individual, startup, and enterprise use cases, while providing a clear patent grant and permissive redistribution terms.
+
+Please note:
+
+- **Source code** in this repository is licensed under Apache-2.0.
+- **Logos, trademarks, product names, and brand assets** are **not** granted under the software license unless explicitly stated otherwise.
+- Third-party dependencies remain under their own respective licenses.
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE) for details.

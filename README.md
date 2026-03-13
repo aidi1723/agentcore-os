@@ -3,16 +3,48 @@
 [![CI](https://github.com/aidi1723/agentcore-os/actions/workflows/ci.yml/badge.svg)](https://github.com/aidi1723/agentcore-os/actions/workflows/ci.yml)
 [![License: Apache_2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-**From AI Tools Desktop to Business Solution Operating System.**
+# 🚀 AgentCore OS (智枢 OS) V1.0 正式开源：赋予每个人和团队的本地化 AI 生产力底座
 
-AgentCore OS is a Next.js + Tailwind **business solution operating system** that runs in the browser.
+过去两年，我们都在和网页里的对话框“聊天”。
 
-It combines a desktop shell, industry workspaces, role-based desks, scenario packages, local-first state,
-and AI-powered workflow apps into a single operational entry point.
+但真实的商业世界需要的不是聊天，而是“干活”——是能把非结构化的大模型算力，变成实实在在的跨国订单、自动运行的脚本、和结构化的企业资产。
 
-The project is no longer just a UI shell or an AI tools desktop. It is now aimed at giving teams and
-non-technical users a faster way to enter real-world business workflows through packaged solutions,
-workspaces, and workflow-driven apps.
+今天，我们正式开源 **AgentCore OS（智枢 OS）V1.0**。
+
+这不是又一个套壳的 Chat 客户端，而是一个基于 **Tauri 边车架构**打造的、真正跑在你本地电脑上的 **AI 操作系统**。
+
+## 🎯 我们的愿景与终极目标
+
+**打破云端算力垄断，让“超级数字员工”回归每一个人的桌面。**
+
+我们打造 AgentCore OS 的初衷极其纯粹：无论你是想自己写个独立工具的普通创客、每天驱车往返于工厂与客户之间的外贸老兵，还是管理着复杂订单链条的业务负责人，都能以极低的门槛，拥有一个绝对安全、数据私有、且能全自动流转业务链条的生产力底座。
+
+它赋予个体企业级的力量，赋予企业极客级的敏捷。
+
+## 🛡️ 极致安全：全球最让人安心的本地防线
+
+- **100% 数据不出域：** 系统的运行大脑和资产数据库全部驻留在你的本地设备上。没有偷偷上传的遥测数据，你的核心客户名单、财务报价永远只留在你自己的硬盘里。
+- **纯粹的 BYOK（自带密钥）：** 无论出海拓展无缝接入 GPT、Claude 等国际顶尖大模型，还是深耕本土调用智谱 GLM、通义千问、Kimi、DeepSeek 等合规模型，系统都能完美适配，实现真正的算力自由。
+- **“琥珀色”终极防火墙：** 凡涉及修改本地文件、发送对外邮件等敏感操作，系统都会悬停等待。没有你的物理点击授权，AI 无法越雷池一步。
+
+## 💼 真实落地：经过实战检验的成熟场景
+
+- **🤝 销售与外贸：** 自动监控跨国询盘，瞬间完成背调，结合本地门窗等产品规格库与历史报价单，自动生成多语种跟进邮件。
+- **💻 普通人与创客：** 用大白话描述想法，底层的编程 Agent 自动在本地编写代码、调试查错，生成可运行的自动化脚本。
+- **🏭 工业与车间：** 打通生产计划与采购单，追踪供应链交期预警；将工业设备图纸转化为互动式排障指南。
+- **🚀 运营与增长：** 监控竞品动态，抓取痛点、提炼选题，裂变生成多平台、多语种的 SEO 内容矩阵。
+
+## 🛠️ 工业级架构，小白级体验
+
+- **开箱即用：** 告别黑框命令行和 Docker，提供标准 `.exe` 和 `.dmg` 安装包，双击即可运行。
+- **硬件极度包容：** 无论是强悍的 M 芯片主机，还是 N100/N97 迷你主机集群，都能顺滑驱动。
+- **去线留白的沉浸式 UI：** 摒弃极客连线图，采用最符合直觉的卡片式 UI 和业务时间轴。
+
+## 🌍 Apache 2.0 开源与 Open Core 商业愿景
+
+AgentCore OS 基于 **Apache 2.0** 协议 **100% 开源**。我们欢迎所有个人与团队免费使用、修改并集成到商业产品中。
+
+**让算力回归本地，让 AI 真正下地干活。**
 
 ## Project status
 

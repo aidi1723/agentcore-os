@@ -114,6 +114,17 @@ After startup, you can access:
 - App UI: `http://localhost:3000/`
 - Optional local connector UI: `http://127.0.0.1:8787/`
 
+## Desktop downloads
+
+Current public desktop build: **0.2.0-beta.2**
+
+- macOS (Apple Silicon / aarch64 DMG): <http://59.110.93.188/downloads/AgentCore.OS_0.2.0-beta.2_aarch64.dmg>
+- Windows (x64 EXE installer): <http://59.110.93.188/downloads/AgentCore.OS_0.2.0-beta.2_x64_setup.exe>
+
+If you want to validate packaging locally instead of downloading a prebuilt installer, see:
+- [Getting Started](docs/GETTING_STARTED.md)
+- [Windows Desktop Testing](docs/WINDOWS_DESKTOP_TESTING.md)
+
 ### Optional local connector
 
 Run the local connector example:
@@ -167,6 +178,7 @@ Template notes are in [`deploy/README.md`](deploy/README.md).
 ### Release notes
 - [v0.1.0](docs/releases/v0.1.0.md)
 - [v0.2.0-alpha.1](docs/releases/v0.2.0-alpha.1.md)
+- [v0.2.0-beta.2](docs/releases/v0.2.0-beta.2.md)
 - [v0.2.0 (draft)](docs/releases/v0.2.0-draft.md)
 
 ## Repository structure

@@ -124,6 +124,18 @@ async function findCargo() {
   );
 }
 
+async function hasCargoTauri(cargo) {
+  const probe = spawn(cargo, ["tauri", "--help"], {
+    cwd: PROJECT_ROOT,
+    stdio: "ignore",
+    env: buildRuntimeEnv(),
+  });
+  return await new Promise((resolve) => {
+    probe.on("exit", (code) => resolve(code === 0));
+    probe.on("error", () => resolve(false));
+  });
+}
+
 function buildRuntimeEnv() {
   const home = os.homedir();
   const pathEntries = [
@@ -271,12 +283,25 @@ async function runTauriDev(cargo) {
   }
 }
 
-async function runTauriBuild(cargo) {
+async function runTauriCli(args) {
+  const npmCommand = process.platform === "win32" ? "npx.cmd" : "npx";
+  await runChild(npmCommand, ["-y", "@tauri-apps/cli@^2", ...args]);
+}
+
+async function runTauriBuild(cargo, useCargoTauri) {
   const rawArgs = process.argv.slice(3);
   const extraArgs = stripArgWithValue(rawArgs, "--bundles");
 
+  const invokeBuild = async (args) => {
+    if (useCargoTauri) {
+      await runChild(cargo, ["tauri", "build", ...args]);
+      return;
+    }
+    await runTauriCli(["build", ...args]);
+  };
+
   if (process.platform === "darwin") {
-    await runChild(cargo, ["tauri", "build", "--bundles", "app", ...extraArgs]);
+    await invokeBuild(["--bundles", "app", ...extraArgs]);
     await runChild(process.execPath, [
       path.join(THIS_DIR, "package-macos-dmg.mjs"),
       ...(rawArgs.includes("--debug") ? ["--debug"] : []),
@@ -285,40 +310,49 @@ async function runTauriBuild(cargo) {
   }
 
   if (process.platform === "win32" && !hasArg(rawArgs, "--bundles")) {
-    await runChild(cargo, ["tauri", "build", "--bundles", "nsis", ...rawArgs]);
+    await invokeBuild(["--bundles", "nsis", ...rawArgs]);
     return;
   }
 
-  await runChild(cargo, ["tauri", "build", ...rawArgs]);
+  await invokeBuild(rawArgs);
 }
 
 async function main() {
   const cargo = await findCargo();
+  const useCargoTauri = await hasCargoTauri(cargo);
   const tauriSubcommand = process.argv[2];
 
   if (tauriSubcommand === "dev") {
+    if (!useCargoTauri) {
+      fail("Tauri dev mode requires cargo tauri to be installed locally.");
+    }
     await runTauriDev(cargo);
     return;
   }
 
   if (tauriSubcommand === "build") {
-    await runTauriBuild(cargo);
+    await runTauriBuild(cargo, useCargoTauri);
     return;
   }
 
-  const args = ["tauri", ...process.argv.slice(2)];
-  const child = spawn(cargo, args, {
-    cwd: PROJECT_ROOT,
-    stdio: "inherit",
-    env: buildRuntimeEnv(),
-  });
+  if (useCargoTauri) {
+    const args = ["tauri", ...process.argv.slice(2)];
+    const child = spawn(cargo, args, {
+      cwd: PROJECT_ROOT,
+      stdio: "inherit",
+      env: buildRuntimeEnv(),
+    });
 
-  child.on("exit", (code, signal) => {
-    if (signal) {
-      fail(`cargo tauri terminated by signal: ${signal}`);
-    }
-    process.exit(code ?? 0);
-  });
+    child.on("exit", (code, signal) => {
+      if (signal) {
+        fail(`cargo tauri terminated by signal: ${signal}`);
+      }
+      process.exit(code ?? 0);
+    });
+    return;
+  }
+
+  await runTauriCli(process.argv.slice(2));
 }
 
 main().catch((error) => {

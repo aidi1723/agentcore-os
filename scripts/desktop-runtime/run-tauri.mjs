@@ -138,16 +138,24 @@ async function hasCargoTauri(cargo) {
 
 function buildRuntimeEnv() {
   const home = os.homedir();
+  const baseEnv = { ...process.env };
+  const existingPath = baseEnv.PATH ?? baseEnv.Path ?? "";
   const pathEntries = [
     path.join(home, ".cargo", "bin"),
     "/opt/homebrew/opt/rust/bin",
     "/opt/homebrew/bin",
     "C:\\Program Files\\Docker\\Docker\\resources\\bin",
-    process.env.PATH ?? "",
+    existingPath,
   ].filter(Boolean);
 
+  if (process.platform === "win32") {
+    delete baseEnv.PATH;
+    baseEnv.Path = pathEntries.join(path.delimiter);
+    return baseEnv;
+  }
+
   return {
-    ...process.env,
+    ...baseEnv,
     PATH: pathEntries.join(path.delimiter),
   };
 }

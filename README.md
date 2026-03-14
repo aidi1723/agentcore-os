@@ -167,6 +167,7 @@ Template notes are in [`deploy/README.md`](deploy/README.md).
 - [Privacy](docs/PRIVACY.md)
 
 ### Operational docs
+- [Public Release Guide](docs/PUBLIC_RELEASE.md)
 - [Configuration](docs/CONFIGURATION.md)
 - [Deployment](docs/DEPLOYMENT.md)
 - [Next Steps](docs/NEXT_STEPS.md)

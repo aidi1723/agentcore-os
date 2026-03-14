@@ -24,6 +24,8 @@ pnpm-debug.log*
 # Env
 .env
 .env.*
+!.env.example
+!deploy/desktop-runtime/.env.agentcore-runtime.example
 
 # Desktop runtime artifacts
 lobster-sidecar/.venv/

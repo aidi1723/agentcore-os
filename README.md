@@ -177,6 +177,7 @@ Template notes are in [`deploy/README.md`](deploy/README.md).
 - [Releasing](RELEASING.md)
 
 ### Release notes
+- [2026-03-14 public release refactor log](docs/releases/2026-03-14.md)
 - [v0.1.0](docs/releases/v0.1.0.md)
 - [v0.2.0-alpha.1](docs/releases/v0.2.0-alpha.1.md)
 - [v0.2.0-beta.2](docs/releases/v0.2.0-beta.2.md)

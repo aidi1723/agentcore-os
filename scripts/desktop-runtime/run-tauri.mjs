@@ -292,14 +292,18 @@ async function runTauriDev(cargo) {
 }
 
 async function runTauriCli(args) {
-  if (process.platform === "win32") {
-    const cmd = process.env.ComSpec || "C:\\Windows\\System32\\cmd.exe";
-    const command = `npx tauri ${args.map((arg) => `"${String(arg).replaceAll('"', '\\"')}"`).join(" ")}`;
-    await runChild(cmd, ["/d", "/s", "/c", command]);
-    return;
+  const localTauri = path.join(
+    PROJECT_ROOT,
+    "node_modules",
+    ".bin",
+    process.platform === "win32" ? "tauri.cmd" : "tauri",
+  );
+
+  if (!(await isExecutable(localTauri))) {
+    fail(`Unable to find local Tauri CLI at ${localTauri}. Run npm install first.`);
   }
 
-  await runChild("npx", ["tauri", ...args]);
+  await runChild(localTauri, args);
 }
 
 async function runTauriBuild(cargo, useCargoTauri) {

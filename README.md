@@ -116,7 +116,11 @@ After startup, you can access:
 
 ## Desktop downloads
 
-Current public desktop build: **0.2.0-beta.2**
+Primary public reference release: **v0.2.0-beta.1**
+
+Later prereleases may remain visible for chronology, packaging verification, or technical-preview purposes, but they are not necessarily equal public recommendation points. See [Public Release Guide](docs/PUBLIC_RELEASE.md).
+
+Current visible desktop build snapshot: **0.2.0-beta.2**
 
 - macOS (Apple Silicon / aarch64 DMG): <http://59.110.93.188/downloads/AgentCore.OS_0.2.0-beta.2_aarch64.dmg>
 - Windows (x64 EXE installer): <http://59.110.93.188/downloads/AgentCore.OS_0.2.0-beta.2_x64_setup.exe>
@@ -177,9 +181,11 @@ Template notes are in [`deploy/README.md`](deploy/README.md).
 - [Releasing](RELEASING.md)
 
 ### Release notes
+- [Public Release Guide](docs/PUBLIC_RELEASE.md)
 - [2026-03-14 public release refactor log](docs/releases/2026-03-14.md)
 - [v0.1.0](docs/releases/v0.1.0.md)
 - [v0.2.0-alpha.1](docs/releases/v0.2.0-alpha.1.md)
+- [v0.2.0-beta.1](docs/releases/v0.2.0-beta.1.md)
 - [v0.2.0-beta.2](docs/releases/v0.2.0-beta.2.md)
 - [v0.2.0 (draft)](docs/releases/v0.2.0-draft.md)
 

@@ -13,6 +13,25 @@ The main goals are:
 - keep local/private operator assets out of the public repository and release archives
 - preserve enough compatibility so existing local runtime setups do not break immediately
 
+## Public release boundary statement
+
+For the current public release line, the intended external reading order is:
+
+1. `v0.2.0-beta.1` as the primary public reference point
+2. later beta tags only when explicitly described as transitional, technical-preview, or implementation-record releases
+
+This means not every later tag in the beta series should be interpreted as an equally emphasized public product milestone.
+Some releases may remain public for chronology, technical traceability, packaging verification, or implementation reference, while still being de-emphasized as the main public entry point.
+
+In practical terms:
+
+- `v0.2.0-beta.1` is the clearest public snapshot for understanding the AgentCore OS rename and direction shift
+- later prereleases may document follow-up engineering progress without carrying the same public-positioning weight
+- public visibility does not automatically imply equal product recommendation status
+- commercial, operator-specific, or tighter-distribution follow-up work may proceed separately from the public beta line
+
+When writing release notes, repository docs, or external summaries, prefer wording that makes this distinction explicit.
+
 ## Scope of This Public Refactor
 
 This release includes four connected categories of change.

@@ -1199,6 +1199,11 @@ function SolutionCenterPanel({
         workflow: "Workflow chain",
         noRole: "This solution does not have a dedicated role desk yet.",
         jump: "Open exact asset",
+        demoEyebrow: "Product demo",
+        demoTitle: "Watch the workflow before you download.",
+        demoDesc:
+          "A short walkthrough of the local-first workspace, hero workflow entry, and role-desk flow.",
+        demoLink: "Open desktop downloads",
       };
     }
     if (displayLanguage === "ja") {
@@ -1219,6 +1224,11 @@ function SolutionCenterPanel({
         workflow: "ワークフロー",
         noRole: "このソリューションにはまだ専用のロールデスクがありません。",
         jump: "この資産を開く",
+        demoEyebrow: "Product demo",
+        demoTitle: "ダウンロード前にワークフローを見る",
+        demoDesc:
+          "ローカルファーストのワークスペース、Hero Workflow の入口、Role Desk の流れを短く確認できます。",
+        demoLink: "デスクトップ配布を見る",
       };
     }
     return {
@@ -1238,6 +1248,11 @@ function SolutionCenterPanel({
       workflow: "工作流主线",
       noRole: "当前方案还没有绑定独立角色桌面。",
       jump: "回到这次流程",
+      demoEyebrow: "产品演示",
+      demoTitle: "先看一遍工作流，再决定是否下载。",
+      demoDesc:
+        "用一段短视频快速说明本地优先工作台、Hero Workflow 入口和角色桌面的协同方式。",
+      demoLink: "查看桌面下载",
     };
   }, [displayLanguage]);
 
@@ -1281,6 +1296,41 @@ function SolutionCenterPanel({
                 <Bot className="h-3.5 w-3.5" />
                 {copy.library}
               </button>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-[28px] border border-white/12 bg-black/20">
+            <div className="grid gap-0 lg:grid-cols-[minmax(0,1.15fr)_320px]">
+              <div className="border-b border-white/10 lg:border-b-0 lg:border-r">
+                <video
+                  className="aspect-video h-full w-full bg-black object-cover"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  src="/demo/demo.mp4"
+                />
+              </div>
+              <div className="flex h-full flex-col justify-between p-4">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/60">
+                    <PlayCircle className="h-3.5 w-3.5" />
+                    {copy.demoEyebrow}
+                  </div>
+                  <div className="mt-3 text-base font-semibold text-white">{copy.demoTitle}</div>
+                  <p className="mt-2 text-[12px] leading-5 text-white/58">{copy.demoDesc}</p>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <a
+                    href="https://github.com/aidi1723/agentcore-os/releases"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-2xl bg-white px-3.5 py-2 text-[11px] font-semibold text-slate-950 transition-colors hover:bg-slate-100"
+                  >
+                    <ArrowRight className="h-3.5 w-3.5" />
+                    {copy.demoLink}
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 

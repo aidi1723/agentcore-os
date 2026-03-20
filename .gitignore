@@ -14,7 +14,14 @@ pnpm-debug.log*
 
 # Local data
 .webhook-connector/
+.agentcore-data/
+.agentcore-sidecar-data/
 .openclaw-data/
+.openclaw/
+.next-dev-baseline/
+.tmp/
+tmp/
+memory/
 
 # OS/editor
 .DS_Store

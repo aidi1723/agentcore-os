@@ -30,7 +30,7 @@ AgentCore OS 当前更适合这样理解：
 
 ## 当前稳定版本
 
-当前推荐对外版本：**v1.1.0**
+当前推荐对外版本：**v1.1.1**
 
 当前稳定产品线聚焦：
 
@@ -45,9 +45,9 @@ AgentCore OS 当前更适合这样理解：
 - 主仓库 GitHub：<https://github.com/aidi1723/agentcore-os>
 - 国内镜像 CNB：<https://cnb.cool/aidiyangyu/agentcore-os>
 - GitHub Releases：<https://github.com/aidi1723/agentcore-os/releases>
-- 当前版本发布说明（中文）：[docs/releases/v1.1.0.zh-CN.md](docs/releases/v1.1.0.zh-CN.md)
+- 当前版本发布说明（中文）：[docs/releases/v1.1.1.zh-CN.md](docs/releases/v1.1.1.zh-CN.md)
 - 对外分发说明：[docs/EARLY_ACCESS_RELEASE.zh-CN.md](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
-- 市场发布文案：[docs/LAUNCH_COPY_v1.1.0.zh-CN.md](docs/LAUNCH_COPY_v1.1.0.zh-CN.md)
+- 市场发布文案：[docs/LAUNCH_COPY_v1.1.1.zh-CN.md](docs/LAUNCH_COPY_v1.1.1.zh-CN.md)
 - 文档总入口：[docs/DOCUMENTATION_INDEX.zh-CN.md](docs/DOCUMENTATION_INDEX.zh-CN.md)
 
 ## 快速开始
@@ -100,9 +100,9 @@ npm run dev
 
 - [文档总入口](docs/DOCUMENTATION_INDEX.zh-CN.md)
 - [用户指南（中文）](docs/USER_GUIDE.zh-CN.md)
-- [当前版本发布说明](docs/releases/v1.1.0.zh-CN.md)
+- [当前版本发布说明](docs/releases/v1.1.1.zh-CN.md)
 - [对外分发说明](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
-- [市场发布文案](docs/LAUNCH_COPY_v1.1.0.zh-CN.md)
+- [市场发布文案](docs/LAUNCH_COPY_v1.1.1.zh-CN.md)
 
 ### 安装与发布相关
 

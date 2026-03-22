@@ -2,7 +2,21 @@
 
 ## Unreleased
 
-- Release prep and documentation polish for the `v1.1.0` line.
+- No unreleased changes yet.
+
+## v1.1.1 - 2026-03-22
+
+### Maintenance Release
+
+- Fixed Knowledge Vault process-asset reuse metrics so one-click reuse no longer increments reuse count before the workflow actually confirms reuse.
+- Corrected public release wording to describe the `openclaw` to `runtime` route cleanup as a partial compatibility-preserving migration rather than a completed rename.
+- Aligned GitHub and CNB release-facing docs so Chinese distribution guidance includes both repository entrypoints.
+- Updated version references, release notes, launch copy, and release checklists around the `v1.1.1` maintenance line.
+
+### Verification
+
+- Verified `npm run lint`
+- Verified `npm run build`
 
 ## v1.1.0 - 2026-03-22
 

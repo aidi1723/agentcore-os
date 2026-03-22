@@ -61,6 +61,10 @@ To:
 
 This migration is meant to make the public repository reflect the actual public product boundary and reduce exposure of historical internal/private naming.
 
+In the current codebase, this migration is still partial.
+Some legacy `openclaw` routes, events, storage keys, and helpers still remain in active use.
+So public documentation should describe this as an in-progress compatibility-preserving transition, not as fully completed cleanup.
+
 Representative public runtime routes include:
 
 - `src/app/api/runtime/agent/route.ts`
@@ -73,7 +77,7 @@ Representative public runtime routes include:
 - `src/app/api/runtime/remote-validate/route.ts`
 - `src/app/api/runtime/remote-validate/archive/route.ts`
 
-At the same time, the old public-facing route files under `src/app/api/openclaw/**` should be removed from the public tree.
+At the same time, the old public-facing route files under `src/app/api/openclaw/**` should be removed from the public tree only after their runtime-named replacements are actually in place and the live code no longer depends on them.
 
 ### 3. Public release boundary hardening
 
@@ -114,11 +118,11 @@ The following wording can be used directly in release notes, PR descriptions, or
 
 ### Public summary
 
-- Renamed the public product surface from legacy **OpenClaw** naming to **Agent Runtime / Runtime Console**, reducing exposure of historical private or internal terminology.
-- Migrated public API entrypoints from `src/app/api/openclaw/**` to `src/app/api/runtime/**`, and removed the old public-facing route files.
+- Renamed parts of the public product surface away from legacy **OpenClaw** naming, reducing exposure of historical private or internal terminology.
+- Began migrating public API entrypoints from `src/app/api/openclaw/**` toward `src/app/api/runtime/**`, while intentionally retaining compatibility in the current release line.
 - Added stricter public release boundaries so `.openclaw/`, `.openclaw-data/`, local operator files, and temporary runtime artifacts do not enter the public repo or release archives.
-- Migrated frontend event and local-storage namespaces to `agentcore:*` / `agentcore.*`, while preserving automatic migration from legacy `openclaw.*` state to avoid local data loss.
-- Updated public settings semantics from `openclaw` to `runtimeAgent`, so the exposed configuration model better matches AgentCore OS naming.
+- Kept legacy `openclaw.*` events and storage keys where the live app still depends on them, instead of claiming a finished namespace migration before it exists.
+- Updated parts of the public settings and runtime wording to better match AgentCore OS naming, while preserving compatibility with existing local state.
 - Preserved compatibility boundaries, including `.openclaw-data`, `OPENCLAW_BIN`, and selected legacy request headers, so existing local runtimes do not immediately break.
 - Verified the public release build path: `npm run lint` and `npm run build` pass.
 

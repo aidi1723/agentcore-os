@@ -1,8 +1,13 @@
 # AgentCore OS 对外分发说明
 
-当前建议对外分发的 GitHub 版本为 `v1.1.0`。
+当前建议对外分发的公开版本为 `v1.1.0`。
 
 当前推荐安装方式：**命令行安装 / 从源码运行**。
+
+当前对外入口建议：
+
+- 主仓库 GitHub：<https://github.com/aidi1723/agentcore-os>
+- 国内镜像 CNB：<https://cnb.cool/aidiyangyu/agentcore-os>
 
 ## 适用场景
 
@@ -16,17 +21,18 @@
 ## 当前对外口径
 
 - 当前推荐公开版本：`v1.1.0`
-- GitHub Release 正文：`docs/releases/v1.1.0.md`
+- 中文版本说明：`docs/releases/v1.1.0.zh-CN.md`
+- GitHub / CNB 发布正文：`docs/releases/v1.1.0-github-release.zh-CN.md`
 - 当前推荐安装方式：`docs/COMMAND_LINE_INSTALL.zh-CN.md`
 - README 与安装说明都应围绕此版本展开
 
 ## 分发建议
 
-1. 优先使用 GitHub Release 页面与仓库主页作为对外版本入口
-2. 让 README 保持与当前推荐版本一致
-3. 对中文用户，优先给出本文档、中文总入口和命令行安装说明
-4. 不再以 DMG / EXE 安装包作为当前默认分发口径
-5. 国内镜像或其他渠道发布，单独作为后续动作处理
+1. 对海外或公开分发，优先使用 GitHub 仓库与 GitHub Release 页面
+2. 对国内用户，优先使用 CNB 镜像仓库与中文文档入口
+3. 让 README 保持与当前推荐版本一致
+4. 对中文用户，优先给出本文档、中文总入口和命令行安装说明
+5. 不再以 DMG / EXE 安装包作为当前默认分发口径
 
 ## 对外说明建议
 

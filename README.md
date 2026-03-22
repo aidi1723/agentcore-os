@@ -42,9 +42,10 @@ AgentCore OS 当前更适合这样理解：
 
 获取源码、版本信息与公开发布说明，请以仓库与 GitHub Releases 页面为准：
 
-- GitHub 仓库：<https://github.com/aidi1723/agentcore-os>
+- 主仓库 GitHub：<https://github.com/aidi1723/agentcore-os>
+- 国内镜像 CNB：<https://cnb.cool/aidiyangyu/agentcore-os>
 - GitHub Releases：<https://github.com/aidi1723/agentcore-os/releases>
-- 当前版本发布说明：[docs/releases/v1.1.0.md](docs/releases/v1.1.0.md)
+- 当前版本发布说明（中文）：[docs/releases/v1.1.0.zh-CN.md](docs/releases/v1.1.0.zh-CN.md)
 - 对外分发说明：[docs/EARLY_ACCESS_RELEASE.zh-CN.md](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
 - 市场发布文案：[docs/LAUNCH_COPY_v1.1.0.zh-CN.md](docs/LAUNCH_COPY_v1.1.0.zh-CN.md)
 - 文档总入口：[docs/DOCUMENTATION_INDEX.zh-CN.md](docs/DOCUMENTATION_INDEX.zh-CN.md)
@@ -99,14 +100,14 @@ npm run dev
 
 - [文档总入口](docs/DOCUMENTATION_INDEX.zh-CN.md)
 - [用户指南（中文）](docs/USER_GUIDE.zh-CN.md)
-- [当前版本发布说明](docs/releases/v1.1.0.md)
+- [当前版本发布说明](docs/releases/v1.1.0.zh-CN.md)
 - [对外分发说明](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
 - [市场发布文案](docs/LAUNCH_COPY_v1.1.0.zh-CN.md)
 
 ### 安装与发布相关
 
 - [命令行安装说明](docs/COMMAND_LINE_INSTALL.zh-CN.md)
-- [公开发布说明](docs/PUBLIC_RELEASE.md)
+- [公开发布说明（中文）](docs/PUBLIC_RELEASE.zh-CN.md)
 
 ### 其他核心文档
 

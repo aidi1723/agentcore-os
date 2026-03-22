@@ -26,4 +26,4 @@
 
 - [命令行安装说明](COMMAND_LINE_INSTALL.zh-CN.md)
 - [macOS 未签名安装说明](MACOS_UNSIGNED_INSTALL.zh-CN.md)
-- [当前版本发布说明](releases/v1.1.0.md)
+- [当前版本发布说明](releases/v1.1.1.zh-CN.md)

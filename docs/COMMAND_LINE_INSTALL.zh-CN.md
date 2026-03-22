@@ -8,7 +8,7 @@
 - npm
 - macOS 或 Windows
 
-当前推荐版本：`v1.1.0`
+当前推荐版本：`v1.1.1`
 
 ## 安装步骤
 
@@ -43,7 +43,7 @@ npm run lint
 如需更多环境准备与分轨说明，请结合阅读：
 
 - [README.md](../README.md)
-- [当前版本发布说明](releases/v1.1.0.md)
+- [当前版本发布说明](releases/v1.1.1.zh-CN.md)
 - [GETTING_STARTED.md](GETTING_STARTED.md)
 - [CONFIGURATION.md](CONFIGURATION.md)
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md)

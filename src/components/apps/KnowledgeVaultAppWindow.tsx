@@ -164,7 +164,6 @@ export function KnowledgeVaultAppWindow({
   }, [assetRevision, assetStatusFilter, query]);
 
   const reuseKnowledgeAsset = (asset: KnowledgeAssetRecord) => {
-    incrementKnowledgeAssetReuse(asset.id);
     if (asset.assetType === "sales_playbook") {
       requestOpenDealDesk(buildDealDeskPrefillFromKnowledgeAsset(asset));
       return;

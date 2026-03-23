@@ -55,8 +55,11 @@ export type DesktopRuntimeSettings = {
 export type MatrixAccountsSettings = {
   xiaohongshu: { token: string; webhookUrl: string };
   douyin: { token: string; webhookUrl: string };
+  wechat: { token: string; webhookUrl: string };
   instagram: { token: string; webhookUrl: string };
   tiktok: { token: string; webhookUrl: string };
+  twitter: { token: string; webhookUrl: string };
+  linkedin: { token: string; webhookUrl: string };
   storefront: { token: string; webhookUrl: string };
 };
 
@@ -144,8 +147,11 @@ export const defaultSettings: AppSettings = {
   matrixAccounts: {
     xiaohongshu: { token: "", webhookUrl: "" },
     douyin: { token: "", webhookUrl: "" },
+    wechat: { token: "", webhookUrl: "" },
     instagram: { token: "", webhookUrl: "" },
     tiktok: { token: "", webhookUrl: "" },
+    twitter: { token: "", webhookUrl: "" },
+    linkedin: { token: "", webhookUrl: "" },
     storefront: { token: "", webhookUrl: "" },
   },
   personalization: {
@@ -161,7 +167,16 @@ export const defaultSettings: AppSettings = {
 };
 
 const SETTINGS_KEY = "openclaw.settings.v1";
-const MATRIX_ACCOUNT_IDS = ["xiaohongshu", "douyin", "instagram", "tiktok", "storefront"] as const;
+const MATRIX_ACCOUNT_IDS = [
+  "xiaohongshu",
+  "douyin",
+  "wechat",
+  "instagram",
+  "tiktok",
+  "twitter",
+  "linkedin",
+  "storefront",
+] as const;
 const VALID_APP_IDS = new Set<AppId>([
   "tech_news_digest",
   "industry_hub",

@@ -79,13 +79,24 @@ const tabs: Array<{ id: TabId; label: string; icon: ReactNode }> = [
   },
 ];
 
-type MatrixApp = "xiaohongshu" | "douyin" | "instagram" | "tiktok" | "storefront";
+type MatrixApp =
+  | "xiaohongshu"
+  | "douyin"
+  | "wechat"
+  | "instagram"
+  | "tiktok"
+  | "twitter"
+  | "linkedin"
+  | "storefront";
 
 const matrixApps: Array<{ id: MatrixApp; name: string }> = [
   { id: "xiaohongshu", name: "小红书" },
   { id: "douyin", name: "抖音" },
+  { id: "wechat", name: "微信公众号" },
   { id: "instagram", name: "Instagram" },
   { id: "tiktok", name: "TikTok" },
+  { id: "twitter", name: "X / Twitter" },
+  { id: "linkedin", name: "LinkedIn" },
   { id: "storefront", name: "独立站" },
 ];
 
@@ -132,8 +143,11 @@ export function SettingsAppWindow({
   const [matrixSaving, setMatrixSaving] = useState<Record<MatrixApp, boolean>>({
     xiaohongshu: false,
     douyin: false,
+    wechat: false,
     instagram: false,
     tiktok: false,
+    twitter: false,
+    linkedin: false,
     storefront: false,
   });
   const isWindowVisible = state === "open" || state === "opening";
@@ -2208,12 +2222,24 @@ export function SettingsAppWindow({
                             ...prev.matrixAccounts.douyin,
                             webhookUrl: local,
                           },
+                          wechat: {
+                            ...prev.matrixAccounts.wechat,
+                            webhookUrl: local,
+                          },
                           instagram: {
                             ...prev.matrixAccounts.instagram,
                             webhookUrl: local,
                           },
                           tiktok: {
                             ...prev.matrixAccounts.tiktok,
+                            webhookUrl: local,
+                          },
+                          twitter: {
+                            ...prev.matrixAccounts.twitter,
+                            webhookUrl: local,
+                          },
+                          linkedin: {
+                            ...prev.matrixAccounts.linkedin,
                             webhookUrl: local,
                           },
                         },

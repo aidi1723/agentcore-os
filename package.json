@@ -22,6 +22,8 @@
     "tauri:build": "node scripts/desktop-runtime/run-tauri.mjs build",
     "start": "next start",
     "stable": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});\" && next build && next start -p 3000",
+    "test:core-workflows": "node --import ./scripts/register-ts-alias-loader.mjs ./scripts/regression/workflows.mjs",
+    "test:stability": "npm run test:core-workflows && npm run lint && npm run build",
     "lint": "next lint",
     "webhook:dev": "node scripts/webhook-connector/server.mjs",
     "publish-queue:worker": "node scripts/publish-queue-worker.mjs",

@@ -7,7 +7,6 @@ import { listPublishJobs, updatePublishJobRecord } from "@/lib/server/publish-jo
 import { runPublishDispatch } from "@/lib/server/publish-dispatch";
 
 const LOCK_FILE = path.join(process.cwd(), ".openclaw-data", "publish-queue.lock");
-const STALE_LOCK_MS = 5 * 60 * 1000; // 5 minutes
 
 function isProcessAlive(pid: number) {
   try {

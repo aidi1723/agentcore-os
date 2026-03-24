@@ -18,6 +18,7 @@ import { AppToast } from "@/components/AppToast";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
 import { useRuntimeDoctorReport } from "@/hooks/useRuntimeDoctorReport";
 import { useImBridge } from "@/hooks/useImBridge";
+import { useServerBackedSyncStatuses } from "@/hooks/useServerBackedSyncStatuses";
 import { useRuntimeSidecar } from "@/hooks/useRuntimeSidecar";
 import { useTimedToast } from "@/hooks/useTimedToast";
 import {
@@ -159,6 +160,7 @@ export function SettingsAppWindow({
     error: runtimeDoctorError,
     refresh: refreshRuntimeDoctor,
   } = useRuntimeDoctorReport(isWindowVisible && activeTab === "engine");
+  const syncStatuses = useServerBackedSyncStatuses(isWindowVisible && activeTab === "engine");
   const autosaveTimerRef = useRef<number | null>(null);
   const hydratedRef = useRef(false);
 
@@ -291,6 +293,10 @@ export function SettingsAppWindow({
   const runtimeSummary = useMemo(
     () => getDesktopRuntimeStatusSummary(form, runtimeDoctor),
     [form, runtimeDoctor],
+  );
+  const totalPendingSyncs = useMemo(
+    () => syncStatuses.reduce((sum, status) => sum + status.pendingCount, 0),
+    [syncStatuses],
   );
   const runtimeBridgeConfig = useMemo(() => getRuntimeBridgeConfig(form), [form]);
   const {
@@ -1116,9 +1122,82 @@ export function SettingsAppWindow({
                             ? `Recommended profile: ${
                                 runtimeDoctor.recommendedProfile === "desktop_light"
                                   ? "Desktop Light Runtime"
-                                  : "Desktop + Dify Runtime"
+                              : "Desktop + Dify Runtime"
                               }. ${runtimeDoctor.nextAction}`
                             : "Run diagnostics to confirm local sidecar readiness."}
+                      </div>
+
+                      <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="text-sm font-semibold text-gray-900">核心状态同步</div>
+                          <div
+                            className={[
+                              "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                              totalPendingSyncs > 0
+                                ? "bg-amber-100 text-amber-700"
+                                : "bg-emerald-100 text-emerald-700",
+                            ].join(" ")}
+                          >
+                            {totalPendingSyncs > 0 ? `${totalPendingSyncs} Pending` : "Healthy"}
+                          </div>
+                        </div>
+                        <div className="mt-2 text-xs leading-5 text-gray-500">
+                          这里监控销售、客服和工作流三条核心状态链路的待同步积压与自动重试情况。
+                        </div>
+
+                        <div className="mt-4 space-y-2">
+                          {syncStatuses.length > 0 ? (
+                            syncStatuses.map((status) => (
+                              <div
+                                key={status.id}
+                                className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3"
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <div className="text-sm font-semibold text-gray-900">
+                                    {status.label}
+                                  </div>
+                                  <div
+                                    className={[
+                                      "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                                      status.phase === "idle"
+                                        ? "bg-emerald-100 text-emerald-700"
+                                        : status.phase === "syncing"
+                                          ? "bg-sky-100 text-sky-700"
+                                          : "bg-amber-100 text-amber-700",
+                                    ].join(" ")}
+                                  >
+                                    {status.phase === "idle"
+                                      ? "Idle"
+                                      : status.phase === "syncing"
+                                        ? "Syncing"
+                                        : "Retrying"}
+                                  </div>
+                                </div>
+
+                                <div className="mt-2 grid grid-cols-2 gap-3 text-[11px] text-gray-500">
+                                  <div>
+                                    <span className="font-semibold text-gray-900">待同步：</span>
+                                    {status.pendingCount}
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-900">最近成功：</span>
+                                    {status.lastSuccessAt
+                                      ? new Date(status.lastSuccessAt).toLocaleTimeString()
+                                      : "暂无"}
+                                  </div>
+                                  <div className="col-span-2">
+                                    <span className="font-semibold text-gray-900">最近异常：</span>
+                                    {status.lastError || "无"}
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-4 text-xs leading-6 text-gray-500">
+                              同步诊断尚未初始化。
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-4">

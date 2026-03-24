@@ -20,6 +20,10 @@ export function setJsonToStorage<T>(
   storage?: Storage,
 ) {
   if (!storage && typeof window === "undefined") return;
-  const resolvedStorage = storage ?? window.localStorage;
-  resolvedStorage.setItem(key, JSON.stringify(value));
+  try {
+    const resolvedStorage = storage ?? window.localStorage;
+    resolvedStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Ignore quota/private-mode storage errors so UI state changes do not crash the app.
+  }
 }

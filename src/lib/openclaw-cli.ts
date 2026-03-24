@@ -39,6 +39,9 @@ export async function runOpenClawAgent(params: {
       ],
       { stdio: ["ignore", "pipe", "pipe"] },
     );
+    const killTimer = setTimeout(() => {
+      child.kill("SIGKILL");
+    }, timeoutSeconds * 1000 + 2_000);
 
     let stdout = "";
     let stderr = "";
@@ -53,6 +56,7 @@ export async function runOpenClawAgent(params: {
     });
 
     child.on("close", (code) => {
+      clearTimeout(killTimer);
       const combined = (stdout || "").trim();
       if (code !== 0) {
         const errText = (stderr || combined || "").trim();
@@ -78,6 +82,7 @@ export async function runOpenClawAgent(params: {
     });
 
     child.on("error", (err) => {
+      clearTimeout(killTimer);
       resolve({
         ok: false,
         error: err.message || "无法执行 openclaw 命令",

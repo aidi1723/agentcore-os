@@ -1,5 +1,6 @@
 export type DealStage = "new" | "qualified" | "proposal" | "blocked" | "won";
 
+import { createServerBackedListState, type SyncTombstoneRecord } from "@/lib/server-backed-list-state";
 import type { SalesWorkflowMeta } from "@/lib/sales-workflow";
 
 export type DealRecord = {
@@ -21,40 +22,54 @@ export type DealRecord = {
 } & SalesWorkflowMeta;
 
 type Listener = () => void;
+type DealTombstone = SyncTombstoneRecord;
 
 const DEALS_KEY = "openclaw.deals.v1";
-const listeners = new Set<Listener>();
+const MAX_DEALS = 120;
 
-function emit() {
-  for (const listener of listeners) listener();
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event("openclaw:deals"));
-  }
+function sortDeals(items: DealRecord[]) {
+  return items.slice().sort((a, b) => b.updatedAt - a.updatedAt).slice(0, MAX_DEALS);
 }
 
-function load() {
-  if (typeof window === "undefined") return [] as DealRecord[];
-  try {
-    const raw = window.localStorage.getItem(DEALS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as DealRecord[]) : [];
-  } catch {
-    return [];
-  }
-}
+const dealState = createServerBackedListState<DealRecord, DealTombstone>({
+  statusId: "deals",
+  statusLabel: "销售线索",
+  storageKey: DEALS_KEY,
+  eventName: "openclaw:deals",
+  maxItems: MAX_DEALS,
+  listPath: "/api/runtime/state/deals",
+  deletePath: (dealId) => `/api/runtime/state/deals/${encodeURIComponent(dealId)}`,
+  itemBodyKey: "deal",
+  sortItems: sortDeals,
+  parseHydrateData: (data) => {
+    const payload = data as
+      | null
+      | { ok?: boolean; data?: { deals?: DealRecord[]; tombstones?: DealTombstone[] } };
+    return {
+      items: Array.isArray(payload?.data?.deals) ? payload.data.deals : null,
+      tombstones: Array.isArray(payload?.data?.tombstones) ? payload.data.tombstones : [],
+    };
+  },
+  parseUpsertData: (data) => {
+    const payload = data as
+      | null
+      | {
+          ok?: boolean;
+          data?: { deal?: DealRecord | null; tombstone?: DealTombstone | null; accepted?: boolean };
+        };
+    return {
+      item: payload?.data?.deal ?? null,
+      tombstone: payload?.data?.tombstone ?? null,
+    };
+  },
+});
 
-function save(next: DealRecord[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(DEALS_KEY, JSON.stringify(next.slice(0, 120)));
-  } catch {
-    // ignore
-  }
+export async function hydrateDealsFromServer(force = false) {
+  return dealState.hydrateFromServer(force);
 }
 
 export function getDeals() {
-  return load().slice().sort((a, b) => b.updatedAt - a.updatedAt);
+  return dealState.getItems();
 }
 
 export function createDeal(input?: Partial<Omit<DealRecord, "id" | "createdAt" | "updatedAt">>) {
@@ -82,8 +97,9 @@ export function createDeal(input?: Partial<Omit<DealRecord, "id" | "createdAt" |
     createdAt: now,
     updatedAt: now,
   };
-  save([deal, ...load()]);
-  emit();
+  dealState.saveLocal([deal, ...dealState.load()]);
+  dealState.emit();
+  void dealState.syncItemToServer(deal);
   return deal.id;
 }
 
@@ -92,26 +108,33 @@ export function updateDeal(
   patch: Partial<Omit<DealRecord, "id" | "createdAt" | "updatedAt">>,
 ) {
   const now = Date.now();
-  save(
-    load().map((deal) =>
-      deal.id === dealId
-        ? {
-            ...deal,
-            ...patch,
-            updatedAt: now,
-          }
-        : deal,
-    ),
+  let nextDeal: DealRecord | null = null;
+  dealState.saveLocal(
+    dealState.load().map((deal) => {
+      if (deal.id !== dealId) return deal;
+      nextDeal = {
+        ...deal,
+        ...patch,
+        updatedAt: now,
+      };
+      return nextDeal;
+    }),
   );
-  emit();
+  dealState.emit();
+  if (nextDeal) {
+    void dealState.syncItemToServer(nextDeal);
+  }
 }
 
 export function removeDeal(dealId: string) {
-  save(load().filter((deal) => deal.id !== dealId));
-  emit();
+  const current = dealState.load().find((deal) => deal.id === dealId) ?? null;
+  dealState.saveLocal(dealState.load().filter((deal) => deal.id !== dealId));
+  dealState.emit();
+  if (current) {
+    void dealState.removeItemOnServer(dealId, current.updatedAt);
+  }
 }
 
 export function subscribeDeals(listener: Listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+  return dealState.subscribe(listener);
 }

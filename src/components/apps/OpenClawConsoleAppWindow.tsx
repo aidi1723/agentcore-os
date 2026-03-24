@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   Boxes,
@@ -15,6 +15,7 @@ import { AppToast } from "@/components/AppToast";
 import { UnifiedAssetConsole } from "@/components/workflows/UnifiedAssetConsole";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
 import { useRuntimeDoctorReport } from "@/hooks/useRuntimeDoctorReport";
+import { useServerBackedSyncStatuses } from "@/hooks/useServerBackedSyncStatuses";
 import { useRuntimeSidecar } from "@/hooks/useRuntimeSidecar";
 import { useTimedToast } from "@/hooks/useTimedToast";
 import { buildAgentCoreApiUrl } from "@/lib/app-api";
@@ -28,6 +29,39 @@ import { requestOpenSettings } from "@/lib/ui-events";
 
 const DEFAULT_BASE = "http://127.0.0.1:18789";
 const DEFAULT_SESSION = "agent:main:main";
+
+type ExecutorSessionSummary = {
+  id: string;
+  title: string;
+  updatedAt: number;
+  lastEngine: string;
+  lastStatus: "ok" | "error";
+  lastMessage: string;
+  lastOutputPreview: string;
+  turns: Array<{ id: string }>;
+};
+
+type ExecutorSessionTurn = {
+  id: string;
+  createdAt: number;
+  durationMs: number;
+  source: string;
+  engine: string;
+  ok: boolean;
+  message: string;
+  systemPrompt: string;
+  useSkills: boolean;
+  workspaceContext: Record<string, string | number | boolean>;
+  llmProvider: string;
+  llmModel: string;
+  timeoutSeconds: number;
+  outputText?: string;
+  error?: string;
+};
+
+type ExecutorSessionDetail = Omit<ExecutorSessionSummary, "turns"> & {
+  turns: ExecutorSessionTurn[];
+};
 
 function safeUrl(base: string, path: string) {
   const trimmed = base.trim().replace(/\/+$/, "") || DEFAULT_BASE;
@@ -48,6 +82,16 @@ export function OpenClawConsoleAppWindow({
   const [interfaceLanguage, setInterfaceLanguage] = useState<InterfaceLanguage>("zh-CN");
   const [healthText, setHealthText] = useState<string>("");
   const [isChecking, setIsChecking] = useState(false);
+  const [executorSessions, setExecutorSessions] = useState<ExecutorSessionSummary[]>([]);
+  const [executorSessionsLoading, setExecutorSessionsLoading] = useState(false);
+  const [executorSessionsError, setExecutorSessionsError] = useState("");
+  const [selectedExecutorSessionId, setSelectedExecutorSessionId] = useState("");
+  const [selectedExecutorSession, setSelectedExecutorSession] =
+    useState<ExecutorSessionDetail | null>(null);
+  const [selectedExecutorSessionLoading, setSelectedExecutorSessionLoading] = useState(false);
+  const [selectedExecutorSessionError, setSelectedExecutorSessionError] = useState("");
+  const executorSessionRequestRef = useRef(0);
+  const selectedExecutorSessionIdRef = useRef("");
   const { toast, showToast } = useTimedToast(2000);
   const isVisible = state === "open" || state === "opening";
   const {
@@ -56,6 +100,7 @@ export function OpenClawConsoleAppWindow({
     error: runtimeDoctorError,
     refresh: refreshRuntimeDoctor,
   } = useRuntimeDoctorReport(isVisible);
+  const syncStatuses = useServerBackedSyncStatuses(isVisible);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -74,6 +119,103 @@ export function OpenClawConsoleAppWindow({
       window.removeEventListener("storage", syncFromSettings);
     };
   }, [isVisible]);
+
+  useEffect(() => {
+    selectedExecutorSessionIdRef.current = selectedExecutorSessionId;
+  }, [selectedExecutorSessionId]);
+
+  const refreshExecutorSessionDetail = useCallback(async (sessionId: string) => {
+    const normalizedId = sessionId.trim();
+    if (!normalizedId) {
+      setSelectedExecutorSession(null);
+      setSelectedExecutorSessionError("");
+      setSelectedExecutorSessionId("");
+      return;
+    }
+
+    const requestId = ++executorSessionRequestRef.current;
+    setSelectedExecutorSessionId(normalizedId);
+    setSelectedExecutorSessionLoading(true);
+    setSelectedExecutorSessionError("");
+    try {
+      const res = await fetch(
+        buildAgentCoreApiUrl(
+          `/api/runtime/executor/sessions/${encodeURIComponent(normalizedId)}`,
+        ),
+        {
+          method: "GET",
+          cache: "no-store",
+        },
+      );
+      const data = (await res.json().catch(() => null)) as
+        | null
+        | { ok?: boolean; data?: { session?: ExecutorSessionDetail }; error?: string };
+      const session = data?.data?.session ?? null;
+      if (executorSessionRequestRef.current !== requestId) return;
+      if (!res.ok || !data?.ok || !session) {
+        setSelectedExecutorSession(null);
+        setSelectedExecutorSessionError(data?.error || "无法加载执行器会话详情");
+        return;
+      }
+      setSelectedExecutorSession(session);
+    } catch (error) {
+      if (executorSessionRequestRef.current !== requestId) return;
+      setSelectedExecutorSession(null);
+      setSelectedExecutorSessionError(error instanceof Error ? error.message : "请求异常");
+    } finally {
+      if (executorSessionRequestRef.current === requestId) {
+        setSelectedExecutorSessionLoading(false);
+      }
+    }
+  }, []);
+
+  const refreshExecutorSessions = useCallback(async () => {
+    setExecutorSessionsLoading(true);
+    setExecutorSessionsError("");
+    try {
+      const res = await fetch(buildAgentCoreApiUrl("/api/runtime/executor/sessions"), {
+        method: "GET",
+        cache: "no-store",
+      });
+      const data = (await res.json().catch(() => null)) as
+        | null
+        | { ok?: boolean; data?: { sessions?: ExecutorSessionSummary[] }; error?: string };
+      const sessions = Array.isArray(data?.data?.sessions) ? data.data.sessions : null;
+      if (!res.ok || !data?.ok || !sessions) {
+        setExecutorSessions([]);
+        setExecutorSessionsError(data?.error || "无法加载执行器历史");
+        setSelectedExecutorSession(null);
+        setSelectedExecutorSessionId("");
+        setSelectedExecutorSessionError("");
+        return;
+      }
+      const nextSessions = sessions.slice(0, 8);
+      setExecutorSessions(nextSessions);
+      const nextSelectedId =
+        nextSessions.find((session) => session.id === selectedExecutorSessionIdRef.current)?.id ??
+        nextSessions[0]?.id ??
+        "";
+      if (!nextSelectedId) {
+        setSelectedExecutorSession(null);
+        setSelectedExecutorSessionId("");
+        setSelectedExecutorSessionError("");
+        return;
+      }
+      void refreshExecutorSessionDetail(nextSelectedId);
+    } catch (error) {
+      setExecutorSessions([]);
+      setExecutorSessionsError(error instanceof Error ? error.message : "请求异常");
+      setSelectedExecutorSession(null);
+      setSelectedExecutorSessionId("");
+    } finally {
+      setExecutorSessionsLoading(false);
+    }
+  }, [refreshExecutorSessionDetail]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    void refreshExecutorSessions();
+  }, [isVisible, refreshExecutorSessions]);
 
   const dashboardUrl = useMemo(() => safeUrl(baseUrl, "/"), [baseUrl]);
   const chatUrl = useMemo(
@@ -153,6 +295,11 @@ export function OpenClawConsoleAppWindow({
     showToast(result.message, result.ok ? "ok" : "error");
     refreshSidecarStatus();
   };
+
+  const totalPendingSyncs = useMemo(
+    () => syncStatuses.reduce((sum, status) => sum + status.pendingCount, 0),
+    [syncStatuses],
+  );
 
   return (
     <AppWindowShell
@@ -477,6 +624,343 @@ export function OpenClawConsoleAppWindow({
           language={interfaceLanguage}
           onOpenAsset={(target) => jumpToAssetTarget(target)}
         />
+
+        <div className="rounded-2xl border border-gray-200 bg-white p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-gray-900">核心状态同步</div>
+              <div className="mt-2 text-xs leading-5 text-gray-500">
+                这里显示销售、客服、工作流三条核心状态链路的本地同步情况，便于判断是否有待重试任务积压。
+              </div>
+            </div>
+            <div
+              className={[
+                "rounded-full px-3 py-1 text-[11px] font-semibold",
+                totalPendingSyncs > 0
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-emerald-100 text-emerald-700",
+              ].join(" ")}
+            >
+              {totalPendingSyncs > 0 ? `${totalPendingSyncs} pending` : "All synced"}
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
+            {syncStatuses.length > 0 ? (
+              syncStatuses.map((status) => (
+                <div
+                  key={status.id}
+                  className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-sm font-semibold text-gray-900">{status.label}</div>
+                    <div
+                      className={[
+                        "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                        status.phase === "idle"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : status.phase === "syncing"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-amber-100 text-amber-700",
+                      ].join(" ")}
+                    >
+                      {status.phase === "idle"
+                        ? "Idle"
+                        : status.phase === "syncing"
+                          ? "Syncing"
+                          : "Retrying"}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3 text-[11px] text-gray-500">
+                    <div>
+                      <span className="font-semibold text-gray-900">待同步：</span>
+                      {status.pendingCount}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-900">最近成功：</span>
+                      {status.lastSuccessAt
+                        ? new Date(status.lastSuccessAt).toLocaleTimeString()
+                        : "暂无"}
+                    </div>
+                    <div className="col-span-2">
+                      <span className="font-semibold text-gray-900">下次重试：</span>
+                      {status.nextRetryAt
+                        ? new Date(status.nextRetryAt).toLocaleTimeString()
+                        : "无"}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 rounded-xl bg-white px-3 py-3 text-xs leading-6 text-gray-600">
+                    {status.lastError ? (
+                      <>
+                        <span className="font-semibold text-rose-700">最近异常：</span>
+                        {status.lastError}
+                      </>
+                    ) : status.pendingCount > 0 ? (
+                      "当前有待重试同步任务，恢复网络或重新聚焦窗口后会继续补发。"
+                    ) : (
+                      "当前这条链路没有待同步积压。"
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-xs leading-6 text-gray-500 lg:col-span-3">
+                核心状态同步诊断尚未激活。打开销售、客服或工作流相关页面后，这里会开始显示同步状态。
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-gray-200 bg-white p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-gray-900">执行器历史</div>
+              <div className="mt-2 text-xs leading-5 text-gray-500">
+                这里展示 AgentCore OS 服务端记录的最近执行会话，便于审计、复盘和问题定位。
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={refreshExecutorSessions}
+              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+            >
+              <RefreshCw
+                className={[
+                  "h-3.5 w-3.5",
+                  executorSessionsLoading ? "animate-spin" : "",
+                ].join(" ")}
+              />
+              {executorSessionsLoading ? "刷新中" : "刷新"}
+            </button>
+          </div>
+
+          {executorSessionsError ? (
+            <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs leading-6 text-rose-700">
+              {executorSessionsError}
+            </div>
+          ) : null}
+
+          <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.85fr)]">
+            <div className="space-y-3">
+              {executorSessions.length > 0 ? (
+                executorSessions.map((sessionItem) => (
+                  <button
+                    key={sessionItem.id}
+                    type="button"
+                    onClick={() => void refreshExecutorSessionDetail(sessionItem.id)}
+                    className={[
+                      "block w-full rounded-2xl border px-4 py-4 text-left transition-colors",
+                      sessionItem.id === selectedExecutorSessionId
+                        ? "border-blue-200 bg-blue-50/70"
+                        : "border-gray-200 bg-gray-50 hover:bg-gray-100",
+                    ].join(" ")}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-gray-900">
+                          {sessionItem.title || "未命名执行"}
+                        </div>
+                        <div className="mt-1 text-[11px] uppercase tracking-[0.14em] text-gray-500">
+                          {sessionItem.lastEngine}
+                        </div>
+                      </div>
+                      <div
+                        className={[
+                          "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                          sessionItem.lastStatus === "ok"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-rose-100 text-rose-700",
+                        ].join(" ")}
+                      >
+                        {sessionItem.lastStatus === "ok" ? "OK" : "Error"}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 text-xs leading-5 text-gray-600">
+                      <span className="font-semibold text-gray-900">最近输入：</span>
+                      {sessionItem.lastMessage || "（无）"}
+                    </div>
+                    <div className="mt-2 text-xs leading-5 text-gray-600">
+                      <span className="font-semibold text-gray-900">最近输出：</span>
+                      {sessionItem.lastOutputPreview || "（无输出摘要）"}
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between gap-3 text-[11px] text-gray-500">
+                      <div>{new Date(sessionItem.updatedAt).toLocaleString()}</div>
+                      <div>{sessionItem.turns.length} turns</div>
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-xs leading-6 text-gray-500">
+                  {executorSessionsLoading
+                    ? "正在加载最近执行记录..."
+                    : "最近还没有服务端执行记录。执行几次主助手任务后，这里会开始沉淀历史。"}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">会话明细</div>
+                  <div className="mt-1 text-[11px] leading-5 text-gray-500">
+                    查看每轮输入、输出、模型、上下文与耗时。
+                  </div>
+                </div>
+                {selectedExecutorSessionLoading ? (
+                  <div className="text-[11px] text-gray-500">加载中...</div>
+                ) : null}
+              </div>
+
+              {selectedExecutorSessionError ? (
+                <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-3 text-xs leading-6 text-rose-700">
+                  {selectedExecutorSessionError}
+                </div>
+              ) : null}
+
+              {selectedExecutorSession ? (
+                <div className="mt-4 space-y-4">
+                  <div className="rounded-2xl border border-white/80 bg-white px-4 py-4">
+                    <div className="text-sm font-semibold text-gray-900">
+                      {selectedExecutorSession.title || "未命名执行"}
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-3 text-[11px] text-gray-500">
+                      <div>
+                        <span className="font-semibold text-gray-900">会话 ID：</span>
+                        {selectedExecutorSession.id}
+                      </div>
+                      <div>
+                        <span className="font-semibold text-gray-900">最近引擎：</span>
+                        {selectedExecutorSession.lastEngine}
+                      </div>
+                      <div>
+                        <span className="font-semibold text-gray-900">状态：</span>
+                        {selectedExecutorSession.lastStatus === "ok" ? "OK" : "Error"}
+                      </div>
+                      <div>
+                        <span className="font-semibold text-gray-900">更新时间：</span>
+                        {new Date(selectedExecutorSession.updatedAt).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {selectedExecutorSession.turns
+                      .slice()
+                      .reverse()
+                      .map((turn, index) => {
+                        const workspaceEntries = Object.entries(turn.workspaceContext ?? {});
+                        return (
+                          <div
+                            key={turn.id}
+                            className="rounded-2xl border border-white/80 bg-white px-4 py-4"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="text-sm font-semibold text-gray-900">
+                                第 {selectedExecutorSession.turns.length - index} 轮
+                              </div>
+                              <div
+                                className={[
+                                  "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                                  turn.ok
+                                    ? "bg-emerald-100 text-emerald-700"
+                                    : "bg-rose-100 text-rose-700",
+                                ].join(" ")}
+                              >
+                                {turn.ok ? "OK" : "Error"}
+                              </div>
+                            </div>
+
+                            <div className="mt-3 grid grid-cols-2 gap-3 text-[11px] text-gray-500">
+                              <div>
+                                <span className="font-semibold text-gray-900">时间：</span>
+                                {new Date(turn.createdAt).toLocaleString()}
+                              </div>
+                              <div>
+                                <span className="font-semibold text-gray-900">耗时：</span>
+                                {turn.durationMs} ms
+                              </div>
+                              <div>
+                                <span className="font-semibold text-gray-900">来源：</span>
+                                {turn.source}
+                              </div>
+                              <div>
+                                <span className="font-semibold text-gray-900">引擎：</span>
+                                {turn.engine}
+                              </div>
+                              <div>
+                                <span className="font-semibold text-gray-900">模型：</span>
+                                {[turn.llmProvider, turn.llmModel].filter(Boolean).join(" / ") ||
+                                  "未记录"}
+                              </div>
+                              <div>
+                                <span className="font-semibold text-gray-900">技能：</span>
+                                {turn.useSkills ? "启用" : "关闭"}
+                              </div>
+                            </div>
+
+                            <div className="mt-3">
+                              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                输入
+                              </div>
+                              <div className="mt-1 whitespace-pre-wrap break-words rounded-xl bg-gray-50 px-3 py-3 text-xs leading-6 text-gray-700">
+                                {turn.message || "（无）"}
+                              </div>
+                            </div>
+
+                            {turn.systemPrompt ? (
+                              <div className="mt-3">
+                                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                  System Prompt
+                                </div>
+                                <div className="mt-1 whitespace-pre-wrap break-words rounded-xl bg-gray-50 px-3 py-3 text-xs leading-6 text-gray-700">
+                                  {turn.systemPrompt}
+                                </div>
+                              </div>
+                            ) : null}
+
+                            {workspaceEntries.length > 0 ? (
+                              <div className="mt-3">
+                                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                  Workspace Context
+                                </div>
+                                <div className="mt-1 rounded-xl bg-gray-50 px-3 py-3 text-xs leading-6 text-gray-700">
+                                  {workspaceEntries.map(([key, value]) => (
+                                    <div key={key}>
+                                      <span className="font-semibold text-gray-900">{key}:</span>{" "}
+                                      {String(value)}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : null}
+
+                            <div className="mt-3">
+                              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                输出
+                              </div>
+                              <div className="mt-1 whitespace-pre-wrap break-words rounded-xl bg-gray-50 px-3 py-3 text-xs leading-6 text-gray-700">
+                                {turn.outputText || turn.error || "（无输出）"}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 rounded-2xl border border-dashed border-gray-200 bg-white px-4 py-6 text-xs leading-6 text-gray-500">
+                  {executorSessionsLoading
+                    ? "正在同步执行器明细..."
+                    : "选中左侧任意一条执行会话后，这里会显示完整追踪信息。"}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-4 lg:col-span-2">

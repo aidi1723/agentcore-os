@@ -51,6 +51,34 @@ That means management passwords, admin gates, and broader permission models are 
 
 These items unblock the next stage of the project and should be treated as the default priority.
 
+### 0. Converge on an internal executor core
+
+Why:
+- AgentCore OS still has split execution semantics across browser, server, and sidecar paths
+- this is now a bigger risk than feature count because the same workflow can behave differently by runtime shape
+- a solution operating system cannot depend on external runtime semantics for its core execution identity
+
+Scope:
+- define one internal executor contract for task input, session, context, skill policy, model config, result, and trace
+- route current OpenClaw or runtime-facing API entrypoints through the same internal executor core
+- move session ownership into AgentCore OS instead of depending on external process session semantics
+- turn skills into auditable execution units instead of prompt-only capability hints
+- keep external runtimes as optional compatibility adapters, not as the source of truth
+
+Primary files:
+- new `src/lib/executor/*`
+- `src/lib/openclaw-agent-client.ts`
+- `src/app/api/openclaw/agent/route.ts`
+- `src/app/api/runtime/**`
+- `src/components/apps/OpenClawConsoleAppWindow.tsx`
+- `src/lib/app-api.ts`
+
+Expected outcome:
+- one stable execution contract across browser and desktop modes
+- session continuity owned by AgentCore OS
+- better precision because system prompt, workspace context, and model config stop drifting by environment
+- external runtimes become replaceable adapters instead of hidden control planes
+
 ### 1. Deepen the sales hero workflow
 
 Why:

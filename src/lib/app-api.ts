@@ -11,6 +11,18 @@ function trimBase(value: string) {
   return value.trim().replace(/\/+$/, "");
 }
 
+function shouldUseConfiguredSidecarBase() {
+  if (typeof window === "undefined") return false;
+  if (window.__AGENTCORE_DESKTOP_SHELL__) return true;
+
+  try {
+    const settings = loadSettings();
+    return settings.runtime.shell === "tauri";
+  } catch {
+    return false;
+  }
+}
+
 export function getAgentCoreApiBaseUrl() {
   if (typeof window === "undefined") {
     return process.env.NEXT_PUBLIC_AGENTCORE_API_BASE_URL?.trim() || "";
@@ -19,12 +31,14 @@ export function getAgentCoreApiBaseUrl() {
   const injected = trimBase(window.__AGENTCORE_API_BASE_URL__ || "");
   if (injected) return injected;
 
-  try {
-    const settings = loadSettings();
-    const configured = trimBase(settings.runtime.sidecarApiUrl || "");
-    if (configured) return configured;
-  } catch {
-    // ignore
+  if (shouldUseConfiguredSidecarBase()) {
+    try {
+      const settings = loadSettings();
+      const configured = trimBase(settings.runtime.sidecarApiUrl || "");
+      if (configured) return configured;
+    } catch {
+      // ignore
+    }
   }
 
   const envBase = trimBase(process.env.NEXT_PUBLIC_AGENTCORE_API_BASE_URL || "");

@@ -4,15 +4,25 @@
 
 This repo uses semantic-ish tags: `vMAJOR.MINOR.PATCH`.
 
+Current public recommendation:
+
+- release line: `v1.1.1`
+- current maintenance notes:
+  - `docs/releases/v1.1.1.md`
+  - `docs/releases/v1.1.1.zh-CN.md`
+  - `docs/releases/2026-03-25-desktop-parity-update.zh-CN.md`
+
 ## Create a release (local)
 
 ```bash
+npm run desktop:smoke-test-sidecar
+npm run test:core-workflows
 npm run lint
 npm run build
 
 git status
 git commit -am "chore: prep release" # if needed
-git tag -a v0.1.0 -m "v0.1.0"
+git tag -a v1.1.1 -m "v1.1.1"
 git push origin main --tags
 ```
 
@@ -46,8 +56,14 @@ Expected macOS app output:
 
 On GitHub:
 - Releases → Draft a new release
-- Choose tag (e.g. `v0.1.0`)
-- Use `docs/releases/v0.1.0.md` as the release body
+- Choose tag (e.g. `v1.1.1`)
+- Use `docs/releases/v1.1.1.md` as the release body
+
+For Chinese-facing mirrors or release notes, keep these in sync:
+
+- `docs/releases/v1.1.1.zh-CN.md`
+- `docs/releases/v1.1.1-github-release.zh-CN.md`
+- `docs/releases/2026-03-25-desktop-parity-update.zh-CN.md`
 
 Optional:
 - Enable “Auto-generate release notes” (configured by `.github/release.yml`)

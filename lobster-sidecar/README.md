@@ -14,16 +14,22 @@ Current responsibilities:
 - heartbeat/self-termination
 - runtime diagnostics
 - runtime sidecar config persistence
+- executor session list/detail persistence
+- runtime state persistence for:
+  - deals
+  - support tickets
+  - workflow runs
 - publish config persistence
 - publish queue/job persistence
+- `/api/openclaw/agent` execution bridge with unified executor-history recording
 - IM bridge for DingTalk / Feishu / generic webhook remote commands
 
 Not yet implemented:
 
-- real Lobster task execution bridge
-- OpenAI-compatible agent execution
-- file asset serving
-- OpenClaw engine gateway compatibility beyond basic placeholders
+- a fully separate skill planner/runtime beyond the current AgentCore prompt-guided execution path
+- long-running distributed execution orchestration
+- stronger cross-process JSON locking/hardening comparable to the Next mainline store
+- full production package verification across every desktop OS combination
 
 Run in development:
 
@@ -52,6 +58,7 @@ Package example:
 
 ```bash
 npm run desktop:prepare-sidecar
+npm run desktop:smoke-test-sidecar
 npm run desktop:package
 ```
 
@@ -76,3 +83,21 @@ Where `provider` is one of:
 - `dingtalk`
 
 The desktop UI exposes these settings under `Settings -> Mobile Access`.
+
+## Runtime parity endpoints
+
+The sidecar now provides the desktop-shell parity routes required by the current AgentCore OS UI:
+
+- `GET /api/runtime/executor/sessions`
+- `GET /api/runtime/executor/sessions/{sessionId}`
+- `GET /api/runtime/state/deals`
+- `POST /api/runtime/state/deals`
+- `DELETE /api/runtime/state/deals/{dealId}`
+- `GET /api/runtime/state/support`
+- `POST /api/runtime/state/support`
+- `DELETE /api/runtime/state/support/{ticketId}`
+- `GET /api/runtime/state/workflow-runs`
+- `POST /api/runtime/state/workflow-runs`
+- `DELETE /api/runtime/state/workflow-runs/{runId}`
+
+These routes are covered by `npm run desktop:smoke-test-sidecar`.

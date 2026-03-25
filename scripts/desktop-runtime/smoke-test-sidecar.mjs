@@ -575,6 +575,156 @@ async function main() {
     }).then((res) => res.json());
     assert(agent.ok === true, "OpenClaw agent route failed.");
 
+    const executorSessions = await fetchJson(
+      `http://127.0.0.1:${sidecarPort}/api/runtime/executor/sessions`,
+    );
+    assert(executorSessions.ok === true, "Executor sessions route failed.");
+    assert(
+      Array.isArray(executorSessions.data?.data?.sessions) &&
+        executorSessions.data.data.sessions.some((item) => item.id === "smoke-agent"),
+      "Executor sessions payload missing smoke session.",
+    );
+    const executorSession = await fetchJson(
+      `http://127.0.0.1:${sidecarPort}/api/runtime/executor/sessions/smoke-agent`,
+    );
+    assert(executorSession.ok === true, "Executor session detail route failed.");
+    assert(
+      executorSession.data?.data?.session?.turns?.some(
+        (turn) => turn.message === "smoke agent" && String(turn.outputText || "").includes("Smoke agent executed."),
+      ),
+      "Executor session detail missing recorded turn.",
+    );
+
+    const dealsBefore = await fetchJson(`http://127.0.0.1:${sidecarPort}/api/runtime/state/deals`);
+    assert(dealsBefore.ok === true, "Deals list route failed.");
+    const deal = {
+      id: "smoke-deal-1",
+      company: "Smoke Windows",
+      stage: "qualified",
+      createdAt: 100,
+      updatedAt: 200,
+    };
+    const dealUpsert = await fetchJson(`http://127.0.0.1:${sidecarPort}/api/runtime/state/deals`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deal }),
+    });
+    assert(dealUpsert.ok === true, "Deal upsert route failed.");
+    const dealsAfterUpsert = await fetchJson(`http://127.0.0.1:${sidecarPort}/api/runtime/state/deals`);
+    assert(
+      dealsAfterUpsert.ok === true &&
+        dealsAfterUpsert.data?.data?.deals?.some((item) => item.id === "smoke-deal-1"),
+      "Deal was not persisted in sidecar state store.",
+    );
+    const dealDelete = await fetchJson(
+      `http://127.0.0.1:${sidecarPort}/api/runtime/state/deals/smoke-deal-1`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ updatedAt: 200 }),
+      },
+    );
+    assert(dealDelete.ok === true, "Deal delete route failed.");
+    const dealConflict = await fetchJson(`http://127.0.0.1:${sidecarPort}/api/runtime/state/deals`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deal }),
+    });
+    assert(
+      dealConflict.status === 409 && dealConflict.data?.data?.tombstone?.id === "smoke-deal-1",
+      "Deal tombstone boundary failed.",
+    );
+
+    const supportTicket = {
+      id: "smoke-ticket-1",
+      customer: "Smoke Customer",
+      channel: "email",
+      subject: "Need quote",
+      message: "Please send a quote",
+      createdAt: 300,
+      updatedAt: 400,
+    };
+    const supportUpsert = await fetchJson(`http://127.0.0.1:${sidecarPort}/api/runtime/state/support`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticket: supportTicket }),
+    });
+    assert(supportUpsert.ok === true, "Support upsert route failed.");
+    const supportDelete = await fetchJson(
+      `http://127.0.0.1:${sidecarPort}/api/runtime/state/support/smoke-ticket-1`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ updatedAt: 400 }),
+      },
+    );
+    assert(
+      supportDelete.ok === true && supportDelete.data?.data?.tombstone?.id === "smoke-ticket-1",
+      "Support delete route failed.",
+    );
+
+    const workflowRunA = {
+      id: "smoke-run-1",
+      scenarioId: "sales-follow-up",
+      scenarioTitle: "Sales Follow Up",
+      triggerType: "manual",
+      state: "running",
+      currentStageId: "stage-1",
+      stageRuns: [{ id: "stage-1", title: "Qualify", mode: "manual", state: "running" }],
+      createdAt: 500,
+      updatedAt: 550,
+    };
+    const workflowRunB = {
+      id: "smoke-run-2",
+      scenarioId: "sales-follow-up",
+      scenarioTitle: "Sales Follow Up",
+      triggerType: "manual",
+      state: "awaiting_human",
+      currentStageId: "stage-2",
+      stageRuns: [{ id: "stage-2", title: "Review", mode: "review", state: "awaiting_human" }],
+      createdAt: 600,
+      updatedAt: 650,
+    };
+    const workflowUpsertA = await fetchJson(
+      `http://127.0.0.1:${sidecarPort}/api/runtime/state/workflow-runs`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workflowRun: workflowRunA }),
+      },
+    );
+    assert(workflowUpsertA.ok === true, "Workflow run upsert route failed.");
+    const workflowUpsertB = await fetchJson(
+      `http://127.0.0.1:${sidecarPort}/api/runtime/state/workflow-runs`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workflowRun: workflowRunB }),
+      },
+    );
+    assert(workflowUpsertB.ok === true, "Workflow run replacement route failed.");
+    const workflowRuns = await fetchJson(
+      `http://127.0.0.1:${sidecarPort}/api/runtime/state/workflow-runs`,
+    );
+    assert(workflowRuns.ok === true, "Workflow runs list route failed.");
+    assert(
+      workflowRuns.data?.data?.workflowRuns?.some((item) => item.id === "smoke-run-2") &&
+        workflowRuns.data?.data?.tombstones?.some((item) => item.id === "smoke-run-1"),
+      "Workflow run scenario winner / tombstone behavior failed.",
+    );
+    const workflowDelete = await fetchJson(
+      `http://127.0.0.1:${sidecarPort}/api/runtime/state/workflow-runs/smoke-run-2`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ updatedAt: 650 }),
+      },
+    );
+    assert(
+      workflowDelete.ok === true && workflowDelete.data?.data?.tombstone?.id === "smoke-run-2",
+      "Workflow run delete route failed.",
+    );
+
     const copy = await fetch(`http://127.0.0.1:${sidecarPort}/api/openclaw/copy`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

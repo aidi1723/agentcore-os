@@ -6,7 +6,7 @@
 
 截至 `2026-03-23`，AgentCore OS 已经完成一轮基于 GitHub 主仓库的真实冷启动安装验收。
 
-当前可以明确承诺的稳定范围是：
+当前可以明确承诺的冷启动稳定范围是：
 
 - 命令行安装
 - 从源码运行
@@ -19,6 +19,21 @@
 - Docker 依赖路径
 - DMG / EXE 安装包分发
 - 所有平台的零差异 out-of-box 体验
+
+## 后续补充验证
+
+截至 `2026-03-25`，当前工作树又补跑并通过了一轮桌面壳 / sidecar 主链路验证，新增确认了：
+
+- `npm run desktop:smoke-test-sidecar`
+- 执行器历史列表 / 详情接口在桌面壳下可用
+- `deals / support / workflow-runs` 三条服务端同步链路在桌面壳下可用
+- `/api/openclaw/agent` 的桌面壳执行结果会写入统一执行器历史
+
+这意味着：
+
+- 冷启动基线仍然以 `2026-03-23` 的全新克隆验收为准
+- 但当前代码状态下，桌面壳主链路已经不再落后于浏览器壳的运行时接口能力
+- 对“整个项目”的保守门禁，应该把 `npm run desktop:smoke-test-sidecar` 也纳入
 
 ## 验收对象
 
@@ -41,12 +56,20 @@
 
 ## 本次稳定性门禁
 
-当前主线推荐使用以下命令作为最小门禁：
+当前浏览器主线推荐使用以下命令作为最小门禁：
 
 ```bash
 npm install
 npm run test:stability
 npm run dev
+```
+
+如果要对“整个项目，包括桌面壳 + sidecar”做保守门禁，推荐改为：
+
+```bash
+npm install
+npm run desktop:smoke-test-sidecar
+npm run test:stability
 ```
 
 其中：
@@ -78,6 +101,10 @@ npm run dev
 当前更准确的描述方式是：
 
 > AgentCore OS 当前已经验证了命令行安装 / 源码运行 / `desktop_light` 主线，可作为公开稳定体验入口继续使用和分发。
+
+如果要加上桌面壳口径，更准确的说法是：
+
+> AgentCore OS 当前已验证命令行安装 / 源码运行 / 浏览器主线，并完成了桌面壳 sidecar 主链路的补充验收；当前推荐仍以命令行安装和 `desktop_light` 为默认稳定入口。
 
 不建议当前对外描述为：
 

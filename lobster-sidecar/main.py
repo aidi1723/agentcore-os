@@ -32,6 +32,23 @@ from lobster_bridge import (
     lobster_src_root,
     run_lobster_agent,
 )
+from runtime_state_store import (
+    append_executor_session_turn,
+    get_executor_session,
+    list_deal_store_snapshot,
+    list_executor_sessions,
+    list_support_ticket_store_snapshot,
+    list_workflow_run_store_snapshot,
+    remove_deal_from_store,
+    remove_support_ticket_from_store,
+    remove_workflow_run_from_store,
+    upsert_deal_in_store,
+    upsert_support_ticket_in_store,
+    upsert_workflow_run_in_store,
+    write_deals_to_store,
+    write_support_tickets_to_store,
+    write_workflow_runs_to_store,
+)
 from storage import get_data_dir, read_json, write_json
 
 
@@ -61,6 +78,9 @@ REMOTE_OFFICE_SYSTEM_PROMPT = (
 )
 
 last_heartbeat_at = time.time()
+STATE_BODY_LIMIT = 1_000_000
+DELETE_BODY_LIMIT = 8_192
+FULL_REPLACE_HEADER = "x-agentcore-allow-full-replace"
 
 
 @asynccontextmanager
@@ -242,6 +262,108 @@ def parse_allowed_origins() -> list[str]:
 
 def now_ms() -> int:
     return int(time.time() * 1000)
+
+
+class RequestBodyError(Exception):
+    def __init__(self, message: str, status: int = 400):
+        super().__init__(message)
+        self.status = status
+
+
+def is_json_content_type(value: str | None) -> bool:
+    if not value:
+        return True
+    normalized = value.lower()
+    return "application/json" in normalized or "+json" in normalized
+
+
+async def read_json_body_with_limit(request: Request, max_bytes: int) -> Any | None:
+    if max_bytes <= 0:
+        raise RequestBodyError("Invalid body size limit.", 500)
+
+    content_type = request.headers.get("content-type")
+    if not is_json_content_type(content_type):
+        raise RequestBodyError("Content-Type must be application/json.", 415)
+
+    declared_length = request.headers.get("content-length")
+    if declared_length:
+        with suppress(ValueError):
+            if int(declared_length) > max_bytes:
+                raise RequestBodyError("Request body too large.", 413)
+
+    raw = await request.body()
+    if len(raw) > max_bytes:
+        raise RequestBodyError("Request body too large.", 413)
+    if not raw.strip():
+        return None
+
+    try:
+        decoded = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise RequestBodyError("Invalid JSON body.", 400) from exc
+
+    try:
+        return json.loads(decoded)
+    except Exception as exc:
+        raise RequestBodyError("Invalid JSON body.", 400) from exc
+
+
+def get_request_body_error_status(error: Exception | Any, fallback_status: int = 500) -> int:
+    if isinstance(error, RequestBodyError):
+        return error.status
+    return fallback_status
+
+
+def normalize_timeout_seconds(value: int | None) -> int:
+    if isinstance(value, int):
+        return max(5, min(600, value))
+    return 60
+
+
+def build_workspace_context_text(context: dict[str, Any] | None) -> str:
+    if not isinstance(context, dict):
+        return ""
+    entries = []
+    for key, value in context.items():
+        if isinstance(value, (str, int, float, bool)):
+            text = str(value).strip()
+            if text:
+                entries.append(f"{key}={text}")
+    return ", ".join(entries)
+
+
+def build_agentcore_system_prompt(
+    explicit_prompt: str,
+    workspace_context: dict[str, Any] | None,
+    use_skills: bool,
+) -> str:
+    parts: list[str] = []
+    explicit = explicit_prompt.strip()
+    if explicit:
+        parts.append(explicit)
+
+    parts.extend(
+        [
+            "You are AgentCore OS, an execution-focused business operating system.",
+            "Prioritize stability, precision, and efficiency.",
+            "Return concrete, reviewable outputs that can be used directly in a business workflow.",
+        ]
+    )
+
+    workspace_text = build_workspace_context_text(workspace_context)
+    if workspace_text:
+        parts.append(f"Workspace context: {workspace_text}")
+
+    if use_skills:
+        parts.extend(
+            [
+                "Use the available AgentCore OS operating context to produce structured, execution-ready outputs.",
+                "Do not invent facts, policies, prices, timelines, or workflow state that were not provided.",
+                "If key information is missing, say so explicitly and request the missing fields.",
+            ]
+        )
+
+    return "\n\n".join(part for part in parts if part.strip()).strip()
 
 
 def normalize_base_url(input_value: str) -> str:
@@ -2037,6 +2159,285 @@ async def runtime_sidecar_post(payload: RuntimeSidecarActionPayload) -> JSONResp
     )
 
 
+@app.get("/api/runtime/executor/sessions")
+async def runtime_executor_sessions_get() -> Response:
+    try:
+        sessions = list_executor_sessions()
+        return JSONResponse(
+            {"ok": True, "data": {"sessions": sessions}},
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=500)
+
+
+@app.get("/api/runtime/executor/sessions/{session_id}")
+async def runtime_executor_session_get(session_id: str) -> Response:
+    try:
+        session = get_executor_session(session_id)
+        if session is None:
+            return JSONResponse({"ok": False, "error": "执行会话不存在"}, status_code=404)
+        return JSONResponse(
+            {"ok": True, "data": {"session": session}},
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=500)
+
+
+@app.get("/api/runtime/state/deals")
+async def runtime_deals_get() -> Response:
+    try:
+        snapshot = list_deal_store_snapshot()
+        return JSONResponse(
+            {"ok": True, "data": snapshot},
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=500)
+
+
+@app.put("/api/runtime/state/deals")
+async def runtime_deals_put(request: Request) -> Response:
+    if request.headers.get(FULL_REPLACE_HEADER) != "1":
+        return JSONResponse(
+            {
+                "ok": False,
+                "error": "Full snapshot overwrite is disabled for deals. Use item-level POST/DELETE sync instead.",
+            },
+            status_code=409,
+            headers={"Cache-Control": "no-store"},
+        )
+
+    try:
+        body = await read_json_body_with_limit(request, STATE_BODY_LIMIT)
+        deals = write_deals_to_store((body or {}).get("deals") if isinstance(body, dict) else [])
+        return JSONResponse(
+            {"ok": True, "data": {"deals": deals}},
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse(
+            {"ok": False, "error": str(exc)},
+            status_code=get_request_body_error_status(exc, 500),
+        )
+
+
+@app.post("/api/runtime/state/deals")
+async def runtime_deals_post(request: Request) -> Response:
+    try:
+        body = await read_json_body_with_limit(request, STATE_BODY_LIMIT)
+        result = upsert_deal_in_store((body or {}).get("deal") if isinstance(body, dict) else None)
+        if result["deal"] is None and result["tombstone"] is None:
+            return JSONResponse({"ok": False, "error": "Invalid deal payload."}, status_code=400)
+        return JSONResponse(
+            {"ok": True, "data": result},
+            status_code=200 if result["accepted"] else 409,
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse(
+            {"ok": False, "error": str(exc)},
+            status_code=get_request_body_error_status(exc, 500),
+        )
+
+
+@app.delete("/api/runtime/state/deals/{deal_id}")
+async def runtime_deals_delete(deal_id: str, request: Request) -> Response:
+    try:
+        body = await read_json_body_with_limit(request, DELETE_BODY_LIMIT)
+        updated_at = (body or {}).get("updatedAt") if isinstance(body, dict) else None
+        result = remove_deal_from_store(deal_id, updated_at)
+        return JSONResponse(
+            {
+                "ok": not result["conflict"],
+                "data": result,
+                "error": "conflict" if result["conflict"] else None,
+            },
+            status_code=409 if result["conflict"] else 200,
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse(
+            {"ok": False, "error": str(exc)},
+            status_code=get_request_body_error_status(exc, 500),
+        )
+
+
+@app.get("/api/runtime/state/support")
+async def runtime_support_get() -> Response:
+    try:
+        snapshot = list_support_ticket_store_snapshot()
+        return JSONResponse(
+            {"ok": True, "data": snapshot},
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=500)
+
+
+@app.put("/api/runtime/state/support")
+async def runtime_support_put(request: Request) -> Response:
+    if request.headers.get(FULL_REPLACE_HEADER) != "1":
+        return JSONResponse(
+            {
+                "ok": False,
+                "error": "Full snapshot overwrite is disabled for support tickets. Use item-level POST/DELETE sync instead.",
+            },
+            status_code=409,
+            headers={"Cache-Control": "no-store"},
+        )
+
+    try:
+        body = await read_json_body_with_limit(request, STATE_BODY_LIMIT)
+        tickets = write_support_tickets_to_store(
+            (body or {}).get("tickets") if isinstance(body, dict) else []
+        )
+        return JSONResponse(
+            {"ok": True, "data": {"tickets": tickets}},
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse(
+            {"ok": False, "error": str(exc)},
+            status_code=get_request_body_error_status(exc, 500),
+        )
+
+
+@app.post("/api/runtime/state/support")
+async def runtime_support_post(request: Request) -> Response:
+    try:
+        body = await read_json_body_with_limit(request, STATE_BODY_LIMIT)
+        result = upsert_support_ticket_in_store(
+            (body or {}).get("ticket") if isinstance(body, dict) else None
+        )
+        if result["ticket"] is None and result["tombstone"] is None:
+            return JSONResponse(
+                {"ok": False, "error": "Invalid support ticket payload."},
+                status_code=400,
+            )
+        return JSONResponse(
+            {"ok": True, "data": result},
+            status_code=200 if result["accepted"] else 409,
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse(
+            {"ok": False, "error": str(exc)},
+            status_code=get_request_body_error_status(exc, 500),
+        )
+
+
+@app.delete("/api/runtime/state/support/{ticket_id}")
+async def runtime_support_delete(ticket_id: str, request: Request) -> Response:
+    try:
+        body = await read_json_body_with_limit(request, DELETE_BODY_LIMIT)
+        updated_at = (body or {}).get("updatedAt") if isinstance(body, dict) else None
+        result = remove_support_ticket_from_store(ticket_id, updated_at)
+        return JSONResponse(
+            {
+                "ok": not result["conflict"],
+                "data": result,
+                "error": "conflict" if result["conflict"] else None,
+            },
+            status_code=409 if result["conflict"] else 200,
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse(
+            {"ok": False, "error": str(exc)},
+            status_code=get_request_body_error_status(exc, 500),
+        )
+
+
+@app.get("/api/runtime/state/workflow-runs")
+async def runtime_workflow_runs_get() -> Response:
+    try:
+        snapshot = list_workflow_run_store_snapshot()
+        return JSONResponse(
+            {"ok": True, "data": snapshot},
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=500)
+
+
+@app.put("/api/runtime/state/workflow-runs")
+async def runtime_workflow_runs_put(request: Request) -> Response:
+    if request.headers.get(FULL_REPLACE_HEADER) != "1":
+        return JSONResponse(
+            {
+                "ok": False,
+                "error": "Full snapshot overwrite is disabled for workflow runs. Use item-level POST/DELETE sync instead.",
+            },
+            status_code=409,
+            headers={"Cache-Control": "no-store"},
+        )
+
+    try:
+        body = await read_json_body_with_limit(request, STATE_BODY_LIMIT)
+        workflow_runs = write_workflow_runs_to_store(
+            (body or {}).get("workflowRuns") if isinstance(body, dict) else []
+        )
+        return JSONResponse(
+            {"ok": True, "data": {"workflowRuns": workflow_runs}},
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse(
+            {"ok": False, "error": str(exc)},
+            status_code=get_request_body_error_status(exc, 500),
+        )
+
+
+@app.post("/api/runtime/state/workflow-runs")
+async def runtime_workflow_runs_post(request: Request) -> Response:
+    try:
+        body = await read_json_body_with_limit(request, STATE_BODY_LIMIT)
+        result = upsert_workflow_run_in_store(
+            (body or {}).get("workflowRun") if isinstance(body, dict) else None
+        )
+        if result["workflowRun"] is None and result["tombstone"] is None:
+            return JSONResponse(
+                {"ok": False, "error": "Invalid workflow run payload."},
+                status_code=400,
+            )
+        return JSONResponse(
+            {"ok": True, "data": result},
+            status_code=200 if result["accepted"] else 409,
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse(
+            {"ok": False, "error": str(exc)},
+            status_code=get_request_body_error_status(exc, 500),
+        )
+
+
+@app.delete("/api/runtime/state/workflow-runs/{run_id}")
+async def runtime_workflow_runs_delete(run_id: str, request: Request) -> Response:
+    try:
+        body = await read_json_body_with_limit(request, STATE_BODY_LIMIT)
+        updated_at = (body or {}).get("updatedAt") if isinstance(body, dict) else None
+        result = remove_workflow_run_from_store(run_id, updated_at)
+        if result["workflowRun"] is None and result["tombstone"] is None:
+            return JSONResponse({"ok": False, "error": "Workflow run not found."}, status_code=404)
+        return JSONResponse(
+            {
+                "ok": not result["conflict"],
+                "data": result,
+                "error": "conflict" if result["conflict"] else None,
+            },
+            status_code=409 if result["conflict"] else 200,
+            headers={"Cache-Control": "no-store"},
+        )
+    except Exception as exc:
+        return JSONResponse(
+            {"ok": False, "error": str(exc)},
+            status_code=get_request_body_error_status(exc, 500),
+        )
+
+
 @app.get("/api/publish/config")
 async def publish_config_get() -> dict[str, Any]:
     return {"ok": True, "data": {"matrixAccounts": load_publish_config()}}
@@ -2598,28 +2999,116 @@ async def openclaw_gateway_health() -> dict[str, Any]:
 
 
 @app.post("/api/openclaw/agent")
-async def openclaw_agent(payload: OpenClawAgentPayload) -> dict[str, Any]:
+async def openclaw_agent(payload: OpenClawAgentPayload) -> Response:
+    message = (payload.message or "").strip()
+    if not message:
+        return JSONResponse({"ok": False, "error": "缺少 message"}, status_code=400)
+
+    session_id = (payload.sessionId or "webos-spotlight").strip() or "webos-spotlight"
+    timeout_seconds = normalize_timeout_seconds(payload.timeoutSeconds)
+    workspace_context = payload.workspaceContext or {}
+    use_skills = bool(
+        payload.useLobsterSkills if payload.useLobsterSkills is not None else payload.useSkills
+    )
+    system_prompt = build_agentcore_system_prompt(
+        payload.systemPrompt or "",
+        workspace_context,
+        use_skills,
+    )
+    llm_provider = (payload.llm.provider or "").strip() if payload.llm is not None else ""
+    llm_model = (payload.llm.model or "").strip() if payload.llm is not None else ""
+    started_at = now_ms()
+
     if payload.llm is not None:
         save_last_llm_config(payload.llm)
     try:
         text = await call_lobster_text(
-            message=payload.message,
-            session_id=payload.sessionId,
-            timeout_seconds=payload.timeoutSeconds or 30,
+            message=message,
+            session_id=session_id,
+            timeout_seconds=timeout_seconds,
             llm_payload=payload.llm,
-            system_prompt=payload.systemPrompt or "",
-            use_lobster_skills=bool(payload.useLobsterSkills if payload.useLobsterSkills is not None else payload.useSkills),
-            workspace_context=payload.workspaceContext or {},
+            system_prompt=system_prompt,
+            use_lobster_skills=use_skills,
+            workspace_context=workspace_context,
         )
     except httpx.HTTPStatusError as exc:
         detail = exc.response.text.strip() or exc.response.reason_phrase
-        return {
-            "ok": False,
-            "error": f"模型接口调用失败（HTTP {exc.response.status_code}）：{detail[:400]}",
-        }
+        error_text = f"模型接口调用失败（HTTP {exc.response.status_code}）：{detail[:400]}"
+        with suppress(Exception):
+            append_executor_session_turn(
+                {
+                    "sessionId": session_id,
+                    "source": "api/openclaw/agent",
+                    "engine": "agentcore_executor",
+                    "ok": False,
+                    "message": message,
+                    "systemPrompt": system_prompt,
+                    "useSkills": use_skills,
+                    "workspaceContext": workspace_context,
+                    "llmProvider": llm_provider,
+                    "llmModel": llm_model,
+                    "timeoutSeconds": timeout_seconds,
+                    "error": error_text,
+                    "durationMs": now_ms() - started_at,
+                    "createdAt": started_at,
+                }
+            )
+        return JSONResponse(
+            {"ok": False, "error": error_text},
+            status_code=502,
+            headers={"Cache-Control": "no-store"},
+        )
     except Exception as exc:
-        return {"ok": False, "error": str(exc)}
-    return {"ok": True, "text": text or "（模型未返回文本）"}
+        error_text = str(exc)
+        with suppress(Exception):
+            append_executor_session_turn(
+                {
+                    "sessionId": session_id,
+                    "source": "api/openclaw/agent",
+                    "engine": "agentcore_executor",
+                    "ok": False,
+                    "message": message,
+                    "systemPrompt": system_prompt,
+                    "useSkills": use_skills,
+                    "workspaceContext": workspace_context,
+                    "llmProvider": llm_provider,
+                    "llmModel": llm_model,
+                    "timeoutSeconds": timeout_seconds,
+                    "error": error_text,
+                    "durationMs": now_ms() - started_at,
+                    "createdAt": started_at,
+                }
+            )
+        return JSONResponse(
+            {"ok": False, "error": error_text},
+            status_code=500,
+            headers={"Cache-Control": "no-store"},
+        )
+
+    output_text = text or "（模型未返回文本）"
+    with suppress(Exception):
+        append_executor_session_turn(
+            {
+                "sessionId": session_id,
+                "source": "api/openclaw/agent",
+                "engine": "agentcore_executor",
+                "ok": True,
+                "message": message,
+                "systemPrompt": system_prompt,
+                "useSkills": use_skills,
+                "workspaceContext": workspace_context,
+                "llmProvider": llm_provider,
+                "llmModel": llm_model,
+                "timeoutSeconds": timeout_seconds,
+                "outputText": output_text,
+                "durationMs": now_ms() - started_at,
+                "createdAt": started_at,
+            }
+        )
+    return JSONResponse(
+        {"ok": True, "text": output_text},
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @app.post("/api/openclaw/copy")

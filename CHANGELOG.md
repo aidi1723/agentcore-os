@@ -5,6 +5,13 @@
 - Added documented stability gates for the current public line:
   - `npm run test:core-workflows`
   - `npm run test:stability`
+- Closed the desktop-shell parity gap for the runtime state and executor history APIs in the Python sidecar.
+- Desktop shell execution via `/api/openclaw/agent` now records unified executor session history instead of bypassing the audit trail.
+- Expanded desktop sidecar smoke coverage to verify:
+  - executor session list/detail
+  - deals tombstone boundary
+  - support delete path
+  - workflow-run scenario winner and tombstone behavior
 - Added a documented cold-start validation baseline for the GitHub main branch.
 - Expanded publish-account settings coverage so the configuration surface now matches the publish platforms already supported by the queue and dispatch layer.
 

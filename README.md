@@ -46,6 +46,7 @@ AgentCore OS 当前更适合这样理解：
 - 国内镜像 CNB：<https://cnb.cool/aidiyangyu/agentcore-os>
 - GitHub Releases：<https://github.com/aidi1723/agentcore-os/releases>
 - 当前版本发布说明（中文）：[docs/releases/v1.1.1.zh-CN.md](docs/releases/v1.1.1.zh-CN.md)
+- 桌面壳等价收口更新（中文）：[docs/releases/2026-03-25-desktop-parity-update.zh-CN.md](docs/releases/2026-03-25-desktop-parity-update.zh-CN.md)
 - 对外分发说明：[docs/EARLY_ACCESS_RELEASE.zh-CN.md](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
 - 市场发布文案：[docs/LAUNCH_COPY_v1.1.1.zh-CN.md](docs/LAUNCH_COPY_v1.1.1.zh-CN.md)
 - 文档总入口：[docs/DOCUMENTATION_INDEX.zh-CN.md](docs/DOCUMENTATION_INDEX.zh-CN.md)
@@ -85,6 +86,7 @@ npm run dev
 ### 当前已验证基线
 
 截至 `2026-03-23`，GitHub 主仓库 `d6f6a37` 已完成一轮真实冷启动验收。
+截至 `2026-03-25`，当前工作树又补跑并通过了一轮桌面壳 / sidecar 主链路等价验证。
 
 当前已经验证通过的主线是：
 
@@ -92,13 +94,23 @@ npm run dev
 - 从源码运行
 - 浏览器模式
 - `desktop_light` 主线
+- 桌面壳 + sidecar 主链路
+- 执行器历史 / 销售 / 客服 / 工作流运行在桌面壳下的服务端同步链路
 
-当前推荐的最小稳定性门禁命令：
+当前推荐的浏览器主线最小稳定性门禁命令：
 
 ```bash
 npm install
 npm run test:stability
 npm run dev
+```
+
+如果你要对“整个项目，包括桌面壳 sidecar 链路”做保守验收，推荐门禁改为：
+
+```bash
+npm install
+npm run desktop:smoke-test-sidecar
+npm run test:stability
 ```
 
 ## 核心能力概览
@@ -128,6 +140,7 @@ npm run dev
 
 - [命令行安装说明](docs/COMMAND_LINE_INSTALL.zh-CN.md)
 - [冷启动安装验收](docs/COLD_START_VALIDATION.zh-CN.md)
+- [桌面壳等价收口更新](docs/releases/2026-03-25-desktop-parity-update.zh-CN.md)
 - [公开发布说明（中文）](docs/PUBLIC_RELEASE.zh-CN.md)
 
 ### 其他核心文档
@@ -149,6 +162,7 @@ npm run dev
 - `npm run stable`：清理重建并启动稳定版本
 - `npm run test:core-workflows`：运行销售 / 客服 / 知识资产 / 发布队列核心回归
 - `npm run test:stability`：运行核心回归 + lint + build 的稳定性门禁
+- `npm run desktop:smoke-test-sidecar`：运行桌面 sidecar HTTP 主链路烟测
 - `npm run lint`：运行 lint
 - `npm run webhook:dev`：启动本地 webhook connector 示例
 - `npm run publish-queue:worker`：运行后台发布队列 worker

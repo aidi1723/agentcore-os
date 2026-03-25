@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --oc-bg: #f6f7fb;
+  --oc-fg: #0b1220;
+
+  --oc-glass: rgba(255, 255, 255, 0.58);
+  --oc-glass-2: rgba(255, 255, 255, 0.42);
+  --oc-stroke: rgba(255, 255, 255, 0.55);
+  --oc-stroke-2: rgba(15, 23, 42, 0.08);
+
+  --oc-shadow: 0 10px 30px rgba(15, 23, 42, 0.10);
+  --oc-shadow-strong: 0 22px 65px rgba(15, 23, 42, 0.18);
+
+  --oc-radius-xl: 26px;
+  --oc-radius-lg: 20px;
+  --oc-radius-md: 16px;
+  --oc-radius-sm: 12px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--oc-bg);
+  color: var(--oc-fg);
+  font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+.oc-bg {
+  background:
+    radial-gradient(900px 600px at 12% 8%, rgba(56, 189, 248, 0.22), transparent 55%),
+    radial-gradient(850px 620px at 86% 12%, rgba(244, 114, 182, 0.18), transparent 55%),
+    radial-gradient(900px 700px at 70% 88%, rgba(34, 197, 94, 0.12), transparent 52%),
+    linear-gradient(180deg, #f7f7ff, #f3f6fb 55%, #f7f8fb);
+}
+
+.oc-glass {
+  background: var(--oc-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--oc-stroke);
+  box-shadow: var(--oc-shadow);
+}
+
+.oc-glass-2 {
+  background: var(--oc-glass-2);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--oc-stroke);
+  box-shadow: var(--oc-shadow);
+}
+
+.oc-card {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  box-shadow: var(--oc-shadow);
+  border-radius: var(--oc-radius-lg);
+}
+
+.oc-soft-ring {
+  border: 1px solid var(--oc-stroke-2);
+}
+
+.oc-tap {
+  transition: transform 120ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.oc-tap:active {
+  transform: scale(0.985);
 }

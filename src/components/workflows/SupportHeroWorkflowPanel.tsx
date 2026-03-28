@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Clock3, Sparkles } from "lucide-react";
 
+import { HeroWorkflowRecommendationCard } from "@/components/workflows/HeroWorkflowRecommendationCard";
+import { useRuntimeHeroRecommendation } from "@/components/workflows/useRuntimeHeroRecommendation";
+import { buildSupportHeroWorkflowRecommendation } from "@/lib/hero-workflow-recommendation";
+import { getTasks, subscribeTasks, type TaskRecord } from "@/lib/tasks";
 import {
   getSupportRuntimeLabel,
   getSupportStageStateLabel,
@@ -71,23 +75,29 @@ export function SupportHeroWorkflowPanel({
 }: SupportHeroWorkflowPanelProps) {
   const [workflowRuns, setWorkflowRuns] = useState(getWorkflowRuns());
   const [asset, setAsset] = useState<SupportAssetRecord | null>(() => getSupportAssetByWorkflowRunId(workflowRunId));
+  const [tasks, setTasks] = useState<TaskRecord[]>(() => getTasks());
   const scenario = useMemo(() => getSupportWorkflowScenario(), []);
 
   useEffect(() => {
     const syncRuns = () => setWorkflowRuns(getWorkflowRuns());
     const syncAsset = () => setAsset(getSupportAssetByWorkflowRunId(workflowRunId));
+    const syncTasks = () => setTasks(getTasks());
     syncRuns();
     syncAsset();
+    syncTasks();
     const offRuns = subscribeWorkflowRuns(syncRuns);
     const offAssets = subscribeSupportAssets(syncAsset);
+    const offTasks = subscribeTasks(syncTasks);
     const onStorage = () => {
       syncRuns();
       syncAsset();
+      syncTasks();
     };
     window.addEventListener("storage", onStorage);
     return () => {
       offRuns();
       offAssets();
+      offTasks();
       window.removeEventListener("storage", onStorage);
     };
   }, [workflowRunId]);
@@ -96,6 +106,32 @@ export function SupportHeroWorkflowPanel({
     () => (workflowRunId ? workflowRuns.find((item) => item.id === workflowRunId) ?? null : null),
     [workflowRunId, workflowRuns],
   );
+  const workflowTasks = useMemo(
+    () =>
+      tasks
+        .filter((task) => task.workflowRunId && task.workflowRunId === workflowRunId)
+        .sort((left, right) => right.updatedAt - left.updatedAt)
+        .slice(0, 3),
+    [tasks, workflowRunId],
+  );
+  const recommendation = useMemo(
+    () =>
+      buildSupportHeroWorkflowRecommendation({
+        run,
+        asset,
+        tasks: workflowTasks,
+        source,
+        nextStep,
+      }),
+    [asset, nextStep, run, source, workflowTasks],
+  );
+  const resolvedRecommendation = useRuntimeHeroRecommendation({
+    family: "support",
+    workflowRunId,
+    source,
+    nextStep,
+    fallback: recommendation,
+  });
 
   return (
     <section className="overflow-hidden rounded-[28px] border border-emerald-200 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.16),_rgba(255,255,255,0.98)_38%,_rgba(239,246,255,0.95)_100%)] p-5 shadow-sm shadow-emerald-100/40 sm:p-6">
@@ -160,6 +196,8 @@ export function SupportHeroWorkflowPanel({
               </div>
             </div>
           </div>
+
+          <HeroWorkflowRecommendationCard recommendation={resolvedRecommendation} tone="emerald" />
 
           {run && scenario ? (
             <div className="mt-4 grid gap-3">

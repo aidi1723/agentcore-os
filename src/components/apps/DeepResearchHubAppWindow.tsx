@@ -5,13 +5,18 @@ import { BookOpenText, FilePlus2, Plus, Sparkles, Trash2 } from "lucide-react";
 
 import type { AppWindowProps } from "@/apps/types";
 import { AppToast } from "@/components/AppToast";
+import { RecommendationResultBody } from "@/components/recommendations/RecommendationResultBody";
 import { ResearchHeroWorkflowPanel } from "@/components/workflows/ResearchHeroWorkflowPanel";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
 import { useTimedToast } from "@/hooks/useTimedToast";
 import { createDraft } from "@/lib/drafts";
 import { getOutputLanguageInstruction } from "@/lib/language";
 import { requestOpenClawAgent } from "@/lib/openclaw-agent-client";
-import { upsertResearchAsset } from "@/lib/research-assets";
+import {
+  getResearchAssetByWorkflowRunId,
+  subscribeResearchAssets,
+  upsertResearchAsset,
+} from "@/lib/research-assets";
 import { buildResearchWorkflowMeta, getResearchWorkflowScenario } from "@/lib/research-workflow";
 import {
   createResearchReport,
@@ -22,6 +27,7 @@ import {
   type ResearchReportRecord,
 } from "@/lib/research-hub";
 import { createTask, updateTask } from "@/lib/tasks";
+import { buildDeepResearchSurfaceRecommendation } from "@/lib/workflow-surface-recommendation";
 import {
   requestOpenKnowledgeVault,
   requestOpenMorningBrief,
@@ -73,6 +79,7 @@ export function DeepResearchHubAppWindow({
   const isVisible = state === "open" || state === "opening";
   const [reports, setReports] = useState<ResearchReportRecord[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [assetRevision, setAssetRevision] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast, showToast } = useTimedToast(2200);
 
@@ -92,6 +99,17 @@ export function DeepResearchHubAppWindow({
       window.removeEventListener("storage", onStorage);
     };
   }, [isVisible]);
+
+  useEffect(() => {
+    const bump = () => setAssetRevision((value) => value + 1);
+    const off = subscribeResearchAssets(bump);
+    const onStorage = () => bump();
+    window.addEventListener("storage", onStorage);
+    return () => {
+      off();
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   useEffect(() => {
     const onPrefill = (event: Event) => {
@@ -129,6 +147,14 @@ export function DeepResearchHubAppWindow({
   const selected = useMemo(
     () => reports.find((item) => item.id === selectedId) ?? null,
     [reports, selectedId],
+  );
+  const currentResearchAsset = useMemo(() => {
+    void assetRevision;
+    return getResearchAssetByWorkflowRunId(selected?.workflowRunId);
+  }, [assetRevision, selected?.workflowRunId]);
+  const surfaceRecommendation = useMemo(
+    () => buildDeepResearchSurfaceRecommendation({ report: selected, asset: currentResearchAsset }),
+    [currentResearchAsset, selected],
   );
 
   const patchSelected = (
@@ -192,6 +218,12 @@ export function DeepResearchHubAppWindow({
       name: "Assistant - Deep research",
       status: "running",
       detail: selected.topic.slice(0, 80),
+      workflowRunId: runId ?? selected.workflowRunId,
+      workflowScenarioId: selected.workflowScenarioId ?? "research-radar",
+      workflowStageId: "synthesize",
+      workflowSource: selected.workflowSource ?? "Deep Research Hub 生成研究简报",
+      workflowNextStep: "完成研究报告后进入 Morning Brief 或知识路由。",
+      workflowTriggerType: selected.workflowTriggerType ?? "manual",
     });
     setIsGenerating(true);
     try {
@@ -559,6 +591,14 @@ export function DeepResearchHubAppWindow({
 
                 <div className="rounded-3xl border border-gray-200 bg-gray-50 p-5 sm:p-6">
                   <div className="text-sm font-semibold text-gray-900">研究输出</div>
+                  <RecommendationResultBody
+                    recommendation={surfaceRecommendation}
+                    tone="amber"
+                    actionTitle="执行建议"
+                    actionButtonLabel="查看当前研究"
+                    maxHitsPerSection={2}
+                    className="mt-3"
+                  />
                   <pre className="mt-3 min-h-[320px] whitespace-pre-wrap rounded-3xl border border-gray-200 bg-white p-4 text-sm leading-7 text-gray-700">
                     {selected.report || "填写研究信息后生成结构化研究简报。"}
                   </pre>

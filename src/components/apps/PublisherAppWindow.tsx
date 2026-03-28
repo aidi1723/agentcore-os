@@ -4,10 +4,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Activity, AlertTriangle, CheckCircle2, Clock3, Copy, RefreshCw, RotateCcw, Send, Share2, ShieldCheck, Sparkles, Trash2 } from "lucide-react";
 
 import type { AppWindowProps } from "@/apps/types";
+import { RecommendationResultBody } from "@/components/recommendations/RecommendationResultBody";
 import { CreatorHeroWorkflowPanel } from "@/components/workflows/CreatorHeroWorkflowPanel";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
 import { buildAgentCoreApiUrl } from "@/lib/app-api";
 import { upsertCreatorAsset } from "@/lib/creator-assets";
+import { buildCreatorPublishFeedback } from "@/lib/creator-publish-feedback";
+import {
+  getCreatorWorkflowOriginLabel,
+  type CreatorWorkflowMeta,
+} from "@/lib/creator-workflow";
 import {
   createDraft,
   getDrafts,
@@ -19,6 +25,11 @@ import {
 } from "@/lib/drafts";
 import { getOutputLanguageInstruction } from "@/lib/language";
 import { requestOpenClawAgent } from "@/lib/openclaw-agent-client";
+import {
+  analyzePublishReadiness,
+  type ChecklistStatus,
+  type PlatformAdvice,
+} from "@/lib/publish-recommendation";
 import {
   createPublishJob,
   getPublishJobs,
@@ -39,7 +50,6 @@ import {
 } from "@/lib/publish-config";
 import { createTask, updateTask } from "@/lib/tasks";
 import { requestOpenApp, requestOpenSettings, type PublisherPrefill } from "@/lib/ui-events";
-import type { WorkflowContextMeta } from "@/lib/workflow-context";
 import {
   advanceWorkflowRun,
   completeWorkflowRun,
@@ -62,6 +72,15 @@ function getModeLabel(mode: PublishJobRecord["mode"]) {
   return mode === "dispatch" ? "自动发布" : "安全预演";
 }
 
+function formatPlatformNames(values: PublishPlatformId[]) {
+  return values.map((platform) => getPlatformLabel(platform)).join(" / ");
+}
+
+function formatWorkflowSuggestedPlatforms(values?: PublishPlatformId[]) {
+  if (!values?.length) return null;
+  return values.map((platform) => getPlatformLabel(platform)).join(" / ");
+}
+
 function getJobStatusMeta(status: PublishJobRecord["status"]) {
   switch (status) {
     case "queued":
@@ -82,6 +101,12 @@ function formatTime(ts?: number) {
   return new Date(ts).toLocaleString();
 }
 
+function formatIsoTime(value?: string) {
+  if (!value) return null;
+  const ts = Date.parse(value);
+  return Number.isFinite(ts) ? new Date(ts).toLocaleString() : value;
+}
+
 function formatRetry(ts?: number) {
   if (!ts) return null;
   const deltaMs = ts - Date.now();
@@ -89,6 +114,84 @@ function formatRetry(ts?: number) {
   const seconds = Math.round(deltaMs / 1000);
   if (seconds < 60) return `${seconds} 秒后重试`;
   return `${Math.ceil(seconds / 60)} 分钟后重试`;
+}
+
+function getQueueOwnershipLabel(queueAuthRequired: boolean | null) {
+  if (queueAuthRequired === null) return "队列模式检测中";
+  return queueAuthRequired ? "后台 Worker / Scheduler" : "Browser Assist + Worker";
+}
+
+function getQueueOwnershipHint(queueAuthRequired: boolean | null) {
+  if (queueAuthRequired === null) {
+    return "正在检查当前部署是否允许浏览器帮助触发队列。";
+  }
+  if (queueAuthRequired) {
+    return "当前部署要求后台 worker 或外部调度器调用 /api/publish/queue/run。浏览器只负责创建任务、展示状态和人工操作。";
+  }
+  return "当前部署允许浏览器帮助触发队列，但真正的状态推进仍由服务端 queue runner 完成，而不是由当前窗口直接执行。";
+}
+
+function getJobLifecycleHint(job: PublishJobRecord, queueAuthRequired: boolean | null) {
+  switch (job.status) {
+    case "queued":
+      if (job.nextAttemptAt) {
+        return `任务已回到队列，${formatRetry(job.nextAttemptAt) ?? "等待下一次重试窗口"}。`;
+      }
+      return queueAuthRequired
+        ? "任务正在等待后台 worker 或调度器 claim。"
+        : "任务已进入队列，等待下一次 queue trigger 被服务端 claim。";
+    case "running":
+      return "任务已被 queue runner claim，浏览器现在只做展示，不直接推进执行结果。";
+    case "done":
+      return "任务已完成，当前回执可用于复盘平台结果与复用高表现版本。";
+    case "error":
+      return "任务已进入终局失败状态，不会再自动重试；如需继续，请人工重新排队。";
+    case "stopped":
+      return "任务已被人工停止，不会再自动重试，除非你主动恢复并重新排队。";
+  }
+}
+
+function getRetryActionLabel(job: PublishJobRecord | null) {
+  if (!job) return "重新排队";
+  if (job.status === "done") return "再次执行";
+  if (job.status === "stopped") return "恢复并重试";
+  return "手动重试";
+}
+
+function getPublishResultStateMeta(result: PublishJobResult) {
+  if (result.mode === "manual") {
+    return { label: "手动处理", className: "border-gray-200 bg-gray-100 text-gray-700" };
+  }
+  if (!result.ok) {
+    return { label: "Connector 失败", className: "border-red-200 bg-red-50 text-red-700" };
+  }
+  if (result.queued) {
+    return { label: "已排队", className: "border-blue-200 bg-blue-50 text-blue-700" };
+  }
+  return { label: "已接收", className: "border-emerald-200 bg-emerald-50 text-emerald-700" };
+}
+
+function describePublishResult(result: PublishJobResult) {
+  const parts: string[] = [];
+  if (result.mode === "manual") {
+    parts.push("手动发布清单");
+  } else if (!result.ok) {
+    parts.push("connector 返回失败");
+  } else if (result.queued) {
+    parts.push("connector 已接收并排队");
+  } else {
+    parts.push("connector 已接收");
+  }
+  if (typeof result.retryable === "boolean") {
+    parts.push(result.retryable ? "可重试" : "终局");
+  }
+  if (result.errorType) {
+    parts.push(`错误类型 ${result.errorType}`);
+  }
+  if (result.receiptId) {
+    parts.push(`收据 ${result.receiptId}`);
+  }
+  return parts.join(" / ");
 }
 
 type JobFilterId = "all" | "active" | "failed" | "done";
@@ -99,20 +202,6 @@ const jobFilters: Array<{ id: JobFilterId; label: string }> = [
   { id: "failed", label: "失败" },
   { id: "done", label: "完成" },
 ];
-
-type ChecklistStatus = "ok" | "warn" | "risk";
-
-type PublishChecklistItem = {
-  label: string;
-  detail: string;
-  status: ChecklistStatus;
-};
-
-type PlatformAdvice = {
-  platform: PublishPlatformId;
-  detail: string;
-  status: ChecklistStatus;
-};
 
 function getChecklistStatusMeta(status: ChecklistStatus) {
   switch (status) {
@@ -132,138 +221,6 @@ function getChecklistStatusMeta(status: ChecklistStatus) {
         className: "border-red-200 bg-red-50 text-red-700",
       };
   }
-}
-
-function analyzePublishReadiness(input: {
-  title: string;
-  body: string;
-  platforms: PublishPlatformId[];
-  dispatchMode: "dry-run" | "dispatch";
-  connections: Record<string, { token: string; webhookUrl: string }>;
-}) {
-  const title = input.title.trim();
-  const body = input.body.trim();
-  const firstLine = body.split(/\r?\n/).find((line) => line.trim())?.trim() ?? "";
-  const bodyLength = body.length;
-  const lineCount = body ? body.split(/\r?\n/).filter((line) => line.trim()).length : 0;
-  const hashtagCount = (body.match(/#[\p{L}\p{N}_-]+/gu) ?? []).length;
-  const hasQuestionOrNumber = /[0-9０-９一二三四五六七八九十?？!！]|为什么|别再|不要|如何|怎样|秘诀|清单|步骤|技巧/.test(
-    title || firstLine,
-  );
-  const hasCta = /关注|评论|私信|收藏|转发|点击|了解|预约|领取|回复|下载|扫码|follow|comment|dm|link|save/i.test(body);
-  const selectedPlatforms = input.platforms;
-  const checks: PublishChecklistItem[] = [];
-
-  if (!title) {
-    checks.push({ label: "标题", detail: "缺少明确标题，预演和发布后的识别成本都会变高。", status: "risk" });
-  } else if (title.length < 8) {
-    checks.push({ label: "标题", detail: "标题偏短，建议补上结果、数字或冲突点。", status: "warn" });
-  } else if (title.length > 36) {
-    checks.push({ label: "标题", detail: "标题偏长，建议压到 36 字以内，方便短内容平台首屏阅读。", status: "warn" });
-  } else {
-    checks.push({ label: "标题", detail: "标题长度合适，适合继续做预演或派发。", status: "ok" });
-  }
-
-  if (!body) {
-    checks.push({ label: "正文", detail: "正文为空，当前不能进入有效预演或发布。", status: "risk" });
-  } else if (bodyLength < 90) {
-    checks.push({ label: "正文", detail: "正文偏短，建议补足观点、场景或行动建议。", status: "warn" });
-  } else if (bodyLength > 900) {
-    checks.push({ label: "正文", detail: "正文较长，更像长文底稿，建议拆出一个短版再发。", status: "warn" });
-  } else {
-    checks.push({ label: "正文", detail: "正文长度适中，适合继续做平台差异检查。", status: "ok" });
-  }
-
-  if (!hasQuestionOrNumber) {
-    checks.push({ label: "开场 hook", detail: "标题或首句里缺少数字、问题或强结论，吸引力偏弱。", status: "warn" });
-  } else {
-    checks.push({ label: "开场 hook", detail: "标题或首句已经包含明显钩子。", status: "ok" });
-  }
-
-  if (!hasCta) {
-    checks.push({ label: "CTA", detail: "正文里没有明显动作指令，建议补上关注、评论、私信或领取动作。", status: "warn" });
-  } else {
-    checks.push({ label: "CTA", detail: "正文里已经有明确 CTA。", status: "ok" });
-  }
-
-  if (lineCount < 3) {
-    checks.push({ label: "结构", detail: "段落偏少，建议拆成 3 段以上，移动端更好读。", status: "warn" });
-  } else {
-    checks.push({ label: "结构", detail: "段落层次够用，适合移动端阅读。", status: "ok" });
-  }
-
-  if (selectedPlatforms.some((platform) => ["xiaohongshu", "instagram", "tiktok"].includes(platform)) && hashtagCount === 0) {
-    checks.push({ label: "标签", detail: "当前没有 hashtag，可按平台补 2-4 个主题标签。", status: "warn" });
-  } else if (hashtagCount > 8) {
-    checks.push({ label: "标签", detail: "hashtag 偏多，建议收敛到更聚焦的几个主题标签。", status: "warn" });
-  } else {
-    checks.push({ label: "标签", detail: "标签数量可接受。", status: "ok" });
-  }
-
-  if (
-    input.dispatchMode === "dispatch" &&
-    selectedPlatforms.some((platform) => !input.connections[platform]?.webhookUrl?.trim())
-  ) {
-    checks.push({
-      label: "自动发布配置",
-      detail: "部分已选平台没有 Webhook，当前更适合先做预演或切成手动发布清单。",
-      status: "risk",
-    });
-  } else if (input.dispatchMode === "dispatch") {
-    checks.push({
-      label: "自动发布配置",
-      detail: "已选平台的自动发布条件基本齐备。",
-      status: "ok",
-    });
-  } else {
-    checks.push({
-      label: "自动发布配置",
-      detail: "当前是预演模式，适合先看平台差异和文案质量。",
-      status: "ok",
-    });
-  }
-
-  const platformAdvice = selectedPlatforms.map<PlatformAdvice>((platform) => {
-    if (platform === "xiaohongshu") {
-      if (bodyLength < 120) {
-        return { platform, status: "warn", detail: "适合补一点场景感、步骤感或个人经验，再去小红书更稳。" };
-      }
-      return { platform, status: "ok", detail: "结构和长度基本适合做小红书预演，注意封面标题和分段节奏。" };
-    }
-    if (platform === "douyin" || platform === "tiktok") {
-      if (!hasQuestionOrNumber || bodyLength > 260) {
-        return { platform, status: "warn", detail: "更像长帖，不像口播脚本。建议压短并把 hook 放到第一句。" };
-      }
-      return { platform, status: "ok", detail: "具备短视频脚本基础，可以直接预演短口播版本。" };
-    }
-    if (platform === "instagram") {
-      if (lineCount < 3) {
-        return { platform, status: "warn", detail: "建议增加换行和标签，让 caption 更像 Instagram 贴文。" };
-      }
-      return { platform, status: "ok", detail: "caption 结构基本可用，适合继续调语气和标签。" };
-    }
-    return { platform, status: "warn", detail: "该平台还不是当前第一梯队接入，建议先作为保留位处理。" };
-  });
-
-  const scorePenalty = checks.reduce((sum, item) => sum + (item.status === "risk" ? 18 : item.status === "warn" ? 8 : 0), 0);
-  const score = Math.max(32, 100 - scorePenalty);
-  const riskCount = checks.filter((item) => item.status === "risk").length;
-  const warnCount = checks.filter((item) => item.status === "warn").length;
-  const recommendation =
-    riskCount > 0
-      ? "先修正高风险项，再继续发布。当前更适合停留在预演。"
-      : warnCount > 2
-        ? "可以先做预演，把标题、CTA 和结构再收一遍。"
-        : input.dispatchMode === "dispatch"
-          ? "整体已经接近可发布状态，适合在确认 Webhook 后进入自动发布。"
-          : "稿件基础不错，建议先预演确认平台差异，再决定是否自动发布。";
-
-  return {
-    score,
-    recommendation,
-    checks,
-    platformAdvice,
-  };
 }
 
 function getPlatformLabel(platform: PublishPlatformId) {
@@ -343,6 +300,7 @@ export function PublisherAppWindow({
   const [dispatchMode, setDispatchMode] = useState<"dry-run" | "dispatch">("dry-run");
   const [connectorOnline, setConnectorOnline] = useState<null | boolean>(null);
   const [connectorJobs, setConnectorJobs] = useState<any[] | null>(null);
+  const [queueAuthRequired, setQueueAuthRequired] = useState<null | boolean>(null);
   const [jobFilter, setJobFilter] = useState<JobFilterId>("all");
   const [jobActionId, setJobActionId] = useState<PublishJobId | null>(null);
   const [jobsRefreshing, setJobsRefreshing] = useState(false);
@@ -354,24 +312,51 @@ export function PublisherAppWindow({
   const [workflowSource, setWorkflowSource] = useState("");
   const [workflowNextStep, setWorkflowNextStep] = useState("");
   const [workflowTriggerType, setWorkflowTriggerType] = useState<WorkflowTriggerType | undefined>();
+  const [workflowOriginApp, setWorkflowOriginApp] = useState<CreatorWorkflowMeta["workflowOriginApp"]>();
+  const [workflowOriginId, setWorkflowOriginId] = useState<string | undefined>();
+  const [workflowOriginLabel, setWorkflowOriginLabel] = useState("");
+  const [workflowAudience, setWorkflowAudience] = useState("");
+  const [workflowPrimaryAngle, setWorkflowPrimaryAngle] = useState("");
+  const [workflowSourceSummary, setWorkflowSourceSummary] = useState("");
+  const [workflowBlockLabel, setWorkflowBlockLabel] = useState("");
+  const [workflowSuggestedPlatforms, setWorkflowSuggestedPlatforms] = useState<PublishPlatformId[] | undefined>();
+  const [workflowPublishNotes, setWorkflowPublishNotes] = useState("");
   const [rewritingPlatform, setRewritingPlatform] = useState<PublishPlatformId | null>(null);
 
-  const applyWorkflowContext = useCallback((context?: WorkflowContextMeta | null) => {
+  const applyWorkflowContext = useCallback((context?: CreatorWorkflowMeta | null) => {
     setWorkflowRunId(context?.workflowRunId);
     setWorkflowScenarioId(context?.workflowScenarioId);
     setWorkflowStageId(context?.workflowStageId);
     setWorkflowSource(context?.workflowSource ?? "");
     setWorkflowNextStep(context?.workflowNextStep ?? "");
     setWorkflowTriggerType(context?.workflowTriggerType);
+    setWorkflowOriginApp(context?.workflowOriginApp);
+    setWorkflowOriginId(context?.workflowOriginId);
+    setWorkflowOriginLabel(context?.workflowOriginLabel ?? "");
+    setWorkflowAudience(context?.workflowAudience ?? "");
+    setWorkflowPrimaryAngle(context?.workflowPrimaryAngle ?? "");
+    setWorkflowSourceSummary(context?.workflowSourceSummary ?? "");
+    setWorkflowBlockLabel(context?.workflowBlockLabel ?? "");
+    setWorkflowSuggestedPlatforms(context?.workflowSuggestedPlatforms);
+    setWorkflowPublishNotes(context?.workflowPublishNotes ?? "");
   }, []);
 
-  const buildWorkflowContext = (): WorkflowContextMeta => ({
+  const buildWorkflowContext = (): CreatorWorkflowMeta => ({
     workflowRunId,
     workflowScenarioId,
     workflowStageId,
     workflowSource: workflowSource || undefined,
     workflowNextStep: workflowNextStep || undefined,
     workflowTriggerType,
+    workflowOriginApp,
+    workflowOriginId,
+    workflowOriginLabel: workflowOriginLabel || undefined,
+    workflowAudience: workflowAudience || undefined,
+    workflowPrimaryAngle: workflowPrimaryAngle || undefined,
+    workflowSourceSummary: workflowSourceSummary || undefined,
+    workflowBlockLabel: workflowBlockLabel || undefined,
+    workflowSuggestedPlatforms,
+    workflowPublishNotes: workflowPublishNotes || undefined,
   });
 
   useEffect(() => {
@@ -391,6 +376,17 @@ export function PublisherAppWindow({
     if (!isVisible) return;
     let cancelled = false;
     const run = async () => {
+      const queueInfo = await fetch(buildAgentCoreApiUrl("/api/publish/queue/run"), {
+        method: "GET",
+        cache: "no-store",
+      })
+        .then((r) => r.json())
+        .catch(() => null);
+      if (cancelled) return;
+      setQueueAuthRequired(
+        typeof queueInfo?.data?.authRequired === "boolean" ? queueInfo.data.authRequired : null,
+      );
+
       const health = await fetch(buildAgentCoreApiUrl("/api/publish/connector/health"), {
         method: "GET",
       })
@@ -406,7 +402,12 @@ export function PublisherAppWindow({
         .then((r) => r.json())
         .catch(() => null);
       if (cancelled) return;
-      const list = jobsRes?.ok ? jobsRes?.data?.jobs : null;
+      const list =
+        jobsRes?.ok && Array.isArray(jobsRes?.data?.jobs)
+          ? jobsRes.data.jobs
+          : jobsRes?.ok && Array.isArray(jobsRes?.data)
+            ? jobsRes.data
+            : null;
       setConnectorJobs(Array.isArray(list) ? list : null);
     };
     void run();
@@ -465,6 +466,16 @@ export function PublisherAppWindow({
           workflowSource: detail?.workflowSource ?? targetDraft.workflowSource,
           workflowNextStep: detail?.workflowNextStep ?? targetDraft.workflowNextStep,
           workflowTriggerType: detail?.workflowTriggerType ?? targetDraft.workflowTriggerType,
+          workflowOriginApp: detail?.workflowOriginApp ?? targetDraft.workflowOriginApp,
+          workflowOriginId: detail?.workflowOriginId ?? targetDraft.workflowOriginId,
+          workflowOriginLabel: detail?.workflowOriginLabel ?? targetDraft.workflowOriginLabel,
+          workflowAudience: detail?.workflowAudience ?? targetDraft.workflowAudience,
+          workflowPrimaryAngle: detail?.workflowPrimaryAngle ?? targetDraft.workflowPrimaryAngle,
+          workflowSourceSummary: detail?.workflowSourceSummary ?? targetDraft.workflowSourceSummary,
+          workflowBlockLabel: detail?.workflowBlockLabel ?? targetDraft.workflowBlockLabel,
+          workflowSuggestedPlatforms:
+            detail?.workflowSuggestedPlatforms ?? targetDraft.workflowSuggestedPlatforms,
+          workflowPublishNotes: detail?.workflowPublishNotes ?? targetDraft.workflowPublishNotes,
         });
       } else {
         setSelectedId(null);
@@ -508,6 +519,31 @@ export function PublisherAppWindow({
     return jobs.find((job) => job.id === selectedJobId) ?? null;
   }, [jobs, selectedJobId]);
 
+  const creatorPublishFeedback = useMemo(() => {
+    if (!selectedJob) return null;
+    return buildCreatorPublishFeedback({
+      draftTitle: selectedJob.draftTitle || title,
+      draftBody: selectedJob.draftBody ?? body,
+      dispatchMode: (selectedJob.mode ?? dispatchMode) === "dispatch" ? "dispatch" : "dry-run",
+      jobStatus: selectedJob.status,
+      publishTargets: selectedJob.platforms,
+      results: selectedJob.results ?? lastResults,
+      primaryAngle: workflowPrimaryAngle || undefined,
+      blockLabel: workflowBlockLabel || undefined,
+      publishNotes: workflowPublishNotes || undefined,
+      reviewedAt: selectedJob.updatedAt,
+    });
+  }, [
+    body,
+    dispatchMode,
+    lastResults,
+    selectedJob,
+    title,
+    workflowBlockLabel,
+    workflowPrimaryAngle,
+    workflowPublishNotes,
+  ]);
+
   const isDispatching = useMemo(
     () => jobs.some((job) => job.status === "running"),
     [jobs],
@@ -550,6 +586,41 @@ export function PublisherAppWindow({
     setResultText(selectedJob?.resultText ?? "");
     setLastResults(selectedJob?.results ?? null);
   }, [selectedJob]);
+
+  useEffect(() => {
+    if (!workflowRunId || !selectedDraft || !selectedJob || !creatorPublishFeedback) return;
+    if (selectedJob.draftId && selectedJob.draftId !== selectedDraft.id) return;
+
+    upsertCreatorAsset(workflowRunId, {
+      scenarioId: workflowScenarioId ?? "creator-studio",
+      draftId: selectedDraft.id,
+      topic: title.trim() || selectedJob.draftTitle,
+      audience: workflowAudience || "",
+      primaryAngle: workflowPrimaryAngle || title.trim() || selectedJob.draftTitle,
+      latestDraftTitle: selectedJob.draftTitle || title.trim(),
+      latestDraftBody: selectedJob.draftBody ?? body,
+      publishTargets: selectedJob.platforms,
+      publishStatus: creatorPublishFeedback.publishStatus,
+      latestPublishFeedback: creatorPublishFeedback.latestPublishFeedback,
+      successfulPlatforms: creatorPublishFeedback.successfulPlatforms,
+      failedPlatforms: creatorPublishFeedback.failedPlatforms,
+      retryablePlatforms: creatorPublishFeedback.retryablePlatforms,
+      nextAction: creatorPublishFeedback.nextAction,
+      reuseNotes: creatorPublishFeedback.reuseNotes,
+      lastReviewedAt: creatorPublishFeedback.lastReviewedAt,
+      status: "publishing",
+    });
+  }, [
+    body,
+    creatorPublishFeedback,
+    selectedDraft,
+    selectedJob,
+    title,
+    workflowAudience,
+    workflowPrimaryAngle,
+    workflowRunId,
+    workflowScenarioId,
+  ]);
 
   useEffect(() => {
     if (!actionMessage) return;
@@ -619,7 +690,7 @@ export function PublisherAppWindow({
     Boolean(workflowRunId) ||
     Boolean(selectedDraft?.workflowRunId);
 
-  const syncWorkflowDraft = (draftId: DraftId, context: WorkflowContextMeta) => {
+  const syncWorkflowDraft = (draftId: DraftId, context: CreatorWorkflowMeta) => {
     updateDraft(draftId, {
       workflowRunId: context.workflowRunId,
       workflowScenarioId: context.workflowScenarioId,
@@ -627,6 +698,15 @@ export function PublisherAppWindow({
       workflowSource: context.workflowSource,
       workflowNextStep: context.workflowNextStep,
       workflowTriggerType: context.workflowTriggerType,
+      workflowOriginApp: context.workflowOriginApp,
+      workflowOriginId: context.workflowOriginId,
+      workflowOriginLabel: context.workflowOriginLabel,
+      workflowAudience: context.workflowAudience,
+      workflowPrimaryAngle: context.workflowPrimaryAngle,
+      workflowSourceSummary: context.workflowSourceSummary,
+      workflowBlockLabel: context.workflowBlockLabel,
+      workflowSuggestedPlatforms: context.workflowSuggestedPlatforms,
+      workflowPublishNotes: context.workflowPublishNotes,
     });
   };
 
@@ -673,7 +753,7 @@ export function PublisherAppWindow({
       setSelectedJobId(jobId);
       if (workflowRunId) {
         const run = getWorkflowRun(workflowRunId);
-        const nextContext: WorkflowContextMeta = {
+        const nextContext: CreatorWorkflowMeta = {
           workflowRunId,
           workflowScenarioId: workflowScenarioId ?? "creator-studio",
           workflowStageId: run?.currentStageId === "preflight" ? "publish-loop" : workflowStageId,
@@ -686,6 +766,15 @@ export function PublisherAppWindow({
               ? "等待平台回执与收据，再确认哪些结构值得复用沉淀。"
               : "检查预演结果后，确认是否切到自动发布，并把有效版本沉淀为资产。",
           workflowTriggerType,
+          workflowOriginApp,
+          workflowOriginId,
+          workflowOriginLabel: workflowOriginLabel || undefined,
+          workflowAudience: workflowAudience || undefined,
+          workflowPrimaryAngle: workflowPrimaryAngle || undefined,
+          workflowSourceSummary: workflowSourceSummary || undefined,
+          workflowBlockLabel: workflowBlockLabel || undefined,
+          workflowSuggestedPlatforms,
+          workflowPublishNotes: workflowPublishNotes || undefined,
         };
         if (run?.currentStageId === "preflight") {
           advanceWorkflowRun(workflowRunId);
@@ -701,7 +790,15 @@ export function PublisherAppWindow({
           latestDraftBody: nextBody,
           publishTargets: selectedPlatforms,
           publishStatus: dispatchMode === "dispatch" ? "dispatch_queued" : "dry_run_queued",
+          latestPublishFeedback:
+            dispatchMode === "dispatch"
+              ? "任务已进入发布队列，等待 connector 回执。"
+              : "已进入安全预演队列，等待平台差异结果。",
+          successfulPlatforms: [],
+          failedPlatforms: [],
+          retryablePlatforms: [],
           nextAction: nextContext.workflowNextStep,
+          lastReviewedAt: Date.now(),
           status: "publishing",
         });
       }
@@ -714,13 +811,34 @@ export function PublisherAppWindow({
     if (!workflowRunId) return;
     const nextTitle = title.trim() || "未命名草稿";
     const nextBody = body.trim();
-    const nextContext: WorkflowContextMeta = {
+    const feedback = buildCreatorPublishFeedback({
+      draftTitle: selectedJob?.draftTitle || nextTitle,
+      draftBody: selectedJob?.draftBody ?? nextBody,
+      dispatchMode: dispatchMode === "dispatch" ? "dispatch" : "dry-run",
+      jobStatus: selectedJob?.status,
+      publishTargets: selectedJob?.platforms ?? selectedPlatforms,
+      results: lastResults,
+      primaryAngle: workflowPrimaryAngle || undefined,
+      blockLabel: workflowBlockLabel || undefined,
+      publishNotes: workflowPublishNotes || undefined,
+      reviewedAt: selectedJob?.updatedAt ?? Date.now(),
+    });
+    const nextContext: CreatorWorkflowMeta = {
       workflowRunId,
       workflowScenarioId: workflowScenarioId ?? "creator-studio",
       workflowStageId: "publish-loop",
       workflowSource: "Publisher 已完成本轮预演/发布闭环",
       workflowNextStep: "本轮内容链已完成，可以复用高表现结构、平台版本和 CTA 模板。",
       workflowTriggerType,
+      workflowOriginApp,
+      workflowOriginId,
+      workflowOriginLabel: workflowOriginLabel || undefined,
+      workflowAudience: workflowAudience || undefined,
+      workflowPrimaryAngle: workflowPrimaryAngle || undefined,
+      workflowSourceSummary: workflowSourceSummary || undefined,
+      workflowBlockLabel: workflowBlockLabel || undefined,
+      workflowSuggestedPlatforms,
+      workflowPublishNotes: workflowPublishNotes || undefined,
     };
     applyWorkflowContext(nextContext);
     if (selectedId) {
@@ -734,14 +852,14 @@ export function PublisherAppWindow({
       latestDraftTitle: nextTitle,
       latestDraftBody: nextBody,
       publishTargets: selectedPlatforms,
-      publishStatus: selectedJob?.status === "done" ? "completed" : dispatchMode === "dispatch" ? "dispatch_reviewed" : "dry_run_reviewed",
-      nextAction: nextContext.workflowNextStep,
-      reuseNotes:
-        lastResults
-          ?.map((item) =>
-            `${getPlatformLabel(item.platform)}: ${item.ok ? "执行完成" : item.error || "待人工复核"} (${item.mode})`,
-          )
-          .join("\n") ?? "",
+      publishStatus: selectedJob?.status === "done" ? "completed" : feedback.publishStatus,
+      latestPublishFeedback: feedback.latestPublishFeedback,
+      successfulPlatforms: feedback.successfulPlatforms,
+      failedPlatforms: feedback.failedPlatforms,
+      retryablePlatforms: feedback.retryablePlatforms,
+      nextAction: nextContext.workflowNextStep || feedback.nextAction,
+      reuseNotes: feedback.reuseNotes,
+      lastReviewedAt: feedback.lastReviewedAt,
       status: "completed",
     });
     completeWorkflowRun(workflowRunId);
@@ -750,13 +868,26 @@ export function PublisherAppWindow({
   };
 
   const supportedPlatformCount = platforms.filter((platform) => platform.supported !== false).length;
-  const canReplaySelectedJob = Boolean(
-    selectedJob && selectedJob.status !== "running" && selectedJob.platforms.length > 0 && selectedJob.draftBody?.trim(),
+  const canRetrySelectedJob = Boolean(
+    selectedJob &&
+      selectedJob.status !== "running" &&
+      selectedJob.status !== "queued" &&
+      selectedJob.platforms.length > 0 &&
+      selectedJob.draftBody?.trim(),
   );
+  const canStopSelectedJob = Boolean(selectedJob && selectedJob.status === "queued");
+  const canTriggerSelectedJob = Boolean(selectedJob && selectedJob.status === "queued" && queueAuthRequired !== true);
   const canDeleteSelectedJob = Boolean(selectedJob && selectedJob.status !== "running");
 
-  const replayJob = async (job: PublishJobRecord) => {
-    if (job.status === "running" || !job.draftBody?.trim() || job.platforms.length === 0) return;
+  const retryJob = async (job: PublishJobRecord) => {
+    if (
+      job.status === "running" ||
+      job.status === "queued" ||
+      !job.draftBody?.trim() ||
+      job.platforms.length === 0
+    ) {
+      return;
+    }
     setJobActionId(job.id);
     try {
       await updatePublishJob(job.id, {
@@ -768,11 +899,58 @@ export function PublisherAppWindow({
       });
       setSelectedJobId(job.id);
       setActionTone("success");
-      setActionMessage(job.status === "done" ? "任务已重新排队执行" : "失败任务已重新入队");
-      await triggerQueueRun();
+      if (queueAuthRequired) {
+        setActionMessage(
+          job.status === "done"
+            ? "任务已重新排队；等待后台 worker 再次执行"
+            : "任务已恢复到队列；等待后台 worker 执行",
+        );
+        await refreshPublishJobs();
+      } else {
+        await triggerQueueRun();
+        setActionMessage(
+          job.status === "done" ? "任务已重新排队并触发一次队列执行" : "任务已恢复并触发一次队列执行",
+        );
+      }
     } catch (err) {
       setActionTone("error");
       setActionMessage(err instanceof Error ? err.message : "重新排队失败");
+    } finally {
+      setJobActionId(null);
+    }
+  };
+
+  const stopJob = async (job: PublishJobRecord) => {
+    if (job.status !== "queued") return;
+    setJobActionId(job.id);
+    try {
+      await updatePublishJob(job.id, {
+        status: "stopped",
+        nextAttemptAt: null,
+        resultText: job.resultText
+          ? `${job.resultText}\n\n已手动停止队列执行。`
+          : "已手动停止队列执行。",
+      });
+      setActionTone("success");
+      setActionMessage(job.nextAttemptAt ? "已停止自动重试" : "已停止排队中的任务");
+    } catch (err) {
+      setActionTone("error");
+      setActionMessage(err instanceof Error ? err.message : "停止任务失败");
+    } finally {
+      setJobActionId(null);
+    }
+  };
+
+  const triggerSelectedJob = async (job: PublishJobRecord) => {
+    if (job.status !== "queued" || queueAuthRequired) return;
+    setJobActionId(job.id);
+    try {
+      await triggerQueueRun();
+      setActionTone("success");
+      setActionMessage("已手动触发一次队列执行");
+    } catch (err) {
+      setActionTone("error");
+      setActionMessage(err instanceof Error ? err.message : "触发队列失败");
     } finally {
       setJobActionId(null);
     }
@@ -821,6 +999,12 @@ export function PublisherAppWindow({
       name: `Assistant - Publisher ${platform} variant`,
       status: "running",
       detail: cleanTitle,
+      workflowRunId,
+      workflowScenarioId: workflowScenarioId ?? selectedDraft?.workflowScenarioId,
+      workflowStageId: workflowStageId ?? selectedDraft?.workflowStageId,
+      workflowSource: workflowSource || "Publisher 生成平台修正版",
+      workflowNextStep: "检查平台语气和 CTA，再决定是否进入预演或自动发布。",
+      workflowTriggerType: workflowTriggerType ?? selectedDraft?.workflowTriggerType,
     });
 
     setRewritingPlatform(platform);
@@ -1038,9 +1222,13 @@ export function PublisherAppWindow({
                   <div className="rounded-2xl border border-white/80 bg-white/85 p-4 shadow-sm">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">Connector</div>
                     <div className="mt-2 text-2xl font-bold text-gray-950">
-                      {connectorOnline === null ? "..." : connectorOnline ? "Online" : "Offline"}
+                      {queueAuthRequired === null
+                        ? "..."
+                        : queueAuthRequired
+                          ? "Worker"
+                          : "Browser Assist"}
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">本机收据通道状态</div>
+                    <div className="mt-1 text-xs text-gray-500">队列推进责任归属</div>
                   </div>
                 </div>
               </section>
@@ -1055,6 +1243,9 @@ export function PublisherAppWindow({
                     {dispatchMode === "dry-run"
                       ? "安全预演只生成平台版本和检查清单，不触发真实派发，适合先看文案结构和 CTA。"
                       : "自动发布会向已配置的 Webhook 发起请求。未配置的平台仍会生成结果，但会自动回退成手动发布清单。"}
+                  </div>
+                  <div className="mt-3 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-3 text-xs leading-5 text-gray-600">
+                    {getQueueOwnershipHint(queueAuthRequired)}
                   </div>
                 </div>
                 <div className="rounded-[24px] border border-gray-200 bg-white p-4 shadow-[0_12px_40px_rgba(15,23,42,0.05)]">
@@ -1244,11 +1435,23 @@ export function PublisherAppWindow({
                     </div>
                   </div>
 
-                  {workflowSource || workflowNextStep ? (
+                  {workflowSource ||
+                  workflowNextStep ||
+                  workflowOriginApp ||
+                  workflowPrimaryAngle ||
+                  workflowAudience ||
+                  workflowPublishNotes ? (
                     <div className="mt-4 rounded-[24px] border border-emerald-100 bg-[linear-gradient(135deg,#f7fffb_0%,#edfdf5_100%)] p-4">
                       <div className="text-sm font-semibold text-gray-900">内容流程上下文</div>
-                      {workflowSource ? (
+                      {workflowOriginApp ? (
                         <div className="mt-3 text-sm leading-6 text-gray-700">
+                          <span className="font-semibold text-gray-900">来源应用：</span>
+                          {getCreatorWorkflowOriginLabel(workflowOriginApp)}
+                          {workflowOriginLabel ? ` · ${workflowOriginLabel}` : ""}
+                        </div>
+                      ) : null}
+                      {workflowSource ? (
+                        <div className="mt-2 text-sm leading-6 text-gray-700">
                           <span className="font-semibold text-gray-900">来源：</span>
                           {workflowSource}
                         </div>
@@ -1257,6 +1460,42 @@ export function PublisherAppWindow({
                         <div className="mt-2 text-sm leading-6 text-gray-700">
                           <span className="font-semibold text-gray-900">建议动作：</span>
                           {workflowNextStep}
+                        </div>
+                      ) : null}
+                      {workflowPrimaryAngle ? (
+                        <div className="mt-2 text-sm leading-6 text-gray-700">
+                          <span className="font-semibold text-gray-900">主打角度：</span>
+                          {workflowPrimaryAngle}
+                        </div>
+                      ) : null}
+                      {workflowAudience ? (
+                        <div className="mt-2 text-sm leading-6 text-gray-700">
+                          <span className="font-semibold text-gray-900">目标受众：</span>
+                          {workflowAudience}
+                        </div>
+                      ) : null}
+                      {workflowSuggestedPlatforms?.length ? (
+                        <div className="mt-2 text-sm leading-6 text-gray-700">
+                          <span className="font-semibold text-gray-900">建议平台：</span>
+                          {formatWorkflowSuggestedPlatforms(workflowSuggestedPlatforms)}
+                        </div>
+                      ) : null}
+                      {workflowBlockLabel ? (
+                        <div className="mt-2 text-sm leading-6 text-gray-700">
+                          <span className="font-semibold text-gray-900">当前版本：</span>
+                          {workflowBlockLabel}
+                        </div>
+                      ) : null}
+                      {workflowPublishNotes ? (
+                        <div className="mt-2 text-sm leading-6 text-gray-700">
+                          <span className="font-semibold text-gray-900">发布备注：</span>
+                          {workflowPublishNotes}
+                        </div>
+                      ) : null}
+                      {workflowSourceSummary ? (
+                        <div className="mt-3 rounded-2xl border border-emerald-200/70 bg-white/70 px-3 py-2 text-xs leading-5 text-gray-600">
+                          <span className="font-semibold text-gray-900">来源摘要：</span>
+                          <div className="mt-1 whitespace-pre-wrap">{workflowSourceSummary}</div>
                         </div>
                       ) : null}
                     </div>
@@ -1374,15 +1613,18 @@ export function PublisherAppWindow({
                       </div>
 
                       <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Recommended Move</div>
-                        <div className="mt-3 flex items-start gap-3">
-                          {publishInsights.score >= 70 ? (
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                          ) : (
-                            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-                          )}
-                          <div className="text-sm leading-6 text-gray-700">{publishInsights.recommendation}</div>
-                        </div>
+                        <RecommendationResultBody
+                          recommendation={publishInsights.recommendationResult}
+                          tone="slate"
+                          actionLeading={
+                            publishInsights.score >= 70 ? (
+                              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                            ) : (
+                              <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            )
+                          }
+                          maxHitsPerSection={1}
+                        />
                         <div className="mt-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-3 py-3 text-xs leading-5 text-gray-600">
                           小技巧：如果你是从 Content Repurposer 送过来的，先挑最适合当前平台的一块单独预演，通常比整包直接发更稳。
                         </div>
@@ -1405,7 +1647,7 @@ export function PublisherAppWindow({
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Platforms</div>
                       <div className="mt-1 text-sm text-gray-900">
-                        {selectedPlatforms.length > 0 ? selectedPlatforms.join(", ") : "未选择"}
+                        {selectedPlatforms.length > 0 ? formatPlatformNames(selectedPlatforms) : "未选择"}
                       </div>
                     </div>
                     <div>
@@ -1414,6 +1656,15 @@ export function PublisherAppWindow({
                         {dispatchMode === "dispatch"
                           ? "自动发布依赖平台 Webhook；未配置的平台仍会产出建议，但不会自动派发。"
                           : "预演不会真实外发，更适合先确认标题、结构和平台差异。"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Queue Owner</div>
+                      <div className="mt-1 text-sm text-gray-900">{getQueueOwnershipLabel(queueAuthRequired)}</div>
+                      <div className="mt-1 text-xs leading-5 text-gray-500">
+                        {queueAuthRequired
+                          ? "当前窗口不会代替 worker 推进任务。"
+                          : "浏览器可以帮忙触发，但不是结果写入者。"}
                       </div>
                     </div>
                   </div>
@@ -1529,13 +1780,37 @@ export function PublisherAppWindow({
                       type="button"
                       onClick={() => {
                         if (!selectedJob) return;
-                        void replayJob(selectedJob);
+                        void triggerSelectedJob(selectedJob);
                       }}
-                      disabled={!selectedJob || !canReplaySelectedJob || jobActionId === selectedJob?.id}
+                      disabled={!selectedJob || !canTriggerSelectedJob || jobActionId === selectedJob?.id}
+                      className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Send className="h-3.5 w-3.5" />
+                      立即触发队列
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!selectedJob) return;
+                        void stopJob(selectedJob);
+                      }}
+                      disabled={!selectedJob || !canStopSelectedJob || jobActionId === selectedJob?.id}
+                      className="inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      {selectedJob?.nextAttemptAt ? "停止重试" : "停止排队"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!selectedJob) return;
+                        void retryJob(selectedJob);
+                      }}
+                      disabled={!selectedJob || !canRetrySelectedJob || jobActionId === selectedJob?.id}
                       className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
-                      {selectedJob?.status === "done" ? "再次执行" : "重新排队"}
+                      {getRetryActionLabel(selectedJob)}
                     </button>
                     <button
                       type="button"
@@ -1570,7 +1845,10 @@ export function PublisherAppWindow({
                       </div>
                       <div className="mt-3 text-base font-semibold text-gray-950">{selectedJob.draftTitle}</div>
                       <div className="mt-1 text-xs text-gray-500">
-                        {selectedJob.platforms.join(", ")} · 更新于 {formatTime(selectedJob.updatedAt)}
+                        {formatPlatformNames(selectedJob.platforms)} · 更新于 {formatTime(selectedJob.updatedAt)}
+                      </div>
+                      <div className="mt-3 rounded-2xl border border-gray-200 bg-white px-3 py-3 text-xs leading-5 text-gray-600">
+                        {getJobLifecycleHint(selectedJob, queueAuthRequired)}
                       </div>
                     </>
                   ) : (
@@ -1616,29 +1894,83 @@ export function PublisherAppWindow({
                     <div className="text-xs font-semibold text-gray-700">平台执行结果</div>
                     <div className="mt-2 grid gap-2 sm:grid-cols-2">
                       {lastResults.map((result) => (
-                        <div
-                          key={`${result.platform}:${result.mode}`}
-                          className="rounded-2xl border border-gray-200 bg-gray-50 px-3 py-3"
-                        >
-                          <div className="flex items-center justify-between gap-3 text-xs">
-                            <span className="font-mono text-gray-700">{result.platform}</span>
-                            <span className="text-gray-500">{result.mode}</span>
-                            <span
-                              className={[
-                                "rounded-full border px-2 py-0.5 font-semibold",
-                                result.ok
-                                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                                  : "border-red-200 bg-red-50 text-red-700",
-                              ].join(" ")}
+                        (() => {
+                          const stateMeta = getPublishResultStateMeta(result);
+                          const responsePreview =
+                            result.responseText &&
+                            result.responseText !== result.message &&
+                            result.responseText !== result.error
+                              ? result.responseText
+                              : null;
+                          return (
+                            <div
+                              key={`${result.platform}:${result.mode}:${result.receiptId ?? result.receivedAt ?? result.status ?? "result"}`}
+                              className="rounded-2xl border border-gray-200 bg-gray-50 px-3 py-3"
                             >
-                              {result.ok ? "OK" : "ERR"}
-                              {typeof result.status === "number" ? ` ${result.status}` : ""}
-                            </span>
-                          </div>
-                          {result.error ? (
-                            <div className="mt-2 text-[11px] leading-5 text-red-700">{result.error}</div>
-                          ) : null}
-                        </div>
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <div className="text-sm font-semibold text-gray-900">
+                                    {getPlatformLabel(result.platform)}
+                                  </div>
+                                  <div className="mt-1 text-[11px] leading-5 text-gray-500">
+                                    {describePublishResult(result)}
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap justify-end gap-1 text-[11px]">
+                                  <span className="rounded-full border border-gray-200 bg-white px-2 py-0.5 font-medium text-gray-600">
+                                    {result.mode === "webhook" ? "Webhook" : "Manual"}
+                                  </span>
+                                  <span
+                                    className={[
+                                      "rounded-full border px-2 py-0.5 font-semibold",
+                                      stateMeta.className,
+                                    ].join(" ")}
+                                  >
+                                    {stateMeta.label}
+                                    {typeof result.status === "number" ? ` ${result.status}` : ""}
+                                  </span>
+                                  {typeof result.retryable === "boolean" ? (
+                                    <span
+                                      className={[
+                                        "rounded-full border px-2 py-0.5 font-semibold",
+                                        result.retryable
+                                          ? "border-amber-200 bg-amber-50 text-amber-700"
+                                          : "border-gray-200 bg-gray-100 text-gray-600",
+                                      ].join(" ")}
+                                    >
+                                      {result.retryable ? "可重试" : "终局"}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+
+                              <div className="mt-3 space-y-1 text-[11px] leading-5 text-gray-600">
+                                {result.receiptId ? <div>收据 ID：{result.receiptId}</div> : null}
+                                {result.externalId ? <div>外部 ID：{result.externalId}</div> : null}
+                                {result.receivedAt ? <div>接收时间：{formatIsoTime(result.receivedAt)}</div> : null}
+                                {result.errorType ? <div>错误类型：{result.errorType}</div> : null}
+                              </div>
+
+                              {result.message ? (
+                                <div className="mt-2 rounded-2xl border border-gray-200 bg-white px-3 py-2 text-[11px] leading-5 text-gray-700">
+                                  {result.message}
+                                </div>
+                              ) : null}
+
+                              {result.error ? (
+                                <div className="mt-2 rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-[11px] leading-5 text-red-700">
+                                  {result.error}
+                                </div>
+                              ) : null}
+
+                              {responsePreview ? (
+                                <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap rounded-2xl border border-gray-200 bg-white px-3 py-2 text-[11px] leading-5 text-gray-600">
+                                  {responsePreview}
+                                </pre>
+                              ) : null}
+                            </div>
+                          );
+                        })()
                       ))}
                     </div>
                   </div>
@@ -1730,7 +2062,7 @@ export function PublisherAppWindow({
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <div className="truncate text-sm font-semibold text-gray-900">{job.draftTitle}</div>
-                                <div className="mt-1 text-xs text-gray-500">{job.platforms.join(", ")}</div>
+                                <div className="mt-1 text-xs text-gray-500">{formatPlatformNames(job.platforms)}</div>
                               </div>
                               <span
                                 className={[

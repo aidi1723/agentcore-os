@@ -6,6 +6,18 @@ This project intentionally treats "auto publish" as a **connector problem**:
 - The server can optionally dispatch to your connector webhook
 - Your connector handles real posting via **official APIs** or approved services
 
+This also means the connector is an external execution boundary:
+
+- AgentCore OS owns publish jobs, retries, queue state, and operator UI
+- The connector owns downstream platform integration and connector-internal scheduling
+- Connector health only proves the connector is reachable and self-reports basic readiness
+- Connector receipts prove that the connector accepted or rejected the request, not that the final post is already fully live
+
+Related decisions:
+
+- `docs/adr/ADR-004-PUBLISH_JOB_LIFECYCLE_AND_RETRY_POLICY.zh-CN.md`
+- `docs/adr/ADR-005-CONNECTOR_BOUNDARY_AND_TRUST_MODEL.zh-CN.md`
+
 ## Webhook contract
 
 Endpoint (example):
@@ -25,11 +37,112 @@ Payload (JSON):
 }
 ```
 
-Response:
+Required request semantics:
+
+- `platform`: target platform id
+- `title`: platform-ready title
+- `body`: platform-ready body
+- `hashtags`: optional tag suggestions
+- `token`: platform-facing token or credential for the connector to consume
+- `dryRun`: when `true`, the connector should avoid real posting and return a rehearsal-style receipt
+
+Minimum success response:
 
 ```json
 { "ok": true, "id": "…" }
 ```
+
+Recommended success response:
+
+```json
+{
+  "ok": true,
+  "id": "receipt-id",
+  "platform": "xiaohongshu",
+  "queued": true,
+  "message": "Accepted by connector",
+  "receivedAt": "2026-03-27T00:00:00.000Z"
+}
+```
+
+Minimum error response:
+
+```json
+{ "ok": false, "error": "message" }
+```
+
+Recommended error response:
+
+```json
+{
+  "ok": false,
+  "error": "Invalid payload",
+  "errorType": "validation",
+  "retryable": false
+}
+```
+
+Recommended `errorType` values:
+
+- `validation`
+- `auth`
+- `rate_limit`
+- `temporary`
+- `provider`
+- `unknown`
+
+## Health contract
+
+Minimum health response:
+
+```json
+{
+  "ok": true,
+  "name": "your-connector-name",
+  "time": "2026-03-27T00:00:00.000Z"
+}
+```
+
+Recommended extensions:
+
+```json
+{
+  "ok": true,
+  "name": "your-connector-name",
+  "version": "1.0.0",
+  "time": "2026-03-27T00:00:00.000Z",
+  "capabilities": {
+    "publishWebhook": true,
+    "receiptListing": true,
+    "dryRun": true
+  }
+}
+```
+
+The health endpoint should answer:
+
+- Is the connector online?
+- Can it accept requests?
+- What basic capabilities does it expose?
+
+It should not pretend to be a final publish-result endpoint.
+
+## Receipt listing
+
+If your connector supports receipt browsing, a practical shape is:
+
+```json
+{
+  "ok": true,
+  "jobs": [{ "id": "receipt-id", "platform": "xiaohongshu", "receivedAt": "..." }]
+}
+```
+
+This is useful for:
+
+- local demos
+- operator troubleshooting
+- verifying that AgentCore OS really delivered the request to the connector
 
 ## Local example connector
 
@@ -40,12 +153,27 @@ This repo includes a small local server:
 - UI at `http://127.0.0.1:8787/`
 
 It only logs receipts — it does not publish anywhere.
+The example server demonstrates:
+
+- `GET /health`
+- `GET /jobs`
+- `GET /jobs/:id`
+- `POST /webhook/publish`
+- machine-readable receipt fields like `queued`, `receivedAt`, and `retryable`
 
 ## Recommended real-world options
 
 - Official platform APIs (preferred)
 - Approved third-party schedulers (Buffer/Metricool/Make/Zapier)
 - Internal tooling with explicit user consent and ToS compliance
+
+## Operational guidance
+
+- Keep connector endpoints private, authenticated, and rate-limited
+- Prefer fast acknowledgment + internal async processing over long synchronous requests
+- Let AgentCore OS retry delivery to the connector
+- Let the connector handle provider-specific retries internally
+- If you need stronger external exactly-once guarantees, add a connector-side idempotency key
 
 ## Mobile IM Bridge
 

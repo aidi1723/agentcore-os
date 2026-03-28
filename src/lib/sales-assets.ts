@@ -1,3 +1,8 @@
+import {
+  createServerBackedListState,
+  type SyncTombstoneRecord,
+} from "@/lib/server-backed-list-state";
+
 export type SalesAssetStatus =
   | "qualifying"
   | "awaiting_review"
@@ -31,45 +36,121 @@ export type SalesAssetRecord = {
 };
 
 type Listener = () => void;
+type SalesAssetTombstone = SyncTombstoneRecord & {
+  workflowRunId?: string;
+};
 
 const SALES_ASSETS_KEY = "openclaw.sales-assets.v1";
-const listeners = new Set<Listener>();
+const MAX_SALES_ASSETS = 120;
 
-function emit() {
-  for (const listener of listeners) listener();
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event("openclaw:sales-assets"));
-  }
+function compareSalesAssetPriority(left: SalesAssetRecord, right: SalesAssetRecord) {
+  if (left.updatedAt !== right.updatedAt) return left.updatedAt - right.updatedAt;
+  if (left.createdAt !== right.createdAt) return left.createdAt - right.createdAt;
+  return left.id.localeCompare(right.id, "en");
 }
 
-function load() {
-  if (typeof window === "undefined") return [] as SalesAssetRecord[];
-  try {
-    const raw = window.localStorage.getItem(SALES_ASSETS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as SalesAssetRecord[]) : [];
-  } catch {
-    return [];
+function dedupeSalesAssets(items: SalesAssetRecord[]) {
+  const byId = new Map<string, SalesAssetRecord>();
+  for (const asset of items) {
+    const existing = byId.get(asset.id);
+    if (!existing || compareSalesAssetPriority(existing, asset) < 0) {
+      byId.set(asset.id, asset);
+    }
   }
+
+  const byWorkflowRunId = new Map<string, SalesAssetRecord>();
+  for (const asset of byId.values()) {
+    const existing = byWorkflowRunId.get(asset.workflowRunId);
+    if (!existing || compareSalesAssetPriority(existing, asset) < 0) {
+      byWorkflowRunId.set(asset.workflowRunId, asset);
+    }
+  }
+
+  return Array.from(byWorkflowRunId.values())
+    .sort((left, right) => right.updatedAt - left.updatedAt)
+    .slice(0, MAX_SALES_ASSETS);
 }
 
-function save(next: SalesAssetRecord[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(SALES_ASSETS_KEY, JSON.stringify(next.slice(0, 120)));
-  } catch {
-    // ignore
-  }
+const salesAssetState = createServerBackedListState<
+  SalesAssetRecord,
+  SalesAssetTombstone
+>({
+  statusId: "sales-assets",
+  statusLabel: "销售资产",
+  storageKey: SALES_ASSETS_KEY,
+  eventName: "openclaw:sales-assets",
+  maxItems: MAX_SALES_ASSETS,
+  listPath: "/api/runtime/state/sales-assets",
+  itemBodyKey: "salesAsset",
+  sortItems: dedupeSalesAssets,
+  parseHydrateData: (data) => {
+    const payload = data as
+      | null
+      | {
+          ok?: boolean;
+          data?: { salesAssets?: SalesAssetRecord[]; tombstones?: SalesAssetTombstone[] };
+        };
+    return {
+      items: Array.isArray(payload?.data?.salesAssets) ? payload.data.salesAssets : null,
+      tombstones: Array.isArray(payload?.data?.tombstones) ? payload.data.tombstones : [],
+    };
+  },
+  parseUpsertData: (data) => {
+    const payload = data as
+      | null
+      | {
+          ok?: boolean;
+          data?: {
+            salesAsset?: SalesAssetRecord | null;
+            tombstone?: SalesAssetTombstone | null;
+            accepted?: boolean;
+          };
+        };
+    return {
+      item: payload?.data?.salesAsset ?? null,
+      tombstone: payload?.data?.tombstone ?? null,
+    };
+  },
+  mergeItems: (localItems, serverItems) => dedupeSalesAssets([...serverItems, ...localItems]),
+  applyTombstones: (items, tombstones) => {
+    if (tombstones.length === 0) return items;
+    const tombstoneIds = new Set(tombstones.map((tombstone) => tombstone.id));
+    return dedupeSalesAssets(items.filter((item) => !tombstoneIds.has(item.id)));
+  },
+  shouldResyncLocalItem: (item, context) => {
+    const tombstone = context.tombstoneById.get(item.id);
+    if (tombstone && tombstone.deletedAt >= item.updatedAt) {
+      return false;
+    }
+
+    const serverAsset = context.serverById.get(item.id);
+    const serverWorkflowAsset = context.serverItems.find(
+      (candidate) => candidate.workflowRunId === item.workflowRunId,
+    );
+    if (
+      serverWorkflowAsset &&
+      serverWorkflowAsset.id !== item.id &&
+      compareSalesAssetPriority(item, serverWorkflowAsset) <= 0
+    ) {
+      return false;
+    }
+    if (!serverWorkflowAsset || compareSalesAssetPriority(serverWorkflowAsset, item) < 0) {
+      return true;
+    }
+    return Boolean(serverAsset && item.updatedAt > serverAsset.updatedAt);
+  },
+});
+
+export async function hydrateSalesAssetsFromServer(force = false) {
+  return salesAssetState.hydrateFromServer(force);
 }
 
 export function subscribeSalesAssets(listener: Listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+  return salesAssetState.subscribe(listener);
 }
 
 export function getSalesAssets() {
-  return load().slice().sort((a, b) => b.updatedAt - a.updatedAt);
+  return salesAssetState.getItems();
 }
 
 export function getSalesAssetByWorkflowRunId(workflowRunId?: string | null) {
@@ -82,7 +163,7 @@ export function upsertSalesAsset(
   patch: Partial<Omit<SalesAssetRecord, "id" | "workflowRunId" | "createdAt" | "updatedAt">>,
 ) {
   const now = Date.now();
-  const current = load();
+  const current = salesAssetState.load();
   const existing = current.find((asset) => asset.workflowRunId === workflowRunId);
 
   const nextRecord: SalesAssetRecord = existing
@@ -118,11 +199,14 @@ export function upsertSalesAsset(
         updatedAt: now,
       };
 
-  const next = existing
-    ? current.map((asset) => (asset.workflowRunId === workflowRunId ? nextRecord : asset))
-    : [nextRecord, ...current];
-
-  save(next);
-  emit();
+  salesAssetState.saveLocal(
+    existing
+      ? current.map((asset) =>
+          asset.workflowRunId === workflowRunId ? nextRecord : asset,
+        )
+      : [nextRecord, ...current],
+  );
+  salesAssetState.emit();
+  void salesAssetState.syncItemToServer(nextRecord);
   return nextRecord;
 }

@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, CheckCircle2, Clock3, Sparkles } from "lucide-react";
 
+import { HeroWorkflowRecommendationCard } from "@/components/workflows/HeroWorkflowRecommendationCard";
+import { useRuntimeHeroRecommendation } from "@/components/workflows/useRuntimeHeroRecommendation";
+import { buildSalesHeroWorkflowRecommendation } from "@/lib/hero-workflow-recommendation";
 import { getSalesAssetByWorkflowRunId, subscribeSalesAssets, type SalesAssetRecord } from "@/lib/sales-assets";
+import { getTasks, subscribeTasks, type TaskRecord } from "@/lib/tasks";
 import {
   getSalesRuntimeLabel,
   getSalesStageStateLabel,
@@ -92,23 +96,29 @@ export function SalesHeroWorkflowPanel({
 }: SalesHeroWorkflowPanelProps) {
   const [workflowRuns, setWorkflowRuns] = useState(getWorkflowRuns());
   const [asset, setAsset] = useState<SalesAssetRecord | null>(() => getSalesAssetByWorkflowRunId(workflowRunId));
+  const [tasks, setTasks] = useState<TaskRecord[]>(() => getTasks());
   const scenario = useMemo(() => getSalesWorkflowScenario(), []);
 
   useEffect(() => {
     const syncRuns = () => setWorkflowRuns(getWorkflowRuns());
     const syncAsset = () => setAsset(getSalesAssetByWorkflowRunId(workflowRunId));
+    const syncTasks = () => setTasks(getTasks());
     syncRuns();
     syncAsset();
+    syncTasks();
     const offRuns = subscribeWorkflowRuns(syncRuns);
     const offAssets = subscribeSalesAssets(syncAsset);
+    const offTasks = subscribeTasks(syncTasks);
     const onStorage = () => {
       syncRuns();
       syncAsset();
+      syncTasks();
     };
     window.addEventListener("storage", onStorage);
     return () => {
       offRuns();
       offAssets();
+      offTasks();
       window.removeEventListener("storage", onStorage);
     };
   }, [workflowRunId]);
@@ -117,6 +127,32 @@ export function SalesHeroWorkflowPanel({
     () => (workflowRunId ? workflowRuns.find((item) => item.id === workflowRunId) ?? null : null),
     [workflowRunId, workflowRuns],
   );
+  const workflowTasks = useMemo(
+    () =>
+      tasks
+        .filter((task) => task.workflowRunId && task.workflowRunId === workflowRunId)
+        .sort((left, right) => right.updatedAt - left.updatedAt)
+        .slice(0, 3),
+    [tasks, workflowRunId],
+  );
+  const recommendation = useMemo(
+    () =>
+      buildSalesHeroWorkflowRecommendation({
+        run,
+        asset,
+        tasks: workflowTasks,
+        source,
+        nextStep,
+      }),
+    [asset, nextStep, run, source, workflowTasks],
+  );
+  const resolvedRecommendation = useRuntimeHeroRecommendation({
+    family: "sales",
+    workflowRunId,
+    source,
+    nextStep,
+    fallback: recommendation,
+  });
   return (
     <section className="overflow-hidden rounded-[28px] border border-amber-200 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.26),_rgba(255,255,255,0.98)_38%,_rgba(226,232,240,0.9)_100%)] p-5 shadow-sm shadow-amber-100/40 sm:p-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
@@ -166,6 +202,8 @@ export function SalesHeroWorkflowPanel({
               </div>
             </div>
           </div>
+
+          <HeroWorkflowRecommendationCard recommendation={resolvedRecommendation} tone="amber" />
 
           {run && scenario ? (
             <div className="mt-4 grid gap-3">

@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## v1.2.0 - 2026-03-28
+
+### Workflow Recommendation And Runtime Stability Upgrade
+
+- Expanded the shared workflow recommendation contract from Hero panels into the main execution surfaces for:
+  - `Deal Desk`
+  - `Support Copilot`
+  - `Deep Research Hub`
+  - `Content Repurposer`
+  - `Inbox Declutter`
+  - `Morning Brief`
+- Promoted workflow-linked tasks into first-class recommendation and next-step signals so workflow surfaces can route users toward the same follow-up actions with a consistent structure.
+- Kept deterministic local recommendation builders as the stable default, while preserving server-backed runtime overlays for Hero workflow summaries and suggestions.
+- Deepened the current stable product line around sales, support, research, creator, knowledge accumulation, and publish-chain handoff rather than expanding into self-built low-level infrastructure.
 - Added documented stability gates for the current public line:
   - `npm run test:core-workflows`
   - `npm run test:stability`
@@ -14,6 +28,10 @@
   - workflow-run scenario winner and tombstone behavior
 - Added a documented cold-start validation baseline for the GitHub main branch.
 - Expanded publish-account settings coverage so the configuration surface now matches the publish platforms already supported by the queue and dispatch layer.
+
+### Verification
+
+- Verified `npm run test:stability`
 
 ## v1.1.1 - 2026-03-22
 

@@ -23,6 +23,10 @@ const PLATFORM_IDS = new Set<PublishPlatformId>([
 
 const STATUS_IDS = new Set<PublishJobStatus>(["queued", "running", "done", "error", "stopped"]);
 
+function normalizeString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
 function normalizePlatforms(input: unknown): PublishPlatformId[] {
   if (!Array.isArray(input)) return [];
   const result: PublishPlatformId[] = [];
@@ -48,6 +52,14 @@ function normalizeResults(input: unknown): PublishJobResult[] | undefined {
       ok: Boolean(item.ok),
       mode: item.mode === "webhook" ? "webhook" : "manual",
       status: typeof item.status === "number" ? item.status : undefined,
+      queued: typeof item.queued === "boolean" ? item.queued : undefined,
+      retryable: typeof item.retryable === "boolean" ? item.retryable : undefined,
+      errorType: normalizeString(item.errorType),
+      receiptId: normalizeString(item.receiptId ?? item.id),
+      externalId: normalizeString(item.externalId),
+      receivedAt: normalizeString(item.receivedAt),
+      message: normalizeString(item.message),
+      responseText: normalizeString(item.responseText),
       error: typeof item.error === "string" && item.error.trim() ? item.error : undefined,
     });
   }

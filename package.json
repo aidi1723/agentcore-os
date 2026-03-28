@@ -1,7 +1,8 @@
 {
   "name": "agentcore-os",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "private": true,
+  "type": "module",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=20 <24"
@@ -23,7 +24,8 @@
     "start": "next start",
     "stable": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});\" && next build && next start -p 3000",
     "test:core-workflows": "node --import ./scripts/register-ts-alias-loader.mjs ./scripts/regression/workflows.mjs",
-    "test:stability": "npm run test:core-workflows && npm run lint && npm run build",
+    "test:publish": "node --import ./scripts/register-ts-alias-loader.mjs ./scripts/regression/publish.mjs",
+    "test:stability": "npm run test:core-workflows && npm run test:publish && npm run lint && npm run build",
     "lint": "next lint",
     "webhook:dev": "node scripts/webhook-connector/server.mjs",
     "publish-queue:worker": "node scripts/publish-queue-worker.mjs",

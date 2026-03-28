@@ -229,6 +229,365 @@ async function runSupportAndKnowledgeRegression(localStorage) {
   console.log("support workflow and FAQ asset regression passed");
 }
 
+async function runCreatorWorkflowHandoffRegression(localStorage) {
+  logSection("creator workflow handoff");
+  resetBrowserState(localStorage);
+
+  const drafts = await import(moduleUrl("src/lib/drafts.ts"));
+  const creatorWorkflow = await import(moduleUrl("src/lib/creator-workflow.ts"));
+  const draftStore = await import(moduleUrl("src/lib/server/draft-store.ts"));
+  const tempRoot = await mkdtemp(path.join(os.tmpdir(), "agentcore-creator-handoff-"));
+  const previousCwd = process.cwd();
+  process.chdir(tempRoot);
+
+  try {
+    const meta = creatorWorkflow.buildCreatorWorkflowMeta({
+      workflowRunId: "creator-run-1",
+      workflowScenarioId: "creator-studio",
+      workflowStageId: "preflight",
+      workflowSource: "  来自 Content Repurposer 的发布候选稿  ",
+      workflowNextStep: "  先做预演，再决定是否自动发布。  ",
+      workflowTriggerType: "manual",
+      workflowOriginApp: "content_repurposer",
+      workflowOriginId: "project-1",
+      workflowOriginLabel: "  春季窗品选题  ",
+      workflowAudience: "  外贸门窗采购负责人  ",
+      workflowPrimaryAngle: "  先讲成交案例，再讲三步检查法  ",
+      workflowSourceSummary: "  这是一条从长内容拆出的短视频版本。  ",
+      workflowBlockLabel: "  短视频口播  ",
+      workflowSuggestedPlatforms: ["douyin", "xiaohongshu", "douyin"],
+      workflowPublishNotes: "  建议保留数字 hook 和评论 CTA。  ",
+    });
+
+    const draftId = drafts.createDraft({
+      title: "春季窗品选题 · 抖音版",
+      body: "前三秒先讲成交案例，再落到检查清单。",
+      tags: ["publish-ready", "douyin"],
+      source: "import",
+      ...meta,
+    });
+    const latestDraft = drafts.getDrafts().find((draft) => draft.id === draftId);
+    assert(latestDraft, "Creator workflow draft should be created.");
+    assert.equal(
+      latestDraft?.workflowOriginApp,
+      "content_repurposer",
+      "Creator workflow draft should preserve origin app.",
+    );
+    assert.equal(
+      latestDraft?.workflowOriginLabel,
+      "春季窗品选题",
+      "Creator workflow meta should trim origin label.",
+    );
+    assert.deepEqual(
+      latestDraft?.workflowSuggestedPlatforms,
+      ["douyin", "xiaohongshu"],
+      "Creator workflow meta should dedupe suggested platforms.",
+    );
+    assert.equal(
+      latestDraft?.workflowPublishNotes,
+      "建议保留数字 hook 和评论 CTA。",
+      "Creator workflow meta should trim publish notes.",
+    );
+
+    const stored = await draftStore.upsertDraftInStore(latestDraft);
+    assert.equal(
+      stored.draft?.workflowBlockLabel,
+      "短视频口播",
+      "Draft store should persist workflow block labels.",
+    );
+    assert.equal(
+      stored.draft?.workflowSourceSummary,
+      "这是一条从长内容拆出的短视频版本。",
+      "Draft store should persist workflow source summary.",
+    );
+
+    const snapshot = await draftStore.listDraftStoreSnapshot();
+    const persistedDraft = snapshot.drafts.find((draft) => draft.id === draftId);
+    assert.equal(
+      persistedDraft?.workflowAudience,
+      "外贸门窗采购负责人",
+      "Draft store snapshot should preserve creator workflow audience.",
+    );
+
+    console.log("creator workflow handoff regression passed");
+  } finally {
+    process.chdir(previousCwd);
+    await rm(tempRoot, { recursive: true, force: true });
+  }
+}
+
+async function runCreatorPublishFeedbackRegression() {
+  logSection("creator publish feedback");
+
+  const feedback = await import(moduleUrl("src/lib/creator-publish-feedback.ts"));
+  const creatorAssetStore = await import(moduleUrl("src/lib/server/creator-asset-store.ts"));
+
+  const summary = feedback.buildCreatorPublishFeedback({
+    draftTitle: "3 步检查内容发布闭环",
+    draftBody: "先讲结果，再给三步清单。\n最后提醒评论区领取模板。",
+    dispatchMode: "dispatch",
+    jobStatus: "done",
+    publishTargets: ["douyin", "xiaohongshu"],
+    primaryAngle: "先给结果，再拆步骤",
+    blockLabel: "短视频口播",
+    publishNotes: "保留数字 hook 和 CTA",
+    results: [
+      {
+        platform: "douyin",
+        ok: true,
+        mode: "webhook",
+        queued: true,
+        retryable: true,
+        receiptId: "receipt-1",
+      },
+      {
+        platform: "xiaohongshu",
+        ok: false,
+        mode: "webhook",
+        errorType: "auth",
+        retryable: false,
+        error: "token expired",
+      },
+    ],
+    reviewedAt: 1_710_000_000_000,
+  });
+
+  assert.equal(summary.publishStatus, "dispatch_done", "Creator publish feedback should derive publish status.");
+  assert.equal(summary.latestPublishFeedback, "已接收: douyin | 失败: xiaohongshu | 可重试: douyin", "Structured feedback should summarize platform outcomes.");
+  assert.deepEqual(summary.successfulPlatforms, ["douyin"], "Structured feedback should expose successful platforms.");
+  assert.deepEqual(summary.failedPlatforms, ["xiaohongshu"], "Structured feedback should expose failed platforms.");
+  assert.deepEqual(summary.retryablePlatforms, ["douyin"], "Structured feedback should expose retryable platforms.");
+  assert.equal(summary.lastReviewedAt, 1_710_000_000_000, "Structured feedback should preserve the review timestamp.");
+  assert.match(summary.nextAction, /复盘有效结构/, "Done publish feedback should point back to reuse review.");
+  assert.match(summary.reuseNotes, /短视频口播/, "Reuse notes should preserve the content block label.");
+  assert.match(summary.reuseNotes, /收据 receipt-1/, "Reuse notes should include successful connector receipts.");
+  assert.match(summary.reuseNotes, /token expired/, "Reuse notes should include failure details.");
+  assert.match(summary.reuseNotes, /先修复授权/, "Reuse notes should include auth repair guidance.");
+
+  const tempRoot = await mkdtemp(path.join(os.tmpdir(), "creator-asset-feedback-"));
+  const previousCwd = process.cwd();
+  process.chdir(tempRoot);
+
+  try {
+    const stored = await creatorAssetStore.upsertCreatorAssetInStore({
+      id: "creator-asset-1",
+      workflowRunId: "creator-run-1",
+      scenarioId: "creator-studio",
+      topic: "春季窗品选题",
+      latestDraftTitle: "3 步检查内容发布闭环",
+      publishTargets: ["douyin", "xiaohongshu"],
+      publishStatus: summary.publishStatus,
+      latestPublishFeedback: summary.latestPublishFeedback,
+      successfulPlatforms: summary.successfulPlatforms,
+      failedPlatforms: summary.failedPlatforms,
+      retryablePlatforms: summary.retryablePlatforms,
+      nextAction: summary.nextAction,
+      reuseNotes: summary.reuseNotes,
+      lastReviewedAt: summary.lastReviewedAt,
+      status: "publishing",
+      createdAt: 1_710_000_000_000,
+      updatedAt: 1_710_000_000_123,
+    });
+    assert.equal(stored.accepted, true, "Creator asset store should accept structured feedback fields.");
+    assert.equal(stored.creatorAsset?.latestPublishFeedback, summary.latestPublishFeedback, "Creator asset store should persist latest feedback summary.");
+
+    const snapshot = await creatorAssetStore.listCreatorAssetStoreSnapshot();
+    assert.deepEqual(snapshot.creatorAssets[0]?.successfulPlatforms, ["douyin"], "Creator asset snapshot should preserve successful platforms.");
+    assert.deepEqual(snapshot.creatorAssets[0]?.retryablePlatforms, ["douyin"], "Creator asset snapshot should preserve retryable platforms.");
+    assert.equal(snapshot.creatorAssets[0]?.lastReviewedAt, 1_710_000_000_000, "Creator asset snapshot should preserve review timestamps.");
+  } finally {
+    process.chdir(previousCwd);
+    await rm(tempRoot, { recursive: true, force: true });
+  }
+
+  console.log("creator publish feedback regression passed");
+}
+
+async function runCreatorAssetQueryRegression() {
+  logSection("creator asset query");
+
+  const creatorAssetQuery = await import(moduleUrl("src/lib/creator-asset-query.ts"));
+
+  const baseAsset = {
+    scenarioId: "creator-studio",
+    topic: "春季窗品选题",
+    audience: "采购负责人",
+    sourceChannels: "wechat",
+    primaryAngle: "先给结果再给步骤",
+    latestDigest: "",
+    latestPack: "",
+    latestDraftTitle: "",
+    latestDraftBody: "",
+    publishTargets: [],
+    publishStatus: "not_started",
+    latestPublishFeedback: "",
+    successfulPlatforms: [],
+    failedPlatforms: [],
+    retryablePlatforms: [],
+    nextAction: "",
+    reuseNotes: "",
+    status: "completed",
+    createdAt: 10,
+    updatedAt: 10,
+  };
+
+  const items = [
+    {
+      ...baseAsset,
+      id: "creator-a",
+      workflowRunId: "run-a",
+      publishTargets: ["douyin"],
+      publishStatus: "dispatch_done",
+      latestPublishFeedback: "已接收: douyin",
+      successfulPlatforms: ["douyin"],
+      lastReviewedAt: 300,
+      updatedAt: 400,
+    },
+    {
+      ...baseAsset,
+      id: "creator-b",
+      workflowRunId: "run-b",
+      publishTargets: ["xiaohongshu"],
+      publishStatus: "dispatch_error",
+      latestPublishFeedback: "失败: xiaohongshu | 可重试: xiaohongshu",
+      failedPlatforms: ["xiaohongshu"],
+      retryablePlatforms: ["xiaohongshu"],
+      status: "publishing",
+      lastReviewedAt: 500,
+      updatedAt: 350,
+    },
+    {
+      ...baseAsset,
+      id: "creator-c",
+      workflowRunId: "run-c",
+      publishTargets: ["instagram"],
+      publishStatus: "dispatch_queued",
+      latestPublishFeedback: "任务已进入发布队列",
+      status: "publishing",
+      updatedAt: 450,
+    },
+  ];
+
+  const successful = creatorAssetQuery.queryCreatorAssets(items, {
+    filter: "successful",
+  });
+  assert.deepEqual(successful.map((item) => item.id), ["creator-a"], "Successful filter should only keep assets with successful platforms.");
+
+  const retryable = creatorAssetQuery.queryCreatorAssets(items, {
+    filter: "retryable",
+  });
+  assert.deepEqual(retryable.map((item) => item.id), ["creator-b"], "Retryable filter should only keep retryable assets.");
+
+  const inFlight = creatorAssetQuery.queryCreatorAssets(items, {
+    filter: "in_flight",
+    sort: "updated",
+  });
+  assert.deepEqual(inFlight.map((item) => item.id), ["creator-c", "creator-b"], "In-flight filter should keep queued or publishing assets ordered by recent update.");
+
+  const platformFiltered = creatorAssetQuery.queryCreatorAssets(items, {
+    platform: "xiaohongshu",
+    sort: "reviewed",
+  });
+  assert.deepEqual(platformFiltered.map((item) => item.id), ["creator-b"], "Platform filter should match publish targets and structured feedback platforms.");
+
+  const successSignal = creatorAssetQuery.queryCreatorAssets(items, {
+    sort: "success_signal",
+  });
+  assert.deepEqual(successSignal.map((item) => item.id), ["creator-a", "creator-b", "creator-c"], "Success signal sort should prioritize more successful platforms.");
+
+  const retryPriority = creatorAssetQuery.queryCreatorAssets(items, {
+    sort: "retry_priority",
+  });
+  assert.deepEqual(retryPriority.map((item) => item.id), ["creator-b", "creator-a", "creator-c"], "Retry priority sort should surface retryable assets first.");
+
+  console.log("creator asset query regression passed");
+}
+
+async function runCreatorAssetQueryRouteRegression() {
+  logSection("creator asset query route");
+
+  const tempRoot = await mkdtemp(path.join(os.tmpdir(), "creator-asset-query-route-"));
+  const previousCwd = process.cwd();
+  process.chdir(tempRoot);
+
+  try {
+    const creatorAssetStore = await import(moduleUrl("src/lib/server/creator-asset-store.ts"));
+    const route = await import(moduleUrl("src/app/api/runtime/state/creator-assets/query/route.ts"));
+
+    await creatorAssetStore.upsertCreatorAssetInStore({
+      id: "creator-route-1",
+      workflowRunId: "creator-route-run-1",
+      scenarioId: "creator-studio",
+      topic: "抖音三步成交内容",
+      latestDraftTitle: "抖音成交脚本",
+      publishTargets: ["douyin"],
+      publishStatus: "dispatch_done",
+      latestPublishFeedback: "已接收: douyin",
+      successfulPlatforms: ["douyin"],
+      failedPlatforms: [],
+      retryablePlatforms: [],
+      nextAction: "复盘短视频 hook",
+      reuseNotes: "保留数字 hook",
+      status: "completed",
+      createdAt: 100,
+      updatedAt: 200,
+    });
+    await creatorAssetStore.upsertCreatorAssetInStore({
+      id: "creator-route-2",
+      workflowRunId: "creator-route-run-2",
+      scenarioId: "creator-studio",
+      topic: "小红书图文复盘",
+      latestDraftTitle: "图文版本",
+      publishTargets: ["xiaohongshu"],
+      publishStatus: "dispatch_error",
+      latestPublishFeedback: "失败: xiaohongshu | 可重试: xiaohongshu",
+      successfulPlatforms: [],
+      failedPlatforms: ["xiaohongshu"],
+      retryablePlatforms: ["xiaohongshu"],
+      nextAction: "修复授权再重试",
+      reuseNotes: "保留图文分段结构",
+      status: "publishing",
+      createdAt: 110,
+      updatedAt: 300,
+    });
+
+    const response = await route.POST(
+      new Request("http://localhost/api/runtime/state/creator-assets/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          q: "图文",
+          platform: "xiaohongshu",
+          sort: "retry_priority",
+          limit: 4,
+        }),
+      }),
+    );
+    const payload = await response.json();
+    assert.equal(response.status, 200, "Creator asset query route should succeed for valid requests.");
+    assert.equal(payload?.ok, true, "Creator asset query route should return ok=true.");
+    assert.deepEqual(
+      payload?.data?.creatorAssets?.map((item) => item.id),
+      ["creator-route-2"],
+      "Creator asset query route should combine keyword, platform and sort filters.",
+    );
+
+    const invalidResponse = await route.POST(
+      new Request("http://localhost/api/runtime/state/creator-assets/query", {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: "bad-body",
+      }),
+    );
+    assert.equal(invalidResponse.status, 415, "Creator asset query route should reuse JSON body guards.");
+
+    console.log("creator asset query route regression passed");
+  } finally {
+    process.chdir(previousCwd);
+    await rm(tempRoot, { recursive: true, force: true });
+  }
+}
+
 async function runKnowledgeReuseSourceGuard() {
   logSection("knowledge vault source guard");
   const file = path.join(PROJECT_ROOT, "src", "components", "apps", "KnowledgeVaultAppWindow.tsx");
@@ -239,6 +598,544 @@ async function runKnowledgeReuseSourceGuard() {
   assert(!/incrementKnowledgeAssetReuse\(asset\.id\)/.test(oneClickBlock), "One-click reuse should not increment reuse count directly.");
   assert(/标记已复用/.test(source), "Explicit reuse marker button should remain available.");
   console.log("knowledge vault one-click reuse guard passed");
+}
+
+async function runVaultHybridContextRegression() {
+  logSection("vault hybrid context");
+
+  const routeFile = path.join(
+    PROJECT_ROOT,
+    "src",
+    "app",
+    "api",
+    "openclaw",
+    "vault",
+    "query",
+    "route.ts",
+  );
+  const appFile = path.join(
+    PROJECT_ROOT,
+    "src",
+    "components",
+    "apps",
+    "KnowledgeVaultAppWindow.tsx",
+  );
+
+  const routeSource = await readFile(routeFile, "utf8");
+  const appSource = await readFile(appFile, "utf8");
+
+  assert.match(routeSource, /知识资产：\\n\$\{knowledgeList/, "Vault query route should include knowledge asset context.");
+  assert.match(routeSource, /Creator 内容资产：\\n\$\{creatorList/, "Vault query route should include creator asset context.");
+  assert.match(routeSource, /知识库混合检索助手/, "Vault query route should describe the new hybrid retrieval role.");
+
+  assert.match(appSource, /knowledgeAssets:\s*knowledgeContext/, "Knowledge Vault app should send knowledge asset context.");
+  assert.match(appSource, /creatorAssets:\s*creatorContext/, "Knowledge Vault app should send creator asset context.");
+  assert.match(appSource, /activeFolder === "social_assets"/, "Knowledge Vault app should only attach creator context inside social assets.");
+  assert.match(appSource, /structuredAnswer/, "Knowledge Vault app should consume structured vault results.");
+  assert.match(
+    appSource,
+    /RecommendationResultBody/,
+    "Knowledge Vault app should render structured recommendation results through the shared body component.",
+  );
+
+  console.log("vault hybrid context regression passed");
+}
+
+async function runVaultMixedQueryRegression() {
+  logSection("vault mixed query");
+
+  const vaultMixedQuery = await import(moduleUrl("src/lib/vault-mixed-query.ts"));
+
+  const result = vaultMixedQuery.buildVaultMixedQueryStructuredResult({
+    query: "抖音 hook 复盘",
+    files: [
+      {
+        id: "file-1",
+        folderId: "social_assets",
+        name: "抖音脚本清单.md",
+        size: 2048,
+        addedAt: 100,
+      },
+    ],
+    knowledgeAssets: [
+      {
+        id: "knowledge-1",
+        title: "销售 FAQ 模板",
+        assetType: "sales_playbook",
+        status: "active",
+        applicableScene: "报价异议处理",
+        body: "适合销售流程，不是内容复盘。",
+      },
+    ],
+    creatorAssets: [
+      {
+        id: "creator-1",
+        topic: "抖音三步成交复盘",
+        primaryAngle: "先给结果再给 hook",
+        publishStatus: "dispatch_done",
+        latestPublishFeedback: "已接收: douyin",
+        nextAction: "回到 Publisher 复盘 hook",
+        publishTargets: ["douyin"],
+        successfulPlatforms: ["douyin"],
+        retryablePlatforms: [],
+        jumpTarget: {
+          kind: "publisher",
+          prefill: {
+            draftId: "draft-1",
+            workflowRunId: "run-1",
+            workflowScenarioId: "creator-studio",
+          },
+        },
+      },
+    ],
+  });
+
+  assert.equal(result.contractVersion, "v1", "Mixed vault query should expose the recommendation contract version.");
+  assert.equal(
+    result.sections.find((section) => section.id === "creator_assets")?.hits[0]?.id,
+    "creator-1",
+    "Mixed vault query should rank creator assets inside generic sections.",
+  );
+  assert.equal(result.recommendedAction.kind, "resume_creator_workflow", "Mixed vault query should recommend resuming creator workflow when creator assets dominate.");
+  assert.equal(result.recommendedAction.jumpTarget?.kind, "publisher", "Mixed vault query should surface a jump target for creator workflow resume.");
+
+  console.log("vault mixed query regression passed");
+}
+
+async function runPublishRecommendationRegression() {
+  logSection("publish recommendation");
+
+  const publishRecommendation = await import(moduleUrl("src/lib/publish-recommendation.ts"));
+
+  const risky = publishRecommendation.analyzePublishReadiness({
+    title: "短标题",
+    body: "只有一句，没有 CTA。",
+    platforms: ["douyin", "xiaohongshu"],
+    dispatchMode: "dispatch",
+    connections: {
+      douyin: { token: "a", webhookUrl: "" },
+      xiaohongshu: { token: "b", webhookUrl: "" },
+    },
+  });
+  assert.equal(risky.recommendationResult.contractVersion, "v1", "Publish recommendation should expose the shared recommendation contract.");
+  assert.equal(risky.recommendationResult.recommendedAction.kind, "improve_copy", "Risky publish inputs should recommend fixing copy/config first.");
+  assert.equal(risky.recommendationResult.sections.length, 2, "Publish recommendation should expose checklist and platform sections.");
+  assert.equal(risky.recommendationResult.sections[0]?.id, "publish_checks", "Publish recommendation should expose publish checks as a generic section.");
+
+  const ready = publishRecommendation.analyzePublishReadiness({
+    title: "3 步把抖音口播改到可发布",
+    body: "先讲结果。\n再给三步清单。\n最后评论区领取模板。 #抖音 #内容运营",
+    platforms: ["douyin"],
+    dispatchMode: "dry-run",
+    connections: {
+      douyin: { token: "a", webhookUrl: "https://example.com/hook" },
+    },
+  });
+  assert.equal(ready.recommendationResult.recommendedAction.kind, "run_dry_run", "Healthy copy in dry-run mode should recommend preflight preview.");
+  assert(
+    ready.recommendationResult.sections.some((section) => section.id === "platform_fit" && section.hits.length > 0),
+    "Publish recommendation should surface platform-fit hits in the shared section model.",
+  );
+
+  console.log("publish recommendation regression passed");
+}
+
+async function runWorkflowSurfaceRecommendationRegression() {
+  logSection("workflow surface recommendation");
+
+  const helper = await import(moduleUrl("src/lib/workflow-surface-recommendation.ts"));
+
+  const dealRecommendation = helper.buildDealDeskSurfaceRecommendation({
+    deal: {
+      id: "deal-surface-1",
+      company: "Aventra Windows",
+      contact: "Lena",
+      inquiryChannel: "WhatsApp",
+      preferredLanguage: "English",
+      productLine: "Thermal Aluminum Door",
+      need: "Need a first quote for UAE project.",
+      budget: "",
+      timing: "2 weeks",
+      stage: "new",
+      notes: "Customer wants a fast answer.",
+      brief: "",
+      reviewNotes: "",
+      workflowRunId: "sales-run-surface-1",
+      workflowScenarioId: "sales-pipeline",
+      workflowStageId: "qualify",
+      workflowSource: "Deal Desk intake",
+      workflowNextStep: "先生成资格简报，再决定是否进入邮件跟进。",
+      workflowTriggerType: "manual",
+      createdAt: 100,
+      updatedAt: 120,
+    },
+    asset: null,
+  });
+  assert.equal(
+    dealRecommendation.recommendedAction.kind,
+    "generate_sales_brief",
+    "Deal surface recommendation should first push qualification brief generation when context is mostly present.",
+  );
+  assert.equal(
+    dealRecommendation.sections.some((section) => section.id === "deal_risks"),
+    true,
+    "Deal surface recommendation should expose missing-context and risk sections.",
+  );
+
+  const supportRecommendation = helper.buildSupportCopilotSurfaceRecommendation({
+    ticket: {
+      id: "support-surface-1",
+      customer: "Nora",
+      channel: "whatsapp",
+      subject: "Broken hinge",
+      message: "The hinge arrived damaged.",
+      status: "waiting",
+      replyDraft: "We have received your issue and will confirm the replacement window shortly.",
+      reviewNotes: "不要承诺具体发货时效，除非已经确认库存。",
+      workflowRunId: "support-run-surface-1",
+      workflowScenarioId: "support-ops",
+      workflowStageId: "reply",
+      workflowSource: "Support Copilot generated draft",
+      workflowNextStep: "人工确认回复边界后，再决定是否转任务跟进或沉淀成 FAQ。",
+      workflowTriggerType: "manual",
+      createdAt: 130,
+      updatedAt: 150,
+    },
+    asset: {
+      id: "support-asset-surface-1",
+      workflowRunId: "support-run-surface-1",
+      scenarioId: "support-ops",
+      ticketId: "support-surface-1",
+      customer: "Nora",
+      channel: "whatsapp",
+      issueSummary: "The hinge arrived damaged.",
+      latestDigest: "",
+      latestReply: "We have received your issue and will confirm the replacement window shortly.",
+      escalationTask: "",
+      faqDraft: "",
+      nextAction: "人工确认当前回复，确认是否需要升级处理或转成任务。",
+      status: "replying",
+      createdAt: 130,
+      updatedAt: 150,
+    },
+  });
+  assert.equal(
+    supportRecommendation.recommendedAction.kind,
+    "review_support_reply",
+    "Support surface recommendation should prioritize review when reply-draft guardrails still exist.",
+  );
+  assert.equal(
+    supportRecommendation.sections.some((section) => section.id === "support_assetize"),
+    true,
+    "Support surface recommendation should expose follow-up and assetization signals.",
+  );
+
+  const researchRecommendation = helper.buildDeepResearchSurfaceRecommendation({
+    report: {
+      id: "research-surface-1",
+      topic: "Window hardware demand in GCC",
+      sources: "Trade forums, distributor notes",
+      angle: "What changes replacement demand timing",
+      audience: "Sales leadership",
+      notes: "Focus on replacement cycle shifts.",
+      report: "【Research Brief】\n...\n【下一步】\n把今天必须采取的判断送进 Morning Brief。",
+      workflowRunId: "research-run-surface-1",
+      workflowScenarioId: "research-radar",
+      workflowStageId: "route",
+      workflowSource: "Deep Research Hub synthesized report",
+      workflowNextStep: "在 Morning Brief 里把研究结论压成今天可执行的判断与动作。",
+      workflowTriggerType: "manual",
+      createdAt: 160,
+      updatedAt: 190,
+    },
+    asset: {
+      id: "research-asset-surface-1",
+      workflowRunId: "research-run-surface-1",
+      scenarioId: "research-radar",
+      reportId: "research-surface-1",
+      topic: "Window hardware demand in GCC",
+      audience: "Sales leadership",
+      angle: "What changes replacement demand timing",
+      sources: "Trade forums, distributor notes",
+      latestReport: "Structured report",
+      latestBrief: "",
+      vaultQuery: "",
+      nextAction: "在 Morning Brief 里把研究结论压成今天可执行的判断与动作。",
+      status: "routing",
+      createdAt: 160,
+      updatedAt: 190,
+    },
+  });
+  assert.equal(
+    researchRecommendation.recommendedAction.kind,
+    "route_research_to_brief",
+    "Research surface recommendation should prioritize Morning Brief routing when the next step points there.",
+  );
+  assert.equal(
+    researchRecommendation.sections.some((section) => section.id === "research_route"),
+    true,
+    "Research surface recommendation should expose routing and assetization signals.",
+  );
+
+  const repurposerRecommendation = helper.buildContentRepurposerSurfaceRecommendation({
+    project: {
+      id: "repurpose-surface-1",
+      title: "Spring windows content",
+      sourceType: "youtube",
+      audience: "Procurement leads",
+      goal: "Lead gen",
+      sourceContent: "Long-form notes about how to choose insulated windows.",
+      contentPack: "【短视频口播】\n先讲结果，再给三步判断。\n\n【社媒帖子】\n提炼 3 个购买信号。",
+      workflowRunId: "creator-run-surface-2",
+      workflowScenarioId: "creator-studio",
+      workflowStageId: "preflight",
+      workflowSource: "Content Repurposer generated pack",
+      workflowNextStep: "在 Publisher 里先做预演，确认标题、CTA 和平台差异后再决定是否自动发布。",
+      workflowTriggerType: "manual",
+      workflowOriginApp: "content_repurposer",
+      workflowOriginId: "repurpose-surface-1",
+      workflowOriginLabel: "Spring windows content",
+      workflowAudience: "Procurement leads",
+      workflowPrimaryAngle: "先讲结果再讲三步判断",
+      workflowSourceSummary: "Long-form notes about how to choose insulated windows.",
+      workflowSuggestedPlatforms: ["xiaohongshu", "douyin"],
+      workflowPublishNotes: "优先做短视频与社媒双版本预演",
+      createdAt: 200,
+      updatedAt: 230,
+    },
+    asset: {
+      id: "creator-asset-surface-2",
+      workflowRunId: "creator-run-surface-2",
+      scenarioId: "creator-studio",
+      repurposerProjectId: "repurpose-surface-1",
+      topic: "Spring windows content",
+      audience: "Procurement leads",
+      sourceChannels: "",
+      primaryAngle: "先讲结果再讲三步判断",
+      latestDigest: "Long-form notes about how to choose insulated windows.",
+      latestPack: "Pack",
+      latestDraftTitle: "",
+      latestDraftBody: "",
+      publishTargets: ["xiaohongshu", "douyin"],
+      publishStatus: "preflight_pending",
+      latestPublishFeedback: "",
+      successfulPlatforms: [],
+      failedPlatforms: [],
+      retryablePlatforms: [],
+      nextAction: "进入 Publisher 检查标题、CTA 和平台适配，再决定是否自动发布。",
+      reuseNotes: "",
+      status: "preflight",
+      createdAt: 200,
+      updatedAt: 230,
+    },
+  });
+  assert.equal(
+    repurposerRecommendation.recommendedAction.kind,
+    "route_content_to_publisher",
+    "Content Repurposer surface recommendation should route finished packs into Publisher preflight.",
+  );
+  assert.equal(
+    repurposerRecommendation.sections.some((section) => section.id === "repurpose_route"),
+    true,
+    "Content Repurposer surface recommendation should expose publish-routing signals.",
+  );
+
+  const inboxRecommendation = helper.buildInboxDeclutterSurfaceRecommendation({
+    items: [
+      {
+        id: "inbox-surface-1",
+        source: "client",
+        title: "Client asks for quote update",
+        body: "Need a response about quote timing and MOQ.",
+        workflowRunId: "support-run-surface-2",
+        workflowScenarioId: "support-ops",
+        workflowStageId: "reply",
+        workflowSource: "Inbox Declutter completed intake",
+        workflowNextStep: "先生成建议回复，再决定是否升级成任务或 FAQ。",
+        workflowTriggerType: "inbound_message",
+        createdAt: 240,
+        updatedAt: 260,
+      },
+    ],
+    digests: [
+      {
+        id: "digest-surface-1",
+        focus: "Prioritize client issues",
+        content: "Client issue should go to Support Copilot first.",
+        createdAt: 250,
+        updatedAt: 250,
+      },
+    ],
+    digest: "Client issue should go to Support Copilot first.",
+    activeItem: {
+      id: "inbox-surface-1",
+      source: "client",
+      title: "Client asks for quote update",
+      body: "Need a response about quote timing and MOQ.",
+      workflowRunId: "support-run-surface-2",
+      workflowScenarioId: "support-ops",
+      workflowStageId: "reply",
+      workflowSource: "Inbox Declutter completed intake",
+      workflowNextStep: "先生成建议回复，再决定是否升级成任务或 FAQ。",
+      workflowTriggerType: "inbound_message",
+      createdAt: 240,
+      updatedAt: 260,
+    },
+  });
+  assert.equal(
+    inboxRecommendation.recommendedAction.kind,
+    "route_client_issue_to_support",
+    "Inbox surface recommendation should prioritize routing client issues into Support Copilot once digest exists.",
+  );
+  assert.equal(
+    inboxRecommendation.sections.some((section) => section.id === "inbox_digest"),
+    true,
+    "Inbox surface recommendation should expose digest-state signals.",
+  );
+
+  const morningRecommendation = helper.buildMorningBriefSurfaceRecommendation({
+    focus: "Turn research insight into today's sales decisions",
+    notes: "Need a short daily brief for the team.",
+    brief: "【今日晨报】\n先完成销售判断，再安排研究复盘。",
+    taskCount: 5,
+    draftCount: 2,
+    latestBriefAt: 300,
+    currentBrief: {
+      id: "brief-surface-1",
+      focus: "Turn research insight into today's sales decisions",
+      notes: "Need a short daily brief for the team.",
+      content: "【今日晨报】\n先完成销售判断，再安排研究复盘。",
+      workflowRunId: "research-run-surface-2",
+      workflowScenarioId: "research-radar",
+      workflowStageId: "assetize",
+      workflowSource: "Deep Research Hub delivered a summary",
+      workflowNextStep: "本轮研究链已完成，可把分析框架、观察维度和分发模板继续复用。",
+      workflowTriggerType: "manual",
+      createdAt: 300,
+      updatedAt: 320,
+    },
+    workflowSource: "Deep Research Hub delivered a summary",
+    workflowNextStep: "本轮研究链已完成，可把分析框架、观察维度和分发模板继续复用。",
+    asset: {
+      id: "research-asset-surface-2",
+      workflowRunId: "research-run-surface-2",
+      scenarioId: "research-radar",
+      briefId: "brief-surface-1",
+      topic: "Window hardware demand in GCC",
+      audience: "Sales leadership",
+      angle: "What changes replacement demand timing",
+      sources: "Trade forums, distributor notes",
+      latestReport: "",
+      latestBrief: "【今日晨报】\n先完成销售判断，再安排研究复盘。",
+      vaultQuery: "",
+      nextAction: "本轮研究摘要已完成，可以继续复用沉淀下来的框架。",
+      status: "completed",
+      createdAt: 300,
+      updatedAt: 320,
+    },
+  });
+  assert.equal(
+    morningRecommendation.recommendedAction.kind,
+    "close_research_loop",
+    "Morning Brief surface recommendation should surface research closeout when a workflow-linked brief already exists.",
+  );
+  assert.equal(
+    morningRecommendation.sections.some((section) => section.id === "morning_output"),
+    true,
+    "Morning Brief surface recommendation should expose brief-output and next-step signals.",
+  );
+
+  const dealDeskSource = await readFile(
+    path.join(PROJECT_ROOT, "src", "components", "apps", "DealDeskAppWindow.tsx"),
+    "utf8",
+  );
+  assert.match(
+    dealDeskSource,
+    /buildDealDeskSurfaceRecommendation/,
+    "Deal Desk should consume the shared workflow-surface recommendation helper.",
+  );
+  assert.match(
+    dealDeskSource,
+    /RecommendationResultBody/,
+    "Deal Desk should render structured recommendation output through the shared body component.",
+  );
+
+  const supportSource = await readFile(
+    path.join(PROJECT_ROOT, "src", "components", "apps", "SupportCopilotAppWindow.tsx"),
+    "utf8",
+  );
+  assert.match(
+    supportSource,
+    /buildSupportCopilotSurfaceRecommendation/,
+    "Support Copilot should consume the shared workflow-surface recommendation helper.",
+  );
+  assert.match(
+    supportSource,
+    /RecommendationResultBody/,
+    "Support Copilot should render structured recommendation output through the shared body component.",
+  );
+
+  const researchSource = await readFile(
+    path.join(PROJECT_ROOT, "src", "components", "apps", "DeepResearchHubAppWindow.tsx"),
+    "utf8",
+  );
+  assert.match(
+    researchSource,
+    /buildDeepResearchSurfaceRecommendation/,
+    "Deep Research Hub should consume the shared workflow-surface recommendation helper.",
+  );
+  assert.match(
+    researchSource,
+    /RecommendationResultBody/,
+    "Deep Research Hub should render structured recommendation output through the shared body component.",
+  );
+
+  const repurposerSource = await readFile(
+    path.join(PROJECT_ROOT, "src", "components", "apps", "ContentRepurposerAppWindow.tsx"),
+    "utf8",
+  );
+  assert.match(
+    repurposerSource,
+    /buildContentRepurposerSurfaceRecommendation/,
+    "Content Repurposer should consume the shared workflow-surface recommendation helper.",
+  );
+  assert.match(
+    repurposerSource,
+    /RecommendationResultBody/,
+    "Content Repurposer should render structured recommendation output through the shared body component.",
+  );
+
+  const inboxSource = await readFile(
+    path.join(PROJECT_ROOT, "src", "components", "apps", "InboxDeclutterAppWindow.tsx"),
+    "utf8",
+  );
+  assert.match(
+    inboxSource,
+    /buildInboxDeclutterSurfaceRecommendation/,
+    "Inbox Declutter should consume the shared workflow-surface recommendation helper.",
+  );
+  assert.match(
+    inboxSource,
+    /RecommendationResultBody/,
+    "Inbox Declutter should render structured recommendation output through the shared body component.",
+  );
+
+  const morningSource = await readFile(
+    path.join(PROJECT_ROOT, "src", "components", "apps", "MorningBriefAppWindow.tsx"),
+    "utf8",
+  );
+  assert.match(
+    morningSource,
+    /buildMorningBriefSurfaceRecommendation/,
+    "Morning Brief should consume the shared workflow-surface recommendation helper.",
+  );
+  assert.match(
+    morningSource,
+    /RecommendationResultBody/,
+    "Morning Brief should render structured recommendation output through the shared body component.",
+  );
+
+  console.log("workflow surface recommendation regression passed");
 }
 
 async function runAppApiAndStorageRegression(localStorage) {
@@ -354,6 +1251,33 @@ async function runRequestBodyGuardRegression() {
   );
 
   console.log("request body guard regression passed");
+}
+
+async function runTaskWorkflowMetadataRegression(localStorage) {
+  logSection("task workflow metadata");
+  resetBrowserState(localStorage);
+
+  const tasks = await import(moduleUrl("src/lib/tasks.ts"));
+
+  const taskId = tasks.createTask({
+    name: "Assistant - Creator radar",
+    status: "running",
+    detail: "春季窗品成交内容",
+    workflowRunId: "creator-run-meta-1",
+    workflowScenarioId: "creator-studio",
+    workflowStageId: "radar",
+    workflowSource: "Creator Radar 生成内容雷达摘要",
+    workflowNextStep: "确认主角度后送进 Content Repurposer。",
+    workflowTriggerType: "manual",
+  });
+
+  const created = tasks.getTasks().find((item) => item.id === taskId);
+  assert.equal(created?.workflowRunId, "creator-run-meta-1", "Task record should preserve workflow run ids.");
+  assert.equal(created?.workflowScenarioId, "creator-studio", "Task record should preserve workflow scenario ids.");
+  assert.equal(created?.workflowStageId, "radar", "Task record should preserve workflow stage ids.");
+  assert.match(created?.workflowNextStep ?? "", /Content Repurposer/, "Task record should preserve workflow next-step context.");
+
+  console.log("task workflow metadata regression passed");
 }
 
 async function runServerBackedRetryRegression(localStorage) {
@@ -1358,13 +2282,771 @@ async function runPublishQueueRegression() {
   }
 }
 
+async function runHeroWorkflowRecommendationRegression(localStorage) {
+  logSection("hero workflow recommendation");
+  resetBrowserState(localStorage);
+
+  const workflowRuns = await import(moduleUrl("src/lib/workflow-runs.ts"));
+  const salesWorkflow = await import(moduleUrl("src/lib/sales-workflow.ts"));
+  const supportWorkflow = await import(moduleUrl("src/lib/support-workflow.ts"));
+  const creatorWorkflow = await import(moduleUrl("src/lib/creator-workflow.ts"));
+  const researchWorkflow = await import(moduleUrl("src/lib/research-workflow.ts"));
+  const salesAssets = await import(moduleUrl("src/lib/sales-assets.ts"));
+  const creatorAssets = await import(moduleUrl("src/lib/creator-assets.ts"));
+  const supportAssets = await import(moduleUrl("src/lib/support-assets.ts"));
+  const researchAssets = await import(moduleUrl("src/lib/research-assets.ts"));
+  const helper = await import(moduleUrl("src/lib/hero-workflow-recommendation.ts"));
+
+  const salesScenario = salesWorkflow.getSalesWorkflowScenario();
+  const creatorScenario = creatorWorkflow.getCreatorWorkflowScenario();
+  const supportScenario = supportWorkflow.getSupportWorkflowScenario();
+  const researchScenario = researchWorkflow.getResearchWorkflowScenario();
+  assert(salesScenario, "Sales scenario should exist for recommendation regression.");
+  assert(creatorScenario, "Creator scenario should exist for recommendation regression.");
+  assert(supportScenario, "Support scenario should exist for recommendation regression.");
+  assert(researchScenario, "Research scenario should exist for recommendation regression.");
+
+  const salesRunId = workflowRuns.startWorkflowRun(salesScenario, "web_form");
+  const salesRun = workflowRuns.setWorkflowRunAwaitingHuman(salesRunId);
+  const salesAsset = salesAssets.upsertSalesAsset(salesRunId, {
+    company: "Aventra Windows",
+    contactName: "Lena",
+    inquiryChannel: "WhatsApp",
+    preferredLanguage: "English",
+    productLine: "Thermal Aluminum Door",
+    requirementSummary: "Need a fast quote for UAE project.",
+    nextAction: "Review quote framing before sending.",
+    quoteStatus: "draft_ready",
+    dealId: "deal-regression-1",
+  });
+
+  const salesRecommendation = helper.buildSalesHeroWorkflowRecommendation({
+    run: salesRun,
+    asset: salesAsset,
+    tasks: [
+      {
+        id: "sales-task-1",
+        name: "Assistant - Deal qualification",
+        status: "running",
+        detail: "Aventra Windows",
+        workflowRunId: salesRunId,
+        workflowScenarioId: "sales-pipeline",
+        workflowStageId: "qualify",
+        workflowSource: "Deal Desk 生成销售资格判断简报",
+        workflowNextStep: "确认是否值得推进，再进入报价和跟进阶段。",
+        workflowTriggerType: "manual",
+        createdAt: 110,
+        updatedAt: 130,
+      },
+    ],
+    source: "Regression sales intake",
+  });
+  assert.equal(
+    salesRecommendation.recommendedAction.kind,
+    "resume_sales_workflow",
+    "Awaiting-human sales workflow should recommend resuming the workflow.",
+  );
+  assert.equal(
+    salesRecommendation.recommendedAction.jumpTarget?.kind,
+    "record",
+    "Sales recommendation should expose a record jump target when asset ids exist.",
+  );
+  assert.equal(
+    salesRecommendation.sections.some((section) => section.id === "sales_asset_signals"),
+    true,
+    "Sales recommendation should include asset signals.",
+  );
+  assert.equal(
+    salesRecommendation.sections.some((section) => section.id === "sales_task_signals"),
+    true,
+    "Sales recommendation should include workflow-linked task signals.",
+  );
+
+  const supportRunId = workflowRuns.startWorkflowRun(supportScenario, "manual");
+  workflowRuns.advanceWorkflowRun(supportRunId);
+  workflowRuns.advanceWorkflowRun(supportRunId);
+  workflowRuns.advanceWorkflowRun(supportRunId);
+  const supportRun = workflowRuns.completeWorkflowRun(supportRunId);
+  const supportAsset = supportAssets.upsertSupportAsset(supportRunId, {
+    customer: "Nora",
+    channel: "whatsapp",
+    issueSummary: "Broken hinge on delivery.",
+    latestReply: "We will ship a replacement hinge within 48 hours.",
+    faqDraft: "Broken hinge replacements require order number and photos.",
+    ticketId: "ticket-regression-1",
+    status: "completed",
+  });
+
+  const supportRecommendation = helper.buildSupportHeroWorkflowRecommendation({
+    run: supportRun,
+    asset: supportAsset,
+    tasks: [
+      {
+        id: "support-task-1",
+        name: "Support - Nora",
+        status: "queued",
+        detail: "Broken hinge on delivery",
+        workflowRunId: supportRunId,
+        workflowScenarioId: "support-ops",
+        workflowStageId: "followup",
+        workflowSource: "Support Copilot 已进入后续跟进阶段",
+        workflowNextStep: "把本次处理沉淀成 FAQ 或升级规则。",
+        workflowTriggerType: "manual",
+        createdAt: 210,
+        updatedAt: 230,
+      },
+    ],
+    nextStep: "Archive the approved reply into FAQ.",
+  });
+  assert.equal(
+    supportRecommendation.recommendedAction.kind,
+    "reuse_support_asset",
+    "Completed support workflow with asset should recommend asset reuse.",
+  );
+  assert.equal(
+    supportRecommendation.recommendedAction.jumpTarget?.kind,
+    "record",
+    "Support recommendation should expose a record jump target when ticket ids exist.",
+  );
+  assert.equal(
+    supportRecommendation.sections.some((section) => section.id === "support_task_signals"),
+    true,
+    "Support recommendation should include workflow-linked task signals.",
+  );
+
+  const creatorRunId = workflowRuns.startWorkflowRun(creatorScenario, "manual");
+  workflowRuns.advanceWorkflowRun(creatorRunId);
+  workflowRuns.advanceWorkflowRun(creatorRunId);
+  const creatorRun = workflowRuns.setWorkflowRunAwaitingHuman(creatorRunId);
+  const creatorAsset = creatorAssets.upsertCreatorAsset(creatorRunId, {
+    topic: "春季窗品成交内容",
+    audience: "门窗采购负责人",
+    primaryAngle: "先讲结果再讲三步检查",
+    publishTargets: ["douyin", "xiaohongshu"],
+    publishStatus: "dispatch_error",
+    latestPublishFeedback: "失败: xiaohongshu | 可重试: douyin",
+    successfulPlatforms: [],
+    failedPlatforms: ["xiaohongshu"],
+    retryablePlatforms: ["douyin"],
+    nextAction: "先回到 Publisher 修正文案和授权",
+    reuseNotes: "保留数字 hook，修复小红书授权后再发。",
+    draftId: "draft-regression-1",
+    status: "publishing",
+  });
+
+  const creatorRecommendation = helper.buildCreatorHeroWorkflowRecommendation({
+    run: creatorRun,
+    asset: creatorAsset,
+    draft: {
+      id: "draft-regression-1",
+      title: "春季成交短视频稿",
+      body: "先讲结果，再给三步检查，最后引导评论区领取模板。",
+      source: "publisher",
+      workflowRunId: creatorRunId,
+      workflowScenarioId: "creator-studio",
+      workflowStageId: "preflight",
+      createdAt: 100,
+      updatedAt: 120,
+    },
+    publishJob: {
+      id: "job-regression-1",
+      draftId: "draft-regression-1",
+      draftTitle: "春季成交短视频稿",
+      draftBody: "先讲结果，再给三步检查，最后引导评论区领取模板。",
+      platforms: ["douyin", "xiaohongshu"],
+      mode: "dispatch",
+      status: "error",
+      results: [
+        { platform: "douyin", ok: false, mode: "webhook", retryable: true, error: "temporary timeout" },
+      ],
+      createdAt: 130,
+      updatedAt: 140,
+    },
+    tasks: [
+      {
+        id: "task-regression-1",
+        name: "Assistant - Publisher xiaohongshu variant",
+        status: "running",
+        detail: "春季成交短视频稿",
+        workflowRunId: creatorRunId,
+        workflowScenarioId: "creator-studio",
+        workflowStageId: "preflight",
+        workflowSource: "Publisher 生成平台修正版",
+        workflowNextStep: "检查平台语气和 CTA，再决定是否自动发布。",
+        workflowTriggerType: "manual",
+        createdAt: 150,
+        updatedAt: 160,
+      },
+    ],
+    source: "Regression creator handoff",
+  });
+  assert.equal(
+    creatorRecommendation.recommendedAction.kind,
+    "resume_creator_workflow",
+    "Awaiting-human creator workflow should recommend resuming the workflow.",
+  );
+  assert.equal(
+    creatorRecommendation.recommendedAction.jumpTarget?.kind,
+    "publisher",
+    "Creator recommendation should expose a publisher jump target when draft ids exist.",
+  );
+  assert.equal(
+    creatorRecommendation.sections.some((section) => section.id === "creator_asset_signals"),
+    true,
+    "Creator recommendation should include creator asset signals.",
+  );
+  assert.equal(
+    creatorRecommendation.sections.some((section) => section.id === "creator_draft_signals"),
+    true,
+    "Creator recommendation should include linked draft signals.",
+  );
+  assert.equal(
+    creatorRecommendation.sections.some((section) => section.id === "creator_connector_signals"),
+    true,
+    "Creator recommendation should include connector runtime signals.",
+  );
+  assert.equal(
+    creatorRecommendation.sections.some((section) => section.id === "creator_task_signals"),
+    true,
+    "Creator recommendation should include workflow-linked task signals.",
+  );
+
+  const researchRunId = workflowRuns.startWorkflowRun(researchScenario, "schedule");
+  workflowRuns.advanceWorkflowRun(researchRunId);
+  const researchRun = workflowRuns.advanceWorkflowRun(researchRunId);
+  const researchAsset = researchAssets.upsertResearchAsset(researchRunId, {
+    topic: "Window hardware demand in GCC",
+    audience: "Sales leadership",
+    angle: "What changes replacement demand timing",
+    sources: "Trade forums, service tickets, distributor notes",
+    latestBrief: "Replacement demand spikes when installation partners lag on inspection.",
+    vaultQuery: "gcc replacement demand hinge hardware",
+    reportId: "report-regression-1",
+    status: "routing",
+  });
+
+  const researchRecommendation = helper.buildResearchHeroWorkflowRecommendation({
+    run: researchRun,
+    asset: researchAsset,
+    tasks: [
+      {
+        id: "research-task-1",
+        name: "Assistant - Deep research",
+        status: "running",
+        detail: "Window hardware demand in GCC",
+        workflowRunId: researchRunId,
+        workflowScenarioId: "research-radar",
+        workflowStageId: "synthesize",
+        workflowSource: "Deep Research Hub 生成研究简报",
+        workflowNextStep: "完成研究报告后进入 Morning Brief 或知识路由。",
+        workflowTriggerType: "manual",
+        createdAt: 310,
+        updatedAt: 330,
+      },
+    ],
+  });
+  assert.equal(
+    researchRecommendation.recommendedAction.kind,
+    "advance_research_workflow",
+    "Running research workflow should recommend advancing the current stage.",
+  );
+  assert.equal(
+    researchRecommendation.sections.some((section) => section.id === "research_asset_signals"),
+    true,
+    "Research recommendation should include asset signals.",
+  );
+  assert.equal(
+    researchRecommendation.sections.some((section) => section.id === "research_task_signals"),
+    true,
+    "Research recommendation should include workflow-linked task signals.",
+  );
+
+  console.log("hero workflow recommendation regression passed");
+}
+
+async function runHeroWorkflowRecommendationRouteRegression() {
+  logSection("hero workflow recommendation route");
+
+  const tempRoot = await mkdtemp(path.join(os.tmpdir(), "agentcore-hero-recommendation-route-"));
+  const previousCwd = process.cwd();
+  process.chdir(tempRoot);
+
+  try {
+    const route = await import(moduleUrl("src/app/api/runtime/recommendations/hero-workflow/route.ts"));
+    const summaryRoute = await import(moduleUrl("src/app/api/runtime/recommendations/hero-workflows/summary/route.ts"));
+    const workflowStore = await import(moduleUrl("src/lib/server/workflow-run-store.ts"));
+    const salesAssetStore = await import(moduleUrl("src/lib/server/sales-asset-store.ts"));
+    const creatorAssetStore = await import(moduleUrl("src/lib/server/creator-asset-store.ts"));
+    const draftStore = await import(moduleUrl("src/lib/server/draft-store.ts"));
+    const publishJobStore = await import(moduleUrl("src/lib/server/publish-job-store.ts"));
+    const taskStore = await import(moduleUrl("src/lib/server/task-store.ts"));
+    const supportAssetStore = await import(moduleUrl("src/lib/server/support-asset-store.ts"));
+    const researchAssetStore = await import(moduleUrl("src/lib/server/research-asset-store.ts"));
+
+    await workflowStore.writeWorkflowRunsToStore([
+      {
+        id: "sales-run-1",
+        scenarioId: "sales-pipeline",
+        scenarioTitle: "Sales Pipeline",
+        triggerType: "web_form",
+        state: "awaiting_human",
+        currentStageId: "qualify",
+        stageRuns: [
+          { id: "qualify", title: "资格判断", mode: "review", state: "awaiting_human" },
+        ],
+        createdAt: 100,
+        updatedAt: 120,
+      },
+      {
+        id: "creator-run-1",
+        scenarioId: "creator-studio",
+        scenarioTitle: "Creator Studio",
+        triggerType: "manual",
+        state: "awaiting_human",
+        currentStageId: "preflight",
+        stageRuns: [
+          { id: "preflight", title: "发布前检查", mode: "review", state: "awaiting_human" },
+        ],
+        createdAt: 160,
+        updatedAt: 190,
+      },
+      {
+        id: "support-run-1",
+        scenarioId: "support-ops",
+        scenarioTitle: "Support Ops",
+        triggerType: "manual",
+        state: "completed",
+        currentStageId: "faq",
+        stageRuns: [
+          { id: "faq", title: "沉淀 FAQ", mode: "manual", state: "completed" },
+        ],
+        createdAt: 200,
+        updatedAt: 260,
+      },
+      {
+        id: "research-run-1",
+        scenarioId: "research-radar",
+        scenarioTitle: "Research Radar",
+        triggerType: "schedule",
+        state: "running",
+        currentStageId: "route",
+        stageRuns: [
+          { id: "route", title: "分发洞察", mode: "assist", state: "running" },
+        ],
+        createdAt: 300,
+        updatedAt: 360,
+      },
+    ]);
+
+    await salesAssetStore.writeSalesAssetsToStore([
+      {
+        id: "sales-asset-1",
+        workflowRunId: "sales-run-1",
+        scenarioId: "sales-pipeline",
+        dealId: "deal-1",
+        company: "Aventra Windows",
+        contactName: "Lena",
+        inquiryChannel: "WhatsApp",
+        preferredLanguage: "English",
+        productLine: "Thermal Aluminum Door",
+        requirementSummary: "Need a fast quote for UAE project.",
+        preferenceNotes: "",
+        objectionNotes: "",
+        nextAction: "Review quote framing before sending.",
+        quoteNotes: "",
+        quoteStatus: "draft_ready",
+        latestDraftSubject: "",
+        latestDraftBody: "",
+        assetDraft: "",
+        status: "awaiting_review",
+        createdAt: 100,
+        updatedAt: 120,
+      },
+    ]);
+
+    await creatorAssetStore.writeCreatorAssetsToStore([
+      {
+        id: "creator-asset-1",
+        workflowRunId: "creator-run-1",
+        scenarioId: "creator-studio",
+        draftId: "draft-1",
+        topic: "春季窗品成交内容",
+        audience: "门窗采购负责人",
+        sourceChannels: "wechat",
+        primaryAngle: "先讲结果再给三步",
+        latestDigest: "",
+        latestPack: "",
+        latestDraftTitle: "春季成交短视频稿",
+        latestDraftBody: "",
+        publishTargets: ["douyin", "xiaohongshu"],
+        publishStatus: "dispatch_error",
+        latestPublishFeedback: "失败: xiaohongshu | 可重试: douyin",
+        successfulPlatforms: [],
+        failedPlatforms: ["xiaohongshu"],
+        retryablePlatforms: ["douyin"],
+        nextAction: "先修复授权再回到 Publisher",
+        reuseNotes: "保留数字 hook 和结尾 CTA",
+        status: "publishing",
+        createdAt: 160,
+        updatedAt: 190,
+      },
+    ]);
+    await draftStore.writeDraftsToStore([
+      {
+        id: "draft-1",
+        title: "春季成交短视频稿",
+        body: "先讲结果，再给三步检查，最后评论区领取模板。",
+        source: "publisher",
+        workflowRunId: "creator-run-1",
+        workflowScenarioId: "creator-studio",
+        workflowStageId: "preflight",
+        createdAt: 170,
+        updatedAt: 195,
+      },
+    ]);
+    await publishJobStore.createPublishJobRecord({
+      draftId: "draft-1",
+      draftTitle: "春季成交短视频稿",
+      draftBody: "先讲结果，再给三步检查，最后评论区领取模板。",
+      platforms: ["douyin", "xiaohongshu"],
+      mode: "dispatch",
+      status: "queued",
+    });
+    await taskStore.writeTasksToStore([
+      {
+        id: "task-1",
+        name: "Assistant - Publisher xiaohongshu variant",
+        status: "running",
+        detail: "春季成交短视频稿",
+        workflowRunId: "creator-run-1",
+        workflowScenarioId: "creator-studio",
+        workflowStageId: "preflight",
+        workflowSource: "Publisher 生成平台修正版",
+        workflowNextStep: "检查平台语气和 CTA，再决定是否自动发布。",
+        workflowTriggerType: "manual",
+        createdAt: 180,
+        updatedAt: 210,
+      },
+    ]);
+
+    await supportAssetStore.writeSupportAssetsToStore([
+      {
+        id: "support-asset-1",
+        workflowRunId: "support-run-1",
+        scenarioId: "support-ops",
+        ticketId: "ticket-1",
+        customer: "Nora",
+        channel: "whatsapp",
+        issueSummary: "Broken hinge on delivery.",
+        latestDigest: "",
+        latestReply: "We will ship a replacement hinge within 48 hours.",
+        escalationTask: "",
+        faqDraft: "Broken hinge replacements require order number and photos.",
+        nextAction: "Archive the approved reply into FAQ.",
+        status: "completed",
+        createdAt: 200,
+        updatedAt: 260,
+      },
+    ]);
+
+    await researchAssetStore.writeResearchAssetsToStore([
+      {
+        id: "research-asset-1",
+        workflowRunId: "research-run-1",
+        scenarioId: "research-radar",
+        reportId: "report-1",
+        topic: "Window hardware demand in GCC",
+        audience: "Sales leadership",
+        angle: "What changes replacement demand timing",
+        sources: "Trade forums, service tickets, distributor notes",
+        latestReport: "",
+        latestBrief: "Replacement demand spikes when installation partners lag on inspection.",
+        vaultQuery: "gcc replacement demand hinge hardware",
+        nextAction: "",
+        status: "routing",
+        createdAt: 300,
+        updatedAt: 360,
+      },
+    ]);
+
+    const salesResponse = await route.POST(
+      new Request("http://localhost/api/runtime/recommendations/hero-workflow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          family: "sales",
+          workflowRunId: "sales-run-1",
+          source: "Regression sales intake",
+        }),
+      }),
+    );
+    const salesPayload = await salesResponse.json();
+    assert.equal(salesResponse.status, 200, "Sales recommendation route should return success.");
+    assert.equal(
+      salesPayload?.data?.recommendation?.recommendedAction?.kind,
+      "resume_sales_workflow",
+      "Sales recommendation route should preserve awaiting-human action semantics.",
+    );
+
+    const supportResponse = await route.POST(
+      new Request("http://localhost/api/runtime/recommendations/hero-workflow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          family: "support",
+        }),
+      }),
+    );
+    const supportPayload = await supportResponse.json();
+    const creatorResponse = await route.POST(
+      new Request("http://localhost/api/runtime/recommendations/hero-workflow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          family: "creator",
+          workflowRunId: "creator-run-1",
+        }),
+      }),
+    );
+    const creatorPayload = await creatorResponse.json();
+    assert.equal(
+      creatorPayload?.data?.recommendation?.recommendedAction?.kind,
+      "resume_creator_workflow",
+      "Creator recommendation route should preserve awaiting-human creator action semantics.",
+    );
+    assert.equal(
+      creatorPayload?.data?.recommendation?.recommendedAction?.jumpTarget?.kind,
+      "publisher",
+      "Creator recommendation route should expose publisher jump targets.",
+    );
+    assert.equal(
+      creatorPayload?.data?.recommendation?.sections?.some((section) => section.id === "creator_draft_signals"),
+      true,
+      "Creator recommendation route should include draft sections.",
+    );
+    assert.equal(
+      creatorPayload?.data?.recommendation?.sections?.some((section) => section.id === "creator_connector_signals"),
+      true,
+      "Creator recommendation route should include connector signal sections.",
+    );
+    assert.equal(
+      creatorPayload?.data?.recommendation?.sections?.some((section) => section.id === "creator_task_signals"),
+      true,
+      "Creator recommendation route should include task signal sections.",
+    );
+
+    assert.equal(
+      supportPayload?.data?.workflowRunId,
+      "support-run-1",
+      "Support recommendation route should fall back to the latest scenario run.",
+    );
+    assert.equal(
+      supportPayload?.data?.recommendation?.recommendedAction?.kind,
+      "reuse_support_asset",
+      "Support recommendation route should preserve completed-run asset reuse semantics.",
+    );
+
+    const researchResponse = await route.POST(
+      new Request("http://localhost/api/runtime/recommendations/hero-workflow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          family: "research",
+          workflowRunId: "research-run-1",
+        }),
+      }),
+    );
+    const researchPayload = await researchResponse.json();
+    assert.equal(
+      researchPayload?.data?.recommendation?.recommendedAction?.kind,
+      "advance_research_workflow",
+      "Research recommendation route should preserve running-stage action semantics.",
+    );
+    assert.equal(
+      Array.isArray(researchPayload?.data?.recommendation?.sections),
+      true,
+      "Research recommendation route should return structured sections.",
+    );
+
+    const summaryResponse = await summaryRoute.GET();
+    const summaryPayload = await summaryResponse.json();
+    assert.equal(summaryResponse.status, 200, "Hero recommendation summary route should return success.");
+    assert.equal(
+      summaryPayload?.data?.summary?.sales?.recommendation?.recommendedAction?.kind,
+      "resume_sales_workflow",
+      "Hero recommendation summary route should include sales recommendation output.",
+    );
+    assert.equal(
+      summaryPayload?.data?.summary?.creator?.recommendation?.recommendedAction?.kind,
+      "resume_creator_workflow",
+      "Hero recommendation summary route should include creator recommendation output.",
+    );
+    assert.equal(
+      summaryPayload?.data?.summary?.support?.recommendation?.recommendedAction?.kind,
+      "reuse_support_asset",
+      "Hero recommendation summary route should include support recommendation output.",
+    );
+
+    const routeSource = await readFile(
+      path.join(
+        PROJECT_ROOT,
+        "src",
+        "app",
+        "api",
+        "runtime",
+        "recommendations",
+        "hero-workflow",
+        "route.ts",
+      ),
+      "utf8",
+    );
+    assert.match(
+      routeSource,
+      /buildRuntimeHeroWorkflowRecommendation/,
+      "Hero recommendation route should delegate to the shared server recommendation helper.",
+    );
+    const summaryRouteSource = await readFile(
+      path.join(
+        PROJECT_ROOT,
+        "src",
+        "app",
+        "api",
+        "runtime",
+        "recommendations",
+        "hero-workflows",
+        "summary",
+        "route.ts",
+      ),
+      "utf8",
+    );
+    assert.match(
+      summaryRouteSource,
+      /buildRuntimeHeroWorkflowRecommendationSummary/,
+      "Hero recommendation summary route should reuse the server-side aggregation helper.",
+    );
+
+    const salesPanelSource = await readFile(
+      path.join(PROJECT_ROOT, "src", "components", "workflows", "SalesHeroWorkflowPanel.tsx"),
+      "utf8",
+    );
+    assert.match(
+      salesPanelSource,
+      /useRuntimeHeroRecommendation/,
+      "Hero workflow panels should consume the runtime recommendation hook.",
+    );
+    const creatorPanelSource = await readFile(
+      path.join(PROJECT_ROOT, "src", "components", "workflows", "CreatorHeroWorkflowPanel.tsx"),
+      "utf8",
+    );
+    assert.match(
+      creatorPanelSource,
+      /useRuntimeHeroRecommendation/,
+      "Creator hero workflow panel should consume the runtime recommendation hook.",
+    );
+    assert.match(
+      creatorPanelSource,
+      /buildCreatorHeroWorkflowRecommendation/,
+      "Creator hero workflow panel should keep a deterministic local fallback recommendation.",
+    );
+
+    const assetConsoleSource = await readFile(
+      path.join(PROJECT_ROOT, "src", "components", "workflows", "UnifiedAssetConsole.tsx"),
+      "utf8",
+    );
+    assert.match(
+      assetConsoleSource,
+      /useRuntimeHeroWorkflowSummary/,
+      "Unified Asset Console should consume the shared runtime hero workflow summary hook.",
+    );
+    assert.match(
+      assetConsoleSource,
+      /heroRecommendations/,
+      "Unified Asset Console should surface hero workflow recommendation slices.",
+    );
+    assert.match(
+      assetConsoleSource,
+      /creator/,
+      "Unified Asset Console should include creator hero recommendation coverage.",
+    );
+    assert.match(
+      assetConsoleSource,
+      /heroRecommendationPhase/,
+      "Unified Asset Console should track runtime recommendation loading state.",
+    );
+    assert.match(
+      assetConsoleSource,
+      /heroRecommendationRefreshKey/,
+      "Unified Asset Console should support manual refresh for runtime recommendations.",
+    );
+
+    const knowledgeVaultSource = await readFile(
+      path.join(PROJECT_ROOT, "src", "components", "apps", "KnowledgeVaultAppWindow.tsx"),
+      "utf8",
+    );
+    assert.match(
+      knowledgeVaultSource,
+      /useRuntimeHeroWorkflowSummary/,
+      "Knowledge Vault should consume the shared runtime hero workflow summary hook.",
+    );
+    assert.match(
+      knowledgeVaultSource,
+      /heroRecommendations/,
+      "Knowledge Vault should surface cross-workflow hero recommendations.",
+    );
+    assert.match(
+      knowledgeVaultSource,
+      /label: "内容"/,
+      "Knowledge Vault should include creator in the cross-workflow recommendation summary.",
+    );
+    assert.match(
+      knowledgeVaultSource,
+      /heroRecommendationPhase/,
+      "Knowledge Vault should track hero recommendation runtime state.",
+    );
+    assert.match(
+      knowledgeVaultSource,
+      /heroRecommendationRefreshKey/,
+      "Knowledge Vault should support manual hero recommendation refresh.",
+    );
+
+    const heroSummaryHookSource = await readFile(
+      path.join(PROJECT_ROOT, "src", "components", "workflows", "useRuntimeHeroWorkflowSummary.ts"),
+      "utf8",
+    );
+    assert.match(
+      heroSummaryHookSource,
+      /\/api\/runtime\/recommendations\/hero-workflows\/summary/,
+      "Shared hero workflow summary hook should target the runtime summary route.",
+    );
+    assert.match(
+      heroSummaryHookSource,
+      /unavailableMessage/,
+      "Shared hero workflow summary hook should preserve consumer-specific unavailable copy.",
+    );
+
+    console.log("hero workflow recommendation route regression passed");
+  } finally {
+    process.chdir(previousCwd);
+    await rm(tempRoot, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   const localStorage = installBrowserStub();
   await runSalesAndKnowledgeRegression(localStorage);
   await runSupportAndKnowledgeRegression(localStorage);
+  await runCreatorWorkflowHandoffRegression(localStorage);
+  await runCreatorPublishFeedbackRegression();
+  await runCreatorAssetQueryRegression();
+  await runCreatorAssetQueryRouteRegression();
   await runKnowledgeReuseSourceGuard();
+  await runVaultHybridContextRegression();
+  await runVaultMixedQueryRegression();
+  await runPublishRecommendationRegression();
+  await runWorkflowSurfaceRecommendationRegression();
   await runAppApiAndStorageRegression(localStorage);
   await runRequestBodyGuardRegression();
+  await runTaskWorkflowMetadataRegression(localStorage);
   await runServerBackedRetryRegression(localStorage);
   await runAgentExecutorRegression(localStorage);
   await runExecutorSessionStoreRegression();
@@ -1373,11 +3055,17 @@ async function main() {
   await runLegacyPutGuardRegression();
   await runJsonStoreRegression();
   await runPublishQueueRegression();
+  await runHeroWorkflowRecommendationRegression(localStorage);
+  await runHeroWorkflowRecommendationRouteRegression();
   console.log("\n[workflow-regression] all core workflow regressions passed");
 }
 
-main().catch((error) => {
-  console.error("\n[workflow-regression] failed");
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error("\n[workflow-regression] failed");
+    console.error(error);
+    process.exit(1);
+  });

@@ -5,6 +5,7 @@ import type { DealStage } from "@/lib/deals";
 import type { EmailTone } from "@/lib/email-assistant";
 import type { ProjectHealth } from "@/lib/project-ops";
 import type { RecruitingStage } from "@/lib/recruiting";
+import type { CreatorWorkflowMeta } from "@/lib/creator-workflow";
 import type { SalesWorkflowMeta } from "@/lib/sales-workflow";
 import type { LlmProviderId } from "@/lib/settings";
 import type { SupportChannel, SupportStatus } from "@/lib/support";
@@ -93,7 +94,7 @@ export type ContentRepurposerPrefill = {
   sourceContent?: string;
   workflowSource?: string;
   workflowNextStep?: string;
-} & WorkflowContextMeta;
+} & CreatorWorkflowMeta;
 
 export type CreatorRadarPrefill = {
   title?: string;
@@ -102,7 +103,7 @@ export type CreatorRadarPrefill = {
   goal?: string;
   notes?: string;
   digest?: string;
-} & WorkflowContextMeta;
+} & CreatorWorkflowMeta;
 
 export type MorningBriefPrefill = {
   focus?: string;
@@ -117,7 +118,7 @@ export type PublisherPrefill = {
   dispatchMode?: "dry-run" | "dispatch";
   workflowSource?: string;
   workflowNextStep?: string;
-} & WorkflowContextMeta;
+} & CreatorWorkflowMeta;
 
 type OpenAppDetail = {
   appId: AppId;

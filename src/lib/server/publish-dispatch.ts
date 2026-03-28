@@ -33,6 +33,32 @@ export function uniqDispatchPlatforms(input: unknown): DispatchPlatform[] {
   return out;
 }
 
+function nonEmptyString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function parseConnectorPayload(responseText: string) {
+  if (!responseText.trim()) return null;
+  try {
+    const parsed = JSON.parse(responseText) as unknown;
+    if (!parsed || typeof parsed !== "object") return null;
+    const item = parsed as Record<string, unknown>;
+    return {
+      ok: typeof item.ok === "boolean" ? item.ok : undefined,
+      receiptId: nonEmptyString(item.receiptId ?? item.id),
+      externalId: nonEmptyString(item.externalId),
+      receivedAt: nonEmptyString(item.receivedAt),
+      queued: typeof item.queued === "boolean" ? item.queued : undefined,
+      retryable: typeof item.retryable === "boolean" ? item.retryable : undefined,
+      errorType: nonEmptyString(item.errorType),
+      message: nonEmptyString(item.message),
+      error: nonEmptyString(item.error),
+    };
+  } catch {
+    return null;
+  }
+}
+
 function platformHint(id: DispatchPlatform) {
   switch (id) {
     case "xiaohongshu":
@@ -206,6 +232,13 @@ export async function runPublishDispatch(params: {
     ok: boolean;
     mode: "webhook" | "manual";
     status?: number;
+    queued?: boolean;
+    retryable?: boolean;
+    errorType?: string;
+    receiptId?: string;
+    externalId?: string;
+    receivedAt?: string;
+    message?: string;
     responseText?: string;
     error?: string;
   }> = [];
@@ -229,6 +262,8 @@ export async function runPublishDispatch(params: {
         platform,
         ok: true,
         mode: "manual",
+        queued: false,
+        message: "未配置 Webhook，已返回手动发布清单。",
         responseText: "未配置 Webhook，已返回手动发布清单。",
       });
       continue;
@@ -240,18 +275,37 @@ export async function runPublishDispatch(params: {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const responseText = await res.text().catch(() => "");
+      const rawResponseText = await res.text().catch(() => "");
+      const parsed = parseConnectorPayload(rawResponseText);
+      const responseText = rawResponseText.slice(0, 20_000);
+      const ok = typeof parsed?.ok === "boolean" ? parsed.ok : res.ok;
       results.push({
         platform,
-        ok: res.ok,
+        ok,
         mode: "webhook",
         status: res.status,
-        responseText: responseText.slice(0, 20_000),
-        error: res.ok ? undefined : `Webhook 返回失败状态：${res.status}`,
+        queued: parsed?.queued,
+        retryable: parsed?.retryable,
+        errorType: parsed?.errorType,
+        receiptId: parsed?.receiptId,
+        externalId: parsed?.externalId,
+        receivedAt: parsed?.receivedAt,
+        message: parsed?.message,
+        responseText: responseText || undefined,
+        error:
+          parsed?.error ??
+          (!ok ? parsed?.message ?? `Webhook 返回失败状态：${res.status}` : undefined),
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : "请求异常";
-      results.push({ platform, ok: false, mode: "webhook", error: message });
+      results.push({
+        platform,
+        ok: false,
+        mode: "webhook",
+        errorType: "temporary",
+        retryable: true,
+        error: message,
+      });
     }
   }
 

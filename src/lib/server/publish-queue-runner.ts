@@ -76,7 +76,7 @@ export async function runOneQueuedPublishJob() {
 
     const maxAttempts = job.maxAttempts ?? 3;
     const attempt = (job.attempts ?? 0) + 1;
-    await updatePublishJobRecord(job.id, { status: "running", nextAttemptAt: undefined });
+    await updatePublishJobRecord(job.id, { status: "running", nextAttemptAt: null });
 
     return await processJob(job, attempt, maxAttempts);
   } finally {
@@ -95,7 +95,7 @@ async function processJob(job: PublishJobRecord, attempt: number, maxAttempts: n
     const updated = await updatePublishJobRecord(job.id, {
       status: "error",
       attempts: attempt,
-      nextAttemptAt: undefined,
+      nextAttemptAt: null,
       resultText: error,
       results: undefined,
     });
@@ -131,7 +131,7 @@ async function processJob(job: PublishJobRecord, attempt: number, maxAttempts: n
     const updated = await updatePublishJobRecord(job.id, {
       status: "error",
       attempts: attempt,
-      nextAttemptAt: undefined,
+      nextAttemptAt: null,
       resultText: resultText ? `${error}\n\n${resultText}` : error,
       results,
     });
@@ -141,7 +141,7 @@ async function processJob(job: PublishJobRecord, attempt: number, maxAttempts: n
   const updated = await updatePublishJobRecord(job.id, {
     status: "done",
     attempts: attempt,
-    nextAttemptAt: undefined,
+    nextAttemptAt: null,
     resultText: resultText || "（无输出）",
     results,
   });

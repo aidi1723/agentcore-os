@@ -1,3 +1,7 @@
+import {
+  createServerBackedListState,
+  type SyncTombstoneRecord,
+} from "@/lib/server-backed-list-state";
 import type { ResearchWorkflowMeta } from "@/lib/research-workflow";
 
 export type BriefRecord = {
@@ -6,57 +10,81 @@ export type BriefRecord = {
   notes: string;
   content: string;
   createdAt: number;
+  updatedAt: number;
 } & ResearchWorkflowMeta;
 
 type Listener = () => void;
+type BriefTombstone = SyncTombstoneRecord;
 
 const BRIEFS_KEY = "openclaw.briefs.v1";
-const listeners = new Set<Listener>();
+const MAX_BRIEFS = 24;
 
-function emit() {
-  for (const listener of listeners) listener();
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event("openclaw:briefs"));
-  }
+function sortBriefs(items: BriefRecord[]) {
+  return items
+    .slice()
+    .sort((left, right) => {
+      if (right.createdAt !== left.createdAt) {
+        return right.createdAt - left.createdAt;
+      }
+      return right.updatedAt - left.updatedAt;
+    })
+    .slice(0, MAX_BRIEFS);
 }
 
-function load() {
-  if (typeof window === "undefined") return [] as BriefRecord[];
-  try {
-    const raw = window.localStorage.getItem(BRIEFS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as BriefRecord[]) : [];
-  } catch {
-    return [];
-  }
-}
+const briefState = createServerBackedListState<BriefRecord, BriefTombstone>({
+  statusId: "briefs",
+  statusLabel: "晨报",
+  storageKey: BRIEFS_KEY,
+  eventName: "openclaw:briefs",
+  maxItems: MAX_BRIEFS,
+  listPath: "/api/runtime/state/briefs",
+  itemBodyKey: "brief",
+  sortItems: sortBriefs,
+  parseHydrateData: (data) => {
+    const payload = data as
+      | null
+      | { ok?: boolean; data?: { briefs?: BriefRecord[]; tombstones?: BriefTombstone[] } };
+    return {
+      items: Array.isArray(payload?.data?.briefs) ? payload.data.briefs : null,
+      tombstones: Array.isArray(payload?.data?.tombstones) ? payload.data.tombstones : [],
+    };
+  },
+  parseUpsertData: (data) => {
+    const payload = data as
+      | null
+      | {
+          ok?: boolean;
+          data?: { brief?: BriefRecord | null; tombstone?: BriefTombstone | null; accepted?: boolean };
+        };
+    return {
+      item: payload?.data?.brief ?? null,
+      tombstone: payload?.data?.tombstone ?? null,
+    };
+  },
+});
 
-function save(next: BriefRecord[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(BRIEFS_KEY, JSON.stringify(next.slice(0, 24)));
-  } catch {
-    // ignore
-  }
+export async function hydrateBriefsFromServer(force = false) {
+  return briefState.hydrateFromServer(force);
 }
 
 export function getBriefs() {
-  return load().slice().sort((a, b) => b.createdAt - a.createdAt);
+  return briefState.getItems();
 }
 
-export function createBrief(input: Omit<BriefRecord, "id" | "createdAt">) {
+export function createBrief(input: Omit<BriefRecord, "id" | "createdAt" | "updatedAt">) {
+  const now = Date.now();
   const brief: BriefRecord = {
-    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    createdAt: Date.now(),
+    id: `${now}-${Math.random().toString(16).slice(2)}`,
+    createdAt: now,
+    updatedAt: now,
     ...input,
   };
-  save([brief, ...load()]);
-  emit();
+  briefState.saveLocal([brief, ...briefState.load()]);
+  briefState.emit();
+  void briefState.syncItemToServer(brief);
   return brief.id;
 }
 
 export function subscribeBriefs(listener: Listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+  return briefState.subscribe(listener);
 }

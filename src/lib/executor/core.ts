@@ -1,37 +1,22 @@
 import { runOpenClawAgent, type OpenClawAgentResult } from "@/lib/openclaw-cli";
 import { normalizeBaseUrl } from "@/lib/url-utils";
-
-export type AgentCoreExecutorLlmConfig = {
-  provider?: string;
-  apiKey?: string;
-  baseUrl?: string;
-  model?: string;
-};
-
-export type AgentCoreTaskRequest = {
-  message: string;
-  sessionId: string;
-  timeoutSeconds?: number;
-  systemPrompt?: string;
-  useSkills?: boolean;
-  workspaceContext?: Record<string, unknown> | null;
-  llm?: AgentCoreExecutorLlmConfig | null;
-};
+import {
+  type AgentCoreExecutorLlmConfig,
+  type AgentCoreLegacyTaskRequest,
+  type AgentCoreTaskRequest,
+  type AgentCoreTaskTrace,
+  normalizeAgentCoreTaskRequest,
+} from "@/lib/executor/contracts";
 
 export type AgentCoreTaskResult = OpenClawAgentResult & {
   engine: "agentcore_executor" | "openclaw_cli_fallback";
+  trace: AgentCoreTaskTrace;
 };
 
 type ChatMessage = {
   role: "system" | "user";
   content: string;
 };
-
-function normalizeTimeoutSeconds(value?: number) {
-  return typeof value === "number" && Number.isFinite(value)
-    ? Math.max(5, Math.min(600, Math.floor(value)))
-    : 60;
-}
 
 function detectProvider(config: Required<Pick<AgentCoreExecutorLlmConfig, "provider" | "baseUrl" | "model">>) {
   const provider = config.provider.trim().toLowerCase();
@@ -69,7 +54,7 @@ function buildWorkspaceContextText(context?: Record<string, unknown> | null) {
 
 export function buildAgentCoreSystemPrompt(request: AgentCoreTaskRequest) {
   const parts: string[] = [];
-  const explicit = String(request.systemPrompt ?? "").trim();
+  const explicit = String(request.context.systemPrompt ?? "").trim();
   if (explicit) parts.push(explicit);
 
   parts.push(
@@ -78,12 +63,12 @@ export function buildAgentCoreSystemPrompt(request: AgentCoreTaskRequest) {
     "Return concrete, reviewable outputs that can be used directly in a business workflow.",
   );
 
-  const workspaceText = buildWorkspaceContextText(request.workspaceContext);
+  const workspaceText = buildWorkspaceContextText(request.context.workspace);
   if (workspaceText) {
     parts.push(`Workspace context: ${workspaceText}`);
   }
 
-  if (request.useSkills) {
+  if (request.skillPolicy.enabled) {
     parts.push(
       "Use the available AgentCore OS operating context to produce structured, execution-ready outputs.",
       "Do not invent facts, policies, prices, timelines, or workflow state that were not provided.",
@@ -251,18 +236,37 @@ async function callAnthropicModel(
 }
 
 export async function runAgentCoreTask(
-  request: AgentCoreTaskRequest,
+  request: AgentCoreTaskRequest | AgentCoreLegacyTaskRequest,
 ): Promise<AgentCoreTaskResult> {
-  const timeoutSeconds = normalizeTimeoutSeconds(request.timeoutSeconds);
-  const llm = request.llm ?? null;
+  const normalizedRequest =
+    "executionPolicy" in request &&
+    "session" in request &&
+    "taskInput" in request &&
+    "context" in request &&
+    "skillPolicy" in request
+      ? request
+      : normalizeAgentCoreTaskRequest(request);
+  const timeoutSeconds = normalizedRequest.executionPolicy.timeoutSeconds;
+  const llm = normalizedRequest.modelConfig ?? null;
+  const sessionId = normalizedRequest.session.id;
+  const userMessage = normalizedRequest.taskInput.userMessage;
 
   if (!hasUsableLlmConfig(llm)) {
     const fallback = await runOpenClawAgent({
-      message: request.message,
-      sessionId: request.sessionId,
+      message: userMessage,
+      sessionId,
       timeoutSeconds,
     });
-    return { ...fallback, engine: "openclaw_cli_fallback" };
+    return {
+      ...fallback,
+      engine: "openclaw_cli_fallback",
+      trace: {
+        engine: "openclaw_cli_fallback",
+        sessionId,
+        success: fallback.ok,
+        error: fallback.ok ? undefined : fallback.error,
+      },
+    };
   }
 
   const normalizedLlm: Required<AgentCoreExecutorLlmConfig> = {
@@ -272,7 +276,7 @@ export async function runAgentCoreTask(
     model: llm.model.trim(),
   };
 
-  const systemPrompt = buildAgentCoreSystemPrompt(request);
+  const systemPrompt = buildAgentCoreSystemPrompt(normalizedRequest);
   const provider = detectProvider(normalizedLlm);
 
   try {
@@ -280,7 +284,7 @@ export async function runAgentCoreTask(
       provider === "anthropic"
         ? await callAnthropicModel(
             normalizedLlm,
-            request.message,
+            userMessage,
             systemPrompt,
             timeoutSeconds,
           )
@@ -290,7 +294,7 @@ export async function runAgentCoreTask(
               ...(systemPrompt
                 ? ([{ role: "system", content: systemPrompt }] as ChatMessage[])
                 : []),
-              { role: "user", content: request.message },
+              { role: "user", content: userMessage },
             ],
             timeoutSeconds,
           );
@@ -298,14 +302,29 @@ export async function runAgentCoreTask(
     return {
       ok: true,
       text: text.trim(),
-      raw: { provider, sessionId: request.sessionId },
+      raw: { provider, sessionId },
       engine: "agentcore_executor",
+      trace: {
+        engine: "agentcore_executor",
+        provider,
+        model: normalizedLlm.model,
+        sessionId,
+        success: true,
+      },
     };
   } catch (error) {
     return {
       ok: false,
       error: error instanceof Error ? error.message : "执行失败",
       engine: "agentcore_executor",
+      trace: {
+        engine: "agentcore_executor",
+        provider,
+        model: normalizedLlm.model,
+        sessionId,
+        success: false,
+        error: error instanceof Error ? error.message : "执行失败",
+      },
     };
   }
 }

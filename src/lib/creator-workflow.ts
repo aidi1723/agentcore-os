@@ -1,4 +1,5 @@
 import { getWorkspaceScenario } from "@/lib/workspace-presets";
+import type { PublishPlatformId } from "@/lib/publish";
 import type {
   WorkflowRunRecord,
   WorkflowRunState,
@@ -9,7 +10,38 @@ import type { WorkflowContextMeta } from "@/lib/workflow-context";
 
 export const CREATOR_WORKFLOW_SCENARIO_ID = "creator-studio";
 
-export type CreatorWorkflowMeta = WorkflowContextMeta;
+export type CreatorWorkflowOriginApp =
+  | "creator_radar"
+  | "content_repurposer"
+  | "publisher";
+
+export type CreatorWorkflowMeta = WorkflowContextMeta & {
+  workflowOriginApp?: CreatorWorkflowOriginApp;
+  workflowOriginId?: string;
+  workflowOriginLabel?: string;
+  workflowAudience?: string;
+  workflowPrimaryAngle?: string;
+  workflowSourceSummary?: string;
+  workflowBlockLabel?: string;
+  workflowSuggestedPlatforms?: PublishPlatformId[];
+  workflowPublishNotes?: string;
+};
+
+function normalizeText(value?: string) {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function normalizePlatforms(input?: PublishPlatformId[]) {
+  if (!Array.isArray(input)) return undefined;
+  const result: PublishPlatformId[] = [];
+  for (const item of input) {
+    if (typeof item !== "string" || !item.trim()) continue;
+    const normalized = item.trim() as PublishPlatformId;
+    if (result.includes(normalized)) continue;
+    result.push(normalized);
+  }
+  return result.length > 0 ? result : undefined;
+}
 
 export function getCreatorWorkflowScenario() {
   return getWorkspaceScenario(CREATOR_WORKFLOW_SCENARIO_ID);
@@ -19,11 +51,33 @@ export function buildCreatorWorkflowMeta(input?: CreatorWorkflowMeta): CreatorWo
   return {
     workflowRunId: input?.workflowRunId,
     workflowScenarioId: input?.workflowScenarioId ?? CREATOR_WORKFLOW_SCENARIO_ID,
-    workflowStageId: input?.workflowStageId,
-    workflowSource: input?.workflowSource,
-    workflowNextStep: input?.workflowNextStep,
+    workflowStageId: normalizeText(input?.workflowStageId),
+    workflowSource: normalizeText(input?.workflowSource),
+    workflowNextStep: normalizeText(input?.workflowNextStep),
     workflowTriggerType: input?.workflowTriggerType,
+    workflowOriginApp: input?.workflowOriginApp,
+    workflowOriginId: normalizeText(input?.workflowOriginId),
+    workflowOriginLabel: normalizeText(input?.workflowOriginLabel),
+    workflowAudience: normalizeText(input?.workflowAudience),
+    workflowPrimaryAngle: normalizeText(input?.workflowPrimaryAngle),
+    workflowSourceSummary: normalizeText(input?.workflowSourceSummary),
+    workflowBlockLabel: normalizeText(input?.workflowBlockLabel),
+    workflowSuggestedPlatforms: normalizePlatforms(input?.workflowSuggestedPlatforms),
+    workflowPublishNotes: normalizeText(input?.workflowPublishNotes),
   };
+}
+
+export function getCreatorWorkflowOriginLabel(originApp?: CreatorWorkflowOriginApp | null) {
+  switch (originApp) {
+    case "creator_radar":
+      return "Creator Radar";
+    case "content_repurposer":
+      return "Content Repurposer";
+    case "publisher":
+      return "Publisher";
+    default:
+      return "内容工作流";
+  }
 }
 
 export function getCreatorRuntimeLabel(state?: WorkflowRunState | null) {

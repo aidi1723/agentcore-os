@@ -30,25 +30,25 @@ AgentCore OS 当前更适合这样理解：
 
 ## 当前稳定版本
 
-当前推荐对外版本：**v1.1.1**
+当前推荐对外版本：**v1.2.0**
 
 当前稳定产品线聚焦：
 
 - 本地优先
 - BYOK / API Key 驱动
 - 浏览器壳 + 桌面壳双入口
-- 销售跟进、客服处理、知识资产沉淀三条高频闭环
-- 内容创作与研究分析作为稳定基础能力
+- 销售、客服、研究、创作四类工作流共享推荐结构与下一步路由
+- Knowledge Vault、连接器、发布链路与应用间状态流转构成当前稳定闭环
 
 获取源码、版本信息与公开发布说明，请以仓库与 GitHub Releases 页面为准：
 
 - 主仓库 GitHub：<https://github.com/aidi1723/agentcore-os>
 - 国内镜像 CNB：<https://cnb.cool/aidiyangyu/agentcore-os>
 - GitHub Releases：<https://github.com/aidi1723/agentcore-os/releases>
-- 当前版本发布说明（中文）：[docs/releases/v1.1.1.zh-CN.md](docs/releases/v1.1.1.zh-CN.md)
+- 当前版本发布说明（中文）：[docs/releases/v1.2.0.zh-CN.md](docs/releases/v1.2.0.zh-CN.md)
 - 桌面壳等价收口更新（中文）：[docs/releases/2026-03-25-desktop-parity-update.zh-CN.md](docs/releases/2026-03-25-desktop-parity-update.zh-CN.md)
 - 对外分发说明：[docs/EARLY_ACCESS_RELEASE.zh-CN.md](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
-- 市场发布文案：[docs/LAUNCH_COPY_v1.1.1.zh-CN.md](docs/LAUNCH_COPY_v1.1.1.zh-CN.md)
+- 市场发布文案：[docs/LAUNCH_COPY_v1.2.0.zh-CN.md](docs/LAUNCH_COPY_v1.2.0.zh-CN.md)
 - 文档总入口：[docs/DOCUMENTATION_INDEX.zh-CN.md](docs/DOCUMENTATION_INDEX.zh-CN.md)
 
 ## 快速开始
@@ -132,9 +132,9 @@ npm run test:stability
 
 - [文档总入口](docs/DOCUMENTATION_INDEX.zh-CN.md)
 - [用户指南（中文）](docs/USER_GUIDE.zh-CN.md)
-- [当前版本发布说明](docs/releases/v1.1.1.zh-CN.md)
+- [当前版本发布说明](docs/releases/v1.2.0.zh-CN.md)
 - [对外分发说明](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
-- [市场发布文案](docs/LAUNCH_COPY_v1.1.1.zh-CN.md)
+- [市场发布文案](docs/LAUNCH_COPY_v1.2.0.zh-CN.md)
 
 ### 安装与发布相关
 

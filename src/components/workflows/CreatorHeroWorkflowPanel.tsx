@@ -3,6 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Clock3, Sparkles } from "lucide-react";
 
+import { HeroWorkflowRecommendationCard } from "@/components/workflows/HeroWorkflowRecommendationCard";
+import { useRuntimeHeroRecommendation } from "@/components/workflows/useRuntimeHeroRecommendation";
+import { getDrafts, subscribeDrafts, type DraftRecord } from "@/lib/drafts";
+import { buildCreatorHeroWorkflowRecommendation } from "@/lib/hero-workflow-recommendation";
+import { getPublishJobs, refreshPublishJobs, subscribePublish, type PublishJobRecord } from "@/lib/publish";
+import { getTasks, subscribeTasks, type TaskRecord } from "@/lib/tasks";
 import {
   getCreatorRuntimeLabel,
   getCreatorStageStateLabel,
@@ -71,23 +77,42 @@ export function CreatorHeroWorkflowPanel({
 }: CreatorHeroWorkflowPanelProps) {
   const [workflowRuns, setWorkflowRuns] = useState(getWorkflowRuns());
   const [asset, setAsset] = useState<CreatorAssetRecord | null>(() => getCreatorAssetByWorkflowRunId(workflowRunId));
+  const [drafts, setDrafts] = useState<DraftRecord[]>(() => getDrafts());
+  const [jobs, setJobs] = useState<PublishJobRecord[]>(() => getPublishJobs());
+  const [tasks, setTasks] = useState<TaskRecord[]>(() => getTasks());
   const scenario = useMemo(() => getCreatorWorkflowScenario(), []);
 
   useEffect(() => {
     const syncRuns = () => setWorkflowRuns(getWorkflowRuns());
     const syncAsset = () => setAsset(getCreatorAssetByWorkflowRunId(workflowRunId));
+    const syncDrafts = () => setDrafts(getDrafts());
+    const syncJobs = () => setJobs(getPublishJobs());
+    const syncTasks = () => setTasks(getTasks());
     syncRuns();
     syncAsset();
+    syncDrafts();
+    syncJobs();
+    syncTasks();
+    void refreshPublishJobs();
     const offRuns = subscribeWorkflowRuns(syncRuns);
     const offAssets = subscribeCreatorAssets(syncAsset);
+    const offDrafts = subscribeDrafts(syncDrafts);
+    const offPublish = subscribePublish(syncJobs);
+    const offTasks = subscribeTasks(syncTasks);
     const onStorage = () => {
       syncRuns();
       syncAsset();
+      syncDrafts();
+      syncJobs();
+      syncTasks();
     };
     window.addEventListener("storage", onStorage);
     return () => {
       offRuns();
       offAssets();
+      offDrafts();
+      offPublish();
+      offTasks();
       window.removeEventListener("storage", onStorage);
     };
   }, [workflowRunId]);
@@ -96,6 +121,53 @@ export function CreatorHeroWorkflowPanel({
     () => (workflowRunId ? workflowRuns.find((item) => item.id === workflowRunId) ?? null : null),
     [workflowRunId, workflowRuns],
   );
+  const draft = useMemo(
+    () =>
+      (asset?.draftId
+        ? drafts.find((item) => item.id === asset.draftId) ?? null
+        : workflowRunId
+          ? drafts.find((item) => item.workflowRunId === workflowRunId) ?? null
+          : null) ?? null,
+    [asset?.draftId, drafts, workflowRunId],
+  );
+  const publishJob = useMemo(
+    () =>
+      ((draft?.id
+        ? jobs.find((item) => item.draftId === draft.id) ?? null
+        : asset?.draftId
+          ? jobs.find((item) => item.draftId === asset.draftId) ?? null
+          : null) ??
+        null),
+    [asset?.draftId, draft?.id, jobs],
+  );
+  const workflowTasks = useMemo(
+    () =>
+      tasks
+        .filter((task) => task.workflowRunId && task.workflowRunId === workflowRunId)
+        .sort((left, right) => right.updatedAt - left.updatedAt)
+        .slice(0, 3),
+    [tasks, workflowRunId],
+  );
+  const recommendation = useMemo(
+    () =>
+      buildCreatorHeroWorkflowRecommendation({
+        run,
+        asset,
+        draft,
+        publishJob,
+        tasks: workflowTasks,
+        source,
+        nextStep,
+      }),
+    [asset, draft, nextStep, publishJob, run, source, workflowTasks],
+  );
+  const resolvedRecommendation = useRuntimeHeroRecommendation({
+    family: "creator",
+    workflowRunId,
+    source,
+    nextStep,
+    fallback: recommendation,
+  });
 
   return (
     <section className="overflow-hidden rounded-[28px] border border-sky-200 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_rgba(255,255,255,0.98)_36%,_rgba(236,253,245,0.92)_100%)] p-5 shadow-sm shadow-sky-100/40 sm:p-6">
@@ -161,6 +233,8 @@ export function CreatorHeroWorkflowPanel({
             </div>
           </div>
 
+          <HeroWorkflowRecommendationCard recommendation={resolvedRecommendation} tone="emerald" />
+
           {run && scenario ? (
             <div className="mt-4 grid gap-3">
               {scenario.workflowStages.map((stage) => {
@@ -211,6 +285,38 @@ export function CreatorHeroWorkflowPanel({
               <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">发布目标</div>
               <div className="mt-2 text-sm leading-6 text-slate-200">
                 {asset?.publishTargets.length ? asset.publishTargets.join(" / ") : "等待 Publisher 预演。"}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">结构化反馈</div>
+              <div className="mt-2 text-sm leading-6 text-slate-200">
+                {asset?.latestPublishFeedback || "当前还没有平台级反馈摘要。"}
+              </div>
+              {asset && (asset.successfulPlatforms.length > 0 || asset.retryablePlatforms.length > 0) ? (
+                <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                  {asset.successfulPlatforms.map((platform) => (
+                    <span
+                      key={`success-${platform}`}
+                      className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-emerald-200"
+                    >
+                      OK · {platform}
+                    </span>
+                  ))}
+                  {asset.retryablePlatforms.map((platform) => (
+                    <span
+                      key={`retry-${platform}`}
+                      className="rounded-full border border-amber-400/30 bg-amber-500/10 px-2.5 py-1 text-amber-100"
+                    >
+                      Retry · {platform}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">复用笔记</div>
+              <div className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-200">
+                {asset?.reuseNotes || "完成预演或发布后，这里会沉淀平台回执和下一轮可复用结构。"}
               </div>
             </div>
           </div>

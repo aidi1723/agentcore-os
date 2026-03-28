@@ -37,4 +37,10 @@ For reliability, implement:
 - per-platform concurrency limits
 - retry with exponential backoff
 - idempotency key (so a retry doesn’t double-post)
+- machine-readable receipts (`id`, `queued`, `receivedAt`, `retryable`, `errorType`)
 
+Recommended rule of thumb:
+
+- let AgentCore OS retry delivery to the connector
+- let the connector handle provider-specific retries internally
+- expose enough receipt or status data that an operator can tell which layer failed

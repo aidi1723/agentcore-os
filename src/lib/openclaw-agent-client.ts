@@ -1,6 +1,7 @@
 "use client";
 
 import { buildAgentCoreApiUrl } from "@/lib/app-api";
+import { type AgentCoreLegacyTaskRequest } from "@/lib/executor/contracts";
 import {
   buildAgentProfileSystemPrompt,
   buildRealityCheckMessage,
@@ -15,7 +16,9 @@ export type OpenClawAgentRequestInput = {
   expertProfileId?: AgentProfileId;
 };
 
-export function buildOpenClawAgentRequest(input: OpenClawAgentRequestInput) {
+export function buildOpenClawAgentRequest(
+  input: OpenClawAgentRequestInput,
+): AgentCoreLegacyTaskRequest {
   const settings = loadSettings();
   const { id, config } = getActiveLlmConfig(settings);
   const enabledExpertProfileId =

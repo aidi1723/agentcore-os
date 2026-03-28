@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FilePlus2, Headphones, Plus, Sparkles, Trash2 } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
 import { AppToast } from "@/components/AppToast";
+import { RecommendationResultBody } from "@/components/recommendations/RecommendationResultBody";
 import { SupportHeroWorkflowPanel } from "@/components/workflows/SupportHeroWorkflowPanel";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
 import { useTimedToast } from "@/hooks/useTimedToast";
@@ -28,6 +29,7 @@ import {
   type SupportTicket,
 } from "@/lib/support";
 import { createTask, updateTask } from "@/lib/tasks";
+import { buildSupportCopilotSurfaceRecommendation } from "@/lib/workflow-surface-recommendation";
 import { requestOpenCrm, requestOpenKnowledgeVault, type SupportCopilotPrefill } from "@/lib/ui-events";
 import {
   advanceWorkflowRun,
@@ -149,6 +151,10 @@ export function SupportCopilotAppWindow({
     void assetRevision;
     return getSupportAssetByWorkflowRunId(selected?.workflowRunId);
   }, [assetRevision, selected?.workflowRunId]);
+  const surfaceRecommendation = useMemo(
+    () => buildSupportCopilotSurfaceRecommendation({ ticket: selected, asset: currentSupportAsset }),
+    [currentSupportAsset, selected],
+  );
 
   const patchSelected = (patch: Partial<Omit<SupportTicket, "id" | "createdAt" | "updatedAt">>) => {
     if (!selected) return;
@@ -207,6 +213,12 @@ export function SupportCopilotAppWindow({
       name: "Assistant - Support reply",
       status: "running",
       detail: selected.subject,
+      workflowRunId: runId ?? selected.workflowRunId,
+      workflowScenarioId: selected.workflowScenarioId ?? "support-ops",
+      workflowStageId: "reply",
+      workflowSource: selected.workflowSource ?? "Support Copilot 生成建议回复",
+      workflowNextStep: "人工确认回复后决定是否外发或升级。",
+      workflowTriggerType: selected.workflowTriggerType ?? "manual",
     });
     setIsGenerating(true);
     try {
@@ -317,6 +329,12 @@ export function SupportCopilotAppWindow({
       name: `Support - ${selected.customer}`,
       status: "queued",
       detail: selected.subject || "客户回复跟进",
+      workflowRunId: selected.workflowRunId,
+      workflowScenarioId: selected.workflowScenarioId,
+      workflowStageId: "followup",
+      workflowSource: selected.workflowSource ?? "Support Copilot 已进入后续跟进阶段",
+      workflowNextStep: "把本次处理沉淀成 FAQ 或升级规则。",
+      workflowTriggerType: selected.workflowTriggerType,
     });
     if (selected.workflowRunId) {
       const run = getWorkflowRun(selected.workflowRunId);
@@ -735,14 +753,21 @@ export function SupportCopilotAppWindow({
               </div>
 
               <div className="min-h-[280px] pt-4">
+                <RecommendationResultBody
+                  recommendation={surfaceRecommendation}
+                  tone="emerald"
+                  actionTitle="执行建议"
+                  actionButtonLabel="查看当前工单"
+                  maxHitsPerSection={2}
+                />
                 {selected?.replyDraft ? (
                   <textarea
                     value={selected.replyDraft}
                     onChange={(e) => patchSelected({ replyDraft: e.target.value, reviewNotes: "" })}
-                    className="h-[280px] w-full resize-none rounded-2xl border border-gray-300 px-4 py-3 text-sm leading-7 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-4 h-[280px] w-full resize-none rounded-2xl border border-gray-300 px-4 py-3 text-sm leading-7 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 ) : (
-                  <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
+                  <div className="mt-4 flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
                     生成后，这里会出现客服回复草稿。
                   </div>
                 )}

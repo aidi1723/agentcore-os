@@ -64,6 +64,20 @@ function extractPrimaryAngle(digest: string, fallback: string) {
   return line || fallback;
 }
 
+function buildRadarSourceSummary(item: CreatorRadarRecord) {
+  return [item.title, item.digest, item.notes].map((value) => value?.trim()).find(Boolean) ?? "";
+}
+
+function buildRadarPublishNotes(item: CreatorRadarRecord) {
+  return [
+    item.goal ? `目标：${item.goal}` : "",
+    item.channels ? `渠道线索：${item.channels}` : "",
+    item.audience ? `受众：${item.audience}` : "",
+  ]
+    .filter(Boolean)
+    .join("；");
+}
+
 export function CreatorRadarAppWindow({
   state,
   zIndex,
@@ -208,6 +222,12 @@ export function CreatorRadarAppWindow({
       name: "Assistant - Creator radar",
       status: "running",
       detail: selected.title,
+      workflowRunId: runId ?? selected.workflowRunId,
+      workflowScenarioId: selected.workflowScenarioId ?? "creator-studio",
+      workflowStageId: "radar",
+      workflowSource: "Creator Radar 生成内容雷达摘要",
+      workflowNextStep: "确认最值得推进的内容角度，再送进 Content Repurposer。",
+      workflowTriggerType: selected.workflowTriggerType ?? "manual",
     });
     setIsGenerating(true);
     try {
@@ -288,6 +308,14 @@ export function CreatorRadarAppWindow({
       workflowTriggerType: selected.workflowTriggerType,
       workflowSource: selected.workflowSource,
       workflowNextStep: selected.workflowNextStep,
+      workflowOriginApp: "creator_radar",
+      workflowOriginId: selected.id,
+      workflowOriginLabel: selected.title || "Creator Radar 选题",
+      workflowAudience: selected.audience,
+      workflowPrimaryAngle: extractPrimaryAngle(selected.digest, selected.title || "内容主线"),
+      workflowSourceSummary: buildRadarSourceSummary(selected),
+      workflowSuggestedPlatforms: ["xiaohongshu", "douyin"],
+      workflowPublishNotes: buildRadarPublishNotes(selected),
     });
     showToast("已保存到草稿", "ok");
   };
@@ -301,6 +329,14 @@ export function CreatorRadarAppWindow({
     const run = runId ? getWorkflowRun(runId) : null;
     const nextStep = "在 Content Repurposer 里生成多平台内容包，再挑 1 个版本进入 Publisher。";
     patchSelected({
+      workflowOriginApp: "creator_radar",
+      workflowOriginId: selected.id,
+      workflowOriginLabel: selected.title || "Creator Radar 选题",
+      workflowAudience: selected.audience,
+      workflowPrimaryAngle: extractPrimaryAngle(selected.digest, selected.title || "今日内容主线"),
+      workflowSourceSummary: buildRadarSourceSummary(selected),
+      workflowSuggestedPlatforms: ["xiaohongshu", "douyin"],
+      workflowPublishNotes: buildRadarPublishNotes(selected),
       workflowRunId: runId ?? selected.workflowRunId,
       workflowScenarioId: selected.workflowScenarioId ?? "creator-studio",
       workflowStageId: run?.currentStageId === "radar" ? "repurpose" : selected.workflowStageId ?? "repurpose",
@@ -342,6 +378,14 @@ export function CreatorRadarAppWindow({
       workflowScenarioId: selected.workflowScenarioId ?? "creator-studio",
       workflowStageId: run?.currentStageId === "radar" ? "repurpose" : selected.workflowStageId ?? "repurpose",
       workflowTriggerType: selected.workflowTriggerType ?? "manual",
+      workflowOriginApp: "creator_radar",
+      workflowOriginId: selected.id,
+      workflowOriginLabel: selected.title || "Creator Radar 选题",
+      workflowAudience: selected.audience,
+      workflowPrimaryAngle: extractPrimaryAngle(selected.digest, selected.title || "今日内容主线"),
+      workflowSourceSummary: buildRadarSourceSummary(selected),
+      workflowSuggestedPlatforms: ["xiaohongshu", "douyin"],
+      workflowPublishNotes: buildRadarPublishNotes(selected),
     });
     showToast("已发送到 Content Repurposer", "ok");
   };

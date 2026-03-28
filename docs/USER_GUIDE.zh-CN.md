@@ -43,11 +43,11 @@ npm run dev
 
 ### 2.2 命令行模式
 
-当前公开稳定版本：`1.1.1`
+当前公开稳定版本：`1.2.0`
 
 - GitHub 仓库：<https://github.com/aidi1723/agentcore-os>
 - GitHub Releases：<https://github.com/aidi1723/agentcore-os/releases>
-- 当前版本发布说明：[docs/releases/v1.1.1.zh-CN.md](releases/v1.1.1.zh-CN.md)
+- 当前版本发布说明：[docs/releases/v1.2.0.zh-CN.md](releases/v1.2.0.zh-CN.md)
 
 当前推荐方式是直接通过命令行安装并运行源码版本。
 
@@ -129,7 +129,7 @@ npm run desktop:package
 
 ## 5.4 推荐体验路径：销售和客服闭环
 
-如果你想快速体验当前 `v1.1.1` 的核心能力，建议按下面两条路径验证。
+如果你想快速体验当前 `v1.2.0` 的核心能力，建议按下面两条路径验证。
 
 ### 销售链路
 

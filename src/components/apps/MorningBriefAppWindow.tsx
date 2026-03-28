@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Newspaper, PenSquare, Sparkles, SquarePen } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
 import { AppToast } from "@/components/AppToast";
+import { RecommendationResultBody } from "@/components/recommendations/RecommendationResultBody";
 import { ResearchHeroWorkflowPanel } from "@/components/workflows/ResearchHeroWorkflowPanel";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
 import { useTimedToast } from "@/hooks/useTimedToast";
@@ -11,8 +12,13 @@ import { getBriefs, createBrief, subscribeBriefs, type BriefRecord } from "@/lib
 import { getDrafts, subscribeDrafts } from "@/lib/drafts";
 import { getOutputLanguageInstruction } from "@/lib/language";
 import { requestOpenClawAgent } from "@/lib/openclaw-agent-client";
-import { upsertResearchAsset } from "@/lib/research-assets";
+import {
+  getResearchAssetByWorkflowRunId,
+  subscribeResearchAssets,
+  upsertResearchAsset,
+} from "@/lib/research-assets";
 import { getTasks, subscribeTasks, createTask, updateTask } from "@/lib/tasks";
+import { buildMorningBriefSurfaceRecommendation } from "@/lib/workflow-surface-recommendation";
 import type { WorkflowTriggerType } from "@/lib/workflow-runs";
 import { completeWorkflowRun } from "@/lib/workflow-runs";
 import { requestOpenApp, type MorningBriefPrefill } from "@/lib/ui-events";
@@ -65,6 +71,7 @@ export function MorningBriefAppWindow({
   const [brief, setBrief] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [briefs, setBriefs] = useState<BriefRecord[]>([]);
+  const [assetRevision, setAssetRevision] = useState(0);
   const [taskCount, setTaskCount] = useState(0);
   const [draftCount, setDraftCount] = useState(0);
   const [workflowRunId, setWorkflowRunId] = useState<string | undefined>();
@@ -109,6 +116,17 @@ export function MorningBriefAppWindow({
   }, [isVisible]);
 
   useEffect(() => {
+    const bump = () => setAssetRevision((value) => value + 1);
+    const off = subscribeResearchAssets(bump);
+    const onStorage = () => bump();
+    window.addEventListener("storage", onStorage);
+    return () => {
+      off();
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
+  useEffect(() => {
     const onPrefill = (event: Event) => {
       const detail = (event as CustomEvent<MorningBriefPrefill>).detail;
       if (detail?.focus) setFocus(detail.focus);
@@ -143,6 +161,44 @@ export function MorningBriefAppWindow({
   }, [showToast]);
 
   const latestBriefAt = briefs[0]?.createdAt ?? null;
+  const currentBrief = useMemo(
+    () =>
+      briefs.find((item) => item.content === brief && item.focus === focus && item.notes === notes) ??
+      briefs.find((item) => item.workflowRunId === workflowRunId) ??
+      null,
+    [brief, briefs, focus, notes, workflowRunId],
+  );
+  const currentResearchAsset = useMemo(() => {
+    void assetRevision;
+    return getResearchAssetByWorkflowRunId(workflowRunId);
+  }, [assetRevision, workflowRunId]);
+  const surfaceRecommendation = useMemo(
+    () =>
+      buildMorningBriefSurfaceRecommendation({
+        focus,
+        notes,
+        brief,
+        taskCount,
+        draftCount,
+        latestBriefAt,
+        currentBrief,
+        workflowSource,
+        workflowNextStep,
+        asset: currentResearchAsset,
+      }),
+    [
+      brief,
+      currentBrief,
+      currentResearchAsset,
+      draftCount,
+      focus,
+      latestBriefAt,
+      notes,
+      taskCount,
+      workflowNextStep,
+      workflowSource,
+    ],
+  );
 
   const generateBrief = async () => {
     const tasks = getTasks();
@@ -152,6 +208,12 @@ export function MorningBriefAppWindow({
       name: "Assistant - Morning brief",
       status: "running",
       detail: focus.trim().slice(0, 80) || "daily-brief",
+      workflowRunId,
+      workflowScenarioId,
+      workflowStageId,
+      workflowSource,
+      workflowNextStep,
+      workflowTriggerType,
     });
 
     setIsGenerating(true);
@@ -409,12 +471,18 @@ export function MorningBriefAppWindow({
             </div>
 
             <div className="min-h-[460px] pt-4">
+              <RecommendationResultBody
+                recommendation={surfaceRecommendation}
+                tone="amber"
+                actionTitle="执行建议"
+                maxHitsPerSection={2}
+              />
               {brief ? (
-                <pre className="whitespace-pre-wrap text-sm leading-7 text-gray-800">
+                <pre className="mt-4 whitespace-pre-wrap text-sm leading-7 text-gray-800">
                   {brief}
                 </pre>
               ) : (
-                <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
+                <div className="mt-4 flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
                   生成后，这里会出现今日晨报。
                 </div>
               )}

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Briefcase, FilePlus2, MessageSquareQuote, Plus, Sparkles, Trash2 } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
 import { AppToast } from "@/components/AppToast";
+import { RecommendationResultBody } from "@/components/recommendations/RecommendationResultBody";
 import { SalesHeroWorkflowPanel } from "@/components/workflows/SalesHeroWorkflowPanel";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
 import { useTimedToast } from "@/hooks/useTimedToast";
@@ -19,12 +20,17 @@ import {
   type DealStage,
 } from "@/lib/deals";
 import { requestOpenClawAgent, requestRealityCheck } from "@/lib/openclaw-agent-client";
-import { upsertSalesAsset } from "@/lib/sales-assets";
+import {
+  getSalesAssetByWorkflowRunId,
+  subscribeSalesAssets,
+  upsertSalesAsset,
+} from "@/lib/sales-assets";
 import {
   buildSalesWorkflowMeta,
   getSalesWorkflowScenario,
 } from "@/lib/sales-workflow";
 import { createTask, updateTask } from "@/lib/tasks";
+import { buildDealDeskSurfaceRecommendation } from "@/lib/workflow-surface-recommendation";
 import {
   requestComposeEmail,
   type DealDeskPrefill,
@@ -101,6 +107,7 @@ export function DealDeskAppWindow({
   const isVisible = state === "open" || state === "opening";
   const [deals, setDeals] = useState<DealRecord[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [assetRevision, setAssetRevision] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast, showToast } = useTimedToast(2200);
 
@@ -120,6 +127,17 @@ export function DealDeskAppWindow({
       window.removeEventListener("storage", onStorage);
     };
   }, [isVisible]);
+
+  useEffect(() => {
+    const bump = () => setAssetRevision((value) => value + 1);
+    const off = subscribeSalesAssets(bump);
+    const onStorage = () => bump();
+    window.addEventListener("storage", onStorage);
+    return () => {
+      off();
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   useEffect(() => {
     const onPrefill = (event: Event) => {
@@ -160,6 +178,14 @@ export function DealDeskAppWindow({
   const selected = useMemo(
     () => deals.find((deal) => deal.id === selectedId) ?? null,
     [deals, selectedId],
+  );
+  const currentSalesAsset = useMemo(() => {
+    void assetRevision;
+    return getSalesAssetByWorkflowRunId(selected?.workflowRunId);
+  }, [assetRevision, selected?.workflowRunId]);
+  const surfaceRecommendation = useMemo(
+    () => buildDealDeskSurfaceRecommendation({ deal: selected, asset: currentSalesAsset }),
+    [currentSalesAsset, selected],
   );
 
   const patchSelected = (
@@ -256,6 +282,12 @@ export function DealDeskAppWindow({
       name: "Assistant - Deal qualification",
       status: "running",
       detail: selected.company,
+      workflowRunId: runId ?? selected.workflowRunId,
+      workflowScenarioId: selected.workflowScenarioId ?? "sales-pipeline",
+      workflowStageId: "qualify",
+      workflowSource: selected.workflowSource ?? "Deal Desk 生成销售资格判断简报",
+      workflowNextStep: "确认是否值得推进，再进入报价和跟进阶段。",
+      workflowTriggerType: selected.workflowTriggerType ?? "manual",
     });
     setIsGenerating(true);
     try {
@@ -737,14 +769,21 @@ export function DealDeskAppWindow({
               </div>
 
               <div className="min-h-[280px] pt-4">
+                <RecommendationResultBody
+                  recommendation={surfaceRecommendation}
+                  tone="blue"
+                  actionTitle="执行建议"
+                  actionButtonLabel="查看当前线索"
+                  maxHitsPerSection={2}
+                />
                 {selected?.brief ? (
                   <textarea
                     value={selected.brief}
                     onChange={(e) => patchSelected({ brief: e.target.value, reviewNotes: "" })}
-                    className="h-[280px] w-full resize-none rounded-2xl border border-gray-300 px-4 py-3 text-sm leading-7 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-4 h-[280px] w-full resize-none rounded-2xl border border-gray-300 px-4 py-3 text-sm leading-7 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 ) : (
-                  <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
+                  <div className="mt-4 flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
                     生成后，这里会出现线索判断简报。
                   </div>
                 )}

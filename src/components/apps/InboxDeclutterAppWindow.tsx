@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FilePlus2, Inbox, Sparkles, Trash2 } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
 import { AppToast } from "@/components/AppToast";
+import { RecommendationResultBody } from "@/components/recommendations/RecommendationResultBody";
 import { SupportHeroWorkflowPanel } from "@/components/workflows/SupportHeroWorkflowPanel";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
 import { useTimedToast } from "@/hooks/useTimedToast";
@@ -25,6 +26,7 @@ import {
 } from "@/lib/inbox";
 import { requestOpenClawAgent } from "@/lib/openclaw-agent-client";
 import { createTask, updateTask } from "@/lib/tasks";
+import { buildInboxDeclutterSurfaceRecommendation } from "@/lib/workflow-surface-recommendation";
 import { requestComposeEmail, requestOpenSupportCopilot } from "@/lib/ui-events";
 import {
   advanceWorkflowRun,
@@ -118,6 +120,16 @@ export function InboxDeclutterAppWindow({
     () => items.find((item) => item.workflowRunId) ?? null,
     [items],
   );
+  const surfaceRecommendation = useMemo(
+    () =>
+      buildInboxDeclutterSurfaceRecommendation({
+        items,
+        digests,
+        digest,
+        activeItem: activeWorkflowItem,
+      }),
+    [activeWorkflowItem, digest, digests, items],
+  );
 
   const getLatestItemById = (itemId: string) => getInboxItems().find((item) => item.id === itemId) ?? null;
 
@@ -167,6 +179,12 @@ export function InboxDeclutterAppWindow({
       name: "Assistant - Inbox digest",
       status: "running",
       detail: focus.trim().slice(0, 80) || "inbox-digest",
+      workflowRunId: activeWorkflowItem?.workflowRunId,
+      workflowScenarioId: activeWorkflowItem?.workflowScenarioId,
+      workflowStageId: activeWorkflowItem?.workflowStageId,
+      workflowSource: activeWorkflowItem?.workflowSource,
+      workflowNextStep: activeWorkflowItem?.workflowNextStep,
+      workflowTriggerType: activeWorkflowItem?.workflowTriggerType,
     });
     setIsGenerating(true);
     try {
@@ -495,10 +513,17 @@ export function InboxDeclutterAppWindow({
                 </button>
               </div>
               <div className="min-h-[360px] pt-4">
+                <RecommendationResultBody
+                  recommendation={surfaceRecommendation}
+                  tone="emerald"
+                  actionTitle="执行建议"
+                  actionButtonLabel="查看当前消息"
+                  maxHitsPerSection={2}
+                />
                 {digest ? (
-                  <pre className="whitespace-pre-wrap text-sm leading-7 text-gray-800">{digest}</pre>
+                  <pre className="mt-4 whitespace-pre-wrap text-sm leading-7 text-gray-800">{digest}</pre>
                 ) : (
-                  <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
+                  <div className="mt-4 flex min-h-[320px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
                     生成后，这里会显示 inbox digest。
                   </div>
                 )}

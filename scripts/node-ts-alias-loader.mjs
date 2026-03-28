@@ -11,6 +11,15 @@ function resolveAliasPath(specifier) {
   return path.join(SRC_ROOT, specifier.slice(2));
 }
 
+function resolveExtensionlessNextPath(specifier) {
+  if (!specifier.startsWith("next/") || path.extname(specifier)) return null;
+  const candidate = path.join(PROJECT_ROOT, "node_modules", `${specifier}.js`);
+  if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+    return candidate;
+  }
+  return null;
+}
+
 function findExistingModulePath(basePath) {
   const candidates = [
     basePath,
@@ -35,17 +44,25 @@ function findExistingModulePath(basePath) {
 
 export async function resolve(specifier, context, defaultResolve) {
   const aliasPath = resolveAliasPath(specifier);
-  if (!aliasPath) {
-    return defaultResolve(specifier, context, defaultResolve);
+  if (aliasPath) {
+    const resolved = findExistingModulePath(aliasPath);
+    if (!resolved) {
+      throw new Error(`Unable to resolve alias ${specifier}`);
+    }
+
+    return {
+      shortCircuit: true,
+      url: pathToFileURL(resolved).href,
+    };
   }
 
-  const resolved = findExistingModulePath(aliasPath);
-  if (!resolved) {
-    throw new Error(`Unable to resolve alias ${specifier}`);
+  const nextPath = resolveExtensionlessNextPath(specifier);
+  if (nextPath) {
+    return {
+      shortCircuit: true,
+      url: pathToFileURL(nextPath).href,
+    };
   }
 
-  return {
-    shortCircuit: true,
-    url: pathToFileURL(resolved).href,
-  };
+  return defaultResolve(specifier, context, defaultResolve);
 }

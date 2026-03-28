@@ -29,5 +29,5 @@
 推荐搭配阅读：
 
 - [命令行安装说明](COMMAND_LINE_INSTALL.zh-CN.md)
-- [当前版本发布说明](releases/v1.1.1.zh-CN.md)
+- [当前版本发布说明](releases/v1.2.0.zh-CN.md)
 - [macOS 签名与公证说明](MACOS_SIGNING_AND_NOTARIZATION.zh-CN.md)

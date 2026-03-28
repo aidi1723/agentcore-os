@@ -1,3 +1,8 @@
+import {
+  createServerBackedListState,
+  type SyncTombstoneRecord,
+} from "@/lib/server-backed-list-state";
+
 export type ResearchAssetStatus =
   | "capture"
   | "synthesizing"
@@ -24,45 +29,124 @@ export type ResearchAssetRecord = {
 };
 
 type Listener = () => void;
+type ResearchAssetTombstone = SyncTombstoneRecord & {
+  workflowRunId?: string;
+};
 
 const RESEARCH_ASSETS_KEY = "openclaw.research-assets.v1";
-const listeners = new Set<Listener>();
+const MAX_RESEARCH_ASSETS = 120;
 
-function emit() {
-  for (const listener of listeners) listener();
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event("openclaw:research-assets"));
-  }
+function compareResearchAssetPriority(left: ResearchAssetRecord, right: ResearchAssetRecord) {
+  if (left.updatedAt !== right.updatedAt) return left.updatedAt - right.updatedAt;
+  if (left.createdAt !== right.createdAt) return left.createdAt - right.createdAt;
+  return left.id.localeCompare(right.id, "en");
 }
 
-function load() {
-  if (typeof window === "undefined") return [] as ResearchAssetRecord[];
-  try {
-    const raw = window.localStorage.getItem(RESEARCH_ASSETS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as ResearchAssetRecord[]) : [];
-  } catch {
-    return [];
+function dedupeResearchAssets(items: ResearchAssetRecord[]) {
+  const byId = new Map<string, ResearchAssetRecord>();
+  for (const asset of items) {
+    const existing = byId.get(asset.id);
+    if (!existing || compareResearchAssetPriority(existing, asset) < 0) {
+      byId.set(asset.id, asset);
+    }
   }
+
+  const byWorkflowRunId = new Map<string, ResearchAssetRecord>();
+  for (const asset of byId.values()) {
+    const existing = byWorkflowRunId.get(asset.workflowRunId);
+    if (!existing || compareResearchAssetPriority(existing, asset) < 0) {
+      byWorkflowRunId.set(asset.workflowRunId, asset);
+    }
+  }
+
+  return Array.from(byWorkflowRunId.values())
+    .sort((left, right) => right.updatedAt - left.updatedAt)
+    .slice(0, MAX_RESEARCH_ASSETS);
 }
 
-function save(next: ResearchAssetRecord[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(RESEARCH_ASSETS_KEY, JSON.stringify(next.slice(0, 120)));
-  } catch {
-    // ignore
-  }
+const researchAssetState = createServerBackedListState<
+  ResearchAssetRecord,
+  ResearchAssetTombstone
+>({
+  statusId: "research-assets",
+  statusLabel: "研究资产",
+  storageKey: RESEARCH_ASSETS_KEY,
+  eventName: "openclaw:research-assets",
+  maxItems: MAX_RESEARCH_ASSETS,
+  listPath: "/api/runtime/state/research-assets",
+  itemBodyKey: "researchAsset",
+  sortItems: dedupeResearchAssets,
+  parseHydrateData: (data) => {
+    const payload = data as
+      | null
+      | {
+          ok?: boolean;
+          data?: {
+            researchAssets?: ResearchAssetRecord[];
+            tombstones?: ResearchAssetTombstone[];
+          };
+        };
+    return {
+      items: Array.isArray(payload?.data?.researchAssets) ? payload.data.researchAssets : null,
+      tombstones: Array.isArray(payload?.data?.tombstones) ? payload.data.tombstones : [],
+    };
+  },
+  parseUpsertData: (data) => {
+    const payload = data as
+      | null
+      | {
+          ok?: boolean;
+          data?: {
+            researchAsset?: ResearchAssetRecord | null;
+            tombstone?: ResearchAssetTombstone | null;
+            accepted?: boolean;
+          };
+        };
+    return {
+      item: payload?.data?.researchAsset ?? null,
+      tombstone: payload?.data?.tombstone ?? null,
+    };
+  },
+  mergeItems: (localItems, serverItems) => dedupeResearchAssets([...serverItems, ...localItems]),
+  applyTombstones: (items, tombstones) => {
+    if (tombstones.length === 0) return items;
+    const tombstoneIds = new Set(tombstones.map((tombstone) => tombstone.id));
+    return dedupeResearchAssets(items.filter((item) => !tombstoneIds.has(item.id)));
+  },
+  shouldResyncLocalItem: (item, context) => {
+    const tombstone = context.tombstoneById.get(item.id);
+    if (tombstone && tombstone.deletedAt >= item.updatedAt) {
+      return false;
+    }
+
+    const serverAsset = context.serverById.get(item.id);
+    const serverWorkflowAsset = context.serverItems.find(
+      (candidate) => candidate.workflowRunId === item.workflowRunId,
+    );
+    if (
+      serverWorkflowAsset &&
+      serverWorkflowAsset.id !== item.id &&
+      compareResearchAssetPriority(item, serverWorkflowAsset) <= 0
+    ) {
+      return false;
+    }
+    if (!serverWorkflowAsset || compareResearchAssetPriority(serverWorkflowAsset, item) < 0) {
+      return true;
+    }
+    return Boolean(serverAsset && item.updatedAt > serverAsset.updatedAt);
+  },
+});
+
+export async function hydrateResearchAssetsFromServer(force = false) {
+  return researchAssetState.hydrateFromServer(force);
 }
 
 export function subscribeResearchAssets(listener: Listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+  return researchAssetState.subscribe(listener);
 }
 
 export function getResearchAssets() {
-  return load().slice().sort((a, b) => b.updatedAt - a.updatedAt);
+  return researchAssetState.getItems();
 }
 
 export function getResearchAssetByWorkflowRunId(workflowRunId?: string | null) {
@@ -75,7 +159,7 @@ export function upsertResearchAsset(
   patch: Partial<Omit<ResearchAssetRecord, "id" | "workflowRunId" | "createdAt" | "updatedAt">>,
 ) {
   const now = Date.now();
-  const current = load();
+  const current = researchAssetState.load();
   const existing = current.find((asset) => asset.workflowRunId === workflowRunId);
 
   const nextRecord: ResearchAssetRecord = existing
@@ -104,11 +188,14 @@ export function upsertResearchAsset(
         updatedAt: now,
       };
 
-  const next = existing
-    ? current.map((asset) => (asset.workflowRunId === workflowRunId ? nextRecord : asset))
-    : [nextRecord, ...current];
-
-  save(next);
-  emit();
+  researchAssetState.saveLocal(
+    existing
+      ? current.map((asset) =>
+          asset.workflowRunId === workflowRunId ? nextRecord : asset,
+        )
+      : [nextRecord, ...current],
+  );
+  researchAssetState.emit();
+  void researchAssetState.syncItemToServer(nextRecord);
   return nextRecord;
 }

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Copy, FilePlus2, Plus, RefreshCw, Send, Sparkles, Trash2 } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
 import { AppToast } from "@/components/AppToast";
+import { RecommendationResultBody } from "@/components/recommendations/RecommendationResultBody";
 import { CreatorHeroWorkflowPanel } from "@/components/workflows/CreatorHeroWorkflowPanel";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
 import { useTimedToast } from "@/hooks/useTimedToast";
@@ -17,11 +18,20 @@ import {
   type ContentRepurposerProject,
   type RepurposeSourceType,
 } from "@/lib/content-repurposer";
-import { upsertCreatorAsset } from "@/lib/creator-assets";
-import { buildCreatorWorkflowMeta, getCreatorWorkflowScenario } from "@/lib/creator-workflow";
+import {
+  getCreatorAssetByWorkflowRunId,
+  subscribeCreatorAssets,
+  upsertCreatorAsset,
+} from "@/lib/creator-assets";
+import {
+  buildCreatorWorkflowMeta,
+  getCreatorWorkflowOriginLabel,
+  getCreatorWorkflowScenario,
+} from "@/lib/creator-workflow";
 import { createDraft } from "@/lib/drafts";
 import { requestOpenClawAgent } from "@/lib/openclaw-agent-client";
 import { createTask, updateTask } from "@/lib/tasks";
+import { buildContentRepurposerSurfaceRecommendation } from "@/lib/workflow-surface-recommendation";
 import { requestOpenPublisher, type ContentRepurposerPrefill } from "@/lib/ui-events";
 import {
   advanceWorkflowRun,
@@ -69,6 +79,30 @@ function extractLeadLine(content: string, fallback: string) {
     .map((item) => item.replace(/^[\-*#【】\s]+/g, "").trim())
     .find(Boolean);
   return line || fallback;
+}
+
+function buildRepurposerSourceSummary(project: ContentRepurposerProject) {
+  return [project.sourceContent, project.contentPack].map((value) => value?.trim()).find(Boolean) ?? "";
+}
+
+function buildRepurposerPublishNotes(
+  project: ContentRepurposerProject,
+  options?: {
+    blockLabel?: string;
+    suggestedPlatforms?: SuggestedPlatform[];
+  },
+) {
+  return [
+    project.goal ? `目标：${project.goal}` : "",
+    options?.blockLabel ? `内容块：${options.blockLabel}` : "",
+    options?.suggestedPlatforms?.length
+      ? `建议平台：${options.suggestedPlatforms.join(" / ")}`
+      : project.workflowSuggestedPlatforms?.length
+        ? `建议平台：${project.workflowSuggestedPlatforms.join(" / ")}`
+        : "",
+  ]
+    .filter(Boolean)
+    .join("；");
 }
 
 type ContentPackBlock = {
@@ -160,6 +194,7 @@ export function ContentRepurposerAppWindow({
   const isVisible = state === "open" || state === "opening";
   const [projects, setProjects] = useState<ContentRepurposerProject[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [assetRevision, setAssetRevision] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast, showToast } = useTimedToast(2200);
 
@@ -179,6 +214,17 @@ export function ContentRepurposerAppWindow({
       window.removeEventListener("storage", onStorage);
     };
   }, [isVisible]);
+
+  useEffect(() => {
+    const bump = () => setAssetRevision((value) => value + 1);
+    const off = subscribeCreatorAssets(bump);
+    const onStorage = () => bump();
+    window.addEventListener("storage", onStorage);
+    return () => {
+      off();
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   useEffect(() => {
     const onPrefill = (event: Event) => {
@@ -219,9 +265,17 @@ export function ContentRepurposerAppWindow({
     () => projects.find((project) => project.id === selectedId) ?? null,
     [projects, selectedId],
   );
+  const currentCreatorAsset = useMemo(() => {
+    void assetRevision;
+    return getCreatorAssetByWorkflowRunId(selected?.workflowRunId);
+  }, [assetRevision, selected?.workflowRunId]);
   const contentBlocks = useMemo(
     () => parseContentPackBlocks(selected?.contentPack ?? ""),
     [selected?.contentPack],
+  );
+  const surfaceRecommendation = useMemo(
+    () => buildContentRepurposerSurfaceRecommendation({ project: selected, asset: currentCreatorAsset }),
+    [currentCreatorAsset, selected],
   );
 
   const patchSelected = (
@@ -259,6 +313,17 @@ export function ContentRepurposerAppWindow({
       workflowTriggerType: resolvedTriggerType,
       workflowSource: "来自 Content Repurposer 的手动内容拆解",
       workflowNextStep: "先生成多平台内容包，再挑一条送去 Publisher 做发布前检查。",
+      workflowOriginApp: selected.workflowOriginApp ?? "content_repurposer",
+      workflowOriginId: selected.workflowOriginId ?? selected.id,
+      workflowOriginLabel:
+        selected.workflowOriginLabel ?? selected.title ?? "内容拆解项目",
+      workflowAudience: selected.workflowAudience ?? selected.audience,
+      workflowPrimaryAngle:
+        selected.workflowPrimaryAngle ??
+        extractLeadLine(selected.sourceContent, selected.title || "内容主线"),
+      workflowSourceSummary: selected.workflowSourceSummary ?? buildRepurposerSourceSummary(selected),
+      workflowSuggestedPlatforms: selected.workflowSuggestedPlatforms ?? ["xiaohongshu", "douyin"],
+      workflowPublishNotes: selected.workflowPublishNotes ?? buildRepurposerPublishNotes(selected),
     });
     upsertCreatorAsset(runId, {
       scenarioId: scenario.id,
@@ -285,6 +350,12 @@ export function ContentRepurposerAppWindow({
       name: "Assistant - Content repurposer",
       status: "running",
       detail: selected.title,
+      workflowRunId: runId ?? selected.workflowRunId,
+      workflowScenarioId: selected.workflowScenarioId ?? "creator-studio",
+      workflowStageId: "repurpose",
+      workflowSource: "Content Repurposer 生成多平台内容包",
+      workflowNextStep: "从内容包中挑 1 个版本进入 Publisher 做预演。",
+      workflowTriggerType: selected.workflowTriggerType ?? "manual",
     });
     setIsGenerating(true);
     try {
@@ -365,6 +436,17 @@ export function ContentRepurposerAppWindow({
       workflowTriggerType: selected.workflowTriggerType,
       workflowSource: selected.workflowSource,
       workflowNextStep: selected.workflowNextStep,
+      workflowOriginApp: selected.workflowOriginApp ?? "content_repurposer",
+      workflowOriginId: selected.workflowOriginId ?? selected.id,
+      workflowOriginLabel:
+        selected.workflowOriginLabel ?? selected.title ?? "内容拆解项目",
+      workflowAudience: selected.workflowAudience ?? selected.audience,
+      workflowPrimaryAngle:
+        selected.workflowPrimaryAngle ??
+        extractLeadLine(selected.sourceContent, selected.title || "内容主线"),
+      workflowSourceSummary: selected.workflowSourceSummary ?? buildRepurposerSourceSummary(selected),
+      workflowSuggestedPlatforms: selected.workflowSuggestedPlatforms ?? ["xiaohongshu", "douyin"],
+      workflowPublishNotes: selected.workflowPublishNotes ?? buildRepurposerPublishNotes(selected),
     });
     showToast("已保存到草稿", "ok");
   };
@@ -383,6 +465,14 @@ export function ContentRepurposerAppWindow({
       workflowStageId: run?.currentStageId === "repurpose" ? "preflight" : selected.workflowStageId ?? "preflight",
       workflowSource: "来自 Content Repurposer 的发布候选稿",
       workflowNextStep: nextStep,
+      workflowOriginApp: "content_repurposer",
+      workflowOriginId: selected.id,
+      workflowOriginLabel: selected.title || "发布候选稿",
+      workflowAudience: selected.audience,
+      workflowPrimaryAngle: extractLeadLine(selected.sourceContent, selected.title || "内容主线"),
+      workflowSourceSummary: buildRepurposerSourceSummary(selected),
+      workflowSuggestedPlatforms: selected.workflowSuggestedPlatforms ?? ["xiaohongshu", "douyin"],
+      workflowPublishNotes: buildRepurposerPublishNotes(selected),
     });
     if (runId) {
       if (run?.currentStageId === "repurpose") {
@@ -412,6 +502,14 @@ export function ContentRepurposerAppWindow({
       workflowTriggerType: selected.workflowTriggerType ?? "manual",
       workflowSource: selected.workflowSource || "来自 Content Repurposer 的发布候选稿",
       workflowNextStep: nextStep,
+      workflowOriginApp: "content_repurposer",
+      workflowOriginId: selected.id,
+      workflowOriginLabel: selected.title || "发布候选稿",
+      workflowAudience: selected.audience,
+      workflowPrimaryAngle: extractLeadLine(selected.sourceContent, selected.title || "内容主线"),
+      workflowSourceSummary: buildRepurposerSourceSummary(selected),
+      workflowSuggestedPlatforms: selected.workflowSuggestedPlatforms ?? ["xiaohongshu", "douyin"],
+      workflowPublishNotes: buildRepurposerPublishNotes(selected),
     });
     requestOpenPublisher({
       draftId,
@@ -423,6 +521,14 @@ export function ContentRepurposerAppWindow({
       workflowScenarioId: selected.workflowScenarioId ?? "creator-studio",
       workflowStageId: run?.currentStageId === "repurpose" ? "preflight" : selected.workflowStageId ?? "preflight",
       workflowTriggerType: selected.workflowTriggerType ?? "manual",
+      workflowOriginApp: "content_repurposer",
+      workflowOriginId: selected.id,
+      workflowOriginLabel: selected.title || "发布候选稿",
+      workflowAudience: selected.audience,
+      workflowPrimaryAngle: extractLeadLine(selected.sourceContent, selected.title || "内容主线"),
+      workflowSourceSummary: buildRepurposerSourceSummary(selected),
+      workflowSuggestedPlatforms: ["xiaohongshu", "douyin"],
+      workflowPublishNotes: buildRepurposerPublishNotes(selected),
     });
     showToast("已存草稿并打开发布中心", "ok");
   };
@@ -449,6 +555,18 @@ export function ContentRepurposerAppWindow({
       workflowTriggerType: selected.workflowTriggerType,
       workflowSource: selected.workflowSource || "来自 Content Repurposer 的独立内容块",
       workflowNextStep: `把「${block.label}」作为单独版本继续编辑，或送进 Publisher 做预演。`,
+      workflowOriginApp: "content_repurposer",
+      workflowOriginId: selected.id,
+      workflowOriginLabel: selected.title || block.label,
+      workflowAudience: selected.audience,
+      workflowPrimaryAngle: extractLeadLine(block.body, selected.title || "内容主线"),
+      workflowSourceSummary: block.body,
+      workflowBlockLabel: block.label,
+      workflowSuggestedPlatforms: block.suggestedPlatforms,
+      workflowPublishNotes: buildRepurposerPublishNotes(selected, {
+        blockLabel: block.label,
+        suggestedPlatforms: block.suggestedPlatforms,
+      }),
     });
     showToast(`已保存片段：${block.label}`, "ok");
   };
@@ -466,6 +584,18 @@ export function ContentRepurposerAppWindow({
       workflowTriggerType: selected.workflowTriggerType,
       workflowSource: selected.workflowSource || `来自 Content Repurposer 的「${block.label}」`,
       workflowNextStep: `先在 Publisher 里预演「${block.label}」版本，再决定是否进入自动发布。`,
+      workflowOriginApp: "content_repurposer",
+      workflowOriginId: selected.id,
+      workflowOriginLabel: selected.title || block.label,
+      workflowAudience: selected.audience,
+      workflowPrimaryAngle: extractLeadLine(block.body, selected.title || "内容主线"),
+      workflowSourceSummary: block.body,
+      workflowBlockLabel: block.label,
+      workflowSuggestedPlatforms: block.suggestedPlatforms,
+      workflowPublishNotes: buildRepurposerPublishNotes(selected, {
+        blockLabel: block.label,
+        suggestedPlatforms: block.suggestedPlatforms,
+      }),
     });
     requestOpenPublisher({
       draftId,
@@ -477,6 +607,18 @@ export function ContentRepurposerAppWindow({
       workflowTriggerType: selected.workflowTriggerType,
       workflowSource: selected.workflowSource || `来自 Content Repurposer 的「${block.label}」`,
       workflowNextStep: `当前送入的是「${block.label}」版本。建议先检查口播/文案结构和平台差异。`,
+      workflowOriginApp: "content_repurposer",
+      workflowOriginId: selected.id,
+      workflowOriginLabel: selected.title || block.label,
+      workflowAudience: selected.audience,
+      workflowPrimaryAngle: extractLeadLine(block.body, selected.title || "内容主线"),
+      workflowSourceSummary: block.body,
+      workflowBlockLabel: block.label,
+      workflowSuggestedPlatforms: block.suggestedPlatforms,
+      workflowPublishNotes: buildRepurposerPublishNotes(selected, {
+        blockLabel: block.label,
+        suggestedPlatforms: block.suggestedPlatforms,
+      }),
     });
     showToast(`已发送到发布中心：${block.label}`, "ok");
   };
@@ -662,6 +804,40 @@ export function ContentRepurposerAppWindow({
                           {selected.workflowNextStep}
                         </div>
                       ) : null}
+                      {selected.workflowOriginApp || selected.workflowPrimaryAngle || selected.workflowAudience ? (
+                        <div className="mt-3 grid gap-2 text-xs leading-5 text-gray-600 sm:grid-cols-2">
+                          {selected.workflowOriginApp ? (
+                            <div>
+                              <span className="font-semibold text-gray-900">来源应用：</span>
+                              {getCreatorWorkflowOriginLabel(selected.workflowOriginApp)}
+                            </div>
+                          ) : null}
+                          {selected.workflowAudience ? (
+                            <div>
+                              <span className="font-semibold text-gray-900">目标受众：</span>
+                              {selected.workflowAudience}
+                            </div>
+                          ) : null}
+                          {selected.workflowPrimaryAngle ? (
+                            <div className="sm:col-span-2">
+                              <span className="font-semibold text-gray-900">主打角度：</span>
+                              {selected.workflowPrimaryAngle}
+                            </div>
+                          ) : null}
+                          {selected.workflowSuggestedPlatforms?.length ? (
+                            <div className="sm:col-span-2">
+                              <span className="font-semibold text-gray-900">建议平台：</span>
+                              {selected.workflowSuggestedPlatforms.join(" / ")}
+                            </div>
+                          ) : null}
+                          {selected.workflowPublishNotes ? (
+                            <div className="sm:col-span-2">
+                              <span className="font-semibold text-gray-900">发布备注：</span>
+                              {selected.workflowPublishNotes}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
                   ) : null}
                 </>
@@ -708,6 +884,15 @@ export function ContentRepurposerAppWindow({
                   </button>
                 </div>
               </div>
+
+              <RecommendationResultBody
+                recommendation={surfaceRecommendation}
+                tone="emerald"
+                actionTitle="执行建议"
+                actionButtonLabel="查看当前内容项目"
+                maxHitsPerSection={2}
+                className="mt-4"
+              />
 
               <textarea
                 value={selected?.contentPack ?? ""}

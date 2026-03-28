@@ -1,11 +1,13 @@
-import type { WorkflowContextMeta } from "@/lib/workflow-context";
+import {
+  createServerBackedListState,
+  type SyncTombstoneRecord,
+} from "@/lib/server-backed-list-state";
+import type { CreatorWorkflowMeta } from "@/lib/creator-workflow";
+import type { WorkflowTriggerType } from "@/lib/workflow-runs";
 
 export type DraftId = string;
 
-export type DraftSource =
-  | "media_ops"
-  | "publisher"
-  | "import";
+export type DraftSource = "media_ops" | "publisher" | "import";
 
 export type DraftRecord = {
   id: DraftId;
@@ -17,48 +19,64 @@ export type DraftRecord = {
   workflowNextStep?: string;
   createdAt: number;
   updatedAt: number;
-} & WorkflowContextMeta;
+} & CreatorWorkflowMeta;
 
 type Listener = () => void;
+type DraftTombstone = SyncTombstoneRecord;
 
 const DRAFTS_KEY = "openclaw.drafts.v1";
-const listeners = new Set<Listener>();
+const MAX_DRAFTS = 200;
 
-function emit() {
-  for (const l of listeners) l();
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event("openclaw:drafts"));
-  }
+function sortDrafts(items: DraftRecord[]) {
+  return items
+    .slice()
+    .sort((left, right) => right.updatedAt - left.updatedAt)
+    .slice(0, MAX_DRAFTS);
 }
 
-function load(): DraftRecord[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(DRAFTS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as DraftRecord[]) : [];
-  } catch {
-    return [];
-  }
-}
+const draftState = createServerBackedListState<DraftRecord, DraftTombstone>({
+  statusId: "drafts",
+  statusLabel: "草稿",
+  storageKey: DRAFTS_KEY,
+  eventName: "openclaw:drafts",
+  maxItems: MAX_DRAFTS,
+  listPath: "/api/runtime/state/drafts",
+  deletePath: (draftId) => `/api/runtime/state/drafts/${encodeURIComponent(draftId)}`,
+  itemBodyKey: "draft",
+  sortItems: sortDrafts,
+  parseHydrateData: (data) => {
+    const payload = data as
+      | null
+      | { ok?: boolean; data?: { drafts?: DraftRecord[]; tombstones?: DraftTombstone[] } };
+    return {
+      items: Array.isArray(payload?.data?.drafts) ? payload.data.drafts : null,
+      tombstones: Array.isArray(payload?.data?.tombstones) ? payload.data.tombstones : [],
+    };
+  },
+  parseUpsertData: (data) => {
+    const payload = data as
+      | null
+      | {
+          ok?: boolean;
+          data?: { draft?: DraftRecord | null; tombstone?: DraftTombstone | null; accepted?: boolean };
+        };
+    return {
+      item: payload?.data?.draft ?? null,
+      tombstone: payload?.data?.tombstone ?? null,
+    };
+  },
+});
 
-function save(next: DraftRecord[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(DRAFTS_KEY, JSON.stringify(next));
-  } catch {
-    // ignore
-  }
+export async function hydrateDraftsFromServer(force = false) {
+  return draftState.hydrateFromServer(force);
 }
 
 export function subscribeDrafts(listener: Listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+  return draftState.subscribe(listener);
 }
 
 export function getDrafts() {
-  return load().slice().sort((a, b) => b.updatedAt - a.updatedAt);
+  return draftState.getItems();
 }
 
 export function createDraft(input: {
@@ -71,7 +89,16 @@ export function createDraft(input: {
   workflowStageId?: string;
   workflowSource?: string;
   workflowNextStep?: string;
-  workflowTriggerType?: import("@/lib/workflow-runs").WorkflowTriggerType;
+  workflowTriggerType?: WorkflowTriggerType;
+  workflowOriginApp?: CreatorWorkflowMeta["workflowOriginApp"];
+  workflowOriginId?: string;
+  workflowOriginLabel?: string;
+  workflowAudience?: string;
+  workflowPrimaryAngle?: string;
+  workflowSourceSummary?: string;
+  workflowBlockLabel?: string;
+  workflowSuggestedPlatforms?: CreatorWorkflowMeta["workflowSuggestedPlatforms"];
+  workflowPublishNotes?: string;
 }) {
   const now = Date.now();
   const draft: DraftRecord = {
@@ -86,12 +113,21 @@ export function createDraft(input: {
     workflowSource: input.workflowSource?.trim() || undefined,
     workflowNextStep: input.workflowNextStep?.trim() || undefined,
     workflowTriggerType: input.workflowTriggerType,
+    workflowOriginApp: input.workflowOriginApp,
+    workflowOriginId: input.workflowOriginId?.trim() || undefined,
+    workflowOriginLabel: input.workflowOriginLabel?.trim() || undefined,
+    workflowAudience: input.workflowAudience?.trim() || undefined,
+    workflowPrimaryAngle: input.workflowPrimaryAngle?.trim() || undefined,
+    workflowSourceSummary: input.workflowSourceSummary?.trim() || undefined,
+    workflowBlockLabel: input.workflowBlockLabel?.trim() || undefined,
+    workflowSuggestedPlatforms: input.workflowSuggestedPlatforms?.slice(0, 8),
+    workflowPublishNotes: input.workflowPublishNotes?.trim() || undefined,
     createdAt: now,
     updatedAt: now,
   };
-  const next = [draft, ...load()];
-  save(next);
-  emit();
+  draftState.saveLocal([draft, ...draftState.load()]);
+  draftState.emit();
+  void draftState.syncItemToServer(draft);
   return draft.id;
 }
 
@@ -109,19 +145,42 @@ export function updateDraft(
       | "workflowSource"
       | "workflowNextStep"
       | "workflowTriggerType"
+      | "workflowOriginApp"
+      | "workflowOriginId"
+      | "workflowOriginLabel"
+      | "workflowAudience"
+      | "workflowPrimaryAngle"
+      | "workflowSourceSummary"
+      | "workflowBlockLabel"
+      | "workflowSuggestedPlatforms"
+      | "workflowPublishNotes"
     >
   >,
 ) {
   const now = Date.now();
-  const next = load().map((d) =>
-    d.id === draftId ? { ...d, ...patch, updatedAt: now } : d,
+  let nextDraft: DraftRecord | null = null;
+  draftState.saveLocal(
+    draftState.load().map((draft) => {
+      if (draft.id !== draftId) return draft;
+      nextDraft = {
+        ...draft,
+        ...patch,
+        updatedAt: now,
+      };
+      return nextDraft;
+    }),
   );
-  save(next);
-  emit();
+  draftState.emit();
+  if (nextDraft) {
+    void draftState.syncItemToServer(nextDraft);
+  }
 }
 
 export function removeDraft(draftId: DraftId) {
-  const next = load().filter((d) => d.id !== draftId);
-  save(next);
-  emit();
+  const current = draftState.load().find((draft) => draft.id === draftId) ?? null;
+  draftState.saveLocal(draftState.load().filter((draft) => draft.id !== draftId));
+  draftState.emit();
+  if (current) {
+    void draftState.removeItemOnServer(draftId, current.updatedAt);
+  }
 }

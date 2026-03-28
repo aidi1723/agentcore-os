@@ -1,3 +1,7 @@
+import {
+  createServerBackedListState,
+  type SyncTombstoneRecord,
+} from "@/lib/server-backed-list-state";
 import type { SupportWorkflowMeta } from "@/lib/support-workflow";
 
 export type InboxSource = "newsletter" | "client" | "internal";
@@ -16,9 +20,12 @@ export type InboxDigest = {
   focus: string;
   content: string;
   createdAt: number;
+  updatedAt: number;
 };
 
 type Listener = () => void;
+type InboxItemTombstone = SyncTombstoneRecord;
+type InboxDigestTombstone = SyncTombstoneRecord;
 
 const ITEMS_KEY = "openclaw.inbox.items.v1";
 const DIGESTS_KEY = "openclaw.inbox.digests.v1";
@@ -31,57 +38,107 @@ function emit() {
   }
 }
 
-function loadItems() {
-  if (typeof window === "undefined") return [] as InboxItem[];
-  try {
-    const raw = window.localStorage.getItem(ITEMS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as InboxItem[]) : [];
-  } catch {
-    return [];
-  }
+function sortInboxItems(items: InboxItem[]) {
+  return items
+    .slice()
+    .sort((left, right) => right.updatedAt - left.updatedAt)
+    .slice(0, 120);
 }
 
-function saveItems(next: InboxItem[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(ITEMS_KEY, JSON.stringify(next.slice(0, 120)));
-  } catch {
-    // ignore
-  }
+function sortInboxDigests(items: InboxDigest[]) {
+  return items
+    .slice()
+    .sort((left, right) => right.createdAt - left.createdAt)
+    .slice(0, 40);
 }
 
-function loadDigests() {
-  if (typeof window === "undefined") return [] as InboxDigest[];
-  try {
-    const raw = window.localStorage.getItem(DIGESTS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as InboxDigest[]) : [];
-  } catch {
-    return [];
-  }
-}
+const inboxItemState = createServerBackedListState<InboxItem, InboxItemTombstone>({
+  statusId: "inbox-items",
+  statusLabel: "收件箱条目",
+  storageKey: ITEMS_KEY,
+  eventName: "openclaw:inbox",
+  maxItems: 120,
+  listPath: "/api/runtime/state/inbox/items",
+  deletePath: (itemId) => `/api/runtime/state/inbox/items/${encodeURIComponent(itemId)}`,
+  itemBodyKey: "item",
+  sortItems: sortInboxItems,
+  parseHydrateData: (data) => {
+    const payload = data as
+      | null
+      | { ok?: boolean; data?: { items?: InboxItem[]; tombstones?: InboxItemTombstone[] } };
+    return {
+      items: Array.isArray(payload?.data?.items) ? payload.data.items : null,
+      tombstones: Array.isArray(payload?.data?.tombstones) ? payload.data.tombstones : [],
+    };
+  },
+  parseUpsertData: (data) => {
+    const payload = data as
+      | null
+      | {
+          ok?: boolean;
+          data?: { item?: InboxItem | null; tombstone?: InboxItemTombstone | null; accepted?: boolean };
+        };
+    return {
+      item: payload?.data?.item ?? null,
+      tombstone: payload?.data?.tombstone ?? null,
+    };
+  },
+});
 
-function saveDigests(next: InboxDigest[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(DIGESTS_KEY, JSON.stringify(next.slice(0, 40)));
-  } catch {
-    // ignore
-  }
+const inboxDigestState = createServerBackedListState<InboxDigest, InboxDigestTombstone>({
+  statusId: "inbox-digests",
+  statusLabel: "收件箱摘要",
+  storageKey: DIGESTS_KEY,
+  eventName: "openclaw:inbox",
+  maxItems: 40,
+  listPath: "/api/runtime/state/inbox/digests",
+  itemBodyKey: "digest",
+  sortItems: sortInboxDigests,
+  parseHydrateData: (data) => {
+    const payload = data as
+      | null
+      | { ok?: boolean; data?: { digests?: InboxDigest[]; tombstones?: InboxDigestTombstone[] } };
+    return {
+      items: Array.isArray(payload?.data?.digests) ? payload.data.digests : null,
+      tombstones: Array.isArray(payload?.data?.tombstones) ? payload.data.tombstones : [],
+    };
+  },
+  parseUpsertData: (data) => {
+    const payload = data as
+      | null
+      | {
+          ok?: boolean;
+          data?: {
+            digest?: InboxDigest | null;
+            tombstone?: InboxDigestTombstone | null;
+            accepted?: boolean;
+          };
+        };
+    return {
+      item: payload?.data?.digest ?? null,
+      tombstone: payload?.data?.tombstone ?? null,
+    };
+  },
+});
+
+export async function hydrateInboxFromServer(force = false) {
+  await Promise.all([
+    inboxItemState.hydrateFromServer(force),
+    inboxDigestState.hydrateFromServer(force),
+  ]);
 }
 
 export function getInboxItems() {
-  return loadItems().slice().sort((a, b) => b.updatedAt - a.updatedAt);
+  return inboxItemState.getItems();
 }
 
-export function createInboxItem(input: {
-  source: InboxSource;
-  title: string;
-  body: string;
-} & SupportWorkflowMeta) {
+export function createInboxItem(
+  input: {
+    source: InboxSource;
+    title: string;
+    body: string;
+  } & SupportWorkflowMeta,
+) {
   const now = Date.now();
   const item: InboxItem = {
     id: `${now}-${Math.random().toString(16).slice(2)}`,
@@ -97,8 +154,9 @@ export function createInboxItem(input: {
     createdAt: now,
     updatedAt: now,
   };
-  saveItems([item, ...loadItems()]);
+  inboxItemState.saveLocal([item, ...inboxItemState.load()]);
   emit();
+  void inboxItemState.syncItemToServer(item);
   return item.id;
 }
 
@@ -107,45 +165,54 @@ export function updateInboxItem(
   patch: Partial<Omit<InboxItem, "id" | "createdAt" | "updatedAt">>,
 ) {
   const now = Date.now();
-  saveItems(
-    loadItems().map((item) =>
-      item.id === itemId
-        ? {
-            ...item,
-            ...patch,
-            updatedAt: now,
-          }
-        : item,
-    ),
+  let nextItem: InboxItem | null = null;
+  inboxItemState.saveLocal(
+    inboxItemState.load().map((item) => {
+      if (item.id !== itemId) return item;
+      nextItem = {
+        ...item,
+        ...patch,
+        updatedAt: now,
+      };
+      return nextItem;
+    }),
   );
   emit();
+  if (nextItem) {
+    void inboxItemState.syncItemToServer(nextItem);
+  }
 }
 
 export function removeInboxItem(itemId: string) {
-  saveItems(loadItems().filter((item) => item.id !== itemId));
+  const current = inboxItemState.load().find((item) => item.id === itemId) ?? null;
+  inboxItemState.saveLocal(inboxItemState.load().filter((item) => item.id !== itemId));
   emit();
+  if (current) {
+    void inboxItemState.removeItemOnServer(itemId, current.updatedAt);
+  }
 }
 
 export function getInboxDigests() {
-  return loadDigests().slice().sort((a, b) => b.createdAt - a.createdAt);
+  return inboxDigestState.getItems();
 }
 
-export function createInboxDigest(input: {
-  focus: string;
-  content: string;
-}) {
+export function createInboxDigest(input: { focus: string; content: string }) {
+  const now = Date.now();
   const digest: InboxDigest = {
-    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    createdAt: Date.now(),
+    id: `${now}-${Math.random().toString(16).slice(2)}`,
+    createdAt: now,
+    updatedAt: now,
     focus: input.focus,
     content: input.content,
   };
-  saveDigests([digest, ...loadDigests()]);
+  inboxDigestState.saveLocal([digest, ...inboxDigestState.load()]);
   emit();
+  void inboxDigestState.syncItemToServer(digest);
   return digest.id;
 }
 
 export function subscribeInbox(listener: Listener) {
   listeners.add(listener);
+  void hydrateInboxFromServer();
   return () => listeners.delete(listener);
 }

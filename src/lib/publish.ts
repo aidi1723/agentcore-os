@@ -14,11 +14,28 @@ export type PublishPlatformId =
 
 export type PublishJobStatus = "queued" | "running" | "done" | "error" | "stopped";
 
+export type PublishConnectorErrorType =
+  | "auth"
+  | "validation"
+  | "rate_limit"
+  | "temporary"
+  | "provider"
+  | "unknown"
+  | (string & {});
+
 export type PublishJobResult = {
   platform: PublishPlatformId;
   ok: boolean;
   mode: "webhook" | "manual";
   status?: number;
+  queued?: boolean;
+  retryable?: boolean;
+  errorType?: PublishConnectorErrorType;
+  receiptId?: string;
+  externalId?: string;
+  receivedAt?: string;
+  message?: string;
+  responseText?: string;
   error?: string;
 };
 
@@ -139,7 +156,10 @@ export async function updatePublishJob(
   if (!res.ok || !data?.ok || !data.data?.job) {
     throw new Error(data?.error || "更新任务失败");
   }
-  jobsCache = sortJobs(jobsCache.map((job) => (job.id === jobId ? data.data!.job! : job)));
+  jobsCache = sortJobs([
+    data.data.job,
+    ...jobsCache.filter((job) => job.id !== jobId),
+  ]);
   emit();
   return data.data.job;
 }

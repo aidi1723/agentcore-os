@@ -4,6 +4,7 @@ import path from "node:path";
 
 const HOST = process.env.WEBHOOK_HOST || "127.0.0.1";
 const PORT = Number(process.env.WEBHOOK_PORT || 8787);
+const VERSION = "1.0.0";
 
 const logDir = path.join(process.cwd(), ".webhook-connector");
 const logFile = path.join(logDir, "jobs.jsonl");
@@ -45,6 +46,24 @@ function nowIso() {
 
 function receiptId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function connectorCapabilities() {
+  return {
+    publishWebhook: true,
+    receiptListing: true,
+    dryRun: true,
+  };
+}
+
+function errorPayload(message, options = {}) {
+  return {
+    ok: false,
+    error: message,
+    errorType: options.errorType || "unknown",
+    retryable: Boolean(options.retryable),
+    receivedAt: nowIso(),
+  };
 }
 
 function tailJsonl(limit = 50) {
@@ -126,7 +145,13 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && url.pathname === "/health") {
-    return json(res, 200, { ok: true, name: "agentcore-os-webhook-connector", time: nowIso() });
+    return json(res, 200, {
+      ok: true,
+      name: "agentcore-os-webhook-connector",
+      version: VERSION,
+      time: nowIso(),
+      capabilities: connectorCapabilities(),
+    });
   }
 
   if (req.method === "GET" && url.pathname === "/jobs") {
@@ -139,14 +164,24 @@ const server = http.createServer(async (req, res) => {
     const id = url.pathname.slice("/jobs/".length).trim();
     const list = tailJsonl(200);
     const found = list.find((j) => j && String(j.id) === id) || null;
-    if (!found) return json(res, 404, { ok: false, error: "Job not found" });
+    if (!found) {
+      return json(
+        res,
+        404,
+        errorPayload("Job not found", { errorType: "validation", retryable: false }),
+      );
+    }
     return json(res, 200, { ok: true, job: found });
   }
 
   if (req.method === "POST" && url.pathname === "/webhook/publish") {
     const payload = await readJson(req);
     if (!payload || typeof payload !== "object") {
-      return json(res, 400, { ok: false, error: "Invalid JSON body" });
+      return json(
+        res,
+        400,
+        errorPayload("Invalid JSON body", { errorType: "validation", retryable: false }),
+      );
     }
 
     const platform = String(payload.platform || "").trim();
@@ -157,15 +192,26 @@ const server = http.createServer(async (req, res) => {
     const token = String(payload.token || "").trim();
 
     if (!platform || !title || !body) {
-      return json(res, 400, { ok: false, error: "Missing platform/title/body" });
+      return json(
+        res,
+        400,
+        errorPayload("Missing platform/title/body", {
+          errorType: "validation",
+          retryable: false,
+        }),
+      );
     }
 
     const id = receiptId();
+    const receivedAt = nowIso();
     const record = {
       id,
-      receivedAt: nowIso(),
+      receivedAt,
       platform,
       dryRun,
+      queued: !dryRun,
+      retryable: !dryRun,
+      status: "accepted",
       tokenPresent: Boolean(token),
       title,
       body,
@@ -187,12 +233,19 @@ const server = http.createServer(async (req, res) => {
       id,
       platform,
       dryRun,
+      queued: !dryRun,
+      retryable: !dryRun,
+      receivedAt,
       message: dryRun ? "Dry-run accepted" : "Queued (example connector)",
       logFile,
     });
   }
 
-  return json(res, 404, { ok: false, error: "Not found" });
+  return json(
+    res,
+    404,
+    errorPayload("Not found", { errorType: "validation", retryable: false }),
+  );
 });
 
 server.listen(PORT, HOST, () => {

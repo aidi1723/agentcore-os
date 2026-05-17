@@ -63,7 +63,7 @@ npm run dev
 如需更多环境准备与分轨说明，请结合阅读：
 
 - [README.md](../README.md)
-- [当前版本发布说明](releases/v1.3.0.zh-CN.md)
+- 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
 - [冷启动安装验收](COLD_START_VALIDATION.zh-CN.md)
 - [GETTING_STARTED.md](GETTING_STARTED.md)
 - [CONFIGURATION.md](CONFIGURATION.md)

@@ -5,7 +5,7 @@
 ## 建议阅读顺序
 
 1. [README](../README.md)
-2. [当前版本发布说明（中文）](releases/v1.3.0.zh-CN.md)
+2. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
 3. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
 4. [快速开始](GETTING_STARTED.md)
 5. [用户指南（中文）](USER_GUIDE.zh-CN.md)

@@ -6,6 +6,11 @@ import {
   normalizeAgentCoreTaskRequest,
 } from "@/lib/executor/contracts";
 import {
+  buildClawCodeTraceAttempt,
+  runClawCodeTask,
+  selectExecutorBackend,
+} from "@/lib/executor/claw-code";
+import {
   buildExecutionCandidates,
   normalizeExecutionPolicy,
   type ResolvedAgentCoreLlmConfig,
@@ -30,7 +35,7 @@ type AgentCoreTaskErr = {
 };
 
 export type AgentCoreTaskResult = (AgentCoreTaskOk | AgentCoreTaskErr) & {
-  engine: "agentcore_executor";
+  engine: AgentCoreTaskTrace["engine"];
   trace: AgentCoreTaskTrace;
 };
 
@@ -255,7 +260,7 @@ function waitMs(ms: number) {
 
 function buildFinalTrace(input: {
   request: AgentCoreTaskRequest;
-  engine: "agentcore_executor";
+  engine: AgentCoreTaskTrace["engine"];
   provider?: string;
   model?: string;
   startedAt: number;
@@ -410,6 +415,102 @@ export async function runAgentCoreTask(
   ]
     .filter(Boolean)
     .join("\n\n");
+  const backend = selectExecutorBackend({
+    envValue:
+      normalizedRequest.executionPolicy.executorBackend ??
+      process.env.AGENTCORE_EXECUTOR_BACKEND,
+    hasModelCandidates: candidates.length > 0,
+  });
+
+  if (backend === "claw_code") {
+    const clawStartedAt = Date.now();
+    const clawResult = await runClawCodeTask(
+      {
+        ...normalizedRequest,
+        context: {
+          ...normalizedRequest.context,
+          systemPrompt,
+        },
+      },
+      {
+        binaryPath:
+          normalizedRequest.executionPolicy.clawCodeBinaryPath ??
+          process.env.AGENTCORE_CLAW_CODE_BIN,
+        cwd:
+          normalizedRequest.executionPolicy.clawCodeWorkspace ??
+          process.env.AGENTCORE_CLAW_CODE_CWD,
+        permissionMode:
+          normalizedRequest.executionPolicy.clawCodePermissionMode ??
+          (process.env.AGENTCORE_CLAW_CODE_PERMISSION === "read-only" ||
+          process.env.AGENTCORE_CLAW_CODE_PERMISSION === "danger-full-access"
+            ? process.env.AGENTCORE_CLAW_CODE_PERMISSION
+            : "read-only"),
+      },
+    );
+    const clawFinishedAt = Date.now();
+    attempts.push(
+      buildClawCodeTraceAttempt({
+        candidateKind: "primary",
+        attemptNumber: attempts.length + 1,
+        startedAt: clawStartedAt,
+        finishedAt: clawFinishedAt,
+        success: clawResult.ok,
+        error: clawResult.ok ? undefined : clawResult.error,
+      }),
+    );
+
+    const postSkill = await runPostExecutionSkills({
+      request: normalizedRequest,
+      skillPlan,
+      outputText: clawResult.ok ? clawResult.text.trim() : "",
+      success: clawResult.ok,
+    });
+
+    const trace = buildFinalTrace({
+      request: normalizedRequest,
+      engine: "claw_code",
+      provider: "claw-code",
+      model: "claw",
+      startedAt,
+      finishedAt: clawFinishedAt,
+      success: clawResult.ok,
+      error: clawResult.ok ? undefined : clawResult.error,
+      attempts,
+      fallbackUsed: false,
+      skillPlan,
+      skillReceipts: [...preSkill.receipts, ...postSkill.receipts],
+      memory: {
+        scope: skillPlan.memoryScope,
+        recalledInstincts: preSkill.memory.recalledInstincts,
+        storedInstinctId: postSkill.memory.storedInstinctId,
+      },
+    });
+
+    if (clawResult.ok) {
+      return {
+        ok: true,
+        text: clawResult.text.trim(),
+        raw: {
+          provider: "claw-code",
+          sessionId,
+          requestId: normalizedRequest.metadata.requestId,
+          attempts,
+          skillPlan,
+          claw: clawResult.raw,
+        },
+        engine: "claw_code",
+        trace,
+      };
+    }
+
+    return {
+      ok: false,
+      error: clawResult.error,
+      raw: clawResult.raw,
+      engine: "claw_code",
+      trace,
+    };
+  }
 
   for (const candidate of candidates) {
     const result = await attemptModelCandidate({

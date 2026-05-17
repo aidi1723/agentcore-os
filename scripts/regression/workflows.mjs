@@ -160,6 +160,45 @@ async function runSalesAndKnowledgeRegression(localStorage) {
   console.log("sales workflow and sales asset regression passed");
 }
 
+async function runApiSecurityRegression() {
+  logSection("api security boundary");
+  const agentRoute = await import(moduleUrl("src/app/api/openclaw/agent/route.ts"));
+  const mediaRoute = await import(moduleUrl("src/app/api/runtime/media/process/route.ts"));
+
+  const blockedAgent = await agentRoute.POST(
+    new Request("http://evil.example/api/openclaw/agent", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Host: "evil.example",
+      },
+      body: JSON.stringify({ message: "try to run local executor" }),
+    }),
+  );
+  const blockedAgentPayload = await blockedAgent.json();
+  assert.equal(blockedAgent.status, 403, "Remote host executor requests should be rejected.");
+  assert.equal(blockedAgentPayload.ok, false, "Rejected executor requests should fail cleanly.");
+
+  const arbitraryFile = await mediaRoute.POST(
+    new Request("http://127.0.0.1/api/runtime/media/process", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Host: "127.0.0.1",
+      },
+      body: JSON.stringify({
+        prompt: "截取 1 秒",
+        fileUrl: process.platform === "win32" ? "C:\\Windows\\win.ini" : "/etc/passwd",
+      }),
+    }),
+  );
+  const arbitraryFilePayload = await arbitraryFile.json();
+  assert.equal(arbitraryFile.status, 400, "Media processing should reject arbitrary local paths.");
+  assert.equal(arbitraryFilePayload.ok, false, "Rejected media requests should fail cleanly.");
+
+  console.log("api security boundary regression passed");
+}
+
 async function runSupportAndKnowledgeRegression(localStorage) {
   logSection("support + knowledge asset");
   resetBrowserState(localStorage);
@@ -1473,6 +1512,7 @@ async function runAgentExecutorRegression(localStorage) {
         baseUrl: "https://api.openai.com/v1",
         model: "gpt-4o-mini",
       },
+      executorBackend: "direct_model",
       maxAttempts: 2,
       retryBackoffMs: 0,
     });
@@ -1503,6 +1543,58 @@ async function runAgentExecutorRegression(localStorage) {
   } finally {
     globalThis.fetch = originalFetch;
   }
+
+  const defaultPayload = await executor.runAgentCoreTask({
+    message: "请输出一段销售跟进建议",
+    sessionId: "regression-agent-route-claw-default",
+    timeoutSeconds: 1,
+    systemPrompt: "You are a specialist sales copilot.",
+    useSkills: false,
+    workspaceContext: {
+      activeIndustry: "doors_windows",
+      activeScenarioId: "sales-followup",
+      runtimeProfile: "desktop_light",
+    },
+    llm: {
+      provider: "openai",
+      apiKey: "test-key",
+      baseUrl: "https://api.openai.com/v1",
+      model: "gpt-4o-mini",
+    },
+    maxAttempts: 1,
+    retryBackoffMs: 0,
+  });
+
+  assert.equal(defaultPayload.ok, false, "Default executor should require AgentCoreOS Runtime when no backend override is provided.");
+  assert.equal(defaultPayload.engine, "claw_code", "Default executor should use claw-code as the base.");
+  assert.equal(defaultPayload.trace.engine, "claw_code", "Default trace should record claw-code as the base.");
+  assert.equal(defaultPayload.trace.attempts[0]?.engine, "claw_code", "Default attempt should be audited as claw-code.");
+  assert.match(
+    defaultPayload.error,
+    /AgentCoreOS Runtime is unavailable|AgentCoreOS Runtime execution/i,
+    "Default AgentCoreOS Runtime failure should be structured and actionable.",
+  );
+
+  const runner = await import(moduleUrl("src/lib/server/executor-runner.ts"));
+  const sessionStore = await import(moduleUrl("src/lib/server/executor-session-store.ts"));
+  const clawSessionId = `regression-claw-default-${Date.now()}`;
+  const persistedDefault = await runner.executeAgentCoreTask({
+    source: "regression/claw-default",
+    message: "ping claw default",
+    sessionId: clawSessionId,
+    timeoutSeconds: 1,
+    useSkills: false,
+    maxAttempts: 1,
+    retryBackoffMs: 0,
+  });
+  assert.equal(persistedDefault.ok, false, "Persisted default claw execution should fail safely without claw binary.");
+  const clawSession = await sessionStore.getExecutorSession(clawSessionId);
+  assert.equal(clawSession?.lastEngine, "claw_code", "Session summary should preserve claw-code as last engine.");
+  assert.equal(
+    clawSession?.turns[0]?.attempts[0]?.engine,
+    "claw_code",
+    "Persisted session attempts should preserve claw-code engine.",
+  );
 
   console.log("agent executor regression passed");
 }
@@ -1549,6 +1641,7 @@ async function runSkillRuntimeAndMemoryRegression() {
       taskLabel: "support-reply",
       maxAttempts: 1,
       retryBackoffMs: 0,
+      executorBackend: "direct_model",
       llm: {
         provider: "openai",
         apiKey: "test-key",
@@ -1570,6 +1663,7 @@ async function runSkillRuntimeAndMemoryRegression() {
       taskLabel: "support-reply",
       maxAttempts: 1,
       retryBackoffMs: 0,
+      executorBackend: "direct_model",
       llm: {
         provider: "openai",
         apiKey: "test-key",
@@ -1680,6 +1774,7 @@ async function runAgentExecutorFallbackHealthRegression() {
       maxAttempts: 1,
       retryBackoffMs: 0,
       allowFallbackToOpenClaw: false,
+      executorBackend: "direct_model",
       llm: {
         provider: "openai",
         apiKey: "primary-key",
@@ -1774,6 +1869,7 @@ async function runExecutorSessionStoreRegression() {
         activeScenarioId: "sales-followup",
         connectorToken: "token-should-redact",
       },
+      executorBackend: "direct_model",
       llm: {
         provider: "openai",
         apiKey: "super-secret-key",
@@ -3388,6 +3484,7 @@ async function main() {
   await runLegacyPutGuardRegression();
   await runJsonStoreRegression();
   await runPublishQueueRegression();
+  await runApiSecurityRegression();
   await runHeroWorkflowRecommendationRegression(localStorage);
   await runHeroWorkflowRecommendationRouteRegression();
   console.log("\n[workflow-regression] all core workflow regressions passed");

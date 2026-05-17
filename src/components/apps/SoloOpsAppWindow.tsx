@@ -599,13 +599,13 @@ export function SoloOpsAppWindow({
       onMinimize={onMinimize}
       onClose={onClose}
     >
-      <div className="relative bg-white">
+      <div className="relative bg-slate-50">
         <AppToast toast={toast} />
 
-        <div className="p-6 border-b border-gray-200">
+        <div className="border-b border-gray-200 bg-white px-4 py-3">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="text-lg font-bold text-gray-900">
+              <div className="text-base font-bold text-gray-900">
                 {t.title}
               </div>
               <div className="text-sm text-gray-500 mt-1">
@@ -633,8 +633,8 @@ export function SoloOpsAppWindow({
           </div>
         </div>
 
-        <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 space-y-4">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto p-4 lg:grid-cols-3 lg:overflow-hidden">
+          <div className="space-y-4 lg:col-span-2 lg:min-h-0 lg:overflow-y-auto">
             {steps.map((s) => (
               <div key={s.title} className="rounded-2xl border border-gray-200 bg-white p-5">
                 <div className="flex items-start justify-between gap-3">
@@ -703,7 +703,7 @@ export function SoloOpsAppWindow({
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 lg:min-h-0 lg:overflow-y-auto">
             <div className="rounded-2xl border border-gray-200 bg-white p-5">
               <div className="flex items-center justify-between gap-3">
                 <div className="text-sm font-semibold text-gray-900">{t.mine}</div>

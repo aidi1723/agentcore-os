@@ -1179,13 +1179,13 @@ export function SolutionsHubAppWindow({
       onMinimize={onMinimize}
       onClose={onClose}
     >
-      <div className="relative bg-white">
+      <div className="relative bg-slate-50">
         <AppToast toast={toast} />
 
-        <div className="border-b border-gray-200 p-4 sm:p-6">
+        <div className="border-b border-gray-200 bg-white px-4 py-3">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <div className="text-lg font-bold text-gray-900">{t.title}</div>
+              <div className="text-base font-bold text-gray-900">{t.title}</div>
               <div className="text-sm text-gray-500 mt-1">
                 {t.subtitle}
               </div>
@@ -1226,7 +1226,7 @@ export function SolutionsHubAppWindow({
           </div>
         </div>
 
-        <div className="border-b border-gray-200 bg-gray-50/80 p-4 sm:p-6">
+        <div className="border-b border-gray-200 bg-white/70 p-4">
           <div className="flex flex-col gap-4">
             <div>
               <div className="text-sm font-semibold text-gray-900">{t.sourceMap}</div>
@@ -1324,8 +1324,8 @@ export function SolutionsHubAppWindow({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 p-4 sm:p-6 lg:grid-cols-4">
-          <aside className="lg:col-span-1 space-y-2">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto p-4 lg:grid-cols-4 lg:overflow-hidden">
+          <aside className="space-y-2 lg:col-span-1 lg:min-h-0 lg:overflow-y-auto">
             <div className="rounded-2xl border border-gray-200 bg-white p-3">
               <input
                 value={query}
@@ -1391,7 +1391,7 @@ export function SolutionsHubAppWindow({
             })}
           </aside>
 
-          <main className="lg:col-span-3 space-y-4">
+          <main className="space-y-4 lg:col-span-3 lg:min-h-0 lg:overflow-y-auto">
             {visibleSelected ? (
               <>
                 <div className="rounded-2xl border border-gray-200 bg-white p-5">

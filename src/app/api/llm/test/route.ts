@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
+import { isAllowedOutboundUrl } from "@/lib/server/network-policy";
+
 const DEFAULT_PROVIDER_CONFIG = {
   kimi: {
     baseUrl: "https://api.moonshot.cn/v1",
@@ -42,6 +45,9 @@ async function tryFetchModels(url: string, apiKey: string) {
 }
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const body = (await req.json().catch(() => null)) as
       | null
@@ -70,6 +76,12 @@ export async function POST(req: Request) {
     const candidates: string[] = [];
     candidates.push(`${baseUrl}/models`);
     if (!/\/v1$/.test(baseUrl)) candidates.push(`${baseUrl}/v1/models`);
+    if (!candidates.every((url) => isAllowedOutboundUrl(url))) {
+      return NextResponse.json(
+        { ok: false, error: "Base URL 不在允许的外连范围内" },
+        { status: 400, headers: { "Cache-Control": "no-store" } },
+      );
+    }
 
     let lastError: string | null = null;
     for (const url of candidates) {

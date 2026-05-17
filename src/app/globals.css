@@ -30,6 +30,25 @@ body {
 
 .app-window-content {
   color: #0f172a;
+  font-size: 14px;
+}
+
+.app-window-content > div {
+  min-height: 0;
+}
+
+.app-window-content > div:first-child {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-window-content > div:first-child > :last-child {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
 }
 
 .app-window-content input,
@@ -37,6 +56,16 @@ body {
 .app-window-content select,
 .app-window-content option {
   color: #111827;
+}
+
+.app-window-content input,
+.app-window-content textarea,
+.app-window-content select {
+  border-radius: 10px;
+}
+
+.app-window-content button {
+  border-radius: 10px;
 }
 
 .app-window-content ::placeholder {
@@ -55,4 +84,63 @@ body {
   word-break: normal;
   overflow-wrap: break-word;
   vertical-align: top;
+}
+
+.app-window-content main,
+.app-window-content aside {
+  min-height: 0;
+}
+
+.app-window-content pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.app-window-content .rounded-3xl,
+.app-window-content .rounded-\[32px\],
+.app-window-content .rounded-\[30px\],
+.app-window-content .rounded-\[28px\],
+.app-window-content .rounded-\[26px\],
+.app-window-content .rounded-\[24px\] {
+  border-radius: 12px;
+}
+
+.app-window-content .rounded-2xl,
+.app-window-content .rounded-\[22px\],
+.app-window-content .rounded-\[20px\] {
+  border-radius: 10px;
+}
+
+.app-window-content .p-8 {
+  padding: 1rem;
+}
+
+.app-window-content .p-6,
+.app-window-content .sm\:p-6 {
+  padding: 1rem;
+}
+
+.app-window-content .p-5 {
+  padding: 0.875rem;
+}
+
+.app-window-content .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1rem;
+}
+
+.app-window-content .space-y-5 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.875rem;
+}
+
+.app-window-content [class*="shadow-["],
+.app-window-content .shadow-2xl,
+.app-window-content .shadow-xl,
+.app-window-content .shadow-lg {
+  box-shadow: none;
+}
+
+.app-window-content [class*="bg-[linear-gradient"],
+.app-window-content [class*="bg-[radial-gradient"] {
+  background-image: none;
+  background-color: rgba(255, 255, 255, 0.94);
 }

@@ -53,19 +53,6 @@ function runIfAvailable(command, args) {
 async function main() {
   const projectRoot = process.cwd();
   const home = os.homedir();
-  const python = await findExisting([
-    process.env.PYTHON_BIN,
-    path.join(projectRoot, "lobster-sidecar", ".venv", "Scripts", "python.exe"),
-    path.join(projectRoot, "lobster-sidecar", ".venv", "bin", "python3"),
-    path.join(projectRoot, "lobster-sidecar", ".venv", "bin", "python"),
-    process.platform === "win32" ? "python.exe" : "python3",
-    "python",
-  ]);
-  const pyinstaller = await findExisting([
-    process.env.PYINSTALLER_BIN,
-    path.join(projectRoot, "lobster-sidecar", ".venv", "Scripts", "pyinstaller.exe"),
-    path.join(projectRoot, "lobster-sidecar", ".venv", "bin", "pyinstaller"),
-  ]);
   const cargo = await findExisting([
     process.env.CARGO_BIN,
     path.join(home, ".cargo", "bin", "cargo.exe"),
@@ -80,46 +67,28 @@ async function main() {
     process.platform === "win32" ? "rustc.exe" : "rustc",
     "rustc",
   ]);
+  const claw = await findExisting([
+    process.env.AGENTCORE_CLAW_CODE_BIN,
+    path.join(home, ".cargo", "bin", "claw.exe"),
+    path.join(home, ".cargo", "bin", "claw"),
+    process.platform === "win32" ? "claw.exe" : "claw",
+    "claw",
+  ]);
 
   const node = run(process.execPath, ["--version"]);
-  const pythonVersion = python ? run(python, ["--version"]) : null;
   const cargoVersion = cargo ? run(cargo, ["--version"]) : null;
   const rustcVersion = rustc ? run(rustc, ["--version"]) : null;
-  const pyinstallerCliVersion = runIfAvailable(pyinstaller, ["--version"]);
-  const pyinstallerModuleVersion = runIfAvailable(python, ["-m", "PyInstaller", "--version"]);
-  const pyinstallerVersion = pyinstallerCliVersion?.ok
-    ? pyinstallerCliVersion
-    : pyinstallerModuleVersion;
-  const pyinstallerCommand = pyinstallerCliVersion?.ok
-    ? pyinstaller
-    : pyinstallerModuleVersion?.ok
-      ? python
-        ? `${python} -m PyInstaller`
-        : null
-      : pyinstaller
-        ? pyinstaller
-        : python
-          ? `${python} -m PyInstaller`
-          : null;
+  const clawVersion = claw ? run(claw, ["--version"]) : null;
   const warnings = [];
-  const pythonVersionText = pythonVersion?.stdout || pythonVersion?.stderr || "";
-  const pythonMinorMatch = pythonVersionText.match(/Python\s+3\.(\d+)/i);
-  const pythonMinor = pythonMinorMatch ? Number(pythonMinorMatch[1]) : null;
-  if (pythonMinor != null && pythonMinor >= 14) {
-    warnings.push(
-      "Python 3.14+ can build in some environments, but Python 3.11 or 3.12 is recommended for the Lobster sidecar packaging path.",
-    );
-  }
 
   const output = {
     checkedAt: new Date().toISOString(),
     platform: process.platform,
     ready: Boolean(
       node.ok
-      && pythonVersion?.ok
       && cargoVersion?.ok
       && rustcVersion?.ok
-      && pyinstallerVersion?.ok,
+      && clawVersion?.ok,
     ),
     checks: {
       node: {
@@ -127,22 +96,6 @@ async function main() {
         command: process.execPath,
         version: node.stdout || null,
         error: node.stderr || node.error || null,
-      },
-      python: {
-        ok: pythonVersion?.ok ?? false,
-        command: python,
-        version: pythonVersion?.stdout || pythonVersion?.stderr || null,
-        error: pythonVersion && !pythonVersion.ok ? pythonVersion.stderr || pythonVersion.error || null : python ? null : "Python not found",
-      },
-      pyinstaller: {
-        ok: pyinstallerVersion?.ok ?? false,
-        command: pyinstallerCommand,
-        version: pyinstallerVersion?.stdout || pyinstallerVersion?.stderr || null,
-        error: pyinstallerVersion && !pyinstallerVersion.ok
-          ? pyinstallerVersion.stderr || pyinstallerVersion.error || null
-          : pyinstaller || python
-            ? null
-            : "PyInstaller not found",
       },
       cargo: {
         ok: cargoVersion?.ok ?? false,
@@ -156,13 +109,19 @@ async function main() {
         version: rustcVersion?.stdout || null,
         error: rustcVersion && !rustcVersion.ok ? rustcVersion.stderr || rustcVersion.error || null : rustc ? null : "rustc not found",
       },
+      clawCode: {
+        ok: clawVersion?.ok ?? false,
+        command: claw,
+        version: clawVersion?.stdout || clawVersion?.stderr || null,
+        error: clawVersion && !clawVersion.ok ? clawVersion.stderr || clawVersion.error || null : claw ? null : "AgentCoreOS Runtime binary not found",
+      },
     },
     warnings,
     nextAction:
-      node.ok && pythonVersion?.ok && cargoVersion?.ok && rustcVersion?.ok && pyinstallerVersion?.ok
+      node.ok && cargoVersion?.ok && rustcVersion?.ok && clawVersion?.ok
         ? warnings.length > 0
-          ? "This machine can build the desktop shell, but you should prefer Python 3.11 or 3.12 before producing release sidecar binaries."
-          : "This machine can build the AgentCore OS desktop shell and packaged Lobster sidecar."
+          ? "This machine can build the desktop shell, but review warnings before producing release binaries."
+          : "This machine can build the AgentCore OS desktop shell with AgentCoreOS Runtime as the execution base."
         : "Install the missing build tools before attempting desktop packaging.",
   };
 

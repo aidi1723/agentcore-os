@@ -657,17 +657,17 @@ export function SettingsAppWindow({
         onClose();
       }}
     >
-      <div className="relative bg-white">
+      <div className="relative bg-slate-50">
         <AppToast toast={toast} />
 
-        <div className="flex min-h-[560px] flex-col lg:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
           {/* Left nav */}
           <aside className="w-full border-b border-gray-200 bg-gray-50/60 lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
-            <div className="p-5">
+            <div className="p-4">
               <div className="text-xs font-semibold text-gray-500">
                 系统中枢控制台
               </div>
-              <div className="mt-1 text-lg font-bold text-gray-900">OpenClaw</div>
+              <div className="mt-1 text-lg font-bold text-gray-900">AgentCore OS</div>
             </div>
 
             <nav className="grid grid-cols-1 gap-1 px-2 pb-4 sm:grid-cols-2 lg:grid-cols-1">
@@ -705,7 +705,7 @@ export function SettingsAppWindow({
           </aside>
 
           {/* Right panel */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <main className="min-h-0 flex-1 overflow-y-auto p-4">
             {activeTab === "llm" && (
               <section className="space-y-6">
                 <div>
@@ -947,12 +947,12 @@ export function SettingsAppWindow({
             {activeTab === "engine" && (
               <section className="space-y-6">
                 <div>
-                  <div className="text-lg font-bold text-gray-900">引擎核心</div>
+                  <div className="text-lg font-bold text-gray-900">AgentCoreOS Runtime</div>
                   <div className="text-sm text-gray-500 mt-1">
-                    配置 AgentCore OS 的 API-first 运行模式、本地运行时地址与可选的 Dify sidecar 编排。
+                    配置 AgentCore OS 的本地执行底座、运行时地址与可选的 Dify sidecar 编排。
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
-                    推荐策略：普通用户选择“轻量桌面运行时 + 纯 API”；只有在需要本地 Dify sidecar 时才启用 Docker Compose。
+                    默认路径：AgentCore OS 负责工作流、会话审计、审批和资产沉淀；AgentCoreOS Runtime 负责底层任务执行。
                   </div>
                 </div>
 
@@ -1054,6 +1054,7 @@ export function SettingsAppWindow({
                       <div className="mt-4 space-y-2">
                         {[
                           { label: "Local Store", check: runtimeDoctor?.checks.localStore },
+                          { label: "AgentCoreOS Runtime", check: runtimeDoctor?.checks.clawCode },
                           { label: "Runtime Template", check: runtimeDoctor?.checks.runtimeTemplate },
                           { label: "FFmpeg", check: runtimeDoctor?.checks.ffmpeg },
                           { label: "Docker", check: runtimeDoctor?.checks.docker },
@@ -1300,7 +1301,7 @@ export function SettingsAppWindow({
                       {
                         id: "desktop_light" as const,
                         title: "轻量桌面运行时（推荐）",
-                        desc: "只保留本地 workflow、状态与资产层；所有模型能力走云端 API。",
+                        desc: "使用 AgentCoreOS Runtime 执行任务，保留本地 workflow、状态与资产层；普通用户优先选这个。",
                       },
                       {
                         id: "desktop_dify" as const,
@@ -1363,10 +1364,10 @@ export function SettingsAppWindow({
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <div className="text-sm font-semibold text-gray-900">
-                        本地运行时与可选 sidecar
+                        AgentCoreOS Runtime 执行底座与本地运行时
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        OpenClaw / AgentCore runtime 可单独连接；如果你要挂 Dify sidecar，也在这里配置本地地址。
+                        默认使用 AgentCoreOS Runtime 作为任务执行底座；AgentCore OS 继续负责会话、审计、工作流和资产沉淀。
                       </div>
                     </div>
                     <button
@@ -1382,7 +1383,7 @@ export function SettingsAppWindow({
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Agent Runtime URL
+                        AgentCore Media Runtime URL
                       </label>
                       <input
                         value={form.openclaw.baseUrl}
@@ -1392,17 +1393,17 @@ export function SettingsAppWindow({
                             openclaw: { ...prev.openclaw, baseUrl: e.target.value },
                           }))
                         }
-                        placeholder="留空：使用本地 video-frames（推荐）；或填写 http://127.0.0.1:18789"
+                        placeholder="留空：使用本地 video-frames；或填写媒体运行时 URL"
                         className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
                         autoComplete="off"
                       />
                       <div className="mt-2 text-xs text-gray-500">
-                        提示：如果你运行的是本地 gateway / sidecar，这里通常是 `http://127.0.0.1:18789`。
+                        仅用于 Creative Studio 的远端媒体运行时；主执行链使用 AgentCoreOS Runtime。
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Agent Runtime Token
+                        Media Runtime Token
                       </label>
                       <input
                         type="password"
@@ -1437,7 +1438,7 @@ export function SettingsAppWindow({
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Sidecar API URL
+                        AgentCoreOS Runtime Sidecar URL
                       </label>
                       <input
                         value={form.runtime.sidecarApiUrl}
@@ -1452,8 +1453,93 @@ export function SettingsAppWindow({
                         autoComplete="off"
                       />
                       <div className="mt-2 text-xs text-gray-500">
-                        桌面壳模式下，前端会优先把 `/api/*` 请求转发到这里。适合连接 AgentCore 本地运行时。
+                        桌面壳模式下，前端会优先把 `/api/*` 请求转发到这里。默认对接 AgentCoreOS Runtime HTTP sidecar。
                       </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Executor Backend
+                      </label>
+                      <select
+                        value={form.runtime.executorBackend}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            runtime: {
+                              ...prev.runtime,
+                              executorBackend:
+                                e.target.value === "direct_model" ? "direct_model" : "claw_code",
+                            },
+                          }))
+                        }
+                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="claw_code">AgentCoreOS Runtime（推荐）</option>
+                        <option value="direct_model">Direct model fallback</option>
+                      </select>
+                      <div className="mt-2 text-xs text-gray-500">
+                        AgentCoreOS Runtime 负责真实任务执行；direct model 仅用于兼容或排障。
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        AgentCoreOS Runtime Binary Path
+                      </label>
+                      <input
+                        value={form.runtime.clawCodeBinaryPath}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            runtime: { ...prev.runtime, clawCodeBinaryPath: e.target.value },
+                          }))
+                        }
+                        placeholder="留空：自动查找已安装的 AgentCoreOS Runtime"
+                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        AgentCoreOS Runtime Workspace
+                      </label>
+                      <input
+                        value={form.runtime.clawCodeWorkspace}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            runtime: { ...prev.runtime, clawCodeWorkspace: e.target.value },
+                          }))
+                        }
+                        placeholder="留空：由服务端使用当前工作目录"
+                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        AgentCoreOS Runtime Permission Mode
+                      </label>
+                      <select
+                        value={form.runtime.clawCodePermissionMode}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            runtime: {
+                              ...prev.runtime,
+                              clawCodePermissionMode:
+                                e.target.value === "read-only" ||
+                                e.target.value === "danger-full-access"
+                                  ? e.target.value
+                                  : "workspace-write",
+                            },
+                          }))
+                        }
+                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="workspace-write">workspace-write</option>
+                        <option value="read-only">read-only</option>
+                        <option value="danger-full-access">danger-full-access</option>
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">

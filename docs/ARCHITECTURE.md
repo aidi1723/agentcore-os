@@ -41,4 +41,4 @@ This keeps the desktop UI generic while allowing you to plug in new apps quickly
 3) Server generates per-platform variants (OpenClaw if available, else fallback)
 4) If “dispatch” mode and webhook URLs exist, server POSTs to webhooks (BYO connector)
 5) Connector returns receipts; Publisher can show recent receipts via connector proxy routes
-6) Publisher also maintains a local-first publish history and (in v0.2) a simple queued dispatcher while the window is open
+6) Publisher stores publish jobs server-side and can run the queue outside the browser window via the publish queue worker

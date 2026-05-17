@@ -204,3 +204,19 @@ export function buildCommandCenterAttentionCards({
     },
   ];
 }
+
+export function buildChatPromptSuggestions({
+  quickCommands,
+  starterTitle,
+  limit,
+}: {
+  quickCommands: string[];
+  starterTitle: string;
+  limit: number;
+}) {
+  const suggestions = quickCommands.map((item) => item.trim()).filter(Boolean);
+  if (suggestions.length === 0 && starterTitle.trim()) {
+    suggestions.push(`继续推进：${starterTitle.trim()}`);
+  }
+  return suggestions.slice(0, Math.max(0, limit));
+}

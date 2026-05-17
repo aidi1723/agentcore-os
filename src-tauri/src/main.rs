@@ -20,22 +20,22 @@ struct SidecarState {
 fn sidecar_binary_name() -> String {
     #[cfg(target_os = "windows")]
     {
-        return format!("lobster_engine-{}.exe", sidecar_target_triple());
+        return format!("agentcore_claw_runtime-{}.exe", sidecar_target_triple());
     }
     #[cfg(not(target_os = "windows"))]
     {
-        return format!("lobster_engine-{}", sidecar_target_triple());
+        return format!("agentcore_claw_runtime-{}", sidecar_target_triple());
     }
 }
 
 fn packaged_sidecar_binary_name() -> &'static str {
     #[cfg(target_os = "windows")]
     {
-        return "lobster_engine.exe";
+        return "agentcore_claw_runtime.exe";
     }
     #[cfg(not(target_os = "windows"))]
     {
-        return "lobster_engine";
+        return "agentcore_claw_runtime";
     }
 }
 
@@ -192,7 +192,7 @@ fn sidecar_binary_path(app: &AppHandle) -> Result<PathBuf, String> {
                 .map(|candidate| candidate.display().to_string())
                 .collect::<Vec<_>>()
                 .join(", ");
-            format!("Missing lobster sidecar binary. Tried: {attempted}")
+            format!("Missing claw runtime sidecar binary. Tried: {attempted}")
         })
 }
 
@@ -218,7 +218,7 @@ fn spawn_sidecar(app: &AppHandle, state: &State<SidecarState>) -> Result<(), Str
     let sidecar_path = sidecar_binary_path(app)?;
     if !sidecar_path.exists() {
         return Err(format!(
-            "Missing lobster sidecar binary: {}",
+            "Missing claw runtime sidecar binary: {}",
             sidecar_path.display()
         ));
     }
@@ -245,7 +245,7 @@ fn spawn_sidecar(app: &AppHandle, state: &State<SidecarState>) -> Result<(), Str
         .env("AGENTCORE_SIDECAR_DATA_DIR", &data_dir)
         .env("AGENTCORE_RUNTIME_COMPOSE_FILE", compose_file)
         .env(
-            "LOBSTER_CORS_ALLOW_ORIGINS",
+            "AGENTCORE_CORS_ALLOW_ORIGINS",
             "tauri://localhost,http://tauri.localhost,http://localhost,https://tauri.localhost",
         )
         .env("AGENTCORE_HEARTBEAT_PATH", "/_agentcore/heartbeat")
@@ -256,7 +256,7 @@ fn spawn_sidecar(app: &AppHandle, state: &State<SidecarState>) -> Result<(), Str
 
     let child = command
         .spawn()
-        .map_err(|err| format!("Unable to start lobster sidecar: {err}"))?;
+        .map_err(|err| format!("Unable to start claw runtime sidecar: {err}"))?;
 
     *child_guard = Some(child);
     drop(child_guard);

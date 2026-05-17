@@ -65,9 +65,9 @@ export function getDesktopRuntimeProfileMeta(profile: DesktopRuntimeProfile) {
     case "desktop_light":
     default:
       return {
-        title: "Desktop Light Runtime",
+        title: "AgentCoreOS Light Runtime",
         desc:
-          "Recommended for non-technical users. Cloud APIs handle model inference; local runtime only manages workflow, state, and assets.",
+          "Recommended default. AgentCore OS uses AgentCoreOS Runtime as the local execution base while keeping workflow, state, and assets under AgentCore control.",
       };
   }
 }
@@ -87,7 +87,7 @@ export function getDesktopRuntimeOrchestrationMeta(
       return {
         title: "No Local Orchestration",
         desc:
-          "Keep the desktop app light. Prefer direct API providers and local storage without any background container stack.",
+          "Keep the desktop app light. Prefer AgentCoreOS Runtime local execution plus direct API providers without a container stack.",
       };
   }
 }
@@ -136,7 +136,7 @@ export function getDesktopRuntimeStatusSummary(
       title: "Choose runtime profile",
       detail:
         settings.runtime.profile === "desktop_light"
-          ? "Desktop light runtime is selected for API-only workflow execution."
+          ? "AgentCoreOS light runtime is selected for local task execution."
           : "Desktop + Dify sidecar is selected for local orchestration and retrieval.",
       status: "ready",
     },
@@ -152,7 +152,7 @@ export function getDesktopRuntimeStatusSummary(
       id: "runtime",
       title: requiresDocker
         ? "Validate local sidecar runtime"
-        : "Light runtime is ready",
+        : "AgentCoreOS Runtime is ready",
       detail: requiresDocker
         ? !runtimeAddressConfigured
           ? "Set the Dify Base URL before enabling the local sidecar stack."

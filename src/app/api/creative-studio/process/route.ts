@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 
-import { POST as executeOpenClaw } from "../../openclaw/execute/route";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
+import { POST as executeMediaRuntime } from "../../runtime/media/process/route";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const sourceForm = await req.formData();
     const instruction = String(sourceForm.get("instruction") ?? sourceForm.get("prompt") ?? "").trim();
@@ -38,7 +42,7 @@ export async function POST(req: Request) {
       headers: req.headers,
     });
 
-    return executeOpenClaw(forwarded);
+    return executeMediaRuntime(forwarded);
   } catch {
     return NextResponse.json(
       { ok: false, error: "请求异常" },

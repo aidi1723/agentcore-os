@@ -414,13 +414,13 @@ export function CreatorRadarAppWindow({
       onMinimize={onMinimize}
       onClose={onClose}
     >
-      <div className="relative bg-white">
+      <div className="relative bg-slate-50">
         <AppToast toast={toast} />
 
-        <div className="border-b border-gray-200 p-4 sm:p-6">
+        <div className="border-b border-gray-200 bg-white px-4 py-3">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <div className="text-lg font-bold text-gray-900">Creator Radar / Daily Digest</div>
+              <div className="text-base font-bold text-gray-900">Creator Radar / Daily Digest</div>
               <div className="mt-1 text-sm text-gray-500">
                 对应高频创作者场景：整理频道动态、选题方向、hook 和下一步内容动作。
               </div>
@@ -431,7 +431,7 @@ export function CreatorRadarAppWindow({
           </div>
         </div>
 
-        <div className="space-y-4 p-4 sm:p-6">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
           <CreatorHeroWorkflowPanel
             workflowRunId={selected?.workflowRunId}
             title={selected ? `${selected.title || "未命名选题"} · 内容雷达阶段` : "Creator Radar · Hero Workflow"}
@@ -454,8 +454,8 @@ export function CreatorRadarAppWindow({
             ]}
           />
 
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="space-y-4">
+          <div className="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-[300px_minmax(0,1fr)]">
+          <aside className="space-y-4 xl:min-h-0">
             <div className="rounded-2xl border border-gray-200 bg-white p-5">
               <div className="flex items-center justify-between gap-2">
                 <div className="text-sm font-semibold text-gray-900">Radar briefs</div>

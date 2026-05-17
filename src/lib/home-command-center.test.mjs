@@ -91,6 +91,35 @@ test("buildCommandCenterAttentionCards exposes approvals tasks failures and runt
   );
 });
 
+test("buildChatPromptSuggestions keeps chat-first prompts compact", () => {
+  assert.deepEqual(
+    mod.buildChatPromptSuggestions({
+      quickCommands: [
+        "搜索目标客户并按优先级排序",
+        "根据客户画像起草首轮触达话术",
+        "把今天的销售推进链拆成可执行任务",
+        "生成更多不该出现在首屏的建议",
+      ],
+      starterTitle: "门窗外贸询盘推进",
+      limit: 3,
+    }),
+    [
+      "搜索目标客户并按优先级排序",
+      "根据客户画像起草首轮触达话术",
+      "把今天的销售推进链拆成可执行任务",
+    ],
+  );
+
+  assert.deepEqual(
+    mod.buildChatPromptSuggestions({
+      quickCommands: [],
+      starterTitle: "门窗外贸询盘推进",
+      limit: 2,
+    }),
+    ["继续推进：门窗外贸询盘推进"],
+  );
+});
+
 if (process.exitCode) {
   process.exit(process.exitCode);
 }

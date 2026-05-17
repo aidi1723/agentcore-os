@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   Activity,
   Clapperboard,
@@ -33,38 +34,39 @@ import {
   Languages,
 } from "lucide-react";
 import type { AppManifest, AppId } from "@/apps/types";
-import { RecruitingDeskAppWindow } from "@/components/apps/RecruitingDeskAppWindow";
-import { ProjectOpsAppWindow } from "@/components/apps/ProjectOpsAppWindow";
-import { DeepResearchHubAppWindow } from "@/components/apps/DeepResearchHubAppWindow";
-import { FinancialDocumentBotAppWindow } from "@/components/apps/FinancialDocumentBotAppWindow";
-import { SocialMediaAutopilotAppWindow } from "@/components/apps/SocialMediaAutopilotAppWindow";
-import { WebsiteSeoStudioAppWindow } from "@/components/apps/WebsiteSeoStudioAppWindow";
-import { CreativeStudioAppWindow } from "@/components/apps/CreativeStudioAppWindow";
-import { AccountCenterAppWindow } from "@/components/apps/AccountCenterAppWindow";
-import { MediaOpsAppWindow } from "@/components/apps/MediaOpsAppWindow";
-import { KnowledgeVaultAppWindow } from "@/components/apps/KnowledgeVaultAppWindow";
-import { OpenClawConsoleAppWindow } from "@/components/apps/OpenClawConsoleAppWindow";
-import { SettingsAppWindow } from "@/components/apps/SettingsAppWindow";
-import { TaskManagerAppWindow } from "@/components/apps/TaskManagerAppWindow";
-import { PublisherAppWindow } from "@/components/apps/PublisherAppWindow";
-import { SoloOpsAppWindow } from "@/components/apps/SoloOpsAppWindow";
-import { SolutionsHubAppWindow } from "@/components/apps/SolutionsHubAppWindow";
-import { MorningBriefAppWindow } from "@/components/apps/MorningBriefAppWindow";
-import { MeetingCopilotAppWindow } from "@/components/apps/MeetingCopilotAppWindow";
-import { PersonalCRMAppWindow } from "@/components/apps/PersonalCRMAppWindow";
-import { InboxDeclutterAppWindow } from "@/components/apps/InboxDeclutterAppWindow";
-import { SupportCopilotAppWindow } from "@/components/apps/SupportCopilotAppWindow";
-import { SecondBrainAppWindow } from "@/components/apps/SecondBrainAppWindow";
-import { EmailAssistantAppWindow } from "@/components/apps/EmailAssistantAppWindow";
-import { DealDeskAppWindow } from "@/components/apps/DealDeskAppWindow";
-import { FamilyCalendarAppWindow } from "@/components/apps/FamilyCalendarAppWindow";
-import { HabitTrackerAppWindow } from "@/components/apps/HabitTrackerAppWindow";
-import { HealthTrackerAppWindow } from "@/components/apps/HealthTrackerAppWindow";
-import { CreatorRadarAppWindow } from "@/components/apps/CreatorRadarAppWindow";
-import { ContentRepurposerAppWindow } from "@/components/apps/ContentRepurposerAppWindow";
-import { TechNewsDigestAppWindow } from "@/components/apps/TechNewsDigestAppWindow";
-import { IndustryHubAppWindow } from "@/components/apps/IndustryHubAppWindow";
-import { LanguageLearningDeskAppWindow } from "@/components/apps/LanguageLearningDeskAppWindow";
+
+const IndustryHubAppWindow = dynamic(() => import("@/components/apps/IndustryHubAppWindow").then((m) => m.IndustryHubAppWindow));
+const RecruitingDeskAppWindow = dynamic(() => import("@/components/apps/RecruitingDeskAppWindow").then((m) => m.RecruitingDeskAppWindow));
+const ProjectOpsAppWindow = dynamic(() => import("@/components/apps/ProjectOpsAppWindow").then((m) => m.ProjectOpsAppWindow));
+const DeepResearchHubAppWindow = dynamic(() => import("@/components/apps/DeepResearchHubAppWindow").then((m) => m.DeepResearchHubAppWindow));
+const FinancialDocumentBotAppWindow = dynamic(() => import("@/components/apps/FinancialDocumentBotAppWindow").then((m) => m.FinancialDocumentBotAppWindow));
+const SocialMediaAutopilotAppWindow = dynamic(() => import("@/components/apps/SocialMediaAutopilotAppWindow").then((m) => m.SocialMediaAutopilotAppWindow));
+const WebsiteSeoStudioAppWindow = dynamic(() => import("@/components/apps/WebsiteSeoStudioAppWindow").then((m) => m.WebsiteSeoStudioAppWindow));
+const LanguageLearningDeskAppWindow = dynamic(() => import("@/components/apps/LanguageLearningDeskAppWindow").then((m) => m.LanguageLearningDeskAppWindow));
+const TechNewsDigestAppWindow = dynamic(() => import("@/components/apps/TechNewsDigestAppWindow").then((m) => m.TechNewsDigestAppWindow));
+const MorningBriefAppWindow = dynamic(() => import("@/components/apps/MorningBriefAppWindow").then((m) => m.MorningBriefAppWindow));
+const MeetingCopilotAppWindow = dynamic(() => import("@/components/apps/MeetingCopilotAppWindow").then((m) => m.MeetingCopilotAppWindow));
+const PersonalCRMAppWindow = dynamic(() => import("@/components/apps/PersonalCRMAppWindow").then((m) => m.PersonalCRMAppWindow));
+const InboxDeclutterAppWindow = dynamic(() => import("@/components/apps/InboxDeclutterAppWindow").then((m) => m.InboxDeclutterAppWindow));
+const SupportCopilotAppWindow = dynamic(() => import("@/components/apps/SupportCopilotAppWindow").then((m) => m.SupportCopilotAppWindow));
+const SecondBrainAppWindow = dynamic(() => import("@/components/apps/SecondBrainAppWindow").then((m) => m.SecondBrainAppWindow));
+const EmailAssistantAppWindow = dynamic(() => import("@/components/apps/EmailAssistantAppWindow").then((m) => m.EmailAssistantAppWindow));
+const DealDeskAppWindow = dynamic(() => import("@/components/apps/DealDeskAppWindow").then((m) => m.DealDeskAppWindow));
+const FamilyCalendarAppWindow = dynamic(() => import("@/components/apps/FamilyCalendarAppWindow").then((m) => m.FamilyCalendarAppWindow));
+const HabitTrackerAppWindow = dynamic(() => import("@/components/apps/HabitTrackerAppWindow").then((m) => m.HabitTrackerAppWindow));
+const HealthTrackerAppWindow = dynamic(() => import("@/components/apps/HealthTrackerAppWindow").then((m) => m.HealthTrackerAppWindow));
+const CreatorRadarAppWindow = dynamic(() => import("@/components/apps/CreatorRadarAppWindow").then((m) => m.CreatorRadarAppWindow));
+const ContentRepurposerAppWindow = dynamic(() => import("@/components/apps/ContentRepurposerAppWindow").then((m) => m.ContentRepurposerAppWindow));
+const MediaOpsAppWindow = dynamic(() => import("@/components/apps/MediaOpsAppWindow").then((m) => m.MediaOpsAppWindow));
+const CreativeStudioAppWindow = dynamic(() => import("@/components/apps/CreativeStudioAppWindow").then((m) => m.CreativeStudioAppWindow));
+const KnowledgeVaultAppWindow = dynamic(() => import("@/components/apps/KnowledgeVaultAppWindow").then((m) => m.KnowledgeVaultAppWindow));
+const AccountCenterAppWindow = dynamic(() => import("@/components/apps/AccountCenterAppWindow").then((m) => m.AccountCenterAppWindow));
+const TaskManagerAppWindow = dynamic(() => import("@/components/apps/TaskManagerAppWindow").then((m) => m.TaskManagerAppWindow));
+const ClawRuntimeConsoleAppWindow = dynamic(() => import("@/components/apps/ClawRuntimeConsoleAppWindow").then((m) => m.ClawRuntimeConsoleAppWindow));
+const PublisherAppWindow = dynamic(() => import("@/components/apps/PublisherAppWindow").then((m) => m.PublisherAppWindow));
+const SoloOpsAppWindow = dynamic(() => import("@/components/apps/SoloOpsAppWindow").then((m) => m.SoloOpsAppWindow));
+const SolutionsHubAppWindow = dynamic(() => import("@/components/apps/SolutionsHubAppWindow").then((m) => m.SolutionsHubAppWindow));
+const SettingsAppWindow = dynamic(() => import("@/components/apps/SettingsAppWindow").then((m) => m.SettingsAppWindow));
 
 const appList: AppManifest[] = [
   {
@@ -285,9 +287,9 @@ const appList: AppManifest[] = [
   },
   {
     id: "runtime_console",
-    name: "运行时控制台",
+    name: "AgentCoreOS Runtime Console",
     icon: TerminalSquare,
-    window: OpenClawConsoleAppWindow,
+    window: ClawRuntimeConsoleAppWindow,
     desktop: true,
     dock: true,
   },

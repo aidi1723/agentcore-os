@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
+import { isAllowedOutboundUrl } from "@/lib/server/network-policy";
+
 function normalizeBaseUrl(input: string) {
   const trimmed = input.trim();
   if (!trimmed) return "";
@@ -68,6 +71,9 @@ async function tryPostChatCompletions(
 }
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const body = (await req.json().catch(() => null)) as
       | null
@@ -80,6 +86,12 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { ok: false, error: "缺少引擎地址" },
         { status: 400 },
+      );
+    }
+    if (!isAllowedOutboundUrl(`${baseUrl}/health`, { allowLocal: true })) {
+      return NextResponse.json(
+        { ok: false, error: "引擎地址不在允许的连接范围内" },
+        { status: 400, headers: { "Cache-Control": "no-store" } },
       );
     }
 

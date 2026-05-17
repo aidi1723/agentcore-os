@@ -33,7 +33,7 @@ function runNodeScript(scriptPath, args = []) {
 
 async function main() {
   const buildDoctor = path.join(PROJECT_ROOT, "scripts", "desktop-runtime", "build-doctor.mjs");
-  const prepareSidecar = path.join(PROJECT_ROOT, "scripts", "desktop-runtime", "prepare-lobster-sidecar.mjs");
+  const prepareSidecar = path.join(PROJECT_ROOT, "scripts", "desktop-runtime", "prepare-claw-runtime.mjs");
   const runTauri = path.join(PROJECT_ROOT, "scripts", "desktop-runtime", "run-tauri.mjs");
 
   await runNodeScript(buildDoctor);

@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { runPublishDispatch, uniqDispatchPlatforms } from "@/lib/server/publish-dispatch";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import type { ServerLlmConfigInput } from "@/lib/server/direct-llm";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const body = (await req.json().catch(() => null)) as
       | null

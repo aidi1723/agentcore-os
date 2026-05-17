@@ -71,7 +71,9 @@ function normalizeTraceAttempts(input: unknown): AgentCoreTaskTraceAttempt[] {
           : startedAt;
       return {
         engine:
-          item.engine === "openclaw_cli_fallback"
+          item.engine === "claw_code"
+            ? "claw_code"
+            : item.engine === "openclaw_cli_fallback"
             ? "openclaw_cli_fallback"
             : "agentcore_executor",
         candidateKind:

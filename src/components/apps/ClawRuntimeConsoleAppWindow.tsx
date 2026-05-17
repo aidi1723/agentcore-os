@@ -69,7 +69,7 @@ function safeUrl(base: string, path: string) {
   return `${trimmed}${path}`;
 }
 
-export function OpenClawConsoleAppWindow({
+export function ClawRuntimeConsoleAppWindow({
   state,
   zIndex,
   active,
@@ -107,7 +107,7 @@ export function OpenClawConsoleAppWindow({
     if (!isVisible) return;
     const syncFromSettings = () => {
       const settings = loadSettings();
-      const configured = settings.openclaw.baseUrl.trim();
+      const configured = settings.runtime.localRuntimeUrl.trim() || settings.openclaw.baseUrl.trim();
       setSettings(settings);
       setBaseUrl(configured || DEFAULT_BASE);
       setInterfaceLanguage(settings.personalization.interfaceLanguage);
@@ -269,7 +269,7 @@ export function OpenClawConsoleAppWindow({
         return;
       }
       setHealthText(JSON.stringify(data.health ?? {}, null, 2));
-      showToast("Gateway 正常", "ok");
+      showToast("AgentCoreOS Runtime 正常", "ok");
     } catch (err) {
       const message = err instanceof Error ? err.message : "请求异常";
       setHealthText(message);
@@ -307,10 +307,10 @@ export function OpenClawConsoleAppWindow({
       state={state}
       zIndex={zIndex}
       active={active}
-      title="运行时控制台"
+      title="AgentCoreOS 运行时控制台"
       icon={TerminalSquare}
       widthClassName="w-[980px]"
-      storageKey="openclaw.window.openclaw_console"
+      storageKey="agentcore.window.claw_runtime_console"
       onFocus={onFocus}
       onMinimize={onMinimize}
       onClose={onClose}
@@ -320,9 +320,9 @@ export function OpenClawConsoleAppWindow({
 
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <div className="text-lg font-bold text-gray-900">安全融合模式（推荐）</div>
+            <div className="text-lg font-bold text-gray-900">AgentCoreOS Runtime 执行底座</div>
             <div className="text-sm text-gray-500 mt-1">
-              本窗口只提供深度链接与健康检查；不会在 WebOS 内嵌 OpenClaw 页面，避免 CSP/Token 风险。
+              这里展示 AgentCore OS 的运行时执行状态、会话审计和本地诊断。
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -345,7 +345,7 @@ export function OpenClawConsoleAppWindow({
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-700">
                 <Boxes className="h-3.5 w-3.5" />
-                Desktop Runtime Center
+                AgentCoreOS Runtime Center
               </div>
               <div className="mt-3 text-lg font-semibold text-gray-900">
                 {runtimeSummary.profileMeta.title}
@@ -478,7 +478,7 @@ export function OpenClawConsoleAppWindow({
               <div>
                 <div className="text-sm font-semibold text-gray-900">Runtime diagnostics</div>
                 <div className="mt-2 text-xs leading-5 text-gray-500">
-                  诊断 API 会检测新机安装测试所需的关键条件，包括本地存储、ffmpeg 和 Docker。
+                  诊断 API 会检测新机安装测试所需的关键条件，包括 AgentCoreOS Runtime、本地存储、ffmpeg 和 Docker。
                 </div>
               </div>
               <button
@@ -496,6 +496,7 @@ export function OpenClawConsoleAppWindow({
             <div className="mt-4 grid grid-cols-1 gap-2">
               {[
                 { label: "Local Store", check: runtimeDoctor?.checks.localStore },
+                { label: "AgentCoreOS Runtime", check: runtimeDoctor?.checks.clawCode },
                 { label: "Runtime Template", check: runtimeDoctor?.checks.runtimeTemplate },
                 { label: "FFmpeg", check: runtimeDoctor?.checks.ffmpeg },
                 { label: "Docker", check: runtimeDoctor?.checks.docker },
@@ -1029,14 +1030,14 @@ export function OpenClawConsoleAppWindow({
               <div className="font-semibold text-gray-900 mb-2">建议用法</div>
               <ul className="list-disc pl-5 space-y-1">
                 <li>在 WebOS 里用 Spotlight / 各 App 发起任务；在 TaskManager 里查看状态。</li>
-                <li>需要更深的调试或查看会话时，用上面的链接打开运行时控制台。</li>
+                <li>需要更深的调试或查看会话时，用上面的链接打开 AgentCoreOS Runtime 控制台。</li>
               </ul>
             </div>
           </div>
 
           <div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <div className="text-sm font-semibold text-gray-900">Gateway 健康检查</div>
+              <div className="text-sm font-semibold text-gray-900">AgentCoreOS Runtime 健康检查</div>
               <button
                 type="button"
                 onClick={checkHealth}
@@ -1048,8 +1049,7 @@ export function OpenClawConsoleAppWindow({
             </div>
 
             <div className="text-xs text-gray-500">
-              该检查通过服务端执行 <span className="font-semibold">openclaw gateway call health</span>，
-              不会把 Token 暴露到浏览器。
+              该检查通过服务端诊断 AgentCoreOS Runtime 与本地运行时状态，不会把 Token 暴露到浏览器。
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3 min-h-[240px]">
@@ -1059,7 +1059,7 @@ export function OpenClawConsoleAppWindow({
                 </pre>
               ) : (
                 <div className="text-xs text-gray-500">
-                  点击“检查”查看 Gateway health 输出。
+                  点击“检查”查看 AgentCoreOS Runtime health 输出。
                 </div>
               )}
             </div>

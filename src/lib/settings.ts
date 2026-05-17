@@ -63,6 +63,10 @@ export type DesktopRuntimeShell = "browser" | "tauri";
 export type DesktopRuntimeSettings = {
   shell: DesktopRuntimeShell;
   llmStrategy: "api_only";
+  executorBackend: "claw_code" | "direct_model";
+  clawCodeBinaryPath: string;
+  clawCodeWorkspace: string;
+  clawCodePermissionMode: "read-only" | "workspace-write" | "danger-full-access";
   profile: DesktopRuntimeProfile;
   orchestration: DesktopRuntimeOrchestration;
   composeProjectName: string;
@@ -169,6 +173,10 @@ export const defaultSettings: AppSettings = {
   runtime: {
     shell: "browser",
     llmStrategy: "api_only",
+    executorBackend: "claw_code",
+    clawCodeBinaryPath: "",
+    clawCodeWorkspace: "",
+    clawCodePermissionMode: "read-only",
     profile: "desktop_light",
     orchestration: "none",
     composeProjectName: "agentcore-runtime",

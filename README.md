@@ -28,7 +28,7 @@ AgentCore OS 当前对外更适合这样理解：
 
 ## 当前稳定版本
 
-当前推荐对外版本：**v1.2.0**
+当前推荐对外版本：**v1.3.0**
 
 当前稳定产品线聚焦：
 
@@ -43,10 +43,10 @@ AgentCore OS 当前对外更适合这样理解：
 - 主仓库 GitHub：<https://github.com/aidi1723/agentcore-os>
 - 国内镜像 CNB：<https://cnb.cool/aidiyangyu/agentcore-os>
 - GitHub Releases：<https://github.com/aidi1723/agentcore-os/releases>
-- 当前版本发布说明（中文）：[docs/releases/v1.2.0.zh-CN.md](docs/releases/v1.2.0.zh-CN.md)
+- 当前版本发布说明（中文）：[docs/releases/v1.3.0.zh-CN.md](docs/releases/v1.3.0.zh-CN.md)
 - 桌面壳等价收口更新（中文）：[docs/releases/2026-03-25-desktop-parity-update.zh-CN.md](docs/releases/2026-03-25-desktop-parity-update.zh-CN.md)
 - 对外分发说明：[docs/EARLY_ACCESS_RELEASE.zh-CN.md](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
-- 市场发布文案：[docs/LAUNCH_COPY_v1.2.0.zh-CN.md](docs/LAUNCH_COPY_v1.2.0.zh-CN.md)
+- 上一稳定版市场发布文案：[docs/LAUNCH_COPY_v1.2.0.zh-CN.md](docs/LAUNCH_COPY_v1.2.0.zh-CN.md)
 - 文档总入口：[docs/DOCUMENTATION_INDEX.zh-CN.md](docs/DOCUMENTATION_INDEX.zh-CN.md)
 
 ## 快速开始
@@ -58,7 +58,7 @@ npm install
 npm run dev
 ```
 
-建议本地开发使用 Node.js 22 LTS。
+建议本地开发使用 Node.js 22 LTS；当前工程允许 Node.js 20 到 24。
 
 启动后访问：
 
@@ -130,9 +130,9 @@ npm run test:stability
 
 - [文档总入口](docs/DOCUMENTATION_INDEX.zh-CN.md)
 - [用户指南（中文）](docs/USER_GUIDE.zh-CN.md)
-- [当前版本发布说明](docs/releases/v1.2.0.zh-CN.md)
+- [当前版本发布说明](docs/releases/v1.3.0.zh-CN.md)
 - [对外分发说明](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
-- [市场发布文案](docs/LAUNCH_COPY_v1.2.0.zh-CN.md)
+- [上一稳定版市场发布文案](docs/LAUNCH_COPY_v1.2.0.zh-CN.md)
 
 ### 安装与发布相关
 

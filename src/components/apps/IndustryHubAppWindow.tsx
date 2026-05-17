@@ -696,13 +696,13 @@ export function IndustryHubAppWindow({
       onMinimize={onMinimize}
       onClose={onClose}
     >
-      <div className="relative bg-white">
+      <div className="relative bg-slate-50">
         <AppToast toast={toast} />
 
-        <div className="border-b border-gray-200 p-4 sm:p-6">
+        <div className="border-b border-gray-200 bg-white px-4 py-3">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <div className="text-lg font-bold text-gray-900">{copy.title}</div>
+              <div className="text-base font-bold text-gray-900">{copy.title}</div>
               <div className="mt-1 text-sm text-gray-500">{copy.subtitle}</div>
             </div>
             <button
@@ -716,8 +716,8 @@ export function IndustryHubAppWindow({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 p-4 sm:p-6 xl:grid-cols-[280px_minmax(0,1fr)]">
-          <aside className="space-y-3">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto p-4 xl:grid-cols-[260px_minmax(0,1fr)] xl:overflow-hidden">
+          <aside className="min-h-0 space-y-2 xl:overflow-y-auto">
             {industries.map((industry) => {
               const selected = industry.id === industryId;
               const bundleCount = listBundlesByIndustry(industry.id).length;
@@ -752,7 +752,7 @@ export function IndustryHubAppWindow({
             })}
           </aside>
 
-          <main className="space-y-4">
+          <main className="min-h-0 space-y-4 xl:overflow-y-auto">
             <div className="rounded-[28px] border border-gray-200 bg-[linear-gradient(135deg,#fffaf2_0%,#f5f7ff_52%,#f6fffb_100%)] p-5 shadow-[0_18px_60px_rgba(15,23,42,0.05)]">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>

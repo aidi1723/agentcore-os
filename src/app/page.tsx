@@ -37,6 +37,13 @@ import {
 } from "@/lib/app-display";
 import { getLanguageLabel } from "@/lib/language";
 import {
+  buildCommandCenterAssets,
+  buildCommandCenterAttentionCards,
+  buildCommandCenterShortcuts,
+  buildChatPromptSuggestions,
+  type CommandCenterTone,
+} from "@/lib/home-command-center";
+import {
   addRuntimeEventListener,
   dispatchRuntimeEvent,
   normalizeRuntimeAppId,
@@ -589,6 +596,7 @@ export default function Home() {
     [personalization.activeScenarioId],
   );
   const interfaceLanguage = personalization.interfaceLanguage;
+  const runtimeSummary = getDesktopRuntimeStatusSummary(loadSettings());
   const desktopApps = useMemo(() => {
     if (!personalization.useCustomWorkspace) return mode.desktopApps;
     return personalization.customDesktopApps;
@@ -601,17 +609,6 @@ export default function Home() {
     (s) => s === "opening" || s === "open",
   );
 
-  const wallpaperClassName = useMemo(() => {
-    const map: Record<PersonalizationSettings["desktopBackground"], string> = {
-      aurora:
-        "bg-[radial-gradient(1200px_circle_at_20%_10%,rgba(255,255,255,0.18),transparent_55%),radial-gradient(900px_circle_at_80%_30%,rgba(255,255,255,0.12),transparent_55%),linear-gradient(135deg,#0b1220_0%,#1a1f3b_35%,#3a1c63_70%,#0b1220_100%)]",
-      ocean:
-        "bg-[radial-gradient(900px_circle_at_25%_15%,rgba(255,255,255,0.16),transparent_55%),radial-gradient(1100px_circle_at_80%_45%,rgba(255,255,255,0.10),transparent_55%),linear-gradient(135deg,#06131f_0%,#0b3a5a_35%,#0b6aa6_65%,#06131f_100%)]",
-      sunset:
-        "bg-[radial-gradient(1100px_circle_at_20%_10%,rgba(255,255,255,0.16),transparent_55%),radial-gradient(900px_circle_at_85%_35%,rgba(255,255,255,0.10),transparent_55%),linear-gradient(135deg,#1a0b1a_0%,#6a1b2d_35%,#ff6a00_70%,#1a0b1a_100%)]",
-    };
-    return map[personalization.desktopBackground];
-  }, [personalization.desktopBackground]);
   const desktopRightInset = 0;
 
   const applyLanguage = (next: InterfaceLanguage) => {
@@ -724,29 +721,50 @@ export default function Home() {
   return (
     <div className="relative h-screen w-screen overflow-hidden">
       <PublishQueueRunner />
-      {/* iPad 风格壁纸背景（可由设置切换） */}
-      <div className={["absolute inset-0", wallpaperClassName].join(" ")} />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_34%),linear-gradient(180deg,rgba(8,11,18,0.18),rgba(8,11,18,0.5))]" />
-      <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:120px_120px]" />
-      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/10 to-transparent" />
+      <main className="sr-only">
+        <h1>面向企业的智能体定制服务</h1>
+        <p>
+          AgentCore OS 专注智能体企业定制、企业智能体定制、企业定制智能体、
+          企业定制 Agent、AI 智能体企业定制、企业 AI Agent 定制、企业智能体解决方案
+          和企业智能体私有化部署，帮助企业把客服、销售、知识库、运营、招聘等业务场景
+          建成可执行、可复用、可审计的专属智能体工作流。
+        </p>
+        <h2>企业智能体定制开发方向</h2>
+        <ul>
+          <li>智能体企业定制开发与企业 AI 智能体定制开发</li>
+          <li>企业专属智能体定制、企业内部智能体定制和企业本地部署智能体</li>
+          <li>企业客服智能体定制、企业销售智能体定制和企业知识库智能体定制</li>
+          <li>企业运营智能体定制、企业招聘智能体定制和行业智能体企业定制</li>
+          <li>企业 AI 工作流自动化、企业流程自动化智能体和多智能体工作流平台</li>
+        </ul>
+        <h2>适合咨询的长尾成交需求</h2>
+        <p>
+          如果正在评估智能体企业定制多少钱、企业智能体定制费用、企业智能体怎么定制、
+          企业 AI Agent 定制流程或企业智能体定制方案，可以从业务流程、数据权限、
+          知识库接入、工具调用、部署方式和验收指标六个维度规划项目范围。
+        </p>
+      </main>
+      <div className="absolute inset-0 bg-[#eef1f5]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(241,245,249,0.92))]" />
+      <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(rgba(15,23,42,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.045)_1px,transparent_1px)] [background-size:96px_96px]" />
 
       {/* 状态栏 */}
       <div
         className="absolute left-0 right-0 top-0 z-20 px-3 pt-3 sm:px-6 sm:pt-3.5"
         style={{ right: desktopRightInset }}
       >
-        <div className="rounded-[24px] border border-white/12 bg-black/15 px-3 py-2 shadow-[0_14px_40px_rgba(0,0,0,0.18)] backdrop-blur-2xl sm:px-4">
+        <div className="rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-slate-900 shadow-sm backdrop-blur-xl sm:px-4">
           <div className="flex flex-wrap items-center justify-between gap-2.5">
-            <div className="flex min-w-0 items-center gap-2 text-white/95 drop-shadow">
+            <div className="flex min-w-0 items-center gap-2 text-slate-900">
               <AgentCoreBrand />
               <button
                 type="button"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950"
                 onClick={() => setSpotlightOpen(true)}
                 title={`${getShellLabel("search", interfaceLanguage)} (⌘K / Ctrl+K)`}
                 aria-label={getShellLabel("search", interfaceLanguage)}
               >
-                <Search className="w-4 h-4 text-white/90" />
+                <Search className="w-4 h-4" />
               </button>
               <StatusClock locale={resolveLanguageLocale(interfaceLanguage)} />
             </div>
@@ -767,24 +785,24 @@ export default function Home() {
                   });
                 }}
               />
-              <div className="flex items-center gap-2 text-white/90">
+              <div className="flex items-center gap-2 text-slate-600">
                 <Wifi className="hidden h-3.5 w-3.5 sm:block" />
                 <button
                   type="button"
-                  className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                  className="flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-slate-100 hover:text-slate-950"
                   onClick={() => setVolumeLevel((prev) => (prev + 1) % 3)}
                   title="音量"
                   aria-label="音量"
                 >
                   {getVolumeIcon()}
                 </button>
-                <div className="relative hidden h-3.5 w-6 overflow-hidden rounded-md border border-white/40 sm:block">
-                  <div className="absolute inset-y-0 left-0 w-4 bg-white/80" />
+                <div className="relative hidden h-3.5 w-6 overflow-hidden rounded-md border border-slate-300 sm:block">
+                  <div className="absolute inset-y-0 left-0 w-4 bg-slate-700" />
                 </div>
               </div>
             </div>
 
-            <div className="order-2 flex flex-1 items-center justify-end gap-1.5 text-white/90 sm:order-3 sm:flex-none">
+            <div className="order-2 flex flex-1 items-center justify-end gap-1.5 text-slate-700 sm:order-3 sm:flex-none">
               <ModeSwitcher
                 value={modeId}
                 language={interfaceLanguage}
@@ -802,14 +820,14 @@ export default function Home() {
               />
               <button
                 type="button"
-                className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/90 transition-colors hover:bg-white/15"
+                className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                 onClick={() => requestOpenSettings("personalization")}
               >
                 {getShellLabel("workspace", interfaceLanguage)}
               </button>
               <button
                 type="button"
-                className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/90 transition-colors hover:bg-white/15"
+                className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                 onClick={() => openApp("settings")}
               >
                 {getShellLabel("settings", interfaceLanguage)}
@@ -819,22 +837,25 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 主屏图标网格 */}
+      {/* 主屏工作区 */}
       <div
-        className="absolute inset-0 z-10 px-4 pb-14 pt-24 sm:px-8 sm:pb-16 sm:pt-20"
+        className="absolute inset-0 z-10 px-3 pb-3 pt-20 sm:px-5 sm:pb-5 sm:pt-20"
         style={{ right: desktopRightInset }}
       >
         <div
           ref={desktopScrollRef}
-          className="h-full overflow-y-auto overflow-x-hidden overscroll-contain scroll-smooth pr-1 touch-pan-y"
+          className="h-full overflow-hidden"
         >
-          <div className="mx-auto max-w-[1480px] pb-4">
+          <div className="mx-auto h-full max-w-[1280px]">
             <SolutionCenterPanel
               language={interfaceLanguage}
               activeProvider={activeProvider}
+              runtimeReady={runtimeSummary.initializationComplete}
+              runtimeLabel={runtimeSummary.profileMeta.title}
               starters={featuredSolutionStarters}
               onLaunchStarter={launchFeaturedStarter}
               onEnterRoleDesk={enterRoleDesk}
+              onOpenApp={openApp}
               onOpenIndustryHub={() => openApp("industry_hub")}
               onOpenSolutionsHub={() => openApp("solutions_hub")}
             />
@@ -1244,6 +1265,16 @@ type DeskExecutionEvent = {
   tone: "default" | "success" | "error";
 };
 
+function commandCenterToneClass(tone: CommandCenterTone) {
+  const map: Record<CommandCenterTone, string> = {
+    neutral: "border-slate-200 bg-white text-slate-900",
+    success: "border-emerald-200 bg-emerald-50 text-emerald-950",
+    warning: "border-amber-200 bg-amber-50 text-amber-950",
+    danger: "border-rose-200 bg-rose-50 text-rose-950",
+  };
+  return map[tone];
+}
+
 type DeskExecutorSessionTurn = {
   id: string;
   ok: boolean;
@@ -1294,22 +1325,28 @@ function buildDeskMessagesFromTurns(turns: DeskExecutorSessionTurn[]) {
 function SolutionCenterPanel({
   language,
   activeProvider,
+  runtimeReady,
+  runtimeLabel,
   starters,
   onLaunchStarter,
   onEnterRoleDesk,
+  onOpenApp,
   onOpenIndustryHub,
   onOpenSolutionsHub,
 }: {
   language: InterfaceLanguage;
   activeProvider: LlmProviderId;
+  runtimeReady: boolean;
+  runtimeLabel: string;
   starters: IndustrySolutionStarter[];
   onLaunchStarter: (starter: IndustrySolutionStarter) => void;
   onEnterRoleDesk: (roleDesk: WorkspaceRoleDesk, industryId: IndustryId) => void;
+  onOpenApp: (appId: AppId) => void;
   onOpenIndustryHub: () => void;
   onOpenSolutionsHub: () => void;
 }) {
   const [selectedStarterId, setSelectedStarterId] = useState(starters[0]?.id ?? "");
-  const [workflowRuns, setWorkflowRuns] = useState<WorkflowRunRecord[]>(() => getWorkflowRuns());
+  const [workflowRuns, setWorkflowRuns] = useState<WorkflowRunRecord[]>([]);
   const [commandDraft, setCommandDraft] = useState("");
   const [commandLoading, setCommandLoading] = useState(false);
   const [commandMessagesByStarterId, setCommandMessagesByStarterId] = useState<
@@ -1609,6 +1646,42 @@ function SolutionCenterPanel({
             "检查当前桌面还有哪些自动化薄弱点",
             "把当前流程整理成一份可执行 SOP",
           ];
+  const runningWorkflowCount = workflowRuns.filter(
+    (run) => run.state === "running" || run.state === "awaiting_human",
+  ).length;
+  const failedWorkflowCount = workflowRuns.filter((run) => run.state === "error").length;
+  const pendingApprovalCount =
+    selectedRun?.stageRuns.filter(
+      (stage) =>
+        (stage.mode === "review" || stage.mode === "manual") && stage.state !== "completed",
+    ).length ?? 0;
+  const commandCenterShortcuts = buildCommandCenterShortcuts({
+    runtimeReady,
+    runtimeLabel,
+    scenarioTitle: roleDeskTitle,
+    workflowAppId: selectedStarter.apps[0] ?? null,
+    assetAppId: selectedStarter.apps.includes("knowledge_vault")
+      ? "knowledge_vault"
+      : (selectedStarter.apps.find((appId) => getAppCategory(appId) === "insight") ?? null),
+    language,
+  });
+  const commandCenterAssets = buildCommandCenterAssets({
+    scenarioAssets: selectedScenario?.resultAssets ?? [],
+    starterAssets: selectedStarter.assets,
+    limit: 4,
+  });
+  const attentionCards = buildCommandCenterAttentionCards({
+    pendingApprovalCount,
+    runningCount: runningWorkflowCount,
+    failedCount: failedWorkflowCount,
+    runtimeReady,
+    language,
+  });
+  const chatPromptSuggestions = buildChatPromptSuggestions({
+    quickCommands,
+    starterTitle: selectedStarter.title,
+    limit: 3,
+  });
 
   const sendCommand = async (raw?: string) => {
     const text = (raw ?? commandDraft).trim();
@@ -1724,254 +1797,369 @@ function SolutionCenterPanel({
   };
 
   return (
-    <section className="rounded-[34px] border border-white/12 bg-[linear-gradient(135deg,rgba(9,14,28,0.84)_0%,rgba(20,27,52,0.76)_52%,rgba(56,28,88,0.56)_100%)] p-3 text-white shadow-[0_30px_90px_rgba(0,0,0,0.24)] backdrop-blur-2xl sm:p-4">
-      <div className="grid gap-4 xl:grid-cols-[272px_minmax(0,1fr)]">
-        <aside className="min-w-0 overflow-hidden rounded-[30px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.03)_100%)] p-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72">
-            <AgentCoreLogoMark size={18} roundedClassName="rounded-[7px]" />
-            {copy.rail}
+    <section className="h-full text-slate-950">
+      <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white/94 p-2 shadow-[0_18px_60px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:p-3">
+        <div className="shrink-0 border-b border-slate-100 pb-2">
+          <div className="flex gap-2 overflow-x-auto">
+          {groupedIndustries.map((item) => {
+            const active = item.industry.id === selectedWorkspaceIndustryId;
+            const leadStarter = item.starters[0];
+            const starterRun =
+              workflowRuns.find((run) => run.scenarioId === leadStarter.scenarioId) ?? null;
+            const runMeta = getRunStateMeta(starterRun);
+            return (
+              <button
+                key={item.industry.id}
+                type="button"
+                onClick={() => setSelectedStarterId(leadStarter.id)}
+                className={[
+                  "shrink-0 rounded-full border px-3 py-2 text-left text-xs font-semibold transition-colors",
+                  active
+                    ? "border-slate-950 bg-slate-950 text-white"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-950",
+                ].join(" ")}
+              >
+                <span>{item.industry.title}</span>
+                <span className={active ? "ml-2 text-white/56" : "ml-2 text-slate-400"}>
+                  {runMeta.label}
+                </span>
+              </button>
+            );
+          })}
           </div>
+        </div>
 
-          <div className="mt-4 space-y-2.5">
-            {groupedIndustries.map((item) => {
-              const active = item.industry.id === selectedWorkspaceIndustryId;
-              const leadStarter = item.starters[0];
-              const starterRun =
-                workflowRuns.find((run) => run.scenarioId === leadStarter.scenarioId) ?? null;
-              const leadRoleDesk = leadStarter.roleId
-                ? workspaceRoleDesks.find((desk) => desk.id === leadStarter.roleId) ?? null
-                : null;
-              return (
+        <div className="grid min-h-0 flex-1 gap-3 pt-3 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <section className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex shrink-0 flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0 px-4 pt-4">
+                <div className="text-xs font-semibold uppercase text-slate-500">Agent chat</div>
+                <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">
+                  {roleDeskTitle}
+                </h1>
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">{copy.commandHint}</p>
+              </div>
+              <div className="flex flex-wrap gap-2 px-4 pt-4">
+                <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                  {selectedIndustryGroup?.industry.title}
+                </span>
+                <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                  {providerLabel(activeProvider)}
+                </span>
+                <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                  {getCompactRunSummary(selectedRun, selectedScenario?.workflowStages.length ?? 0)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex min-h-0 flex-1 flex-col justify-end overflow-y-auto px-4 py-4">
+              <div className="space-y-4">
+                {commandMessages.slice(-8).map((message) => (
+                  <div
+                    key={message.id}
+                    className={[
+                      "max-w-[86%] rounded-2xl px-4 py-3 text-sm leading-7",
+                      message.role === "user"
+                        ? "ml-auto bg-slate-950 text-white"
+                        : message.error
+                          ? "border border-rose-200 bg-rose-50 text-rose-900"
+                          : "border border-slate-200 bg-slate-50 text-slate-700",
+                    ].join(" ")}
+                  >
+                    {message.text}
+                  </div>
+                ))}
+                {commandLoading ? (
+                  <div className="max-w-[86%] rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                    {copy.dispatching}
+                  </div>
+                ) : null}
+                {commandMessages.length === 0 && !commandLoading ? (
+                  <div className="mx-auto max-w-xl rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-8 text-center">
+                    <div className="text-base font-semibold text-slate-950">
+                      像聊天一样安排工作
+                    </div>
+                    <div className="mt-2 text-sm leading-6 text-slate-500">
+                      输入目标、客户、约束和期望结果，AgentCore OS 会把它转成可执行的工作链。
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="shrink-0 border-t border-slate-200 p-3">
+              <div className="mb-2 flex gap-2 overflow-x-auto">
+                {chatPromptSuggestions.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => void sendCommand(item)}
+                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:border-slate-300 hover:bg-white hover:text-slate-950"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50">
+                <textarea
+                  value={commandDraft}
+                  onChange={(event) => setCommandDraft(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      void sendCommand();
+                    }
+                  }}
+                  rows={2}
+                  placeholder={copy.commandPlaceholder}
+                  className="max-h-[96px] w-full resize-none bg-transparent px-4 py-3 text-[15px] leading-6 text-slate-950 outline-none placeholder:text-slate-400"
+                />
+                <div className="flex flex-col gap-2 border-t border-slate-200 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-2.5">
+                  <div className="hidden text-xs leading-5 text-slate-500 sm:block">{copy.enterHint}</div>
+                  <div className="flex flex-wrap gap-2 sm:justify-end">
+                    {roleDesk ? (
+                      <button
+                        type="button"
+                        onClick={() => onEnterRoleDesk(roleDesk, selectedStarter.industryId)}
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-100 sm:py-2"
+                      >
+                        <ShieldCheck className="h-3.5 w-3.5" />
+                        {copy.role}
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => onLaunchStarter(selectedStarter)}
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-100 sm:py-2"
+                    >
+                      <PlayCircle className="h-3.5 w-3.5" />
+                      {copy.launch}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={commandLoading || !commandDraft.trim()}
+                      onClick={() => void sendCommand()}
+                      className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:py-2"
+                    >
+                      <ArrowRight className="h-3.5 w-3.5" />
+                      {copy.commandAction}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <aside className="hidden min-h-0 flex-col gap-3 overflow-y-auto pr-0.5 lg:flex">
+          <section className="shrink-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+            <div className="text-xs font-semibold uppercase text-slate-500">Tools</div>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {commandCenterShortcuts.map((shortcut) => {
+                const app = getApp(shortcut.appId);
+                const Icon = app.icon;
+                return (
+                  <button
+                    key={shortcut.id}
+                    type="button"
+                    onClick={() => onOpenApp(shortcut.appId)}
+                    className={[
+                      "min-w-0 rounded-lg border px-2 py-2 text-left transition-colors hover:border-slate-300 hover:bg-white",
+                      commandCenterToneClass(shortcut.tone),
+                    ].join(" ")}
+                    title={shortcut.detail}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <Icon className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate text-[11px] font-semibold">{shortcut.label}</span>
+                    </div>
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={onOpenIndustryHub}
+                className="min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-2 text-left text-slate-800 transition-colors hover:border-slate-300 hover:bg-slate-50"
+              >
+                <div className="flex items-center gap-1.5">
+                  <BriefcaseBusiness className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate text-[11px] font-semibold">{copy.industryHub}</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={onOpenSolutionsHub}
+                className="min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-2 text-left text-slate-800 transition-colors hover:border-slate-300 hover:bg-slate-50"
+              >
+                <div className="flex items-center gap-1.5">
+                  <Bot className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate text-[11px] font-semibold">{copy.library}</span>
+                </div>
+              </button>
+            </div>
+          </section>
+          <section className="shrink-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+            <div className="text-xs font-semibold uppercase text-slate-500">Attention</div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {attentionCards.map((card) => (
                 <button
-                  key={item.industry.id}
+                  key={card.id}
                   type="button"
-                  onClick={() => setSelectedStarterId(leadStarter.id)}
+                  onClick={() => onOpenApp(card.id === "runtime" ? "runtime_console" : "task_manager")}
                   className={[
-                    "w-full rounded-[22px] border px-4 py-3 text-left transition-all",
-                    active
-                      ? "border-emerald-300/40 bg-emerald-400/12"
-                      : "border-white/8 bg-white/[0.04] hover:bg-white/[0.08]",
+                    "rounded-lg border px-3 py-2.5 text-left transition-colors hover:border-slate-300",
+                    commandCenterToneClass(card.tone),
                   ].join(" ")}
                 >
-                  <div className="flex min-w-0 items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1 overflow-hidden">
-                      <div className="flex flex-col items-start gap-2">
-                        <div className="text-sm font-semibold leading-5 text-white break-words">
-                          {item.industry.title}
-                        </div>
-                        <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-semibold text-white/58">
-                          {item.starters.length} 条链路
-                        </span>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-semibold opacity-70">{card.label}</div>
+                      <div className="mt-1 text-xs leading-5 opacity-65">{card.detail}</div>
+                    </div>
+                    <div className="text-lg font-semibold">{card.value}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+
+            <section className="shrink-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+              <div className="text-xs font-semibold uppercase text-slate-500">Workflow</div>
+              <div className="mt-1 text-sm font-semibold text-slate-950">
+                {selectedScenario?.workflowTitle || selectedBundle.summary}
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {(selectedScenario?.workflowStages ?? []).slice(0, 4).map((stage, index) => {
+                  const stageMeta = getWorkflowModeMeta(stage.mode);
+                  const isActive = selectedRun?.currentStageId === stage.id;
+                  const isDone =
+                    selectedRun?.stageRuns.find((item) => item.id === stage.id)?.state === "completed";
+                  return (
+                    <div
+                      key={stage.id}
+                      className={[
+                        "rounded-lg border px-3 py-2",
+                        isActive
+                          ? "border-sky-300 bg-sky-50"
+                          : isDone
+                            ? "border-emerald-200 bg-emerald-50"
+                            : "border-slate-200 bg-slate-50",
+                      ].join(" ")}
+                    >
+                      <div className="text-[10px] font-semibold uppercase text-slate-500">
+                        {copy.stage} {index + 1}
                       </div>
-                      <div className="mt-1 text-[11px] font-medium text-white/68">
-                        {leadRoleDesk?.title || leadStarter.triggerLabel}
-                      </div>
-                      <div className="mt-1 line-clamp-2 break-words text-[11px] leading-5 text-white/52">
-                        {leadRoleDesk?.desc || item.industry.desc}
+                      <div className="mt-1 text-xs font-semibold text-slate-950">{stage.title}</div>
+                      <div className="mt-1 text-[10px] font-semibold text-slate-500">
+                        {stageMeta.label}
                       </div>
                     </div>
-                    <span className="shrink-0 rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-semibold text-white/62">
-                      {getRunStateMeta(starterRun).label}
-                    </span>
+                  );
+                })}
+              </div>
+            </section>
+
+          <section className="shrink-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-xs font-semibold uppercase text-slate-500">
+                  Reusable assets
+                </div>
+                <div className="mt-1 text-sm font-semibold text-slate-950">{copy.deliverables}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onOpenApp("knowledge_vault")}
+                className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                {copy.openApp}
+              </button>
+            </div>
+            <div className="mt-3 space-y-2">
+              {commandCenterAssets.map((asset) => (
+                <button
+                  key={asset}
+                  type="button"
+                  onClick={() => onOpenApp("knowledge_vault")}
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-left text-sm font-semibold text-slate-800 hover:bg-white"
+                >
+                  {asset}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="shrink-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+            <div className="text-xs font-semibold uppercase text-slate-500">{copy.progress}</div>
+            <div className="mt-3 space-y-2">
+              {executionEvents.slice(0, 4).map((event) => (
+                <div key={event.id} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+                  <div className="flex items-start gap-2">
+                    <span
+                      className={[
+                        "mt-1.5 h-2 w-2 rounded-full",
+                        event.tone === "success"
+                          ? "bg-emerald-500"
+                          : event.tone === "error"
+                            ? "bg-rose-500"
+                            : "bg-slate-400",
+                      ].join(" ")}
+                    />
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold text-slate-900">{event.title}</div>
+                      <div className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
+                        {event.detail}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+          </aside>
+          <section className="grid shrink-0 grid-cols-3 gap-2 lg:hidden">
+            {commandCenterShortcuts.slice(0, 4).map((shortcut) => {
+              const app = getApp(shortcut.appId);
+              const Icon = app.icon;
+              return (
+                <button
+                  key={shortcut.id}
+                  type="button"
+                  onClick={() => onOpenApp(shortcut.appId)}
+                  className={[
+                    "min-w-0 rounded-lg border px-2 py-2 text-left transition-colors hover:border-slate-300 hover:bg-white",
+                    commandCenterToneClass(shortcut.tone),
+                  ].join(" ")}
+                >
+                  <div className="flex items-center justify-center gap-1.5">
+                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate text-[11px] font-semibold">{shortcut.label}</span>
                   </div>
                 </button>
               );
             })}
-          </div>
-        </aside>
-
-        <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.03)_100%)] p-4 sm:p-5">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <h1 className="text-[1.45rem] font-semibold leading-tight text-white">
-              {roleDeskTitle}
-            </h1>
-            <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-white/82">
-                {selectedIndustryGroup?.industry.title}
-              </span>
-              <span className="rounded-full bg-white/8 px-3 py-1 text-[11px] font-semibold text-white/68">
-                {providerLabel(activeProvider)}
-              </span>
-              <span className="rounded-full bg-emerald-400/12 px-3 py-1 text-[11px] font-semibold text-emerald-100">
-                {getCompactRunSummary(selectedRun, selectedScenario?.workflowStages.length ?? 0)}
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-5 flex min-h-[760px] flex-col rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(12,16,26,0.54)_0%,rgba(10,12,18,0.24)_100%)] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:px-5">
-            <div className="rounded-[24px] border border-white/10 bg-black/16 p-4">
-              <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-                <div className="max-w-4xl text-sm leading-6 text-white/60">{copy.commandHint}</div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={onOpenIndustryHub}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/8 px-3 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-white/12"
-                  >
-                    <BriefcaseBusiness className="h-3.5 w-3.5" />
-                    {copy.industryHub}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onOpenSolutionsHub}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/8 px-3 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-white/12"
-                  >
-                    <Bot className="h-3.5 w-3.5" />
-                    {copy.library}
-                  </button>
-                </div>
+            <button
+              type="button"
+              onClick={onOpenIndustryHub}
+              className="min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-2 text-slate-800 transition-colors hover:border-slate-300 hover:bg-slate-50"
+            >
+              <div className="flex items-center justify-center gap-1.5">
+                <BriefcaseBusiness className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate text-[11px] font-semibold">{copy.industryHub}</span>
               </div>
-
-              <div className="mt-4 rounded-[18px] border border-white/10 bg-white/[0.05] px-4 py-3">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/46">
-                  {copy.deliverables}
-                </div>
-                <div className="mt-2 text-sm leading-6 text-white/84">
-                  {(selectedScenario?.resultAssets ?? []).slice(0, 4).join(" · ") ||
-                    selectedStarter.assets.join(" · ")}
-                </div>
+            </button>
+            <button
+              type="button"
+              onClick={onOpenSolutionsHub}
+              className="min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-2 text-slate-800 transition-colors hover:border-slate-300 hover:bg-slate-50"
+            >
+              <div className="flex items-center justify-center gap-1.5">
+                <Bot className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate text-[11px] font-semibold">{copy.library}</span>
               </div>
+            </button>
+          </section>
+      </div>
 
-              <div className="mt-4 border-t border-white/10 pt-4">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
-                  执行阶段
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2.5">
-                  {(selectedScenario?.workflowStages ?? []).map((stage, index) => {
-                    const stageMeta = getWorkflowModeMeta(stage.mode);
-                    const isActive = selectedRun?.currentStageId === stage.id;
-                    const isDone =
-                      selectedRun?.stageRuns.find((item) => item.id === stage.id)?.state === "completed";
-                    return (
-                      <div
-                        key={stage.id}
-                        className={[
-                          "min-w-[170px] rounded-[18px] border px-4 py-3",
-                          isActive
-                            ? "border-sky-300/35 bg-sky-400/10"
-                            : isDone
-                              ? "border-emerald-300/30 bg-emerald-400/8"
-                              : "border-white/8 bg-white/[0.04]",
-                        ].join(" ")}
-                      >
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/42">
-                          {copy.stage} {index + 1}
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-white">{stage.title}</div>
-                        <div className="mt-2">
-                          <span
-                            className={[
-                              "rounded-full border px-2 py-0.5 text-[10px] font-semibold",
-                              stageMeta.className,
-                            ].join(" ")}
-                          >
-                            {stageMeta.label}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-1 flex-col gap-4 py-4">
-              
-              <div className="flex min-h-[0] flex-1 flex-col rounded-[24px] border border-white/10 bg-black/14">
-                <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-                  {commandMessages.slice(-8).map((message) => (
-                    <div
-                      key={message.id}
-                      className={[
-                        "max-w-[88%] rounded-[20px] border px-4 py-3 text-sm leading-7 shadow-sm",
-                        message.role === "user"
-                          ? "ml-auto border-sky-200/25 bg-sky-400/12 text-white"
-                          : message.error
-                            ? "border-rose-300/25 bg-rose-400/10 text-rose-50"
-                            : "border-white/10 bg-white/[0.05] text-white/86",
-                      ].join(" ")}
-                    >
-                      {message.text}
-                    </div>
-                  ))}
-                  {commandLoading ? (
-                    <div className="max-w-[88%] rounded-[20px] border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white/65">
-                      {copy.dispatching}
-                    </div>
-                  ) : null}
-                  {commandMessages.length === 0 && !commandLoading ? (
-                    <div className="flex min-h-[112px] items-center justify-center rounded-[22px] border border-dashed border-white/10 bg-white/[0.03] px-6 text-center text-sm leading-7 text-white/42">
-                      等待任务指令
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="border-t border-white/10 px-4 py-4">
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    {quickCommands.map((item) => (
-                      <button
-                        key={item}
-                        type="button"
-                        onClick={() => void sendCommand(item)}
-                        className="rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold text-white/78 transition-colors hover:bg-white/14"
-                      >
-                        {item}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="rounded-[24px] border border-white/10 bg-white/[0.05]">
-                    <textarea
-                      value={commandDraft}
-                      onChange={(event) => setCommandDraft(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" && !event.shiftKey) {
-                          event.preventDefault();
-                          void sendCommand();
-                        }
-                      }}
-                      rows={3}
-                      placeholder={copy.commandPlaceholder}
-                      className="w-full resize-none bg-transparent px-4 py-4 text-[15px] leading-7 text-white outline-none placeholder:text-white/35"
-                    />
-                    <div className="flex flex-col gap-3 border-t border-white/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="text-[11px] leading-5 text-white/48">{copy.enterHint}</div>
-                      <div className="flex flex-wrap gap-2">
-                        {roleDesk ? (
-                          <button
-                            type="button"
-                            onClick={() => onEnterRoleDesk(roleDesk, selectedStarter.industryId)}
-                            className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-white/15"
-                          >
-                            <ShieldCheck className="h-3.5 w-3.5" />
-                            {copy.role}
-                          </button>
-                        ) : null}
-                        <button
-                          type="button"
-                          onClick={() => onLaunchStarter(selectedStarter)}
-                          className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-white/15"
-                        >
-                          <PlayCircle className="h-3.5 w-3.5" />
-                          {copy.launch}
-                        </button>
-                        <button
-                          type="button"
-                          disabled={commandLoading || !commandDraft.trim()}
-                          onClick={() => void sendCommand()}
-                          className="inline-flex items-center gap-2 rounded-2xl bg-[#f3d46b] px-4 py-2.5 text-xs font-semibold text-slate-950 transition-colors hover:bg-[#f7db7f] disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          <ArrowRight className="h-3.5 w-3.5" />
-                          {copy.commandAction}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -2966,8 +3154,8 @@ function LanguageCapsule({
           setOpen((prev) => !prev);
         }}
         className={[
-          "max-w-[56vw] truncate rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold text-white/95 backdrop-blur-xl transition-colors hover:bg-white/15 sm:max-w-none sm:px-4",
-          "shadow-[0_10px_30px_rgba(0,0,0,0.25)]",
+          "max-w-[56vw] truncate rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 sm:max-w-none sm:px-4",
+          "shadow-sm",
         ].join(" ")}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -3152,9 +3340,8 @@ function ModelCapsule({
           setOpen((v) => !v);
         }}
         className={[
-          "max-w-[68vw] truncate px-3 py-2 sm:max-w-none sm:px-4 rounded-full border border-white/15 bg-white/10 backdrop-blur-xl",
-          "shadow-[0_10px_30px_rgba(0,0,0,0.25)]",
-          "text-xs font-semibold text-white/95 hover:bg-white/15 transition-colors",
+          "max-w-[68vw] truncate rounded-md border border-slate-200 bg-white px-3 py-2 shadow-sm sm:max-w-none sm:px-4",
+          "text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50",
         ].join(" ")}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -3221,7 +3408,7 @@ function ModeSwitcher({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as ModeId)}
-        className="appearance-none rounded-full border border-white/15 bg-white/10 py-1.5 pl-3 pr-8 text-xs font-semibold text-white/90 transition-colors hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
+        className="appearance-none rounded-md border border-slate-200 bg-white py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300"
         aria-label={getShellLabel("switchMode", language)}
       >
         {modes.map((mode) => (
@@ -3230,7 +3417,7 @@ function ModeSwitcher({
           </option>
         ))}
       </select>
-      <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-white/80">
+      <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-slate-500">
         <span className="text-[10px]">▼</span>
       </div>
     </div>
@@ -3239,13 +3426,13 @@ function ModeSwitcher({
 
 function AgentCoreBrand() {
   return (
-    <div className="flex min-w-0 items-center gap-2.5 rounded-full border border-white/12 bg-white/8 px-2 py-1.5 backdrop-blur-xl">
-      <AgentCoreLogoMark size={32} roundedClassName="rounded-[12px]" />
+    <div className="flex min-w-0 items-center gap-2.5 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5">
+      <AgentCoreLogoMark size={32} roundedClassName="rounded-lg" />
       <div className="min-w-0 leading-none">
-        <div className="truncate text-[11px] font-semibold uppercase tracking-[0.18em] text-white/95">
+        <div className="truncate text-[11px] font-semibold uppercase text-slate-950">
           AgentCore OS
         </div>
-        <div className="truncate text-[10px] text-white/60">
+        <div className="truncate text-[10px] text-slate-500">
           Business Solution Operating System
         </div>
       </div>

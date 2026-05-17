@@ -211,13 +211,13 @@ export function MeetingCopilotAppWindow({
       onMinimize={onMinimize}
       onClose={onClose}
     >
-      <div className="relative bg-white">
+      <div className="relative bg-slate-50">
         <AppToast toast={toast} />
 
-        <div className="border-b border-gray-200 p-4 sm:p-6">
+        <div className="border-b border-gray-200 bg-white px-4 py-3">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <div className="text-lg font-bold text-gray-900">Meeting Notes & Action Items</div>
+              <div className="text-base font-bold text-gray-900">Meeting Notes & Action Items</div>
               <div className="mt-1 text-sm text-gray-500">
                 把原始记录压缩成纪要、决议和待办，并能直接写入任务中心。
               </div>
@@ -233,8 +233,8 @@ export function MeetingCopilotAppWindow({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 p-4 sm:p-6 xl:grid-cols-[380px_minmax(0,1fr)]">
-          <aside className="space-y-4">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto p-4 xl:grid-cols-[340px_minmax(0,1fr)] xl:overflow-hidden">
+          <aside className="min-h-0 space-y-3 xl:overflow-y-auto">
             <div className="rounded-2xl border border-gray-200 bg-white p-5">
               <div className="text-sm font-semibold text-gray-900">输入会议内容</div>
 
@@ -329,7 +329,7 @@ export function MeetingCopilotAppWindow({
             </div>
           </aside>
 
-          <main className="rounded-2xl border border-gray-200 bg-white p-5">
+          <main className="flex min-h-0 flex-col rounded-2xl border border-gray-200 bg-white p-4">
             <div className="flex flex-col gap-3 border-b border-gray-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-semibold text-gray-900">纪要结果</div>
@@ -365,13 +365,13 @@ export function MeetingCopilotAppWindow({
               </div>
             </div>
 
-            <div className="min-h-[500px] pt-4">
+            <div className="min-h-0 flex-1 overflow-y-auto pt-4">
               {summary ? (
                 <pre className="whitespace-pre-wrap text-sm leading-7 text-gray-800">
                   {summary}
                 </pre>
               ) : (
-                <div className="flex min-h-[460px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
+                <div className="flex h-full min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
                   生成后，这里会出现会议纪要与行动项。
                 </div>
               )}

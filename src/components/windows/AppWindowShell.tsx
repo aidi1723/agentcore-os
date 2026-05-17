@@ -205,12 +205,12 @@ export function AppWindowShell({
 
   const chromeClassName = useMemo(() => {
     return [
-      "fixed left-1/2 top-1/2 flex max-h-[calc(100vh-106px)] max-w-[calc(100vw-20px)] flex-col overflow-hidden rounded-[24px] sm:rounded-3xl",
-      "border border-white/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(248,250,252,0.84)_100%)] backdrop-blur-3xl",
-      "shadow-[0_28px_90px_rgba(0,0,0,0.36)]",
+      "fixed left-1/2 top-1/2 flex h-[calc(100vh-126px)] min-h-[360px] max-h-[calc(100vh-106px)] max-w-[calc(100vw-20px)] flex-col overflow-hidden rounded-xl sm:rounded-2xl",
+      "border border-slate-200 bg-white",
+      "shadow-[0_18px_54px_rgba(15,23,42,0.18)]",
       widthClassName,
       "transition-[opacity,transform,box-shadow] duration-200 ease-out",
-      active ? "ring-1 ring-white/45 shadow-[0_32px_100px_rgba(0,0,0,0.42)]" : "ring-0",
+      active ? "ring-1 ring-slate-900/10 shadow-[0_22px_64px_rgba(15,23,42,0.22)]" : "ring-0",
     ].join(" ");
   }, [active, widthClassName]);
 
@@ -563,9 +563,8 @@ export function AppWindowShell({
       onClick={(e) => e.stopPropagation()}
       onPointerDown={() => onFocus()}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.72),transparent_72%)]" />
       <div
-        className="relative flex items-center justify-between border-b border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.95)_0%,rgba(241,245,249,0.88)_100%)] px-4 py-3 select-none touch-none"
+        className="relative flex h-11 items-center justify-between border-b border-slate-200 bg-white px-3 select-none touch-none sm:px-4"
         onPointerDown={onTitleBarPointerDown}
         onPointerMove={onTitleBarPointerMove}
         onPointerUp={onTitleBarPointerUp}
@@ -602,21 +601,21 @@ export function AppWindowShell({
           <span className="flex h-3.5 w-3.5 rounded-full bg-[#28c840] shadow-sm ring-1 ring-black/8" />
         </div>
 
-        <div className="absolute left-1/2 flex min-w-0 max-w-[60%] -translate-x-1/2 items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+        <div className="absolute left-1/2 flex min-w-0 max-w-[54%] -translate-x-1/2 items-center gap-2 sm:max-w-[60%]">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-slate-50">
             <Icon className="h-4 w-4 text-slate-700" />
           </span>
           <span className="truncate text-sm font-semibold text-slate-800">{title}</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="rounded-full border border-slate-200 bg-white/75 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <span className="hidden rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold uppercase text-slate-500 sm:inline-flex">
             Workspace App
           </span>
         </div>
       </div>
 
-      <div className="app-window-content min-h-0 flex-1 overflow-auto bg-[linear-gradient(180deg,rgba(248,250,252,0.86)_0%,rgba(255,255,255,0.94)_100%)] text-slate-900">
+      <div className="app-window-content min-h-0 flex-1 overflow-hidden bg-slate-50 text-slate-900">
         {children}
       </div>
 

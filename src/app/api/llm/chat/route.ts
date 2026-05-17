@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
+import { isAllowedOutboundUrl } from "@/lib/server/network-policy";
 import { normalizeBaseUrl } from "@/lib/url-utils";
 
 type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
@@ -10,6 +12,9 @@ function chatCompletionsUrl(baseUrl: string) {
 }
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const body = (await req.json().catch(() => null)) as
       | null
@@ -50,6 +55,12 @@ export async function POST(req: Request) {
     }
 
     const url = chatCompletionsUrl(baseUrl);
+    if (!isAllowedOutboundUrl(url)) {
+      return NextResponse.json(
+        { ok: false, error: "Base URL 不在允许的外连范围内" },
+        { status: 400, headers: { "Cache-Control": "no-store" } },
+      );
+    }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60_000);

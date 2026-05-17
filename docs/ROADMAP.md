@@ -1,18 +1,18 @@
-# Roadmap (Draft)
+# Roadmap
 
-This roadmap focuses on **v0.x** usability and open-source readiness.
+This roadmap tracks the current stable line after `v1.3.0`. The project should not grow by adding more standalone apps in the near term. The priority is turning the existing surface area into fewer reliable, scenario-ready workflows.
 
-## v0.2 (Planned)
+## Current Focus
 
 ### Scenario-first product focus
 
 - Reduce “many apps” feeling and strengthen 3 real workflow lines
 - Make scenario packs executable, guided, and easier to complete
-- Prioritize automation usefulness over admin/auth hardening for now
+- Prioritize automation usefulness, runtime safety, and workflow reliability
 
 ### Desktop UX
 
-- Window resize (edges/corners) + size persistence
+- Continue hardening window resize and size persistence
 - Better snapping/tiling presets (2-up, 3-up) and keyboard tiling shortcuts
 - Spotlight: recent apps/commands, better ranking, command help (`?`)
 
@@ -37,7 +37,8 @@ This roadmap focuses on **v0.x** usability and open-source readiness.
 
 ### Project maturity
 
-- Expand docs for deployment/preview and “secrets in production”
+- Keep current version, release notes, and Tauri package versions aligned
+- Expand docs for deployment/preview and secrets in production
 - CI hardening and dependency update automation
 
 ## Near-term (unversioned)

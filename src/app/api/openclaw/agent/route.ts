@@ -9,11 +9,15 @@ import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
 } from "@/lib/server/request-body";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 const AGENT_BODY_LIMIT = 256_000;
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const body = (await readJsonBodyWithLimit(req, AGENT_BODY_LIMIT)) as
       | null

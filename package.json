@@ -5,7 +5,7 @@
   "type": "module",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=20 <24"
+    "node": ">=20 <25"
   },
   "scripts": {
     "dev": "next dev",
@@ -13,10 +13,13 @@
     "build": "next build",
     "build:desktop-web": "node scripts/desktop-runtime/build-static.mjs",
     "desktop:build-doctor": "node scripts/desktop-runtime/build-doctor.mjs",
-    "desktop:build-sidecar": "node scripts/desktop-runtime/build-lobster-sidecar.mjs",
+    "desktop:build-claw-runtime": "node scripts/desktop-runtime/build-claw-runtime.mjs",
+    "desktop:build-sidecar": "npm run desktop:build-claw-runtime",
     "desktop:package": "node scripts/desktop-runtime/package-desktop.mjs",
-    "desktop:prepare-sidecar": "node scripts/desktop-runtime/prepare-lobster-sidecar.mjs",
-    "desktop:stage-sidecar": "node scripts/desktop-runtime/stage-lobster-sidecar.mjs",
+    "desktop:prepare-claw-runtime": "node scripts/desktop-runtime/prepare-claw-runtime.mjs",
+    "desktop:prepare-sidecar": "node scripts/desktop-runtime/prepare-claw-runtime.mjs",
+    "desktop:stage-claw-runtime": "node scripts/desktop-runtime/stage-claw-runtime.mjs",
+    "desktop:stage-sidecar": "node scripts/desktop-runtime/stage-claw-runtime.mjs",
     "desktop:smoke-test-sidecar": "node scripts/desktop-runtime/smoke-test-sidecar.mjs",
     "tauri": "node scripts/desktop-runtime/run-tauri.mjs",
     "tauri:dev": "node scripts/desktop-runtime/run-tauri.mjs dev",

@@ -49,6 +49,10 @@ export type AgentCoreExecutionPolicy = {
   maxAttempts: number;
   retryBackoffMs: number;
   allowFallbackToOpenClaw: boolean;
+  executorBackend?: "claw_code" | "direct_model";
+  clawCodeBinaryPath?: string;
+  clawCodeWorkspace?: string;
+  clawCodePermissionMode?: "read-only" | "workspace-write" | "danger-full-access";
 };
 
 export type AgentCoreTaskRequest = {
@@ -72,6 +76,10 @@ export type AgentCoreLegacyTaskRequest = {
   maxAttempts?: number;
   retryBackoffMs?: number;
   allowFallbackToOpenClaw?: boolean;
+  executorBackend?: "claw_code" | "direct_model";
+  clawCodeBinaryPath?: string;
+  clawCodeWorkspace?: string;
+  clawCodePermissionMode?: "read-only" | "workspace-write" | "danger-full-access";
   systemPrompt?: string;
   useSkills?: boolean;
   skillMode?: "off" | "auto" | "strict";
@@ -87,7 +95,7 @@ export type AgentCoreLegacyTaskRequest = {
 };
 
 export type AgentCoreTaskTraceAttempt = {
-  engine: "agentcore_executor" | "openclaw_cli_fallback";
+  engine: "agentcore_executor" | "claw_code" | "openclaw_cli_fallback";
   candidateKind: "primary" | "fallback" | "legacy";
   provider?: string;
   model?: string;
@@ -122,7 +130,7 @@ export type AgentCoreMemoryTrace = {
 
 export type AgentCoreTaskTrace = {
   source?: string;
-  engine: "agentcore_executor" | "openclaw_cli_fallback";
+  engine: "agentcore_executor" | "claw_code" | "openclaw_cli_fallback";
   provider?: string;
   model?: string;
   sessionId: string;
@@ -230,6 +238,27 @@ export function normalizeAgentCoreTaskRequest(
       maxAttempts: normalizeMaxAttempts(input.maxAttempts),
       retryBackoffMs: normalizeRetryBackoffMs(input.retryBackoffMs),
       allowFallbackToOpenClaw: input.allowFallbackToOpenClaw === true,
+      executorBackend:
+        input.executorBackend === "direct_model"
+          ? "direct_model"
+          : input.executorBackend === "claw_code"
+            ? "claw_code"
+            : undefined,
+      clawCodeBinaryPath:
+        typeof input.clawCodeBinaryPath === "string" && input.clawCodeBinaryPath.trim()
+          ? input.clawCodeBinaryPath.trim()
+          : undefined,
+      clawCodeWorkspace:
+        typeof input.clawCodeWorkspace === "string" && input.clawCodeWorkspace.trim()
+          ? input.clawCodeWorkspace.trim()
+          : undefined,
+      clawCodePermissionMode:
+        input.clawCodePermissionMode === "read-only" ||
+        input.clawCodePermissionMode === "danger-full-access"
+          ? input.clawCodePermissionMode
+          : input.clawCodePermissionMode === "workspace-write"
+            ? "workspace-write"
+            : undefined,
     },
   };
 }

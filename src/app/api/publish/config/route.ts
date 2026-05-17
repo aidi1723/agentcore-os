@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import { writePublishConfig, readPublishConfig } from "@/lib/server/publish-config-store";
 
 export const runtime = "nodejs";
@@ -13,6 +14,9 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const body = (await req.json().catch(() => null)) as
       | null

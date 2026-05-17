@@ -97,15 +97,16 @@ export function CreativeStudioAppWindow({
     abortRef.current = controller;
 
     const settings = loadSettings();
-    const engineUrl = settings.openclaw.baseUrl.trim();
+    const engineUrl =
+      settings.runtime.localRuntimeUrl.trim() || settings.openclaw.baseUrl.trim();
     const token = settings.openclaw.apiToken.trim();
 
     setIsSubmitting(true);
     setOutput({ videoSrc: null, coverSrc: null });
     taskIdRef.current = createTask({
-      name: "Assistant - Run studio instruction",
+      name: "AgentCore Media - Run studio instruction",
       status: "running",
-      detail: `engine: ${engineUrl || "local-video-frames"}`,
+      detail: `media runtime: ${engineUrl || "local-video-frames"}`,
     });
     registerTaskCancel(taskIdRef.current, () => controller.abort());
 
@@ -116,7 +117,7 @@ export function CreativeStudioAppWindow({
       form.append("engineUrl", engineUrl);
       form.append("token", token);
 
-      const res = await fetch(buildAgentCoreApiUrl("/api/creative-studio/process"), {
+      const res = await fetch(buildAgentCoreApiUrl("/api/runtime/media/process"), {
         method: "POST",
         body: form,
         signal: controller.signal,
@@ -136,7 +137,7 @@ export function CreativeStudioAppWindow({
         const message =
           data?.error ||
           (engineUrl
-            ? `无法连接到运行时引擎，请检查 ${engineUrl} 是否运行`
+            ? `无法连接到 AgentCore media runtime，请检查 ${engineUrl} 是否运行`
             : "执行失败：本地 video-frames 处理未能完成");
         if (runId !== runIdRef.current || !mountedRef.current) return;
         showToast(message, "error");
@@ -211,7 +212,7 @@ export function CreativeStudioAppWindow({
       title="AI 视觉工坊"
       icon={Clapperboard}
       widthClassName="w-[980px]"
-      storageKey="openclaw.window.creative_studio"
+      storageKey="agentcore.window.creative_studio"
       onFocus={onFocus}
       onMinimize={onMinimize}
       onClose={() => {

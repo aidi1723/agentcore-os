@@ -201,3 +201,70 @@ export function requestOpenMorningBrief(prefill?: MorningBriefPrefill) {
 export function requestOpenPublisher(prefill?: PublisherPrefill) {
   requestOpenApp("publisher", { publisherPrefill: prefill });
 }
+
+export function dispatchOpenAppPrefill(appId: AppId, detail: Partial<OpenAppDetail>) {
+  if (typeof window === "undefined") return;
+  if (appId === "settings" && detail.settingsTab) {
+    window.setTimeout(() => {
+      dispatchRuntimeEvent(RuntimeEventNames.settingsFocus, {
+        tab: detail.settingsTab,
+      });
+    }, 0);
+  }
+
+  const dispatchPrefill = (eventName: string, prefill: unknown) => {
+    if (!prefill) return;
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent(eventName, { detail: prefill }));
+    }, 80);
+  };
+
+  dispatchPrefill(
+    "openclaw:deal-desk-prefill",
+    appId === "deal_desk" ? detail.dealPrefill : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:email-assistant-prefill",
+    appId === "email_assistant" ? detail.emailDraft : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:crm-prefill",
+    appId === "personal_crm" ? detail.crmPrefill : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:vault-prefill",
+    appId === "knowledge_vault" ? detail.vaultPrefill : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:support-copilot-prefill",
+    appId === "support_copilot" ? detail.supportPrefill : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:research-hub-prefill",
+    appId === "deep_research_hub" ? detail.researchPrefill : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:project-ops-prefill",
+    appId === "project_ops" ? detail.projectOpsPrefill : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:recruiting-desk-prefill",
+    appId === "recruiting_desk" ? detail.recruitingPrefill : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:content-repurposer-prefill",
+    appId === "content_repurposer" ? detail.repurposerPrefill : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:creator-radar-prefill",
+    appId === "creator_radar" ? detail.creatorRadarPrefill : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:morning-brief-prefill",
+    appId === "morning_brief" ? detail.morningBriefPrefill : undefined,
+  );
+  dispatchPrefill(
+    "openclaw:publisher-prefill",
+    appId === "publisher" ? detail.publisherPrefill : undefined,
+  );
+}

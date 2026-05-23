@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { requestServerLlmText, type ServerLlmConfigInput } from "@/lib/server/direct-llm";
+import {
+  getRequestBodyErrorStatus,
+  readJsonBodyWithLimit,
+} from "@/lib/server/request-body";
 
 export const runtime = "nodejs";
+const COPY_BODY_LIMIT = 1_000_000;
 
 type Style = "xiaohongshu" | "wechat" | "shortvideo";
 
@@ -16,7 +21,7 @@ const systemPromptByStyle: Record<Style, string> = {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json().catch(() => null)) as
+    const body = (await readJsonBodyWithLimit(req, COPY_BODY_LIMIT)) as
       | null
       | { style?: Style; topic?: string; llm?: ServerLlmConfigInput };
 
@@ -44,6 +49,9 @@ export async function POST(req: Request) {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "请求异常";
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: message },
+      { status: getRequestBodyErrorStatus(err, 500) },
+    );
   }
 }

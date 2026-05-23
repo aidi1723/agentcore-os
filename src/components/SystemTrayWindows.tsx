@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { LayoutGrid, Minus, X } from "lucide-react";
 
 import type { AppId, AppState } from "@/apps/types";
@@ -34,7 +34,7 @@ function stateLabel(state: AppState, language: InterfaceLanguage) {
   }
 }
 
-export function SystemTrayWindows({
+export const SystemTrayWindows = memo(function SystemTrayWindows({
   language,
   appStateById,
   appZOrder,
@@ -239,4 +239,4 @@ export function SystemTrayWindows({
       )}
     </div>
   );
-}
+});

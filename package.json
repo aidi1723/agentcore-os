@@ -32,25 +32,33 @@
     "lint": "next lint",
     "webhook:dev": "node scripts/webhook-connector/server.mjs",
     "publish-queue:worker": "node scripts/publish-queue-worker.mjs",
-    "runtime:doctor": "node scripts/desktop-runtime/doctor.mjs"
+    "runtime:doctor": "node scripts/desktop-runtime/doctor.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
     "next": "15.1.6",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "zustand": "5.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tauri-apps/cli": "^2.0.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.27",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
+    "jsdom": "^25.0.1",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   }
 }

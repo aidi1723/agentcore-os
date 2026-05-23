@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Minus, X } from "lucide-react";
 import { addRuntimeEventListener, RuntimeEventNames } from "@/lib/runtime-events";
@@ -123,7 +123,7 @@ function toLeftTopFromDragOffset(size: WindowSize, offset: DragOffset) {
   return { left: baseLeft + offset.dx, top: baseTop + offset.dy };
 }
 
-export function AppWindowShell({
+export const AppWindowShell = memo(function AppWindowShell({
   state,
   zIndex,
   active = false,
@@ -665,4 +665,4 @@ export function AppWindowShell({
       )}
     </div>
   );
-}
+});

@@ -4,9 +4,14 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import { isAllowedOutboundUrl, parseHttpUrl } from "@/lib/server/network-policy";
+import {
+  getRequestBodyErrorStatus,
+  readJsonBodyWithLimit,
+} from "@/lib/server/request-body";
 import { normalizeBaseUrl } from "@/lib/url-utils";
 
 export const runtime = "nodejs";
+const MEDIA_PROCESS_BODY_LIMIT = 1_000_000;
 
 type ExecuteOutput = {
   videoSrc: string | null;
@@ -494,7 +499,7 @@ export async function POST(req: Request) {
         }
       }
     } else {
-      const body = (await req.json().catch(() => null)) as
+      const body = (await readJsonBodyWithLimit(req, MEDIA_PROCESS_BODY_LIMIT)) as
         | null
         | { prompt?: string; fileUrl?: string; engineUrl?: string; token?: string };
       prompt = body?.prompt?.trim() ?? "";
@@ -635,7 +640,10 @@ export async function POST(req: Request) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
       { ok: false, error: `请求异常：${message}` },
-      { status: 500, headers: { "Cache-Control": "no-store" } },
+      {
+        status: getRequestBodyErrorStatus(err, 500),
+        headers: { "Cache-Control": "no-store" },
+      },
     );
   }
 }

@@ -14,6 +14,33 @@ function isJsonContentType(value: string | null) {
   return normalized.includes("application/json") || normalized.includes("+json");
 }
 
+async function readTextWithLimit(req: Request, maxBytes: number) {
+  const body = req.body;
+  if (!body) return "";
+
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let bytesRead = 0;
+  let raw = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytesRead += value.byteLength;
+      if (bytesRead > maxBytes) {
+        await reader.cancel().catch(() => {});
+        throw new RequestBodyError("Request body too large.", 413);
+      }
+      raw += decoder.decode(value, { stream: true });
+    }
+    raw += decoder.decode();
+    return raw;
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 export async function readJsonBodyWithLimit<T>(
   req: Request,
   maxBytes: number,
@@ -32,13 +59,8 @@ export async function readJsonBodyWithLimit<T>(
     throw new RequestBodyError("Request body too large.", 413);
   }
 
-  const raw = await req.text();
+  const raw = await readTextWithLimit(req, maxBytes);
   if (!raw.trim()) return null;
-
-  const actualBytes = new TextEncoder().encode(raw).length;
-  if (actualBytes > maxBytes) {
-    throw new RequestBodyError("Request body too large.", 413);
-  }
 
   try {
     return JSON.parse(raw) as T;

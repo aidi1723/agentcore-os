@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 
 import { createPublishJobRecord, listPublishJobs } from "@/lib/server/publish-job-store";
+import {
+  getRequestBodyErrorStatus,
+  readJsonBodyWithLimit,
+} from "@/lib/server/request-body";
 
 export const runtime = "nodejs";
+const JOB_BODY_LIMIT = 1_000_000;
 
 export async function GET() {
   const jobs = await listPublishJobs();
@@ -11,7 +16,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json().catch(() => null)) as
+    const body = (await readJsonBodyWithLimit(req, JOB_BODY_LIMIT)) as
       | null
       | {
           draftId?: string;
@@ -40,6 +45,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, data: { job } }, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     const message = err instanceof Error ? err.message : "创建失败";
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: message },
+      { status: getRequestBodyErrorStatus(err, 500) },
+    );
   }
 }

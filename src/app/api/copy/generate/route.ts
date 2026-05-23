@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
+import {
+  getRequestBodyErrorStatus,
+  readJsonBodyWithLimit,
+} from "@/lib/server/request-body";
 
 type Style = "xiaohongshu" | "wechat" | "shortvideo";
+const COPY_BODY_LIMIT = 1_000_000;
 
 function pick<T>(arr: T[], seed: number) {
   return arr[Math.abs(seed) % arr.length]!;
@@ -132,7 +137,7 @@ function genShortVideo(topic: string) {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json().catch(() => null)) as
+    const body = (await readJsonBodyWithLimit(req, COPY_BODY_LIMIT)) as
       | null
       | { style?: Style; topic?: string };
 
@@ -155,6 +160,9 @@ export async function POST(req: Request) {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "请求异常";
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: message },
+      { status: getRequestBodyErrorStatus(err, 500) },
+    );
   }
 }

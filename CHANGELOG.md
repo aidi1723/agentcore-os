@@ -1,6 +1,74 @@
 # AgentCore OS Changelog
 
+## v1.4.0 - 2026-05-23
+
+### Architecture: page.tsx Decomposition
+
+- Reduced `src/app/page.tsx` from 3085 lines to 591 lines (81% reduction).
+- Extracted `SolutionCenterPanel` (1012 lines), `AgentSidebar` (770 lines), `ShellUI` (420 lines, 7 components), `WorkspaceAppWidgetGrid` (168 lines), `CommandCenterSidebar` (239 lines) into standalone component files.
+- Extracted `useDesktopScroll` hook and `desktop-helpers.ts` shared utilities.
+
+### State Management: Zustand Migration
+
+- Introduced Zustand 5.0.3 for global state management.
+- Created `desktop-store` (settings, language, provider, sidebar, onboarding state) and `window-store` (window lifecycle, z-order, focus).
+- Migrated all page.tsx `useState` calls to Zustand store selectors.
+- Rewrote `useDesktopWindows` as a thin wrapper over `useWindowStore`, preserving keyboard shortcuts and animation transitions.
+
+### API Route Deduplication
+
+- Created `state-route-factory.ts` providing `createStateRouteHandlers` and `createDeleteHandler` for standard CRUD routes.
+- Migrated 10 route pairs (deals, tasks, support, knowledge-assets, sales-assets, support-assets, research-assets, creator-assets, workflow-runs, drafts) from ~82 lines each to ~15 lines of configuration.
+
+### Performance: json-store Memory Cache
+
+- Added mtime-validated in-memory read cache to `json-store.ts` with 30-second TTL.
+- Cache is updated on writes and invalidated when file mtime changes, reducing disk reads for hot paths.
+- Exported `invalidateCache()` for test isolation.
+
+### Performance: React.memo and Lazy Loading
+
+- Wrapped `AppWindowShell`, `SystemTrayWindows`, `CommandCenterSidebar`, `DesktopIcon` with `React.memo`.
+- Added `{ loading: () => null }` to 16 infrequently-used app window `dynamic()` imports for faster perceived load.
+
+### Testing Infrastructure
+
+- Added Vitest 3.x with `@testing-library/react`, jsdom environment, and path alias support.
+- 32 tests across 7 test files: stores (desktop-store, window-store), server layer (json-store cache, state-route-factory), and UI components (WorkspaceAppWidgetGrid, SystemTrayWindows, ShellUI).
+- Added `npm run test` and `npm run test:watch` scripts.
+
+### Verification
+
+- `npx tsc --noEmit` — zero errors
+- `npm run lint` — no warnings or errors
+- `npx vitest run` — 32 tests passing
+- `npm run test:core-workflows` — all regressions pass
+- `npm run test:publish` — all regressions pass
+- `npm run build` — production build succeeds
+
 ## Unreleased
+
+### Security And Runtime Hardening
+
+- Unified JSON request-body parsing across local API routes with explicit size limits, JSON content-type checks, and consistent `400` / `413` / `415` error semantics.
+- Changed request-body reading to stream with an early cutoff so oversized requests without reliable `Content-Length` are rejected before the full body is consumed.
+- Hardened local API token validation by comparing fixed-length SHA-256 token digests with `timingSafeEqual`, preserving Bearer and `x-agentcore-token` compatibility.
+- Added regression coverage for local API authorization boundaries, oversized route bodies, streamed body cutoff behavior, and non-JSON request rejection.
+
+### Internal Maintenance
+
+- Extracted shared output-asset route serving logic for OpenClaw and runtime media asset endpoints.
+- Split desktop window state, z-order, global shortcuts, and open/minimize/close transitions from `src/app/page.tsx` into a dedicated `useDesktopWindows` hook.
+- Moved open-app prefill dispatch behavior into the shared UI event layer.
+
+### Verification
+
+- Verified `npm run test:core-workflows`
+- Verified `npm run test:publish`
+- Verified `npm run lint`
+- Verified `npx tsc --noEmit`
+- Verified `npm run build`
+- Verified `npm run desktop:smoke-test-sidecar`
 
 ## v1.2.0 - 2026-03-28
 

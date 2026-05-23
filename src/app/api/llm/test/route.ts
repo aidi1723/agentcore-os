@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 
 import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import { isAllowedOutboundUrl } from "@/lib/server/network-policy";
+import {
+  getRequestBodyErrorStatus,
+  readJsonBodyWithLimit,
+} from "@/lib/server/request-body";
 
 const DEFAULT_PROVIDER_CONFIG = {
   kimi: {
@@ -9,6 +13,7 @@ const DEFAULT_PROVIDER_CONFIG = {
     model: "moonshot-v1-8k",
   },
 } as const;
+const TEST_BODY_LIMIT = 1_000_000;
 
 function normalizeBaseUrl(input: string) {
   const trimmed = input.trim();
@@ -49,7 +54,7 @@ export async function POST(req: Request) {
   if (forbidden) return forbidden;
 
   try {
-    const body = (await req.json().catch(() => null)) as
+    const body = (await readJsonBodyWithLimit(req, TEST_BODY_LIMIT)) as
       | null
       | { apiKey?: string; baseUrl?: string; model?: string; provider?: string };
 
@@ -110,10 +115,10 @@ export async function POST(req: Request) {
       { ok: false, error: lastError || "请求失败" },
       { status: 500 },
     );
-  } catch {
+  } catch (error) {
     return NextResponse.json(
-      { ok: false, error: "请求异常" },
-      { status: 500 },
+      { ok: false, error: error instanceof Error ? error.message : "请求异常" },
+      { status: getRequestBodyErrorStatus(error, 500) },
     );
   }
 }

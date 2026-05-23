@@ -115,6 +115,38 @@ async function withWriteLock<T>(name: string, fn: () => Promise<T>) {
   });
 }
 
+// In-memory read cache with mtime validation and TTL.
+const CACHE_TTL_MS = 30_000;
+
+type CacheEntry = {
+  data: unknown;
+  mtime: number;
+  cachedAt: number;
+};
+
+const readCache = new Map<string, CacheEntry>();
+
+function isCacheStale(entry: CacheEntry) {
+  return Date.now() - entry.cachedAt > CACHE_TTL_MS;
+}
+
+async function getFileMtime(file: string): Promise<number | null> {
+  try {
+    const info = await stat(file);
+    return info.mtimeMs;
+  } catch {
+    return null;
+  }
+}
+
+export function invalidateCache(name?: string) {
+  if (name) {
+    readCache.delete(name);
+  } else {
+    readCache.clear();
+  }
+}
+
 async function parseJsonFile<T>(file: string): Promise<T> {
   const raw = await readFile(file, "utf8");
   return JSON.parse(raw) as T;
@@ -123,8 +155,23 @@ async function parseJsonFile<T>(file: string): Promise<T> {
 async function readJsonFileUnlocked<T>(name: string, fallback: T): Promise<T> {
   const file = resolveFile(name);
   const backupFile = resolveBackupFile(name);
+
+  // Check cache first
+  const cached = readCache.get(name);
+  if (cached && !isCacheStale(cached)) {
+    const mtime = await getFileMtime(file);
+    if (mtime !== null && mtime === cached.mtime) {
+      return cached.data as T;
+    }
+  }
+
   try {
-    return await parseJsonFile<T>(file);
+    const data = await parseJsonFile<T>(file);
+    const mtime = await getFileMtime(file);
+    if (mtime !== null) {
+      readCache.set(name, { data, mtime, cachedAt: Date.now() });
+    }
+    return data;
   } catch {
     try {
       return await parseJsonFile<T>(backupFile);
@@ -151,6 +198,11 @@ async function writeJsonFileUnlocked(name: string, value: unknown) {
   try {
     await rename(tempFile, file);
     await copyFile(file, backupFile).catch(() => {});
+    // Update cache after successful write
+    const mtime = await getFileMtime(file);
+    if (mtime !== null) {
+      readCache.set(name, { data: value, mtime, cachedAt: Date.now() });
+    }
   } catch (error) {
     await rm(tempFile, { force: true }).catch(() => {});
     throw error;

@@ -2,8 +2,13 @@ import { NextResponse } from "next/server";
 
 import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import { writePublishConfig, readPublishConfig } from "@/lib/server/publish-config-store";
+import {
+  getRequestBodyErrorStatus,
+  readJsonBodyWithLimit,
+} from "@/lib/server/request-body";
 
 export const runtime = "nodejs";
+const CONFIG_BODY_LIMIT = 1_000_000;
 
 export async function GET() {
   const matrixAccounts = await readPublishConfig();
@@ -18,7 +23,7 @@ export async function PUT(req: Request) {
   if (forbidden) return forbidden;
 
   try {
-    const body = (await req.json().catch(() => null)) as
+    const body = (await readJsonBodyWithLimit(req, CONFIG_BODY_LIMIT)) as
       | null
       | { matrixAccounts?: unknown };
     const matrixAccounts = await writePublishConfig((body?.matrixAccounts ?? {}) as any);
@@ -28,6 +33,9 @@ export async function PUT(req: Request) {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "保存失败";
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: message },
+      { status: getRequestBodyErrorStatus(err, 500) },
+    );
   }
 }

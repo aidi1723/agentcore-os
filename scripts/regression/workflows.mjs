@@ -162,6 +162,71 @@ async function runSalesAndKnowledgeRegression(localStorage) {
 
 async function runApiSecurityRegression() {
   logSection("api security boundary");
+  const apiSecuritySource = await readFile(
+    path.join(PROJECT_ROOT, "src/lib/server/api-security.ts"),
+    "utf8",
+  );
+  assert.match(
+    apiSecuritySource,
+    /timingSafeEqual/,
+    "Local API token checks should use fixed-time comparison.",
+  );
+  assert.match(
+    apiSecuritySource,
+    /createHash/,
+    "Local API token checks should compare fixed-length token digests.",
+  );
+  assert.doesNotMatch(
+    apiSecuritySource,
+    /candidateBytes\.length\s*!==\s*expectedBytes\.length/,
+    "Local API token checks should not short-circuit on raw token length.",
+  );
+
+  const previousToken = process.env.AGENTCORE_API_AUTH_TOKEN;
+  process.env.AGENTCORE_API_AUTH_TOKEN = "secret-token";
+  const apiSecurity = await import(`${moduleUrl("src/lib/server/api-security.ts")}?token-guard=${Date.now()}`);
+  assert.equal(
+    apiSecurity.isAuthorizedLocalApiRequest(
+      new Request("http://127.0.0.1/api/runtime/doctor", {
+        headers: { Authorization: "Bearer secret-token" },
+      }),
+    ),
+    true,
+    "Bearer token should authorize local API requests.",
+  );
+  assert.equal(
+    apiSecurity.isAuthorizedLocalApiRequest(
+      new Request("http://127.0.0.1/api/runtime/doctor", {
+        headers: { "x-agentcore-token": "secret-token" },
+      }),
+    ),
+    true,
+    "Direct token header should authorize local API requests.",
+  );
+  assert.equal(
+    apiSecurity.isAuthorizedLocalApiRequest(
+      new Request("http://127.0.0.1/api/runtime/doctor", {
+        headers: { Authorization: "Bearer wrong-token" },
+      }),
+    ),
+    false,
+    "Wrong bearer token should be rejected.",
+  );
+  assert.equal(
+    apiSecurity.isAuthorizedLocalApiRequest(
+      new Request("http://evil.example/api/runtime/doctor", {
+        headers: { Authorization: "Bearer secret-token", Host: "evil.example" },
+      }),
+    ),
+    false,
+    "Correct token should not authorize non-local requests.",
+  );
+  if (previousToken === undefined) {
+    delete process.env.AGENTCORE_API_AUTH_TOKEN;
+  } else {
+    process.env.AGENTCORE_API_AUTH_TOKEN = previousToken;
+  }
+
   const agentRoute = await import(moduleUrl("src/app/api/openclaw/agent/route.ts"));
   const mediaRoute = await import(moduleUrl("src/app/api/runtime/media/process/route.ts"));
 
@@ -1289,7 +1354,200 @@ async function runRequestBodyGuardRegression() {
     "Oversized JSON should be rejected with 413.",
   );
 
+  let chunksRead = 0;
+  const oversizedStream = new ReadableStream({
+    pull(controller) {
+      chunksRead += 1;
+      controller.enqueue(new TextEncoder().encode("x".repeat(16)));
+      if (chunksRead >= 6) controller.close();
+    },
+  });
+  await assert.rejects(
+    () =>
+      requestBody.readJsonBodyWithLimit(
+        new Request("http://localhost/test", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: oversizedStream,
+          duplex: "half",
+        }),
+        32,
+      ),
+    (error) =>
+      error instanceof Error &&
+      requestBody.getRequestBodyErrorStatus(error) === 413,
+    "Streamed oversized JSON should be rejected with 413.",
+  );
+  assert.equal(
+    chunksRead,
+    3,
+    "Request body reader should stop after the chunk that crosses the size limit.",
+  );
+
   console.log("request body guard regression passed");
+}
+
+async function runRouteRequestBodyGuardRegression() {
+  logSection("route request body guard");
+
+  const copyGenerateRoute = await import(moduleUrl("src/app/api/copy/generate/route.ts"));
+  const kimiTestRoute = await import(moduleUrl("src/app/api/kimi/test/route.ts"));
+  const llmChatRoute = await import(moduleUrl("src/app/api/llm/chat/route.ts"));
+  const llmTestRoute = await import(moduleUrl("src/app/api/llm/test/route.ts"));
+  const openclawCopyRoute = await import(moduleUrl("src/app/api/openclaw/copy/route.ts"));
+  const openclawTestRoute = await import(moduleUrl("src/app/api/openclaw/test/route.ts"));
+  const publishConfigRoute = await import(moduleUrl("src/app/api/publish/config/route.ts"));
+  const publishDispatchRoute = await import(moduleUrl("src/app/api/publish/dispatch/route.ts"));
+  const publishJobsRoute = await import(moduleUrl("src/app/api/publish/jobs/route.ts"));
+  const publishJobRoute = await import(moduleUrl("src/app/api/publish/jobs/[jobId]/route.ts"));
+  const runtimeMediaProcessRoute = await import(moduleUrl("src/app/api/runtime/media/process/route.ts"));
+  const runtimeSidecarRoute = await import(moduleUrl("src/app/api/runtime/sidecar/route.ts"));
+
+  const hugeBody = JSON.stringify({ payload: "x".repeat(2_000_000) });
+
+  const routeChecks = [
+    {
+      label: "copy generate",
+      handler: copyGenerateRoute.POST,
+      url: "http://localhost/api/copy/generate",
+      method: "POST",
+    },
+    {
+      label: "kimi test",
+      handler: kimiTestRoute.POST,
+      url: "http://localhost/api/kimi/test",
+      method: "POST",
+    },
+    {
+      label: "llm test",
+      handler: llmTestRoute.POST,
+      url: "http://localhost/api/llm/test",
+      method: "POST",
+    },
+    {
+      label: "openclaw copy",
+      handler: openclawCopyRoute.POST,
+      url: "http://localhost/api/openclaw/copy",
+      method: "POST",
+    },
+    {
+      label: "openclaw test",
+      handler: openclawTestRoute.POST,
+      url: "http://localhost/api/openclaw/test",
+      method: "POST",
+    },
+    {
+      label: "publish config",
+      handler: publishConfigRoute.PUT,
+      url: "http://localhost/api/publish/config",
+      method: "PUT",
+    },
+    {
+      label: "publish dispatch",
+      handler: publishDispatchRoute.POST,
+      url: "http://localhost/api/publish/dispatch",
+      method: "POST",
+    },
+    {
+      label: "runtime media process",
+      handler: runtimeMediaProcessRoute.POST,
+      url: "http://localhost/api/runtime/media/process",
+      method: "POST",
+    },
+  ];
+
+  for (const check of routeChecks) {
+    const huge = await check.handler(
+      new Request(check.url, {
+        method: check.method,
+        headers: { "Content-Type": "application/json" },
+        body: hugeBody,
+      }),
+    );
+    assert.equal(huge.status, 413, `${check.label} route should reject oversized JSON.`);
+  }
+
+  const llmHuge = await llmChatRoute.POST(
+    new Request("http://localhost/api/llm/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: hugeBody,
+    }),
+  );
+  assert.equal(llmHuge.status, 413, "LLM chat route should reject oversized JSON.");
+
+  const publishHuge = await publishJobsRoute.POST(
+    new Request("http://localhost/api/publish/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: hugeBody,
+    }),
+  );
+  assert.equal(publishHuge.status, 413, "Publish jobs route should reject oversized JSON.");
+
+  const publishPatchHuge = await publishJobRoute.PATCH(
+    new Request("http://localhost/api/publish/jobs/missing-job", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: hugeBody,
+    }),
+    { params: Promise.resolve({ jobId: "missing-job" }) },
+  );
+  assert.equal(publishPatchHuge.status, 413, "Publish job patch route should reject oversized JSON.");
+
+  const sidecarHuge = await runtimeSidecarRoute.POST(
+    new Request("http://localhost/api/runtime/sidecar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: hugeBody,
+    }),
+  );
+  assert.equal(sidecarHuge.status, 413, "Runtime sidecar route should reject oversized JSON.");
+
+  const sidecarText = await runtimeSidecarRoute.POST(
+    new Request("http://localhost/api/runtime/sidecar", {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ action: "sync" }),
+    }),
+  );
+  assert.equal(sidecarText.status, 415, "Runtime sidecar route should reject non-JSON bodies.");
+
+  console.log("route request body guard regression passed");
+}
+
+async function runHomePageSplitRegression() {
+  logSection("home page split");
+
+  const pageSource = await readFile(path.join(PROJECT_ROOT, "src/app/page.tsx"), "utf8");
+  const desktopWindowsSource = await readFile(
+    path.join(PROJECT_ROOT, "src/hooks/useDesktopWindows.ts"),
+    "utf8",
+  );
+  const uiEventsSource = await readFile(path.join(PROJECT_ROOT, "src/lib/ui-events.ts"), "utf8");
+
+  assert.match(
+    pageSource,
+    /useDesktopWindows/,
+    "Home page should use the shared desktop window state hook.",
+  );
+  assert.match(
+    desktopWindowsSource,
+    /openApp/,
+    "Desktop window hook should own the openApp transition.",
+  );
+  assert.match(
+    pageSource,
+    /dispatchOpenAppPrefill/,
+    "Home page should delegate open-app prefill dispatch.",
+  );
+  assert.match(
+    uiEventsSource,
+    /dispatchOpenAppPrefill/,
+    "UI event helper should expose prefill dispatch logic.",
+  );
+
+  console.log("home page split regression passed");
 }
 
 async function runTaskWorkflowMetadataRegression(localStorage) {
@@ -2561,6 +2819,28 @@ async function runWorkflowRunStoreRegression() {
 
 async function runLegacyPutGuardRegression() {
   logSection("legacy put guard");
+
+  // The full-replace guard logic now lives in the shared route factory.
+  // Verify the factory contains the guard, and that routes import from it.
+  const factoryFile = path.join(
+    PROJECT_ROOT,
+    "src",
+    "lib",
+    "server",
+    "state-route-factory.ts",
+  );
+  const factorySource = await readFile(factoryFile, "utf8");
+  assert.match(
+    factorySource,
+    /x-agentcore-allow-full-replace/,
+    "Route factory should require an explicit override header for full-replace.",
+  );
+  assert.match(
+    factorySource,
+    /status:\s*409/,
+    "Route factory should reject snapshot overwrite by default.",
+  );
+
   const routeFiles = [
     path.join(PROJECT_ROOT, "src", "app", "api", "runtime", "state", "deals", "route.ts"),
     path.join(PROJECT_ROOT, "src", "app", "api", "runtime", "state", "support", "route.ts"),
@@ -2580,13 +2860,8 @@ async function runLegacyPutGuardRegression() {
     const source = await readFile(file, "utf8");
     assert.match(
       source,
-      /x-agentcore-allow-full-replace/,
-      "Legacy full-replace routes should require an explicit override header.",
-    );
-    assert.match(
-      source,
-      /status:\s*409/,
-      "Legacy full-replace routes should reject snapshot overwrite by default.",
+      /state-route-factory/,
+      `Route ${path.basename(path.dirname(file))} should use the shared route factory.`,
     );
   }
 
@@ -3472,6 +3747,8 @@ async function main() {
   await runWorkflowSurfaceRecommendationRegression();
   await runAppApiAndStorageRegression(localStorage);
   await runRequestBodyGuardRegression();
+  await runRouteRequestBodyGuardRegression();
+  await runHomePageSplitRegression();
   await runTaskWorkflowMetadataRegression(localStorage);
   await runServerBackedRetryRegression(localStorage);
   await runExecutionRoutingPlanRegression();

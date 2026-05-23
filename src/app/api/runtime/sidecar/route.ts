@@ -7,8 +7,13 @@ import {
   stopRuntimeSidecar,
   syncRuntimeSidecarConfig,
 } from "@/lib/server/runtime-sidecar";
+import {
+  getRequestBodyErrorStatus,
+  readJsonBodyWithLimit,
+} from "@/lib/server/request-body";
 
 export const runtime = "nodejs";
+const SIDECAR_BODY_LIMIT = 1_000_000;
 
 export async function GET() {
   try {
@@ -23,7 +28,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json().catch(() => null)) as
+    const body = (await readJsonBodyWithLimit(req, SIDECAR_BODY_LIMIT)) as
       | null
       | { action?: RuntimeSidecarAction; config?: Partial<RuntimeBridgeConfig> };
 
@@ -64,6 +69,9 @@ export async function POST(req: Request) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unable to control runtime sidecar.";
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: message },
+      { status: getRequestBodyErrorStatus(error, 500) },
+    );
   }
 }

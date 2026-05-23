@@ -2,15 +2,20 @@ import { NextResponse } from "next/server";
 import { runPublishDispatch, uniqDispatchPlatforms } from "@/lib/server/publish-dispatch";
 import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import type { ServerLlmConfigInput } from "@/lib/server/direct-llm";
+import {
+  getRequestBodyErrorStatus,
+  readJsonBodyWithLimit,
+} from "@/lib/server/request-body";
 
 export const runtime = "nodejs";
+const DISPATCH_BODY_LIMIT = 1_000_000;
 
 export async function POST(req: Request) {
   const forbidden = rejectUnauthorizedLocalApiRequest(req);
   if (forbidden) return forbidden;
 
   try {
-    const body = (await req.json().catch(() => null)) as
+    const body = (await readJsonBodyWithLimit(req, DISPATCH_BODY_LIMIT)) as
       | null
       | {
           title?: string;
@@ -47,6 +52,9 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "请求异常";
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: message },
+      { status: getRequestBodyErrorStatus(err, 500) },
+    );
   }
 }

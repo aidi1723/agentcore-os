@@ -1,8 +1,9 @@
 "use client";
 
+import { memo } from "react";
 import type { ReactNode } from "react";
 
-export function DesktopIcon({
+export const DesktopIcon = memo(function DesktopIcon({
   icon,
   name,
   onClick,
@@ -33,4 +34,4 @@ export function DesktopIcon({
       </span>
     </button>
   );
-}
+});

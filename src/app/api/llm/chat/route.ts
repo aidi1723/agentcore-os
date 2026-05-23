@@ -2,9 +2,14 @@ import { NextResponse } from "next/server";
 
 import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import { isAllowedOutboundUrl } from "@/lib/server/network-policy";
+import {
+  getRequestBodyErrorStatus,
+  readJsonBodyWithLimit,
+} from "@/lib/server/request-body";
 import { normalizeBaseUrl } from "@/lib/url-utils";
 
 type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
+const CHAT_BODY_LIMIT = 1_000_000;
 
 function chatCompletionsUrl(baseUrl: string) {
   if (/\/v1$/.test(baseUrl)) return `${baseUrl}/chat/completions`;
@@ -16,7 +21,7 @@ export async function POST(req: Request) {
   if (forbidden) return forbidden;
 
   try {
-    const body = (await req.json().catch(() => null)) as
+    const body = (await readJsonBodyWithLimit(req, CHAT_BODY_LIMIT)) as
       | null
       | {
           apiKey?: string;
@@ -152,7 +157,10 @@ export async function POST(req: Request) {
       err instanceof Error ? err.message : "请求异常";
     return NextResponse.json(
       { ok: false, error: message },
-      { status: 500, headers: { "Cache-Control": "no-store" } },
+      {
+        status: getRequestBodyErrorStatus(err, 500),
+        headers: { "Cache-Control": "no-store" },
+      },
     );
   }
 }

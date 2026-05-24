@@ -3,6 +3,7 @@ import { createStateRouteHandlers, createDeleteHandler } from "@/lib/server/stat
 
 function makeRequest(options: {
   method?: string;
+  url?: string;
   headers?: Record<string, string>;
   body?: unknown;
 } = {}) {
@@ -10,7 +11,7 @@ function makeRequest(options: {
   if (options.body && !headers.has("content-type")) {
     headers.set("content-type", "application/json");
   }
-  return new Request("http://localhost:3000/api/test", {
+  return new Request(options.url ?? "http://localhost:3000/api/test", {
     method: options.method ?? "GET",
     headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
@@ -18,6 +19,16 @@ function makeRequest(options: {
 }
 
 describe("state-route-factory", () => {
+  const previousToken = process.env.AGENTCORE_API_AUTH_TOKEN;
+
+  afterEach(() => {
+    if (previousToken === undefined) {
+      delete process.env.AGENTCORE_API_AUTH_TOKEN;
+    } else {
+      process.env.AGENTCORE_API_AUTH_TOKEN = previousToken;
+    }
+  });
+
   describe("createStateRouteHandlers", () => {
     const mockConfig = {
       resourceName: "item",
@@ -29,10 +40,27 @@ describe("state-route-factory", () => {
 
     it("GET returns snapshot", async () => {
       const { GET } = createStateRouteHandlers(mockConfig);
-      const res = await GET();
+      const res = await GET(makeRequest());
       const json = await res.json();
       expect(json.ok).toBe(true);
       expect(json.data.items).toHaveLength(1);
+    });
+
+    it("rejects remote requests when API token protection is enabled", async () => {
+      process.env.AGENTCORE_API_AUTH_TOKEN = "secret";
+      const { GET, POST } = createStateRouteHandlers(mockConfig);
+
+      const getRes = await GET(makeRequest({ url: "http://evil.example/api/test" }));
+      const postRes = await POST(
+        makeRequest({
+          method: "POST",
+          url: "http://evil.example/api/test",
+          body: { item: { id: "1" } },
+        }),
+      );
+
+      expect(getRes.status).toBe(403);
+      expect(postRes.status).toBe(403);
     });
 
     it("PUT rejects without full-replace header", async () => {
@@ -100,6 +128,26 @@ describe("state-route-factory", () => {
       const req = makeRequest({ method: "DELETE", body: { updatedAt: 100 } });
       const res = await DELETE(req, { params: Promise.resolve({ itemId: "abc" }) });
       expect(res.status).toBe(409);
+    });
+
+    it("rejects remote deletes when API token protection is enabled", async () => {
+      process.env.AGENTCORE_API_AUTH_TOKEN = "secret";
+      const removeOne = vi.fn().mockResolvedValue({ removed: true, conflict: false });
+      const DELETE = createDeleteHandler({
+        resourceName: "item",
+        paramName: "itemId",
+        removeOne,
+      });
+      const req = makeRequest({
+        method: "DELETE",
+        url: "http://evil.example/api/test/abc",
+        body: { updatedAt: 123 },
+      });
+
+      const res = await DELETE(req, { params: Promise.resolve({ itemId: "abc" }) });
+
+      expect(res.status).toBe(403);
+      expect(removeOne).not.toHaveBeenCalled();
     });
   });
 });

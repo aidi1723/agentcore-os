@@ -11,11 +11,15 @@ import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
 } from "@/lib/server/request-body";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 const SIDECAR_BODY_LIMIT = 1_000_000;
 
-export async function GET() {
+export async function GET(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const status = await getRuntimeSidecarStatus();
     return NextResponse.json({ ok: true, status }, { headers: { "Cache-Control": "no-store" } });
@@ -27,6 +31,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const body = (await readJsonBodyWithLimit(req, SIDECAR_BODY_LIMIT)) as
       | null

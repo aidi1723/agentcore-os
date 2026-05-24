@@ -11,6 +11,7 @@ import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
 } from "@/lib/server/request-body";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 
@@ -51,6 +52,9 @@ function normalizeQuery(body: CreatorAssetQueryBody | null): CreatorAssetQuery {
 }
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const body = await readJsonBodyWithLimit<CreatorAssetQueryBody>(req, QUERY_BODY_LIMIT);
     const query = normalizeQuery(body);

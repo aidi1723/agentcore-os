@@ -9,6 +9,7 @@ import type { CommandCenterTone } from "@/lib/home-command-center";
 import type { InterfaceLanguage } from "@/lib/settings";
 import { commandCenterToneClass, getWorkflowModeMeta } from "@/lib/desktop-helpers";
 import type { WorkflowRunRecord } from "@/lib/workflow-runs";
+import { MultiStepPanel } from "@/components/MultiStepPanel";
 
 type CommandShortcut = {
   id: string;
@@ -63,7 +64,7 @@ export const CommandCenterSidebar = memo(function CommandCenterSidebar({
   executionEvents: DeskExecutionEvent[];
   workflowTitle: string;
   workflowStages: WorkflowStage[];
-  selectedRun: { currentStageId?: string; stageRuns: StageRun[] } | null;
+  selectedRun: { currentStageId?: string; stageRuns: StageRun[]; state?: string } | null;
   copy: {
     industryHub: string;
     library: string;
@@ -180,6 +181,10 @@ export const CommandCenterSidebar = memo(function CommandCenterSidebar({
           })}
         </div>
       </section>
+
+      {selectedRun?.state === "running" && (
+        <MultiStepPanel />
+      )}
 
       <section className="shrink-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
         <div className="flex items-center justify-between gap-3">

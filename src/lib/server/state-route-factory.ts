@@ -3,6 +3,7 @@ import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
 } from "@/lib/server/request-body";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 const DEFAULT_BODY_LIMIT = 1_000_000;
 const DELETE_BODY_LIMIT = 8_192;
@@ -26,7 +27,10 @@ export type DeleteRouteConfig = {
 export function createStateRouteHandlers(config: StateRouteConfig) {
   const bodyLimit = config.bodyLimit ?? DEFAULT_BODY_LIMIT;
 
-  async function GET() {
+  async function GET(req: Request) {
+    const forbidden = rejectUnauthorizedLocalApiRequest(req);
+    if (forbidden) return forbidden;
+
     try {
       const snapshot = await config.listSnapshot();
       return NextResponse.json(
@@ -40,6 +44,9 @@ export function createStateRouteHandlers(config: StateRouteConfig) {
   }
 
   async function PUT(req: Request) {
+    const forbidden = rejectUnauthorizedLocalApiRequest(req);
+    if (forbidden) return forbidden;
+
     if (req.headers.get(FULL_REPLACE_HEADER) !== "1") {
       return NextResponse.json(
         {
@@ -67,6 +74,9 @@ export function createStateRouteHandlers(config: StateRouteConfig) {
   }
 
   async function POST(req: Request) {
+    const forbidden = rejectUnauthorizedLocalApiRequest(req);
+    if (forbidden) return forbidden;
+
     try {
       const body = await readJsonBodyWithLimit<Record<string, unknown>>(req, bodyLimit);
       const result = await config.upsertOne(body?.[config.resourceName] ?? null);
@@ -102,6 +112,9 @@ export function createDeleteHandler(config: DeleteRouteConfig) {
     req: Request,
     { params }: { params: Promise<Record<string, string>> },
   ) {
+    const forbidden = rejectUnauthorizedLocalApiRequest(req);
+    if (forbidden) return forbidden;
+
     try {
       const resolvedParams = await params;
       const id = resolvedParams[config.paramName] ?? "";

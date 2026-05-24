@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import { getExecutorSession } from "@/lib/server/executor-session-store";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 
 export async function GET(
-  _: Request,
+  req: Request,
   { params }: { params: Promise<{ sessionId: string }> },
 ) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const { sessionId } = await params;
     const session = await getExecutorSession(sessionId);

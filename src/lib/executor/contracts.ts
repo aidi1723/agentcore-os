@@ -49,10 +49,17 @@ export type AgentCoreExecutionPolicy = {
   maxAttempts: number;
   retryBackoffMs: number;
   allowFallbackToOpenClaw: boolean;
+  baseUrl?: string;
   executorBackend?: "claw_code" | "direct_model";
   clawCodeBinaryPath?: string;
   clawCodeWorkspace?: string;
   clawCodePermissionMode?: "read-only" | "workspace-write" | "danger-full-access";
+};
+
+export type AgentCoreMultiStepPolicy = {
+  enabled: boolean;
+  maxSteps: number;
+  approvalMode: "none" | "final" | "each-review-step";
 };
 
 export type AgentCoreTaskRequest = {
@@ -64,6 +71,7 @@ export type AgentCoreTaskRequest = {
   modelConfig?: AgentCoreExecutorLlmConfig | null;
   fallbackModelConfigs?: AgentCoreExecutorLlmConfig[];
   executionPolicy: AgentCoreExecutionPolicy;
+  multiStep?: AgentCoreMultiStepPolicy;
 };
 
 export type AgentCoreLegacyTaskRequest = {
@@ -262,3 +270,75 @@ export function normalizeAgentCoreTaskRequest(
     },
   };
 }
+
+// ---------------------------------------------------------------------------
+// Multi-step execution types
+// ---------------------------------------------------------------------------
+
+export type ToolCallSpec = {
+  toolName: string;
+  description?: string;
+  params?: Record<string, unknown>;
+};
+
+export type ExecutionStep = {
+  id: string;
+  title: string;
+  description: string;
+  toolCalls: ToolCallSpec[];
+  dependsOn: string[];
+  mode: "auto" | "assist" | "review" | "manual";
+  estimatedTokens?: number;
+};
+
+export type ExecutionPlan = {
+  id: string;
+  goal: string;
+  steps: ExecutionStep[];
+  totalSteps: number;
+  requiresApproval: boolean;
+};
+
+export type ToolCallResult = {
+  toolName: string;
+  success: boolean;
+  output: unknown;
+  sideEffects?: string[];
+  tokensUsed?: number;
+  durationMs: number;
+};
+
+export type StepResult = {
+  stepId: string;
+  status: "completed" | "failed" | "skipped" | "awaiting_approval";
+  output: unknown;
+  toolCallResults: ToolCallResult[];
+  tokensUsed: number;
+  durationMs: number;
+  error?: string;
+};
+
+export type MultiStepTrace = AgentCoreTaskTrace & {
+  plan: ExecutionPlan;
+  stepResults: StepResult[];
+  currentStepIndex: number;
+};
+
+export type ExecutionCallbacks = {
+  onPlanReady: (plan: ExecutionPlan) => void;
+  onStepStart: (step: ExecutionStep, index: number) => void;
+  onStepProgress: (stepId: string, data: unknown) => void;
+  onStepComplete: (result: StepResult) => void;
+  onAwaitingApproval: (step: ExecutionStep) => void;
+  waitForApproval: (stepId: string) => Promise<{ approved: boolean; feedback?: string }>;
+  onError: (error: string) => void;
+};
+
+export type GuardrailConfig = {
+  maxTotalTokens: number;
+  maxSteps: number;
+  maxToolCallsPerStep: number;
+  maxDurationMs: number;
+  forbiddenTools: string[];
+  requireApprovalFor: string[];
+};

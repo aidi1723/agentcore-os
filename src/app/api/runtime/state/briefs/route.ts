@@ -8,12 +8,16 @@ import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
 } from "@/lib/server/request-body";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 const STATE_BODY_LIMIT = 1_000_000;
 const FULL_REPLACE_HEADER = "x-agentcore-allow-full-replace";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const { briefs, tombstones } = await listBriefStoreSnapshot();
     return NextResponse.json(
@@ -27,6 +31,9 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   if (req.headers.get(FULL_REPLACE_HEADER) !== "1") {
     return NextResponse.json(
       {
@@ -55,6 +62,9 @@ export async function PUT(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const body = await readJsonBodyWithLimit<{ brief?: unknown }>(req, STATE_BODY_LIMIT);
     const { brief, tombstone, accepted } = await upsertBriefInStore(body?.brief ?? null);

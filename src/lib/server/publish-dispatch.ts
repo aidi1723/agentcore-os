@@ -1,5 +1,6 @@
 import type { MatrixAccountsSettings } from "@/lib/settings";
 import { requestServerLlmText, type ServerLlmConfigInput } from "@/lib/server/direct-llm";
+import { isAllowedOutboundUrl } from "@/lib/server/network-policy";
 
 export type DispatchPlatform =
   | "xiaohongshu"
@@ -282,6 +283,19 @@ export async function runPublishDispatch(params: {
         queued: false,
         message: "未配置 Webhook，已返回手动发布清单。",
         responseText: "未配置 Webhook，已返回手动发布清单。",
+      });
+      continue;
+    }
+
+    if (!isAllowedOutboundUrl(webhookUrl)) {
+      results.push({
+        platform,
+        ok: false,
+        mode: "webhook",
+        queued: false,
+        retryable: false,
+        errorType: "blocked_url",
+        error: "Webhook URL is not allowed.",
       });
       continue;
     }

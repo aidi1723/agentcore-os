@@ -4,6 +4,7 @@ import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
 } from "@/lib/server/request-body";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 const DELETE_BODY_LIMIT = 8_192;
@@ -12,6 +13,9 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ noteId: string }> },
 ) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
   try {
     const { noteId } = await params;
     const body = await readJsonBodyWithLimit<{ updatedAt?: number }>(req, DELETE_BODY_LIMIT);

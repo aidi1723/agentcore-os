@@ -3,6 +3,8 @@ import {
   type AgentCoreTaskRequest,
   type AgentCoreTaskTrace,
   type AgentCoreTaskTraceAttempt,
+  type ExecutionCallbacks,
+  type MultiStepTrace,
   normalizeAgentCoreTaskRequest,
 } from "@/lib/executor/contracts";
 import {
@@ -21,6 +23,8 @@ import {
   runPreExecutionSkills,
 } from "@/lib/executor/skills/runtime";
 import { normalizeBaseUrl } from "@/lib/url-utils";
+import { planSteps } from "@/lib/executor/planner";
+import { executeMultiStep } from "@/lib/executor/step-executor";
 
 type AgentCoreTaskOk = {
   ok: true;
@@ -598,4 +602,92 @@ export async function runAgentCoreTask(
       },
     }),
   };
+}
+
+// ---------------------------------------------------------------------------
+// Multi-step execution entry point
+// ---------------------------------------------------------------------------
+
+export type MultiStepTaskResult = {
+  ok: boolean;
+  trace: MultiStepTrace;
+  error?: string;
+};
+
+export async function runMultiStepTask(
+  request: AgentCoreTaskRequest | AgentCoreLegacyTaskRequest,
+  callbacks: ExecutionCallbacks,
+): Promise<MultiStepTaskResult> {
+  const normalizedRequest =
+    "executionPolicy" in request &&
+    "session" in request &&
+    "taskInput" in request &&
+    "context" in request &&
+    "skillPolicy" in request &&
+    "metadata" in request
+      ? request
+      : normalizeAgentCoreTaskRequest(request);
+
+  // Build a callLlm helper for the planner using the same model config
+  const candidates = buildExecutionCandidates(
+    normalizedRequest.modelConfig ?? null,
+    normalizedRequest.fallbackModelConfigs ?? [],
+  );
+  const executionPolicy = normalizeExecutionPolicy(normalizedRequest.executionPolicy, {
+    hasPrimaryModel: candidates.length > 0,
+  });
+
+  const callLlm = async (systemPrompt: string, userMessage: string): Promise<string> => {
+    const messages: ChatMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userMessage },
+    ];
+    for (const candidate of candidates) {
+      const provider = detectProvider(candidate.config);
+      try {
+        return provider === "anthropic"
+          ? await callAnthropicModel(
+              candidate.config,
+              userMessage,
+              systemPrompt,
+              executionPolicy.timeoutSeconds,
+            )
+          : await callOpenAiCompatibleModel(
+              candidate.config,
+              messages,
+              executionPolicy.timeoutSeconds,
+            );
+      } catch {
+        continue;
+      }
+    }
+    return "";
+  };
+
+  const plan = await planSteps(normalizedRequest, callLlm);
+
+  if (plan.steps.length === 0) {
+    const emptyTrace: MultiStepTrace = {
+      source: normalizedRequest.metadata.source,
+      engine: "agentcore_executor",
+      sessionId: normalizedRequest.session.id,
+      requestId: normalizedRequest.metadata.requestId,
+      startedAt: Date.now(),
+      finishedAt: Date.now(),
+      durationMs: 0,
+      attemptCount: 0,
+      fallbackUsed: false,
+      attempts: [],
+      skillReceipts: [],
+      success: false,
+      error: "Planner produced no steps",
+      plan,
+      stepResults: [],
+      currentStepIndex: 0,
+    };
+    return { ok: false, trace: emptyTrace, error: "Planner produced no steps" };
+  }
+
+  const trace = await executeMultiStep(plan, normalizedRequest, callbacks);
+  return { ok: trace.success, trace, error: trace.error };
 }

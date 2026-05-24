@@ -1,5 +1,61 @@
 # AgentCore OS Changelog
 
+## v1.5.1 - 2026-05-25
+
+### Multi-Step Engine Hardening
+
+- Added structured JSON execution logger (`src/lib/executor/logger.ts`) with `executorLog()` emitting timestamped events at execution start, step transitions, failures, and completion.
+- Wired token usage tracking from LLM tool responses into `StepResult.tokensUsed` for per-step cost visibility.
+- Made all tool HTTP calls use injectable `baseUrl` from request config instead of hardcoded paths.
+- Added planner retry-on-parse-failure (up to 2 retries with relaxed prompt on second attempt).
+
+### Client-Side Multi-Step UI
+
+- Created `useMultiStepStream` hook for consuming the SSE `/api/agent/stream` endpoint with reactive state (plan, steps, approvals, errors).
+- Created `MultiStepPanel` component showing real-time step progress, status badges, approval buttons, and error display.
+- Integrated `MultiStepPanel` into `CommandCenterSidebar` — renders automatically when a workflow run is in "running" state.
+
+### Workflow ↔ Executor Integration
+
+- Created `runWorkflowMultiStep` orchestrator (`run-workflow-multi-step.ts`) that streams multi-step execution for eligible workflows and syncs state back to the workflow-runs store.
+- Added in-memory `approval-store` with `waitForApproval` / `resolveApproval` and configurable timeout (default 5 min).
+- Confirmed `/api/agent/stream` SSE endpoint and `/api/agent/approve` endpoint are fully wired end-to-end.
+
+### Testing
+
+- 68 tests across 13 test files (up from 32 tests / 7 files).
+- New test coverage: planner (retry logic), guardrails (budget/forbidden tools), tool registry, step-executor (multi-step loop, failure abort, approval gates), approval-store (resolve/reject/timeout), workflow multi-step orchestrator (eligibility, SSE mock, error handling).
+
+### Verification
+
+- `npx tsc --noEmit` — zero errors
+- `npx vitest run` — 68 tests passing
+- `npm run test:core-workflows` — all regressions pass
+- `npm run build` — production build succeeds
+
+## v1.5.0 - 2026-05-24
+
+### Multi-Step Agent Execution Engine
+
+- Introduced a multi-step execution engine that decomposes high-level goals into sequenced, tool-calling steps with dependency tracking, human approval gates, and automatic failure recovery.
+- Added `planSteps()` planner that calls LLM with structured output to produce an `ExecutionPlan` of atomic `ExecutionStep` items, each annotated with required tools, dependencies, and execution mode (auto/assist/review/manual).
+- Implemented `executeMultiStep()` loop with per-step tool dispatch, consecutive-failure abort (3 strikes), time-budget enforcement, and dependency-aware scheduling.
+- Created Tool Registry (`src/lib/executor/tools/registry.ts`) with `registerTool` / `getTool` / `getToolsForStep` API and 5 built-in tools: `llm_generate`, `knowledge_search`, `file_read`, `file_write`, `code_execute`, `human_ask`.
+- Added safety guardrails module (`guardrails.ts`) with plan validation, token/time budget checks, forbidden-tool enforcement, and `decideRecovery()` for retry/replan/abort decisions.
+- Added SSE streaming endpoint (`POST /api/agent/stream`) emitting `plan_ready`, `step_start`, `step_progress`, `step_complete`, `approval_needed`, `error`, and `execution_done` events.
+- Added human approval endpoint (`POST /api/agent/approve`) for approving or rejecting individual steps mid-execution.
+- Created workflow bridge (`workflow-bridge.ts`) to convert existing `WorkspaceScenario` stages into `ExecutionStep` arrays for multi-step execution.
+- Extended `contracts.ts` with `AgentCoreMultiStepPolicy`, `ExecutionPlan`, `ExecutionStep`, `StepResult`, `MultiStepTrace`, `ExecutionCallbacks`, `GuardrailConfig`, and `ToolCallSpec` types.
+- Added `runMultiStepTask()` entry point in `core.ts` — fully backward-compatible with existing single-turn `runAgentCoreTask()`.
+
+### Verification
+
+- `npx tsc --noEmit` — zero errors
+- `npm run lint` — no new warnings
+- `npx vitest run` — 32 tests passing
+- `npm run test:core-workflows` — all regressions pass
+- `npm run build` — production build succeeds
+
 ## v1.4.0 - 2026-05-23
 
 ### Architecture: page.tsx Decomposition
@@ -47,6 +103,25 @@
 - `npm run build` — production build succeeds
 
 ## Unreleased
+
+### Security And Executor Hardening
+
+- Added local API authorization checks to runtime sidecar, runtime state, executor health, executor session, and executor memory routes so `AGENTCORE_API_AUTH_TOKEN` protects the full local runtime surface consistently.
+- Blocked private, loopback, and link-local webhook URLs in publish dispatch to reduce SSRF risk when webhook publishing is enabled.
+- Hardened multi-step tool approval so tools marked `requiresApproval` cannot be executed without human approval, even when a step is planned as `auto` or a request asks for `approvalMode: none`.
+- Added structured `ToolCallSpec.params` support so planners and callers pass explicit tool arguments instead of relying on descriptions or prompts as tool inputs.
+- Fixed the `code_execute` integration by requiring explicit code, routing execution through the new guarded `/api/runtime/execute` endpoint, and returning bounded stdout/stderr/timeout results.
+
+### Testing
+
+- Added regression coverage for runtime sidecar authorization, state route authorization, publish webhook SSRF blocking, guarded tool approval, and `code_execute` request contracts.
+
+### Verification
+
+- Verified `npx vitest run`
+- Verified `npm run test`
+- Verified `npm run lint`
+- Verified `npm run build`
 
 ### Security And Runtime Hardening
 

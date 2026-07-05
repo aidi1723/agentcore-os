@@ -766,6 +766,70 @@ describe("useMultiStepStream", () => {
     expect(result.current.executionId).toBe("new-run");
   });
 
+  it("does not let stale stream events overwrite a manual durable resume", async () => {
+    const firstPayload = [
+      "event: plan_ready\n",
+      `data: ${JSON.stringify({ plan: makeRun().plan })}\n`,
+      "\n",
+    ].join("");
+    const stalePayload = [
+      "event: step_complete\n",
+      `data: ${JSON.stringify({
+        executionId: "stale-exec",
+        stepId: "stale-review",
+        status: "completed",
+        output: { stale: true },
+        durationMs: 1,
+        tokensUsed: 0,
+        toolCallResults: [],
+      })}\n`,
+      "\n",
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: true, executionId: "stale-exec" })}\n`,
+      "\n",
+    ].join("");
+    const stream = mockGatedStreamResponse(firstPayload, stalePayload, "stale-exec");
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(stream.response)
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          resumedStepIds: ["review", "writeback"],
+          run: makeRun(),
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    let startPromise!: Promise<void>;
+    act(() => {
+      startPromise = result.current.start("stale run");
+    });
+
+    await waitFor(() => {
+      expect(result.current.executionId).toBe("stale-exec");
+    });
+
+    await act(async () => {
+      await result.current.resume("exec-1");
+    });
+
+    expect(result.current.executionId).toBe("exec-1");
+    expect(result.current.stepResults.map((step) => step.stepId)).toEqual(["review", "writeback"]);
+
+    await act(async () => {
+      stream.releaseNextRead();
+      await startPromise;
+    });
+
+    expect(result.current.status).toBe("done");
+    expect(result.current.executionId).toBe("exec-1");
+    expect(result.current.stepResults.map((step) => step.stepId)).toEqual(["review", "writeback"]);
+  });
+
   it.each([
     ["pending approval", { state: "pending", requestedAt: 12 }],
     ["timed-out approval", { state: "timed_out", requestedAt: 12 }],

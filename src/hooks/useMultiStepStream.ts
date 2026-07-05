@@ -63,6 +63,10 @@ type ControlledRunResponse = {
   };
 };
 
+type ResumeOptions = {
+  continueCurrentGeneration?: boolean;
+};
+
 function stepDurationMs(step: ControlledExecutionStepRecord) {
   if (typeof step.startedAt === "number" && typeof step.finishedAt === "number") {
     return Math.max(0, step.finishedAt - step.startedAt);
@@ -342,13 +346,21 @@ export function useMultiStepStream() {
     }
   }, [handleEvent, isCurrentGeneration, setStateForGeneration]);
 
-  const resume = useCallback(async (runId?: string) => {
+  const resume = useCallback(async (runId?: string, options?: ResumeOptions) => {
     if (resumeInFlightRef.current) return;
 
+    const continueCurrentGeneration = options?.continueCurrentGeneration === true;
+    if (!continueCurrentGeneration) {
+      operationGenerationRef.current += 1;
+      abortRef.current?.abort();
+      streamActiveRef.current = false;
+      resumeAfterApprovalRef.current = false;
+      approvalInFlightRef.current = false;
+    }
     const generation = operationGenerationRef.current;
     const targetRunId = runId ?? state.executionId;
     if (!targetRunId) {
-      setState((s) => ({
+      setStateForGeneration(generation, (s) => ({
         ...s,
         status: "error",
         error: "Cannot resume controlled run without an execution id",
@@ -474,7 +486,7 @@ export function useMultiStepStream() {
       if (shouldResumeAfterApproval) {
         resumeAfterApprovalRef.current = false;
         setStateForGeneration(generation, (s) => ({ ...s, approvalRequest: null }));
-        await resume(executionId);
+        await resume(executionId, { continueCurrentGeneration: true });
         return;
       }
 

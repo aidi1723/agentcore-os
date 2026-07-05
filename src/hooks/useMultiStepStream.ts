@@ -5,7 +5,6 @@ import { useCallback, useRef, useState } from "react";
 import { buildAgentCoreApiUrl } from "@/lib/app-api";
 import type { ExecutionPlan, ExecutionStep, StepResult } from "@/lib/executor/contracts";
 import type {
-  ControlledApprovalRecord,
   ControlledExecutionRunRecord,
   ControlledExecutionStepRecord,
 } from "@/lib/executor/runtime/types";
@@ -82,7 +81,6 @@ function durableStepToResult(step: ControlledExecutionStepRecord): StepResult | 
 function approvalToRequest(
   run: ControlledExecutionRunRecord,
   step: ControlledExecutionStepRecord,
-  approval: ControlledApprovalRecord,
 ): ApprovalRequest {
   const planStep = run.plan.steps.find((item) => item.id === step.stepId);
   return {
@@ -99,7 +97,7 @@ function projectRunState(run: ControlledExecutionRunRecord): MultiStepStreamStat
     (step) => step.state === "awaiting_approval" && step.approval?.state === "pending",
   );
   const approvalRequest = approvalStep?.approval
-    ? approvalToRequest(run, approvalStep, approvalStep.approval)
+    ? approvalToRequest(run, approvalStep)
     : null;
   const stepResults = run.steps
     .map(durableStepToResult)
@@ -250,7 +248,8 @@ export function useMultiStepStream() {
         setState((s) =>
           data.ok === true
             ? { ...s, status: "done" }
-            : s.approvalRequest &&
+            : s.status !== "error" &&
+                s.approvalRequest &&
                 typeof data.error === "string" &&
                 data.error.toLowerCase().includes("awaiting approval")
               ? { ...s, status: "awaiting_approval", error: null }

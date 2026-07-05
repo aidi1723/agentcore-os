@@ -26,6 +26,7 @@ function StatusBadge({ status }: { status: MultiStepStatus }) {
     idle: { label: "就绪", color: "bg-gray-100 text-gray-600" },
     connecting: { label: "连接中", color: "bg-yellow-100 text-yellow-700" },
     running: { label: "执行中", color: "bg-blue-100 text-blue-700" },
+    resuming: { label: "恢复中", color: "bg-blue-100 text-blue-700" },
     awaiting_approval: { label: "等待审批", color: "bg-orange-100 text-orange-700" },
     done: { label: "完成", color: "bg-green-100 text-green-700" },
     error: { label: "错误", color: "bg-red-100 text-red-700" },

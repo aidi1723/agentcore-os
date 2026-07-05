@@ -413,9 +413,12 @@ export function useMultiStepStream() {
         if (!isCurrentGeneration(generation)) return;
         if (durableRun) {
           const projected = projectRunState(durableRun);
+          const projectedError = projected.status === "awaiting_approval" && !projected.approvalRequest
+            ? error
+            : projected.error;
           resumeAfterApprovalRef.current = Boolean(projected.approvalRequest);
           streamActiveRef.current = false;
-          setStateForGeneration(generation, () => projected);
+          setStateForGeneration(generation, () => ({ ...projected, error: projectedError }));
           return;
         }
       }

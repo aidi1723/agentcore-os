@@ -310,6 +310,99 @@ describe("useMultiStepStream", () => {
     expect(result.current.stepResults.map((step) => step.stepId)).toEqual(["review", "writeback"]);
   });
 
+  it("reports an error when resume is called without an execution id", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.resume();
+    });
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(result.current.status).toBe("error");
+    expect(result.current.error).toBe("Cannot resume controlled run without an execution id");
+  });
+
+  it("does not resume after approval rejection", async () => {
+    const payload = [
+      "event: approval_needed\n",
+      `data: ${JSON.stringify({
+        executionId: "exec-1",
+        stepId: "review",
+        title: "Review",
+        mode: "review",
+      })}\n`,
+      "\n",
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: false, error: "Awaiting approval for review" })}\n`,
+      "\n",
+    ].join("");
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockStreamResponse(payload))
+      .mockResolvedValueOnce(mockJsonResponse({ ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.start("Run controlled workflow");
+    });
+    await act(async () => {
+      await result.current.approve(false, "用户拒绝");
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.current.status).toBe("error");
+    expect(result.current.error).toBe("用户拒绝");
+  });
+
+  it("allows manual resume after a stream error when a run id is known", async () => {
+    const payload = [
+      "event: step_complete\n",
+      `data: ${JSON.stringify({
+        stepId: "review",
+        status: "completed",
+        durationMs: 1,
+        tokensUsed: 0,
+        toolCallResults: [],
+      })}\n`,
+      "\n",
+    ].join("");
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockStreamResponse(payload))
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          resumedStepIds: ["writeback"],
+          run: makeRun(),
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.start("Run controlled workflow");
+    });
+    expect(result.current.status).toBe("error");
+    expect(result.current.canResume).toBe(true);
+
+    await act(async () => {
+      await result.current.resume();
+    });
+
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(result.current.status).toBe("done");
+  });
+
   it("ignores duplicate approval calls while approval is in flight", async () => {
     const payload = [
       "event: plan_ready\n",
@@ -1232,5 +1325,6 @@ describe("useMultiStepStream", () => {
     expect(result.current.status).toBe("awaiting_approval");
     expect(result.current.currentStepId).toBe("writeback");
     expect(result.current.approvalRequest).toBeNull();
+    expect(result.current.error).toBe("Controlled run is awaiting approval");
   });
 });

@@ -31,6 +31,7 @@ import {
   validateControlledPlaybook,
   validateExecutionPlanAgainstPlaybook,
 } from "@/lib/executor/playbooks/validator";
+import { createControlledExecutionRun } from "@/lib/server/controlled-execution-store";
 
 type AgentCoreTaskOk = {
   ok: true;
@@ -785,6 +786,25 @@ export async function runMultiStepTask(
       currentStepIndex: 0,
     };
     return { ok: false, trace: emptyTrace, error: "Planner produced no steps" };
+  }
+
+  if (controlledPlanResolution?.ok && normalizedRequest.controlledPlaybookId) {
+    const playbook = getControlledPlaybook(normalizedRequest.controlledPlaybookId);
+    if (playbook) {
+      await createControlledExecutionRun({
+        id: normalizedRequest.metadata.requestId,
+        requestId: normalizedRequest.metadata.requestId,
+        sessionId: normalizedRequest.session.id,
+        workflowRunId:
+          typeof normalizedRequest.context.workspace?.workflowRunId === "string"
+            ? normalizedRequest.context.workspace.workflowRunId
+            : undefined,
+        scenarioId: playbook.scenarioId,
+        playbookId: playbook.id,
+        playbookVersion: playbook.version,
+        plan,
+      });
+    }
   }
 
   const trace = await executeMultiStep(plan, normalizedRequest, callbacks);

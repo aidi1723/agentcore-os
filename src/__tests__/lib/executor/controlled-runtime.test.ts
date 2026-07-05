@@ -1,4 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { mkdtemp, rm } from "node:fs/promises";
+import path from "node:path";
+import os from "node:os";
 
 import { runMultiStepTask } from "@/lib/executor/core";
 import { registerTool } from "@/lib/executor/tools/registry";
@@ -8,6 +11,23 @@ import type {
 } from "@/lib/executor/contracts";
 import { resolveExecutionPlanFromPlaybook } from "@/lib/executor/playbooks/resolver";
 import { salesPipelinePlaybook } from "@/lib/executor/playbooks/sales-pipeline";
+
+let tmpDir: string;
+let originalCwd: () => string;
+
+beforeEach(async () => {
+  tmpDir = await mkdtemp(path.join(os.tmpdir(), "controlled-runtime-test-"));
+  originalCwd = process.cwd;
+  process.cwd = () => tmpDir;
+  const jsonStore = await import("@/lib/server/json-store");
+  jsonStore.invalidateCache();
+});
+
+afterEach(async () => {
+  vi.unstubAllGlobals();
+  process.cwd = originalCwd;
+  await rm(tmpDir, { recursive: true, force: true });
+});
 
 registerTool({
   name: "llm_generate",
@@ -144,5 +164,23 @@ describe("controlled runtime execution", () => {
     expect(result.trace.success).toBe(false);
     expect(result.trace.stepResults).toHaveLength(0);
     expect(events).toEqual([]);
+  });
+
+  it("creates a durable controlled execution run before executing steps", async () => {
+    const { getControlledExecutionRun } = await import(
+      "@/lib/server/controlled-execution-store"
+    );
+    vi.stubGlobal("fetch", vi.fn());
+    const request = buildRequest();
+    const { callbacks } = buildCallbacks();
+
+    const result = await runMultiStepTask(request, callbacks);
+    const run = await getControlledExecutionRun(request.metadata.requestId);
+
+    expect(result.ok).toBe(true);
+    expect(run?.id).toBe(request.metadata.requestId);
+    expect(run?.requestId).toBe(request.metadata.requestId);
+    expect(run?.playbookId).toBe("sales-pipeline-v1");
+    expect(run?.planId).toBe("playbook:sales-pipeline-v1:1.0.0");
   });
 });

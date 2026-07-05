@@ -1,6 +1,6 @@
 # Next Steps
 
-Last updated: 2026-03-11
+Last updated: 2026-07-05
 
 This document is the execution backlog for the current `main` branch. It is narrower and more implementation-oriented than the public roadmap.
 
@@ -14,6 +14,13 @@ AgentCore OS is already beyond a pure UI shell:
 - `npm run lint` and `npm run build` pass
 
 The main gap is no longer feature count. The main gap is turning the existing surface area into a smaller number of reliable, intelligent, scenario-ready workflows.
+
+2026-07-05 update:
+
+- The project direction is now explicitly narrowed to a controlled Skill / Playbook Runtime.
+- `sales-pipeline-v1` is the first fixed playbook path and no longer depends on default LLM planning for its step order.
+- Durable controlled run records, approval records, resume routes, and client recovery are now in place.
+- The next default implementation stage is not another app or generic skill; it is real asset writeback from approved controlled runs.
 
 ## Product direction
 
@@ -51,32 +58,50 @@ That means management passwords, admin gates, and broader permission models are 
 
 These items unblock the next stage of the project and should be treated as the default priority.
 
-### 0. Converge on an internal executor core
+### 0. Close controlled run asset writeback
+
+Why:
+- controlled runs can now pause, resume, and recover, but their `writebackReceipts` are still mostly receipts rather than real asset writes
+- the sales pipeline only becomes a trustworthy business workflow when approved output lands in sales and knowledge assets
+- this is the next proof that AgentCore OS is a runtime for controlled work, not a demo shell
+
+Scope:
+- convert approved `sales-pipeline-v1` step outputs into server-backed `sales-assets` and `knowledge-assets`
+- make writeback idempotent by `workflowRunId` / controlled run id / source key
+- record real writeback receipts in the controlled run step trace
+- keep rejected or unapproved outputs out of high-trust assets
+- add tests that prove writeback updates stores and receipts without replaying completed steps
+
+Primary files:
+- `src/lib/executor/runtime/writeback.ts`
+- `src/lib/executor/step-executor.ts`
+- `src/lib/server/sales-asset-store.ts`
+- `src/lib/server/knowledge-asset-store.ts`
+- `src/lib/server/controlled-execution-store.ts`
+- `src/__tests__/lib/executor/runtime/writeback.test.ts`
+- `src/__tests__/lib/executor/runtime/resume.test.ts`
+
+Expected outcome:
+- a completed controlled sales run leaves inspectable sales and knowledge assets
+- the run trace shows exactly what was written, skipped, or rejected
+- approving a controlled run is operationally useful, not only a UI state change
+
+### 0.1. Converge on an internal executor core
 
 Why:
 - AgentCore OS still has split execution semantics across browser, server, and sidecar paths
-- this is now a bigger risk than feature count because the same workflow can behave differently by runtime shape
+- this remains a risk because the same workflow can behave differently by runtime shape
 - a solution operating system cannot depend on external runtime semantics for its core execution identity
 
 Scope:
-- define one internal executor contract for task input, session, context, skill policy, model config, result, and trace
-- route current OpenClaw or runtime-facing API entrypoints through the same internal executor core
-- move session ownership into AgentCore OS instead of depending on external process session semantics
+- continue routing current OpenClaw or runtime-facing API entrypoints through the same internal executor core
+- keep session ownership in AgentCore OS instead of depending on external process session semantics
 - turn skills into auditable execution units instead of prompt-only capability hints
 - keep external runtimes as optional compatibility adapters, not as the source of truth
-
-Primary files:
-- new `src/lib/executor/*`
-- `src/lib/openclaw-agent-client.ts`
-- `src/app/api/openclaw/agent/route.ts`
-- `src/app/api/runtime/**`
-- `src/components/apps/OpenClawConsoleAppWindow.tsx`
-- `src/lib/app-api.ts`
 
 Expected outcome:
 - one stable execution contract across browser and desktop modes
 - session continuity owned by AgentCore OS
-- better precision because system prompt, workspace context, and model config stop drifting by environment
 - external runtimes become replaceable adapters instead of hidden control planes
 
 ### 1. Deepen the sales hero workflow

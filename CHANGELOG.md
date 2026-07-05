@@ -104,6 +104,25 @@
 
 ## Unreleased
 
+### Controlled Playbook Runtime
+
+- Added the `sales-pipeline-v1` controlled playbook path with fixed step order, playbook validation, durable controlled run records, persistent approval records, and resume routing.
+- Wired the multi-step client to recover durable controlled runs after approval, stream loss, resume conflicts, interrupted approval streams, and manual recovery actions.
+- Added the compact `继续执行` recovery action to the multi-step panel and a `恢复中` runtime status badge aligned with the operational cockpit design contract.
+- Added regression coverage for fixed playbook execution, controlled runtime persistence, resume route conflicts, stale stream/resume races, rejected approvals, missing run ids, and interrupted approval streams.
+
+### Framework Alignment
+
+- Added project-level `AGENTS.md` workflow rules and `DESIGN.md` design contract as the default collaboration and UI implementation framework for future work.
+- Re-centered the next-stage backlog around controlled runtime reliability, traceability, approval recovery, and asset writeback instead of adding more app-shell surface area.
+
+### Verification
+
+- Verified `npm run test:controlled-runtime` — 14 files, 95 tests passing.
+- Verified `npm run test:core-workflows` — all core workflow regressions passing.
+- Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- Verified `npm run build` — exit 0 with the same existing `<img>` warning.
+
 ### Security And Executor Hardening
 
 - Added local API authorization checks to runtime sidecar, runtime state, executor health, executor session, and executor memory routes so `AGENTCORE_API_AUTH_TOKEN` protects the full local runtime surface consistently.

@@ -308,6 +308,29 @@ type ControlledPlaybookStep = {
 下一步具体实施计划见：
 
 - [Controlled Agent Runtime Next Steps Implementation Plan](superpowers/plans/2026-07-05-controlled-agent-runtime-next-steps.md)
+- [Controlled Run Asset Writeback Implementation Plan](superpowers/plans/2026-07-05-controlled-run-asset-writeback.md)
+
+### 8.1 当前进度快照（2026-07-05）
+
+已完成：
+
+- Phase 0 方向冻结：项目主线已经收口为可控 Skill / Playbook Runtime。
+- Phase 1 固定 plan 来源：`sales-pipeline-v1` 已有固定 playbook、resolver、validator，并通过 `test:controlled-runtime` 覆盖。
+- Phase 2 基础 step schema 和工具策略：playbook step 已声明输入输出 schema、allowed tools、approval requirements；受控输出校验已接入执行链。
+- Phase 3 的 durable run / approval / resume 基线：controlled run store、approval record、resume route、client-side resume/recovery 已打通。
+- Client recovery：审批后 resume、手动 resume、stream loss、resume conflict、approval-in-flight 后 stream loss 等路径都有回归测试。
+
+仍未完成：
+
+- `runtime/writeback.ts` 当前只生成 writeback receipt，还没有真正写入 `sales-assets` / `knowledge-assets` server store。
+- Runtime Console 还不能按 run 展示完整 trace、approval 决策、writeback receipt 和资产落点。
+- sales workflow 的 approved output 还没有形成可复用资产闭环。
+
+因此下一阶段默认进入：
+
+**Phase 4. Controlled Run Asset Writeback**
+
+目标是把 sales-pipeline 的 approved output 写入 server-backed sales asset 和 knowledge asset，并把真实写回结果记录回 controlled run trace。
 
 ### Phase 0. 冻结方向
 

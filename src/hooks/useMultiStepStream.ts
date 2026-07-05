@@ -283,7 +283,9 @@ export function useMultiStepStream() {
       const executionId = res.headers.get("X-Execution-Id") ?? null;
       setStateForGeneration(generation, (s) => ({ ...s, status: "running", executionId }));
 
+      if (!isCurrentGeneration(generation)) return;
       const reader = res.body.getReader();
+      if (!isCurrentGeneration(generation)) return;
       streamActiveRef.current = true;
       const decoder = new TextDecoder();
       let buffer = "";
@@ -354,6 +356,7 @@ export function useMultiStepStream() {
     }
 
     resumeInFlightRef.current = true;
+    streamActiveRef.current = false;
     setState((s) => ({ ...s, status: "resuming", error: null }));
 
     try {
@@ -381,6 +384,7 @@ export function useMultiStepStream() {
 
       if (res.ok && data.ok) {
         resumeAfterApprovalRef.current = false;
+        streamActiveRef.current = false;
         setStateForGeneration(generation, () => projectRunState(data.data.run));
         return;
       }
@@ -394,6 +398,7 @@ export function useMultiStepStream() {
         const durableRun = await fetchDurableControlledRun(data.data.runId ?? targetRunId);
         if (!isCurrentGeneration(generation)) return;
         if (durableRun) {
+          streamActiveRef.current = false;
           setStateForGeneration(generation, () => projectRunState(durableRun));
           return;
         }

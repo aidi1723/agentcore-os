@@ -135,12 +135,16 @@ export function useMultiStepStream() {
   });
 
   const abortRef = useRef<AbortController | null>(null);
+  const streamActiveRef = useRef(false);
+  const resumeAfterApprovalRef = useRef(false);
 
   const start = useCallback(async (message: string, options?: {
     maxSteps?: number;
     approvalMode?: "none" | "each-review-step" | "final";
   }) => {
     abortRef.current?.abort();
+    streamActiveRef.current = false;
+    resumeAfterApprovalRef.current = false;
     const controller = new AbortController();
     abortRef.current = controller;
 
@@ -175,33 +179,40 @@ export function useMultiStepStream() {
       setState((s) => ({ ...s, status: "running", executionId }));
 
       const reader = res.body.getReader();
+      streamActiveRef.current = true;
       const decoder = new TextDecoder();
       let buffer = "";
       let executionDone = false;
       let streamFailed = false;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
 
-        let eventType = "";
-        for (const line of lines) {
-          if (line.startsWith("event: ")) {
-            eventType = line.slice(7);
-          } else if (line.startsWith("data: ") && eventType) {
-            const data = JSON.parse(line.slice(6));
-            if (eventType === "execution_done") {
-              executionDone = true;
-            } else if (eventType === "error") {
-              streamFailed = true;
+          let eventType = "";
+          for (const line of lines) {
+            if (line.startsWith("event: ")) {
+              eventType = line.slice(7);
+            } else if (line.startsWith("data: ") && eventType) {
+              const data = JSON.parse(line.slice(6));
+              if (eventType === "execution_done") {
+                executionDone = true;
+              } else if (eventType === "error") {
+                streamFailed = true;
+              }
+              handleEvent(eventType, data);
+              eventType = "";
             }
-            handleEvent(eventType, data);
-            eventType = "";
           }
+        }
+      } finally {
+        if (abortRef.current === controller) {
+          streamActiveRef.current = false;
         }
       }
 
@@ -247,12 +258,18 @@ export function useMultiStepStream() {
       case "execution_done":
         setState((s) =>
           data.ok === true
-            ? { ...s, status: "done" }
+            ? (() => {
+                resumeAfterApprovalRef.current = false;
+                return { ...s, status: "done" };
+              })()
             : s.status !== "error" &&
                 s.approvalRequest &&
                 typeof data.error === "string" &&
                 data.error.toLowerCase().includes("awaiting approval")
-              ? { ...s, status: "awaiting_approval", error: null }
+              ? (() => {
+                  resumeAfterApprovalRef.current = true;
+                  return { ...s, status: "awaiting_approval", error: null };
+                })()
             : {
                 ...s,
                 status: "error",
@@ -287,8 +304,20 @@ export function useMultiStepStream() {
           headers: { "Content-Type": "application/json" },
         },
       );
-      const data = (await res.json()) as ResumeResponse;
+      let data: ResumeResponse;
+      try {
+        data = (await res.json()) as ResumeResponse;
+      } catch {
+        setState((s) => ({
+          ...s,
+          status: "error",
+          error: `Resume failed: HTTP ${res.status}`,
+        }));
+        return;
+      }
+
       if (res.ok && data.ok) {
+        resumeAfterApprovalRef.current = false;
         setState(projectRunState(data.data.run));
         return;
       }
@@ -335,6 +364,7 @@ export function useMultiStepStream() {
     }
 
     if (!approved) {
+      resumeAfterApprovalRef.current = false;
       setState((s) => ({
         ...s,
         status: "error",
@@ -344,8 +374,19 @@ export function useMultiStepStream() {
       return;
     }
 
-    setState((s) => ({ ...s, approvalRequest: null }));
-    await resume(executionId);
+    if (resumeAfterApprovalRef.current || !streamActiveRef.current) {
+      resumeAfterApprovalRef.current = false;
+      setState((s) => ({ ...s, approvalRequest: null }));
+      await resume(executionId);
+      return;
+    }
+
+    setState((s) => ({
+      ...s,
+      status: "running",
+      approvalRequest: null,
+      error: null,
+    }));
   }, [resume, state]);
 
   const stop = useCallback(() => {

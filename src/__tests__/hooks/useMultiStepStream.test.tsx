@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useMultiStepStream } from "@/hooks/useMultiStepStream";
@@ -27,6 +27,40 @@ function mockJsonResponse(body: unknown, status = 200) {
     ok: status >= 200 && status < 300,
     status,
     json: vi.fn().mockResolvedValue(body),
+  };
+}
+
+function mockGatedStreamResponse(
+  firstPayload: string,
+  secondPayload: string,
+  executionId = "exec-1",
+) {
+  let releaseNextRead: (() => void) | null = null;
+  const nextRead = new Promise<void>((resolve) => {
+    releaseNextRead = resolve;
+  });
+  const reader = {
+    read: vi.fn()
+      .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode(firstPayload) })
+      .mockImplementationOnce(async () => {
+        await nextRead;
+        return { done: false, value: new TextEncoder().encode(secondPayload) };
+      })
+      .mockResolvedValueOnce({ done: true, value: undefined }),
+  };
+
+  return {
+    response: {
+      ok: true,
+      status: 200,
+      headers: {
+        get: (name: string) => (name === "X-Execution-Id" ? executionId : null),
+      },
+      body: {
+        getReader: () => reader,
+      },
+    },
+    releaseNextRead: () => releaseNextRead?.(),
   };
 }
 
@@ -200,5 +234,100 @@ describe("useMultiStepStream", () => {
     expect(result.current.status).toBe("done");
     expect(result.current.approvalRequest).toBeNull();
     expect(result.current.stepResults.map((step) => step.stepId)).toEqual(["review", "writeback"]);
+  });
+
+  it("does not call resume after approval while the original stream is active", async () => {
+    const firstPayload = [
+      "event: plan_ready\n",
+      `data: ${JSON.stringify({ plan: makeRun().plan })}\n`,
+      "\n",
+      "event: approval_needed\n",
+      `data: ${JSON.stringify({
+        executionId: "exec-1",
+        stepId: "review",
+        title: "Review",
+        description: "Approve generated draft",
+        mode: "review",
+      })}\n`,
+      "\n",
+    ].join("");
+    const secondPayload = [
+      "event: step_complete\n",
+      `data: ${JSON.stringify({
+        stepId: "review",
+        status: "completed",
+        output: { approved: true },
+        durationMs: 1,
+        tokensUsed: 0,
+        toolCallResults: [],
+      })}\n`,
+      "\n",
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: true })}\n`,
+      "\n",
+    ].join("");
+    const stream = mockGatedStreamResponse(firstPayload, secondPayload);
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(stream.response)
+      .mockResolvedValueOnce(mockJsonResponse({ ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    let startPromise!: Promise<void>;
+    act(() => {
+      startPromise = result.current.start("Run controlled workflow");
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe("awaiting_approval");
+      expect(result.current.approvalRequest?.stepId).toBe("review");
+    });
+
+    await act(async () => {
+      await result.current.approve(true);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      expect.anything(),
+    );
+
+    await act(async () => {
+      stream.releaseNextRead();
+      await startPromise;
+    });
+
+    expect(result.current.status).toBe("done");
+  });
+
+  it("reports the resume HTTP status when an error response is not JSON", async () => {
+    const payload = [
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: true })}\n`,
+      "\n",
+    ].join("");
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockStreamResponse(payload))
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        json: vi.fn().mockRejectedValue(new SyntaxError("Unexpected end of JSON input")),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.start("Run controlled workflow");
+    });
+
+    await act(async () => {
+      await result.current.resume("exec-1");
+    });
+
+    expect(result.current.status).toBe("error");
+    expect(result.current.error).toBe("Resume failed: HTTP 500");
   });
 });

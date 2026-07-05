@@ -21,6 +21,8 @@ export function resolveExecutionPlanFromPlaybook(playbook: ControlledPlaybook): 
         : step.allowedTools.slice(0, 1).map((toolName) => ({ toolName })),
     dependsOn: index > 0 ? [playbook.steps[index - 1].id] : [],
     mode: step.mode,
+    outputSchema: step.outputSchema,
+    onFailure: step.onFailure,
   }));
 
   return {

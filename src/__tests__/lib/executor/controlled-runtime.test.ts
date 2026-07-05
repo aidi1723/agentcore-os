@@ -34,12 +34,62 @@ registerTool({
   description: "test LLM generator",
   parameters: { type: "object" },
   requiresApproval: false,
-  execute: async () => ({
-    toolName: "llm_generate",
-    success: true,
-    output: { ok: true },
-    durationMs: 0,
-  }),
+  execute: async (params) => {
+    const prompt = String((params as { prompt?: string }).prompt ?? "");
+    let output: unknown = { ok: true };
+    if (prompt.includes("把客户询盘整理")) {
+      output = {
+        summary: "Website lead for ACME",
+        missingFields: [],
+        normalizedLead: { company: "ACME", inquiryChannel: "website", productLine: "windows" },
+      };
+    } else if (prompt.includes("判断线索是否值得")) {
+      output = {
+        priority: "high",
+        reasons: ["Clear product interest"],
+        risks: [],
+        nextAction: "Draft outreach",
+      };
+    } else if (prompt.includes("生成可供人工审核")) {
+      output = {
+        subject: "Following up on your window inquiry",
+        body: "Thanks for your inquiry. We can confirm details after reviewing requirements.",
+        assumptions: [],
+        needsHumanCheck: [],
+      };
+    }
+    return {
+      toolName: "llm_generate",
+      success: true,
+      output,
+      durationMs: 0,
+    };
+  },
+});
+
+registerTool({
+  name: "human_ask",
+  description: "test human ask",
+  parameters: { type: "object" },
+  requiresApproval: false,
+  execute: async (params) => {
+    const prompt = String((params as { prompt?: string }).prompt ?? "");
+    return {
+      toolName: "human_ask",
+      success: true,
+      output: prompt.includes("把已批准结果写回")
+        ? {
+            salesAssetUpdated: true,
+            knowledgeAssetCandidate: "Approved outreach content",
+          }
+        : {
+            approved: true,
+            approvedBody: "Approved outreach body",
+            reviewNotes: "Looks good",
+          },
+      durationMs: 0,
+    };
+  },
 });
 
 function buildRequest(): AgentCoreTaskRequest {

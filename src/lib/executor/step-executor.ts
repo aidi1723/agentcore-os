@@ -8,10 +8,17 @@ import type {
   StepResult,
   ToolCallResult,
 } from "@/lib/executor/contracts";
+import type { ControlledPlaybookSchema } from "@/lib/executor/playbooks/types";
 import { getTool } from "@/lib/executor/tools";
 import type { ToolContext } from "@/lib/executor/tools/registry";
 import { executorLog } from "@/lib/executor/logger";
 import { shouldRequireApproval } from "@/lib/executor/guardrails";
+import { buildControlledStepInput } from "@/lib/executor/runtime/step-input";
+import { validateControlledOutput } from "@/lib/executor/runtime/schema";
+import {
+  updateControlledExecutionRun,
+  updateControlledExecutionStep,
+} from "@/lib/server/controlled-execution-store";
 
 const DEFAULT_GUARDRAILS: GuardrailConfig = {
   maxTotalTokens: 50_000,
@@ -135,6 +142,7 @@ export async function executeMultiStep(
   const executionStart = Date.now();
   const abortController = new AbortController();
   const reqId = request.metadata.requestId;
+  const shouldPersistControlledTrace = Boolean(request.controlledPlaybookId);
 
   executorLog("info", "execution_start", { requestId: reqId, detail: `${plan.totalSteps} steps` });
 
@@ -215,6 +223,22 @@ export async function executeMultiStep(
     // Execute step
     executorLog("info", "step_start", { requestId: reqId, stepId: step.id });
     callbacks.onStepStart(step, i);
+    const stepInput = buildControlledStepInput({
+      request,
+      step,
+      stepIndex: i,
+      previousResults: trace.stepResults,
+    });
+    if (shouldPersistControlledTrace) {
+      await updateControlledExecutionRun(reqId, {
+        state: "running",
+        currentStepId: step.id,
+      }).catch(() => null);
+      await updateControlledExecutionStep(reqId, step.id, {
+        state: "running",
+        input: stepInput,
+      }).catch(() => null);
+    }
     const result = await executeSingleStep(
       step,
       request,
@@ -222,7 +246,30 @@ export async function executeMultiStep(
       config,
       abortController.signal,
     );
+    if (result.status === "completed" && step.outputSchema) {
+      const validation = validateControlledOutput(
+        result.output,
+        step.outputSchema as ControlledPlaybookSchema,
+      );
+      if (shouldPersistControlledTrace) {
+        await updateControlledExecutionStep(reqId, step.id, {
+          schemaValidation: { ...validation, checkedAt: Date.now() },
+        }).catch(() => null);
+      }
+      if (!validation.valid) {
+        result.status = "failed";
+        result.error = validation.errors.join("; ");
+      }
+    }
     trace.stepResults.push(result);
+    if (shouldPersistControlledTrace) {
+      await updateControlledExecutionStep(reqId, step.id, {
+        state: result.status,
+        output: result.output,
+        error: result.error,
+        toolCallResults: result.toolCallResults,
+      }).catch(() => null);
+    }
     callbacks.onStepComplete(result);
 
     // Failure tracking
@@ -248,6 +295,13 @@ export async function executeMultiStep(
   );
   if (!trace.success && !trace.error) {
     trace.error = trace.stepResults.find((result) => result.status === "failed")?.error;
+  }
+
+  if (shouldPersistControlledTrace) {
+    await updateControlledExecutionRun(reqId, {
+      state: trace.success ? "completed" : "failed",
+      error: trace.error,
+    }).catch(() => null);
   }
 
   executorLog("info", "execution_done", {

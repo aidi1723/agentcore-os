@@ -298,6 +298,11 @@ export type ExecutionStep = {
   dependsOn: string[];
   mode: "auto" | "assist" | "review" | "manual";
   estimatedTokens?: number;
+  outputSchema?: Record<string, unknown>;
+  onFailure?: {
+    action: "retry" | "await_human" | "fail_run";
+    maxRetries?: number;
+  };
 };
 
 export type ExecutionPlan = {

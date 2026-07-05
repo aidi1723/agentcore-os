@@ -1,4 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
+import { mkdtemp, rm } from "node:fs/promises";
+import path from "node:path";
+import os from "node:os";
 import { executeMultiStep } from "@/lib/executor/step-executor";
 import { registerTool } from "@/lib/executor/tools/registry";
 import type {
@@ -7,6 +10,22 @@ import type {
   ExecutionPlan,
   ExecutionStep,
 } from "@/lib/executor/contracts";
+
+let tmpDir: string;
+let originalCwd: () => string;
+
+beforeEach(async () => {
+  tmpDir = await mkdtemp(path.join(os.tmpdir(), "step-executor-test-"));
+  originalCwd = process.cwd;
+  process.cwd = () => tmpDir;
+  const jsonStore = await import("@/lib/server/json-store");
+  jsonStore.invalidateCache();
+});
+
+afterEach(async () => {
+  process.cwd = originalCwd;
+  await rm(tmpDir, { recursive: true, force: true });
+});
 
 function makeStep(overrides: Partial<ExecutionStep> = {}): ExecutionStep {
   return {
@@ -212,5 +231,41 @@ describe("step-executor", () => {
     // Should not execute all 4 steps
     const executed = trace.stepResults.filter((r) => r.status !== "skipped");
     expect(executed.length).toBeLessThanOrEqual(3);
+  });
+
+  it("fails controlled execution when a step output violates its output schema", async () => {
+    registerTool({
+      name: "schema_bad_output_tool",
+      description: "bad schema test tool",
+      parameters: { type: "object" },
+      requiresApproval: false,
+      execute: async () => ({
+        toolName: "schema_bad_output_tool",
+        success: true,
+        output: { wrong: true },
+        durationMs: 0,
+      }),
+    });
+
+    const plan = makePlan([
+      makeStep({
+        id: "schema_step",
+        toolCalls: [{ toolName: "schema_bad_output_tool" }],
+        outputSchema: {
+          type: "object",
+          required: ["summary"],
+          properties: {
+            summary: { type: "string" },
+          },
+          additionalProperties: false,
+        },
+      }),
+    ]);
+
+    const trace = await executeMultiStep(plan, makeControlledRequest(), makeCallbacks());
+
+    expect(trace.success).toBe(false);
+    expect(trace.error).toContain("Missing required field: summary");
+    expect(trace.stepResults[0]?.status).toBe("failed");
   });
 });

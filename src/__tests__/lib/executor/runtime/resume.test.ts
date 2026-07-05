@@ -212,4 +212,89 @@ describe("resumeControlledExecutionRun", () => {
     expect(result.state).toBe("failed");
     expect(run?.state).toBe("failed");
   });
+
+  it("does not replay a durable failed step without retry policy", async () => {
+    const calls: string[] = [];
+    registerTool({
+      name: "failed_replay_tool",
+      description: "failed replay tool",
+      parameters: { type: "object" },
+      requiresApproval: false,
+      execute: async () => {
+        calls.push("called");
+        return {
+          toolName: "failed_replay_tool",
+          success: true,
+          output: { ok: true },
+          durationMs: 0,
+        };
+      },
+    });
+    await createControlledExecutionRun({
+      id: "resume-failed-existing-run",
+      requestId: "resume-failed-existing-run",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan: {
+        id: "plan-existing-failed-resume",
+        goal: "existing failed resume",
+        totalSteps: 1,
+        requiresApproval: false,
+        steps: [
+          {
+            id: "failed_step",
+            title: "Failed step",
+            description: "This durable step already failed",
+            toolCalls: [{ toolName: "failed_replay_tool" }],
+            dependsOn: [],
+            mode: "auto",
+          },
+        ],
+      },
+    });
+    await updateControlledExecutionStep("resume-failed-existing-run", "failed_step", {
+      state: "failed",
+      error: "previous failure",
+      toolCallResults: [],
+    });
+    await updateControlledExecutionRun("resume-failed-existing-run", {
+      state: "running",
+      currentStepId: "failed_step",
+    });
+
+    const result = await resumeControlledExecutionRun("resume-failed-existing-run");
+
+    expect(result.ok).toBe(false);
+    expect(result.status).toBe(409);
+    expect(result.error).toBe("Cannot resume failed step failed_step");
+    expect(calls).toEqual([]);
+  });
+
+  it("marks a rejected approval run as failed", async () => {
+    await seedRun();
+    await updateControlledExecutionStep("resume-run-1", "human_review", {
+      state: "awaiting_approval",
+      approval: {
+        executionId: "resume-run-1",
+        stepId: "human_review",
+        state: "rejected",
+        requestedAt: Date.now(),
+        resolvedAt: Date.now(),
+        feedback: "no",
+      },
+    });
+    await updateControlledExecutionRun("resume-run-1", {
+      state: "awaiting_approval",
+      currentStepId: "human_review",
+    });
+
+    const result = await resumeControlledExecutionRun("resume-run-1");
+    const run = await getControlledExecutionRun("resume-run-1");
+
+    expect(result.ok).toBe(false);
+    expect(result.status).toBe(409);
+    expect(result.state).toBe("failed");
+    expect(run?.state).toBe("failed");
+  });
 });

@@ -11,6 +11,7 @@ import { executeMultiStep } from "@/lib/executor/step-executor";
 import {
   getControlledExecutionRun,
   requestControlledApproval,
+  updateControlledExecutionRun,
 } from "@/lib/server/controlled-execution-store";
 
 export type ResumeControlledExecutionRunResult =
@@ -136,6 +137,16 @@ export async function resumeControlledExecutionRun(
 
   const startStep = run.plan.steps[startStepIndex];
   const startRecord = run.steps.find((step) => step.stepId === startStep.id);
+  if (startRecord?.state === "failed" && startStep.onFailure?.action !== "retry") {
+    return {
+      ok: false,
+      status: 409,
+      error: `Cannot resume failed step ${startStep.id}`,
+      run,
+      state: run.state,
+      currentStepId: startStep.id,
+    };
+  }
   const startApprovalState = startRecord?.approval?.state;
   const isAwaitingApprovalWithoutDecision =
     startApprovalState === "pending" ||
@@ -152,11 +163,15 @@ export async function resumeControlledExecutionRun(
     };
   }
   if (startRecord?.approval?.state === "rejected") {
+    const updatedRun = await updateControlledExecutionRun(run.id, {
+      state: "failed",
+      error: startRecord.approval.feedback ?? "Controlled run approval was rejected",
+    });
     return {
       ok: false,
       status: 409,
       error: "Controlled run approval was rejected",
-      run,
+      run: updatedRun ?? run,
       state: "failed",
       currentStepId: startStep.id,
     };

@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { buildAgentCoreApiUrl } from "@/lib/app-api";
-import type { ExecutionPlan, ExecutionStep, StepResult } from "@/lib/executor/contracts";
+import type { ExecutionPlan, StepResult } from "@/lib/executor/contracts";
 import type {
   ControlledExecutionRunRecord,
   ControlledExecutionStepRecord,
@@ -330,11 +330,14 @@ export function useMultiStepStream() {
       }
 
       if (!executionDone && !streamFailed) {
-        setStateForGeneration(generation, (s) => ({
-          ...s,
-          status: "error",
-          error: "Stream ended before execution_done",
-        }));
+        setStateForGeneration(generation, (s) => {
+          resumeAfterApprovalRef.current = Boolean(s.executionId && s.approvalRequest);
+          return {
+            ...s,
+            status: "error",
+            error: "Stream ended before execution_done",
+          };
+        });
       }
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
@@ -486,7 +489,9 @@ export function useMultiStepStream() {
         return;
       }
 
-      const shouldResumeAfterApproval = resumeAfterApprovalRef.current && !streamActiveRef.current;
+      const shouldResumeAfterApproval = !streamActiveRef.current && (
+        resumeAfterApprovalRef.current || state.status === "error"
+      );
       if (shouldResumeAfterApproval) {
         resumeAfterApprovalRef.current = false;
         setStateForGeneration(generation, (s) => ({ ...s, approvalRequest: null }));

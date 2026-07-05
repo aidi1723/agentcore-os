@@ -164,4 +164,52 @@ describe("resumeControlledExecutionRun", () => {
     expect(calls).toHaveLength(1);
     expect(calls[0]).toContain("人工确认草稿");
   });
+
+  it("returns a conflict when a resumed step fails", async () => {
+    registerTool({
+      name: "resume_failing_tool",
+      description: "resume failing tool",
+      parameters: { type: "object" },
+      requiresApproval: false,
+      execute: async () => ({
+        toolName: "resume_failing_tool",
+        success: false,
+        output: null,
+        sideEffects: ["resume failed"],
+        durationMs: 0,
+      }),
+    });
+    await createControlledExecutionRun({
+      id: "resume-failing-run",
+      requestId: "resume-failing-run",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan: {
+        id: "plan-failing-resume",
+        goal: "failing resume",
+        totalSteps: 1,
+        requiresApproval: false,
+        steps: [
+          {
+            id: "failing_step",
+            title: "Failing step",
+            description: "This step fails during resume",
+            toolCalls: [{ toolName: "resume_failing_tool" }],
+            dependsOn: [],
+            mode: "auto",
+          },
+        ],
+      },
+    });
+
+    const result = await resumeControlledExecutionRun("resume-failing-run");
+    const run = await getControlledExecutionRun("resume-failing-run");
+
+    expect(result.ok).toBe(false);
+    expect(result.status).toBe(409);
+    expect(result.error).toBe("resume failed");
+    expect(result.state).toBe("failed");
+    expect(run?.state).toBe("failed");
+  });
 });

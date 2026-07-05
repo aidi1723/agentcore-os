@@ -169,7 +169,7 @@ export async function resumeControlledExecutionRun(
     .filter((step) => step.approval?.state === "approved")
     .map((step) => step.stepId);
   const newlyStarted: string[] = [];
-  await executeMultiStep(
+  const trace = await executeMultiStep(
     run.plan,
     buildRequestFromRun(run),
     buildCallbacks(run.id, newlyStarted),
@@ -183,6 +183,16 @@ export async function resumeControlledExecutionRun(
     },
   );
   const updatedRun = await getControlledExecutionRun(run.id);
+  if (!trace.success && updatedRun?.state === "failed") {
+    return {
+      ok: false,
+      status: 409,
+      error: trace.error ?? updatedRun.error ?? "Controlled run failed during resume",
+      run: updatedRun,
+      state: updatedRun.state,
+      currentStepId: updatedRun.currentStepId,
+    };
+  }
 
   return {
     ok: true,

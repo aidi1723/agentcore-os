@@ -414,6 +414,98 @@ describe("useMultiStepStream", () => {
     expect(result.current.status).toBe("done");
   });
 
+  it("does not resume when approval response resolves after the active stream completes", async () => {
+    const firstPayload = [
+      "event: plan_ready\n",
+      `data: ${JSON.stringify({ plan: makeRun().plan })}\n`,
+      "\n",
+      "event: approval_needed\n",
+      `data: ${JSON.stringify({
+        executionId: "exec-1",
+        stepId: "review",
+        title: "Review",
+        description: "Approve generated draft",
+        mode: "review",
+      })}\n`,
+      "\n",
+    ].join("");
+    const secondPayload = [
+      "event: step_complete\n",
+      `data: ${JSON.stringify({
+        stepId: "review",
+        status: "completed",
+        output: { approved: true },
+        durationMs: 1,
+        tokensUsed: 0,
+        toolCallResults: [],
+      })}\n`,
+      "\n",
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: true })}\n`,
+      "\n",
+    ].join("");
+    const stream = mockGatedStreamResponse(firstPayload, secondPayload);
+    const approvalResponse = deferred<ReturnType<typeof mockJsonResponse>>();
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(stream.response)
+      .mockReturnValueOnce(approvalResponse.promise)
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          resumedStepIds: ["review"],
+          run: makeRun(),
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    let startPromise!: Promise<void>;
+    act(() => {
+      startPromise = result.current.start("Run controlled workflow");
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe("awaiting_approval");
+      expect(result.current.approvalRequest?.stepId).toBe("review");
+    });
+
+    let approvalPromise!: Promise<void>;
+    act(() => {
+      approvalPromise = result.current.approve(true);
+    });
+
+    await act(async () => {
+      stream.releaseNextRead();
+      await startPromise;
+    });
+
+    expect(result.current.status).toBe("done");
+
+    await act(async () => {
+      approvalResponse.resolve(mockJsonResponse({ ok: true }));
+      await approvalPromise;
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("/api/agent/stream"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/agent/approve"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock.mock.calls.some(([url]) =>
+      String(url).includes("/api/runtime/executor/controlled-runs/exec-1/resume"),
+    )).toBe(false);
+    expect(result.current.status).toBe("done");
+  });
+
   it("reports the resume HTTP status when an error response is not JSON", async () => {
     const payload = [
       "event: execution_done\n",

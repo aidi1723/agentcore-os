@@ -436,6 +436,7 @@ export function useMultiStepStream() {
     if (!executionId || !approvalRequest) return;
 
     const generation = operationGenerationRef.current;
+    const shouldResumeAfterApproval = resumeAfterApprovalRef.current || !streamActiveRef.current;
     approvalInFlightRef.current = true;
     try {
       const res = await fetch(buildAgentCoreApiUrl("/api/agent/approve"), {
@@ -466,7 +467,7 @@ export function useMultiStepStream() {
         return;
       }
 
-      if (resumeAfterApprovalRef.current || !streamActiveRef.current) {
+      if (shouldResumeAfterApproval) {
         resumeAfterApprovalRef.current = false;
         setStateForGeneration(generation, (s) => ({ ...s, approvalRequest: null }));
         await resume(executionId);
@@ -475,7 +476,7 @@ export function useMultiStepStream() {
 
       setStateForGeneration(generation, (s) => ({
         ...s,
-        status: "running",
+        status: s.status === "done" ? "done" : "running",
         approvalRequest: null,
         error: null,
       }));

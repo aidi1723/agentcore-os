@@ -27,7 +27,7 @@
     "start": "next start",
     "stable": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});\" && next build && next start -p 3000",
     "test:core-workflows": "node --import ./scripts/register-ts-alias-loader.mjs ./scripts/regression/workflows.mjs",
-    "test:controlled-runtime": "vitest run src/__tests__/lib/executor/playbooks/sales-pipeline.test.ts src/__tests__/lib/executor/playbooks/validator.test.ts src/__tests__/lib/executor/controlled-runtime.test.ts src/__tests__/lib/executor/step-executor.test.ts src/__tests__/lib/executor/run-workflow-multi-step.test.ts src/__tests__/app/api/agent-stream-route.test.ts src/__tests__/hooks/useMultiStepStream.test.tsx",
+    "test:controlled-runtime": "vitest run src/__tests__/lib/executor/playbooks/sales-pipeline.test.ts src/__tests__/lib/executor/playbooks/validator.test.ts src/__tests__/lib/executor/runtime/schema.test.ts src/__tests__/lib/executor/runtime/step-input.test.ts src/__tests__/lib/server/controlled-execution-store.test.ts src/__tests__/lib/executor/approval-store.test.ts src/__tests__/lib/executor/controlled-runtime.test.ts src/__tests__/lib/executor/step-executor.test.ts src/__tests__/lib/executor/run-workflow-multi-step.test.ts src/__tests__/app/api/agent-stream-route.test.ts src/__tests__/app/api/controlled-run-route.test.ts src/__tests__/hooks/useMultiStepStream.test.tsx",
     "test:publish": "node --import ./scripts/register-ts-alias-loader.mjs ./scripts/regression/publish.mjs",
     "test:stability": "npm run test:core-workflows && npm run test:publish && npm run lint && npm run build",
     "lint": "next lint",

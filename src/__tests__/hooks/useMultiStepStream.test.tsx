@@ -138,6 +138,41 @@ function makeRun(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function makeAwaitingWritebackRun(writebackApproval?: Record<string, unknown>) {
+  const writebackStep: Record<string, unknown> = {
+    stepId: "writeback",
+    state: "awaiting_approval",
+    startedAt: 12,
+    input: null,
+    output: null,
+    attempts: 1,
+    toolCallResults: [],
+    writebackReceipts: [],
+  };
+  if (writebackApproval) {
+    writebackStep.approval = writebackApproval;
+  }
+
+  return makeRun({
+    state: "awaiting_approval",
+    currentStepId: "writeback",
+    steps: [
+      {
+        stepId: "review",
+        state: "completed",
+        startedAt: 1,
+        finishedAt: 11,
+        input: null,
+        output: { approved: true },
+        attempts: 1,
+        toolCallResults: [],
+        writebackReceipts: [],
+      },
+      writebackStep,
+    ],
+  });
+}
+
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
@@ -446,38 +481,12 @@ describe("useMultiStepStream", () => {
     expect(result.current.status).toBe("done");
   });
 
-  it("projects durable awaiting approval state after a resume conflict", async () => {
-    const awaitingApprovalRun = makeRun({
-      state: "awaiting_approval",
-      currentStepId: "writeback",
-      steps: [
-        {
-          stepId: "review",
-          state: "completed",
-          startedAt: 1,
-          finishedAt: 11,
-          input: null,
-          output: { approved: true },
-          attempts: 1,
-          toolCallResults: [],
-          writebackReceipts: [],
-        },
-        {
-          stepId: "writeback",
-          state: "awaiting_approval",
-          startedAt: 12,
-          input: null,
-          output: null,
-          attempts: 1,
-          toolCallResults: [],
-          writebackReceipts: [],
-          approval: {
-            state: "pending",
-            requestedAt: 12,
-          },
-        },
-      ],
-    });
+  it.each([
+    ["pending approval", { state: "pending", requestedAt: 12 }],
+    ["timed-out approval", { state: "timed_out", requestedAt: 12 }],
+    ["missing approval", undefined],
+  ])("projects durable awaiting approval state after a resume conflict with %s", async (_label, approval) => {
+    const awaitingApprovalRun = makeAwaitingWritebackRun(approval);
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(mockJsonResponse({
         ok: false,
@@ -515,5 +524,48 @@ describe("useMultiStepStream", () => {
     expect(result.current.currentStepId).toBe("writeback");
     expect(result.current.approvalRequest?.stepId).toBe("writeback");
     expect(result.current.approvalRequest?.title).toBe("Writeback");
+  });
+
+  it.each([
+    ["approved", { state: "approved", requestedAt: 12, resolvedAt: 13 }],
+    ["rejected", { state: "rejected", requestedAt: 12, resolvedAt: 13 }],
+  ])("does not project durable approval request for %s approval", async (_label, approval) => {
+    const awaitingApprovalRun = makeAwaitingWritebackRun(approval);
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: false,
+        error: "Controlled run is awaiting approval",
+        data: {
+          runId: "exec-1",
+          state: "awaiting_approval",
+          currentStepId: "writeback",
+        },
+      }, 409))
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          run: awaitingApprovalRun,
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.resume("exec-1");
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1"),
+    );
+    expect(result.current.status).toBe("awaiting_approval");
+    expect(result.current.currentStepId).toBe("writeback");
+    expect(result.current.approvalRequest).toBeNull();
   });
 });

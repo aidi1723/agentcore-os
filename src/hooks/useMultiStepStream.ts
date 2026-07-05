@@ -101,9 +101,12 @@ function approvalToRequest(
 
 function projectRunState(run: ControlledExecutionRunRecord): MultiStepStreamState {
   const approvalStep = run.steps.find(
-    (step) => step.state === "awaiting_approval" && step.approval?.state === "pending",
+    (step) =>
+      step.state === "awaiting_approval" &&
+      step.approval?.state !== "approved" &&
+      step.approval?.state !== "rejected",
   );
-  const approvalRequest = approvalStep?.approval
+  const approvalRequest = approvalStep
     ? approvalToRequest(run, approvalStep)
     : null;
   const stepResults = run.steps

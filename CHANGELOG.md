@@ -124,6 +124,13 @@
 - Added a tested controlled run console summary helper that exposes step state counts, approvals, schema validation, writeback receipts, and sales/knowledge asset landing labels.
 - Added a `受控运行 Trace` panel to the Runtime Console showing recent controlled runs, selected run metadata, step trace, approval state, receipt summaries, and asset landing identifiers.
 
+### Runtime Console Operations
+
+- Added tested console summary operation flags for pending approval step ids, approval availability, resume availability, and filtered controlled run lists.
+- Added Runtime Console state filters and text search for recent controlled runs.
+- Wired Runtime Console approve / reject actions through the existing `/api/agent/approve` route and controlled run resume through the existing resume route.
+- Refreshed the controlled run list after console operations so approval and resume state stays aligned with durable runtime records.
+
 ### Framework Alignment
 
 - Added project-level `AGENTS.md` workflow rules and `DESIGN.md` design contract as the default collaboration and UI implementation framework for future work.
@@ -132,7 +139,7 @@
 ### Verification
 
 - Verified `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` — 4 tests passing.
-- Verified `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts` — 1 test passing.
+- Verified `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts` — 4 tests passing.
 - Verified `npm test -- src/__tests__/lib/executor/runtime/resume.test.ts` — 8 tests passing.
 - Verified `npm run test:controlled-runtime` — 14 files, 97 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.

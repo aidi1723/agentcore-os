@@ -43,7 +43,7 @@ Modify:
 
 ### Task 1: Add Operation Flags And Filters
 
-- [ ] **Step 1: Write failing summary tests**
+- [x] **Step 1: Write failing summary tests**
 
 Extend `src/__tests__/lib/executor/runtime/console-summary.test.ts` with tests for:
 
@@ -52,7 +52,7 @@ Extend `src/__tests__/lib/executor/runtime/console-summary.test.ts` with tests f
 - state filtering,
 - text query filtering.
 
-- [ ] **Step 2: Verify tests fail**
+- [x] **Step 2: Verify tests fail**
 
 Run:
 
@@ -62,7 +62,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: FAIL because operation flags and filter helper do not exist.
 
-- [ ] **Step 3: Implement summary changes**
+- [x] **Step 3: Implement summary changes**
 
 Modify `src/lib/executor/runtime/console-summary.ts`:
 
@@ -71,7 +71,7 @@ Modify `src/lib/executor/runtime/console-summary.ts`:
 - add `canResume: boolean`,
 - export `filterControlledRunConsoleSummaries(summaries, filters)`.
 
-- [ ] **Step 4: Verify summary tests pass**
+- [x] **Step 4: Verify summary tests pass**
 
 Run:
 
@@ -81,7 +81,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/executor/runtime/console-summary.ts src/__tests__/lib/executor/runtime/console-summary.test.ts
@@ -90,7 +90,7 @@ git commit -m "feat: derive controlled run console operations"
 
 ### Task 2: Wire Runtime Console Operations
 
-- [ ] **Step 1: Add UI state and handlers**
+- [x] **Step 1: Add UI state and handlers**
 
 Modify `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`:
 
@@ -100,7 +100,7 @@ Modify `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`:
 - add `handleResolveControlledApproval(runId, stepId, approved)`,
 - add `handleResumeControlledRun(runId)`.
 
-- [ ] **Step 2: Render filters and action buttons**
+- [x] **Step 2: Render filters and action buttons**
 
 Inside `受控运行 Trace`:
 
@@ -110,7 +110,7 @@ Inside `受控运行 Trace`:
 - render approve / reject buttons when `canApprove`,
 - render resume button when `canResume`.
 
-- [ ] **Step 3: Verify controlled runtime, lint, and build**
+- [x] **Step 3: Verify controlled runtime, lint, and build**
 
 Run:
 
@@ -122,7 +122,7 @@ npm run build
 
 Expected: PASS, with only the existing `<img>` warning for lint/build.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/apps/ClawRuntimeConsoleAppWindow.tsx
@@ -131,7 +131,7 @@ git commit -m "feat: operate controlled runs from runtime console"
 
 ### Task 3: Final Verification And Docs
 
-- [ ] **Step 1: Run full verification**
+- [x] **Step 1: Run full verification**
 
 Run:
 
@@ -142,11 +142,11 @@ npm run lint
 npm run build
 ```
 
-- [ ] **Step 2: Update docs and memory**
+- [x] **Step 2: Update docs and memory**
 
 Update changelog, development manual, this plan checklist, and daily memory.
 
-- [ ] **Step 3: Commit docs**
+- [x] **Step 3: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-05-runtime-console-operations.md
@@ -158,3 +158,14 @@ git commit -m "docs: track runtime console operations"
 - Spec coverage: operation flags, filtering, UI actions, docs, and verification are covered.
 - Placeholder scan: no TODO/TBD placeholders.
 - Type consistency: filters and flags are defined in the summary helper and consumed by the console.
+
+## Completion Notes
+
+- Summary helper now exposes `pendingApprovalStepId`, `canApprove`, `canResume`, and `filterControlledRunConsoleSummaries`.
+- Runtime Console `受控运行 Trace` now supports state filters, text search, approve/reject for pending approval steps, and resume for non-terminal controlled runs.
+- Verification completed:
+  - `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts` — 4 tests passed.
+  - `npm run test:controlled-runtime` — 14 files, 97 tests passed.
+  - `npm run test:core-workflows` — all regressions passed.
+  - `npm run lint` — exit 0, existing `<img>` warning only.
+  - `npm run build` — exit 0, same existing warning.

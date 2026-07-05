@@ -309,6 +309,8 @@ type ControlledPlaybookStep = {
 
 - [Controlled Agent Runtime Next Steps Implementation Plan](superpowers/plans/2026-07-05-controlled-agent-runtime-next-steps.md)
 - [Controlled Run Asset Writeback Implementation Plan](superpowers/plans/2026-07-05-controlled-run-asset-writeback.md)
+- [Runtime Console Trace And Asset Landing Implementation Plan](superpowers/plans/2026-07-05-runtime-console-trace-landing.md)
+- [Runtime Console Operations Implementation Plan](superpowers/plans/2026-07-05-runtime-console-operations.md)
 
 ### 8.1 当前进度快照（2026-07-05）
 
@@ -321,18 +323,19 @@ type ControlledPlaybookStep = {
 - Client recovery：审批后 resume、手动 resume、stream loss、resume conflict、approval-in-flight 后 stream loss 等路径都有回归测试。
 - Phase 4 资产写回闭环：approved `sales-pipeline-v1` final writeback 已能写入 server-backed sales asset 和 knowledge asset，并把真实 receipt 记录回 controlled step trace。
 - Phase 5 第一批 Runtime Console trace landing：控制台可以列出 recent controlled runs，并展示 selected run 的 step trace、approval、schema、writeback receipt 和 sales/knowledge asset landing labels。
+- Phase 6 Runtime Console operations：控制台已经支持 state filter、文本搜索、pending approval approve/reject、non-terminal run resume，并在操作后刷新 durable controlled run summary。
 
 仍未完成：
 
 - `workflow_run` 和 `draft` writeback 仍是显式 skipped receipt，后续需要接入对应 server store。
 - Runtime Console 目前展示的是资产落点标识，还没有深度串联到具体 CRM / Knowledge Vault 记录的点击定位。
-- Runtime Console 还没有支持审批操作、失败重试和 trace 过滤。
+- Runtime Console 还没有失败重试 / retry policy 操作，也没有按 `playbookId`、`workflowRunId`、asset id 做更精确的深链过滤。
 
 因此下一阶段默认进入：
 
-**Phase 6. Runtime Console Operations**
+**Phase 7. Runtime Console Deep Links And Failure Recovery**
 
-目标是在已能查看 trace 的基础上，补上可操作性：审批入口、失败重试、资产深链跳转、按 playbook / state / workflowRunId 过滤。
+目标是在已能查看和操作 trace 的基础上，补上业务落地定位和失败恢复：CRM / Knowledge Vault 深链跳转、失败 step retry / resume 控制、按 playbook / workflowRunId / asset id 的精确过滤。
 
 ### Phase 0. 冻结方向
 
@@ -453,6 +456,50 @@ type ControlledPlaybookStep = {
 - 用户能一眼知道“机器在执行什么、卡在哪里、需要我确认什么、结果去了哪里”。
 - Runtime Console 至少能列出 recent controlled runs。
 - Runtime Console 能展示 selected run 的 step trace、approval 决策、schema validation、writeback receipt 和资产落点标识。
+
+### Phase 6. Runtime Console Operations
+
+目标：
+
+- 让 Runtime Console 不只是查看 trace，而是能处理当前受控运行的最小操作闭环。
+- 让 pending approval 和 resumable controlled run 不再只能依赖侧栏或手动恢复入口。
+
+已完成能力：
+
+- recent controlled runs 可按状态过滤。
+- recent controlled runs 可按 run id、workflowRunId、playbookId、title、summary、error 文本搜索。
+- awaiting approval 的 run 会暴露 `pendingApprovalStepId` 和 `canApprove`。
+- non-terminal run 会暴露 `canResume`。
+- Runtime Console 可直接 approve / reject pending approval。
+- Runtime Console 可直接 resume 非终态 controlled run。
+- 操作完成后重新加载 durable controlled run list，避免 UI 长时间停留在旧状态。
+
+完成标准：
+
+- 用户可以从 Runtime Console 判断“哪个 run 等我审批”，并直接 approve / reject。
+- 用户可以从 Runtime Console 判断“哪个 run 可以继续”，并直接 resume。
+- summary helper 的可操作状态和过滤行为有单元测试覆盖。
+- `test:controlled-runtime`、`test:core-workflows`、lint、build 通过。
+
+### Phase 7. Runtime Console Deep Links And Failure Recovery
+
+目标：
+
+- 把 trace 里的资产落点变成真正可跳转、可定位、可复盘的业务入口。
+- 把失败恢复从 generic resume 扩展到更精确的 failed step retry / restart controls。
+
+建议拆分：
+
+- 资产深链：从 writeback receipt 解析 sales asset / knowledge asset id，并跳转到对应 CRM / Knowledge Vault 记录。
+- 精确过滤：按 `playbookId`、`workflowRunId`、run state、asset id 过滤 controlled run summary。
+- 失败恢复：为 failed run 暴露可 retry 的 step、失败原因、可重试条件和审批风险。
+- 操作审计：把 console-initiated approve / reject / resume / retry 明确记录到 trace metadata。
+
+完成标准：
+
+- 用户能从一次 controlled run 直接跳到它写回的业务资产。
+- 用户能筛出某个 workflowRunId 或 playbookId 的所有 controlled runs。
+- failed run 不再只显示错误文本，而能展示下一步可执行恢复动作。
 
 ## 9. 开发规范
 

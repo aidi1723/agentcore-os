@@ -310,6 +310,7 @@ export function useMultiStepStream() {
               const data = JSON.parse(line.slice(6));
               if (eventType === "execution_done") {
                 executionDone = true;
+                streamActiveRef.current = false;
               } else if (eventType === "error") {
                 streamFailed = true;
               }
@@ -439,7 +440,7 @@ export function useMultiStepStream() {
     if (!executionId || !approvalRequest) return;
 
     const generation = operationGenerationRef.current;
-    const shouldResumeAfterApproval = resumeAfterApprovalRef.current;
+    const shouldResumeAfterApproval = resumeAfterApprovalRef.current && !streamActiveRef.current;
     approvalInFlightRef.current = true;
     try {
       const res = await fetch(buildAgentCoreApiUrl("/api/agent/approve"), {

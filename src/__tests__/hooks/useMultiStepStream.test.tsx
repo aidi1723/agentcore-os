@@ -74,6 +74,35 @@ function mockGatedStreamResponse(
   };
 }
 
+function mockPendingTerminalStreamResponse(payload: string, executionId = "exec-1") {
+  let closeStream: (() => void) | null = null;
+  const streamClosed = new Promise<void>((resolve) => {
+    closeStream = resolve;
+  });
+  const reader = {
+    read: vi.fn()
+      .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode(payload) })
+      .mockImplementationOnce(async () => {
+        await streamClosed;
+        return { done: true, value: undefined };
+      }),
+  };
+
+  return {
+    response: {
+      ok: true,
+      status: 200,
+      headers: {
+        get: (name: string) => (name === "X-Execution-Id" ? executionId : null),
+      },
+      body: {
+        getReader: () => reader,
+      },
+    },
+    closeStream: () => closeStream?.(),
+  };
+}
+
 function makeRun(overrides: Record<string, unknown> = {}) {
   return {
     id: "exec-1",
@@ -412,6 +441,73 @@ describe("useMultiStepStream", () => {
     });
 
     expect(result.current.status).toBe("done");
+  });
+
+  it("resumes after terminal awaiting approval even before the reader observes stream closure", async () => {
+    const payload = [
+      "event: plan_ready\n",
+      `data: ${JSON.stringify({ plan: makeRun().plan })}\n`,
+      "\n",
+      "event: approval_needed\n",
+      `data: ${JSON.stringify({
+        executionId: "exec-1",
+        stepId: "review",
+        title: "Review",
+        description: "Approve generated draft",
+        mode: "review",
+      })}\n`,
+      "\n",
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: false, error: "Awaiting approval for review" })}\n`,
+      "\n",
+    ].join("");
+    const stream = mockPendingTerminalStreamResponse(payload);
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(stream.response)
+      .mockResolvedValueOnce(mockJsonResponse({ ok: true }))
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          resumedStepIds: ["review", "writeback"],
+          run: makeRun(),
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    let startPromise!: Promise<void>;
+    act(() => {
+      startPromise = result.current.start("Run controlled workflow");
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe("awaiting_approval");
+      expect(result.current.approvalRequest?.stepId).toBe("review");
+    });
+
+    await act(async () => {
+      await result.current.approve(true);
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/agent/approve"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(result.current.status).toBe("done");
+
+    await act(async () => {
+      stream.closeStream();
+      await startPromise;
+    });
   });
 
   it("does not resume when approval response resolves after the active stream completes", async () => {

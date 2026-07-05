@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { GET as LIST } from "@/app/api/runtime/executor/controlled-runs/route";
 import { GET } from "@/app/api/runtime/executor/controlled-runs/[runId]/route";
 import { createControlledExecutionRun } from "@/lib/server/controlled-execution-store";
 
@@ -22,6 +23,32 @@ afterEach(async () => {
 });
 
 describe("controlled run route", () => {
+  it("lists recent controlled execution runs", async () => {
+    await createControlledExecutionRun({
+      id: "exec-list-1",
+      requestId: "req-list-1",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan: {
+        id: "plan-list",
+        goal: "list",
+        totalSteps: 0,
+        requiresApproval: false,
+        steps: [],
+      },
+    });
+
+    const response = await LIST(
+      new Request("http://localhost/api/runtime/executor/controlled-runs"),
+    );
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.ok).toBe(true);
+    expect(data.data.runs.map((run: { id: string }) => run.id)).toContain("exec-list-1");
+  });
+
   it("returns a controlled execution run by id", async () => {
     await createControlledExecutionRun({
       id: "exec-route-1",

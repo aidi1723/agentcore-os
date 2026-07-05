@@ -56,6 +56,13 @@ type ResumeResponse =
       };
     };
 
+type ControlledRunResponse = {
+  ok: boolean;
+  data?: {
+    run?: ControlledExecutionRunRecord;
+  };
+};
+
 function stepDurationMs(step: ControlledExecutionStepRecord) {
   if (typeof step.startedAt === "number" && typeof step.finishedAt === "number") {
     return Math.max(0, step.finishedAt - step.startedAt);
@@ -138,6 +145,7 @@ export function useMultiStepStream() {
   const streamActiveRef = useRef(false);
   const resumeAfterApprovalRef = useRef(false);
   const approvalInFlightRef = useRef(false);
+  const resumeInFlightRef = useRef(false);
 
   const start = useCallback(async (message: string, options?: {
     maxSteps?: number;
@@ -147,6 +155,7 @@ export function useMultiStepStream() {
     streamActiveRef.current = false;
     resumeAfterApprovalRef.current = false;
     approvalInFlightRef.current = false;
+    resumeInFlightRef.current = false;
     const controller = new AbortController();
     abortRef.current = controller;
 
@@ -286,6 +295,8 @@ export function useMultiStepStream() {
   }
 
   const resume = useCallback(async (runId?: string) => {
+    if (resumeInFlightRef.current) return;
+
     const targetRunId = runId ?? state.executionId;
     if (!targetRunId) {
       setState((s) => ({
@@ -296,6 +307,7 @@ export function useMultiStepStream() {
       return;
     }
 
+    resumeInFlightRef.current = true;
     setState((s) => ({ ...s, status: "resuming", error: null }));
 
     try {
@@ -325,6 +337,21 @@ export function useMultiStepStream() {
       }
 
       const error = data.ok === false ? data.error : `Resume failed: HTTP ${res.status}`;
+      if (data.ok === false && data.data?.state === "awaiting_approval") {
+        try {
+          const runRes = await fetch(
+            buildAgentCoreApiUrl(`/api/runtime/executor/controlled-runs/${encodeURIComponent(targetRunId)}`),
+          );
+          const runData = (await runRes.json()) as ControlledRunResponse;
+          if (runRes.ok && runData.ok && runData.data?.run) {
+            setState(projectRunState(runData.data.run));
+            return;
+          }
+        } catch {
+          // Fall through to the conflict response fallback below.
+        }
+      }
+
       setState((s) => ({
         ...s,
         status:
@@ -342,6 +369,8 @@ export function useMultiStepStream() {
         status: "error",
         error: err instanceof Error ? err.message : "Resume failed",
       }));
+    } finally {
+      resumeInFlightRef.current = false;
     }
   }, [state.executionId]);
 

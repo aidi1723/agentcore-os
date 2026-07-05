@@ -407,4 +407,113 @@ describe("useMultiStepStream", () => {
     expect(result.current.status).toBe("error");
     expect(result.current.error).toBe("Resume failed: HTTP 500");
   });
+
+  it("ignores duplicate manual resume calls while resume is in flight", async () => {
+    const resumeResponse = deferred<ReturnType<typeof mockJsonResponse>>();
+    const fetchMock = vi.fn()
+      .mockReturnValueOnce(resumeResponse.promise);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    let firstResume!: Promise<void>;
+    let secondResume!: Promise<void>;
+    act(() => {
+      firstResume = result.current.resume("exec-1");
+      secondResume = result.current.resume("exec-1");
+    });
+
+    expect(
+      fetchMock.mock.calls.filter(([url]) =>
+        String(url).includes("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      ),
+    ).toHaveLength(1);
+
+    await act(async () => {
+      resumeResponse.resolve(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          resumedStepIds: ["review", "writeback"],
+          run: makeRun(),
+        },
+      }));
+      await firstResume;
+      await secondResume;
+    });
+
+    expect(result.current.status).toBe("done");
+  });
+
+  it("projects durable awaiting approval state after a resume conflict", async () => {
+    const awaitingApprovalRun = makeRun({
+      state: "awaiting_approval",
+      currentStepId: "writeback",
+      steps: [
+        {
+          stepId: "review",
+          state: "completed",
+          startedAt: 1,
+          finishedAt: 11,
+          input: null,
+          output: { approved: true },
+          attempts: 1,
+          toolCallResults: [],
+          writebackReceipts: [],
+        },
+        {
+          stepId: "writeback",
+          state: "awaiting_approval",
+          startedAt: 12,
+          input: null,
+          output: null,
+          attempts: 1,
+          toolCallResults: [],
+          writebackReceipts: [],
+          approval: {
+            state: "pending",
+            requestedAt: 12,
+          },
+        },
+      ],
+    });
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: false,
+        error: "Controlled run is awaiting approval",
+        data: {
+          runId: "exec-1",
+          state: "awaiting_approval",
+          currentStepId: "writeback",
+        },
+      }, 409))
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          run: awaitingApprovalRun,
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.resume("exec-1");
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1"),
+    );
+    expect(result.current.status).toBe("awaiting_approval");
+    expect(result.current.currentStepId).toBe("writeback");
+    expect(result.current.approvalRequest?.stepId).toBe("writeback");
+    expect(result.current.approvalRequest?.title).toBe("Writeback");
+  });
 });

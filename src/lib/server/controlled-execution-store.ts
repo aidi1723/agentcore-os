@@ -21,6 +21,10 @@ function clipError(value?: string) {
   return redacted ? redacted.slice(0, 4_000) : undefined;
 }
 
+function hasOwn(object: object, key: string) {
+  return Object.prototype.hasOwnProperty.call(object, key);
+}
+
 function normalizeStep(input: ControlledExecutionStepRecord): ControlledExecutionStepRecord {
   return {
     stepId: String(input.stepId),
@@ -181,7 +185,7 @@ export async function updateControlledExecutionRun(
       updated = {
         ...run,
         ...patch,
-        error: clipError(patch.error) ?? run.error,
+        error: hasOwn(patch, "error") ? clipError(patch.error) : run.error,
         updatedAt: timestamp,
         finishedAt:
           patch.state === "completed" || patch.state === "failed" || patch.state === "cancelled"
@@ -232,7 +236,7 @@ export async function updateControlledExecutionStep(
         updatedStep = normalizeStep({
           ...step,
           ...patch,
-          error: clipError(patch.error) ?? step.error,
+          error: hasOwn(patch, "error") ? clipError(patch.error) : step.error,
           startedAt:
             patch.state === "running" && !step.startedAt
               ? timestamp

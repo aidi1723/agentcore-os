@@ -12,7 +12,10 @@ import {
   updateControlledExecutionRun,
   updateControlledExecutionStep,
 } from "@/lib/server/controlled-execution-store";
-import { resumeControlledExecutionRun } from "@/lib/executor/runtime/resume";
+import {
+  resumeControlledExecutionRun,
+  retryControlledExecutionRun,
+} from "@/lib/executor/runtime/resume";
 import { listKnowledgeAssetStoreSnapshot } from "@/lib/server/knowledge-asset-store";
 import { listSalesAssetStoreSnapshot } from "@/lib/server/sales-asset-store";
 
@@ -320,6 +323,150 @@ describe("resumeControlledExecutionRun", () => {
     expect(result.status).toBe(409);
     expect(result.error).toBe("Cannot resume failed step failed_step");
     expect(calls).toEqual([]);
+  });
+
+  it("retries a failed step with retry policy without replaying completed prior steps", async () => {
+    const calls: string[] = [];
+    registerTool({
+      name: "retry_prior_tool",
+      description: "prior tool should not replay",
+      parameters: { type: "object" },
+      requiresApproval: false,
+      execute: async () => {
+        calls.push("prior");
+        return {
+          toolName: "retry_prior_tool",
+          success: true,
+          output: { prior: true },
+          durationMs: 0,
+        };
+      },
+    });
+    registerTool({
+      name: "retry_failed_tool",
+      description: "retry failed tool",
+      parameters: { type: "object" },
+      requiresApproval: false,
+      execute: async () => {
+        calls.push("retry");
+        return {
+          toolName: "retry_failed_tool",
+          success: true,
+          output: { recovered: true },
+          durationMs: 0,
+        };
+      },
+    });
+    await createControlledExecutionRun({
+      id: "retry-run-1",
+      requestId: "retry-run-1",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan: {
+        id: "plan-retry-run",
+        goal: "retry failed step",
+        totalSteps: 2,
+        requiresApproval: false,
+        steps: [
+          {
+            id: "prior_step",
+            title: "Prior step",
+            description: "Already completed",
+            toolCalls: [{ toolName: "retry_prior_tool" }],
+            dependsOn: [],
+            mode: "auto",
+          },
+          {
+            id: "retry_step",
+            title: "Retry step",
+            description: "Retry this step",
+            toolCalls: [{ toolName: "retry_failed_tool" }],
+            dependsOn: ["prior_step"],
+            mode: "auto",
+            onFailure: { action: "retry", maxRetries: 1 },
+          },
+        ],
+      },
+    });
+    await updateControlledExecutionStep("retry-run-1", "prior_step", {
+      state: "completed",
+      output: { prior: true },
+      toolCallResults: [],
+    });
+    await updateControlledExecutionStep("retry-run-1", "retry_step", {
+      state: "failed",
+      error: "temporary failure",
+      attempts: 1,
+      toolCallResults: [],
+    });
+    await updateControlledExecutionRun("retry-run-1", {
+      state: "failed",
+      currentStepId: "retry_step",
+      error: "temporary failure",
+    });
+
+    const result = await retryControlledExecutionRun("retry-run-1");
+    const run = await getControlledExecutionRun("retry-run-1");
+
+    expect(result.ok).toBe(true);
+    expect(result.retriedStepIds).toEqual(["retry_step"]);
+    expect(calls).toEqual(["retry"]);
+    expect(run?.state).toBe("completed");
+    expect(run?.steps.find((step) => step.stepId === "retry_step")).toMatchObject({
+      state: "completed",
+      output: { recovered: true },
+    });
+    expect(run?.auditEvents).toEqual([
+      expect.objectContaining({
+        type: "console_retry_requested",
+        stepId: "retry_step",
+        actor: "local_user",
+      }),
+    ]);
+  });
+
+  it("rejects retry for failed steps without retry policy", async () => {
+    await createControlledExecutionRun({
+      id: "retry-non-retryable",
+      requestId: "retry-non-retryable",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan: {
+        id: "plan-non-retryable",
+        goal: "non retryable",
+        totalSteps: 1,
+        requiresApproval: false,
+        steps: [
+          {
+            id: "non_retryable_step",
+            title: "Non retryable",
+            description: "Do not retry",
+            toolCalls: [],
+            dependsOn: [],
+            mode: "auto",
+            onFailure: { action: "fail_run" },
+          },
+        ],
+      },
+    });
+    await updateControlledExecutionStep("retry-non-retryable", "non_retryable_step", {
+      state: "failed",
+      error: "permanent failure",
+      toolCallResults: [],
+    });
+    await updateControlledExecutionRun("retry-non-retryable", {
+      state: "failed",
+      currentStepId: "non_retryable_step",
+      error: "permanent failure",
+    });
+
+    const result = await retryControlledExecutionRun("retry-non-retryable");
+
+    expect(result.ok).toBe(false);
+    expect(result.status).toBe(409);
+    expect(result.error).toBe("Failed step non_retryable_step is not retryable");
   });
 
   it("marks a rejected approval run as failed", async () => {

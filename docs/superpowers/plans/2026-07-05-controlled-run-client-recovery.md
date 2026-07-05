@@ -727,7 +727,7 @@ git commit -m "feat: expose controlled run resume action"
 
 - Source files are already handled in earlier tasks.
 
-- [ ] **Step 1: Run controlled runtime tests**
+- [x] **Step 1: Run controlled runtime tests**
 
 Run:
 
@@ -737,7 +737,7 @@ npm run test:controlled-runtime
 
 Expected: PASS.
 
-- [ ] **Step 2: Run core workflow regression**
+- [x] **Step 2: Run core workflow regression**
 
 Run:
 
@@ -747,7 +747,7 @@ npm run test:core-workflows
 
 Expected: PASS.
 
-- [ ] **Step 3: Run lint**
+- [x] **Step 3: Run lint**
 
 Run:
 
@@ -757,7 +757,7 @@ npm run lint
 
 Expected: exit 0. Existing `<img>` warning may appear.
 
-- [ ] **Step 4: Run production build**
+- [x] **Step 4: Run production build**
 
 Run:
 
@@ -767,7 +767,7 @@ npm run build
 
 Expected: exit 0. Existing `<img>` warning may appear.
 
-- [ ] **Step 5: Check git status**
+- [x] **Step 5: Check git status**
 
 Run:
 
@@ -794,7 +794,7 @@ Expected: only intentional changes are committed. Existing unrelated untracked f
 ?? scripts/seo/
 ```
 
-- [ ] **Step 6: Commit any verification-only plan checklist updates**
+- [x] **Step 6: Commit any verification-only plan checklist updates**
 
 If the implementation process marks this plan's checkboxes, commit those documentation updates separately:
 

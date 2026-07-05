@@ -2064,7 +2064,9 @@ async function runAgentExecutorFallbackHealthRegression() {
       "Second attempt should belong to the fallback candidate.",
     );
 
-    const response = await healthRoute.GET();
+    const response = await healthRoute.GET(
+      new Request("http://127.0.0.1/api/runtime/executor/health"),
+    );
     const payload = await response.json();
     assert.equal(response.status, 200, "Executor health route should succeed.");
     assert.equal(payload.ok, true, "Executor health route should return ok=true.");

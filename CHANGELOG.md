@@ -111,6 +111,13 @@
 - Added the compact `继续执行` recovery action to the multi-step panel and a `恢复中` runtime status badge aligned with the operational cockpit design contract.
 - Added regression coverage for fixed playbook execution, controlled runtime persistence, resume route conflicts, stale stream/resume races, rejected approvals, missing run ids, and interrupted approval streams.
 
+### Controlled Run Asset Writeback
+
+- Added server-backed controlled writeback for approved `sales-pipeline-v1` outputs into sales assets and knowledge assets.
+- Made controlled writeback idempotent by `workflowRunId` / controlled run source key, and recorded concrete writeback receipts in durable controlled step trace records.
+- Kept unsupported `workflow_run` and `draft` writeback targets explicit as skipped receipts until their stores are wired in a later slice.
+- Added unit and resume integration coverage for approved writeback, unapproved skips, unsupported targets, idempotency, and final resume-driven asset creation.
+
 ### Framework Alignment
 
 - Added project-level `AGENTS.md` workflow rules and `DESIGN.md` design contract as the default collaboration and UI implementation framework for future work.
@@ -118,7 +125,9 @@
 
 ### Verification
 
-- Verified `npm run test:controlled-runtime` — 14 files, 95 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` — 4 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/runtime/resume.test.ts` — 8 tests passing.
+- Verified `npm run test:controlled-runtime` — 14 files, 96 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.
 - Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - Verified `npm run build` — exit 0 with the same existing `<img>` warning.

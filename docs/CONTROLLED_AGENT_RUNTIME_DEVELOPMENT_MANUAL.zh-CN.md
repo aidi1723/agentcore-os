@@ -319,18 +319,19 @@ type ControlledPlaybookStep = {
 - Phase 2 基础 step schema 和工具策略：playbook step 已声明输入输出 schema、allowed tools、approval requirements；受控输出校验已接入执行链。
 - Phase 3 的 durable run / approval / resume 基线：controlled run store、approval record、resume route、client-side resume/recovery 已打通。
 - Client recovery：审批后 resume、手动 resume、stream loss、resume conflict、approval-in-flight 后 stream loss 等路径都有回归测试。
+- Phase 4 资产写回闭环：approved `sales-pipeline-v1` final writeback 已能写入 server-backed sales asset 和 knowledge asset，并把真实 receipt 记录回 controlled step trace。
 
 仍未完成：
 
-- `runtime/writeback.ts` 当前只生成 writeback receipt，还没有真正写入 `sales-assets` / `knowledge-assets` server store。
 - Runtime Console 还不能按 run 展示完整 trace、approval 决策、writeback receipt 和资产落点。
-- sales workflow 的 approved output 还没有形成可复用资产闭环。
+- `workflow_run` 和 `draft` writeback 仍是显式 skipped receipt，后续需要接入对应 server store。
+- UI 还没有把 controlled run 的写回资产作为可点击落点串起来。
 
 因此下一阶段默认进入：
 
-**Phase 4. Controlled Run Asset Writeback**
+**Phase 5. Runtime Console Trace And Asset Landing**
 
-目标是把 sales-pipeline 的 approved output 写入 server-backed sales asset 和 knowledge asset，并把真实写回结果记录回 controlled run trace。
+目标是把 controlled run 的 plan、step input/output、approval 决策、writeback receipt 和资产落点集中展示出来，让用户能一眼看到“运行到了哪里、谁批准了什么、结果写到了哪里”。
 
 ### Phase 0. 冻结方向
 
@@ -415,15 +416,19 @@ type ControlledPlaybookStep = {
 
 关键改动：
 
-- `src/lib/sales-assets.ts`
-- `src/lib/knowledge-assets.ts`
-- `src/components/apps/DealDeskAppWindow.tsx`
-- `src/components/apps/EmailAssistantAppWindow.tsx`
-- `src/components/apps/PersonalCRMAppWindow.tsx`
+- `src/lib/executor/runtime/writeback.ts`
+- `src/lib/executor/step-executor.ts`
+- `src/lib/server/sales-asset-store.ts`
+- `src/lib/server/knowledge-asset-store.ts`
+- `src/__tests__/lib/executor/runtime/writeback.test.ts`
+- `src/__tests__/lib/executor/runtime/resume.test.ts`
 
 完成标准：
 
-- 一次完整 sales run 结束后，用户能看到保留了什么资产，以及这些资产来自哪次 run。
+- 一次完整 sales run 结束后，controlled trace 能记录保留了什么资产，以及这些资产来自哪次 run。
+- approved final writeback 写入 sales asset 和 knowledge asset。
+- 重复 resume / writeback 不产生重复资产。
+- unapproved output 不进入高信任资产。
 
 ### Phase 5. UI 收缩成 Runtime Console
 

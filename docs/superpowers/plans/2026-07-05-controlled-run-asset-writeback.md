@@ -62,7 +62,7 @@ Do not modify:
 
 - Create: `src/__tests__/lib/executor/runtime/writeback.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/__tests__/lib/executor/runtime/writeback.test.ts`:
 
@@ -261,7 +261,7 @@ describe("writeControlledStepAssets", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run:
 
@@ -271,7 +271,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts
 
 Expected: FAIL because `writeControlledStepAssets` does not exist.
 
-- [ ] **Step 3: Commit the failing tests**
+- [x] **Step 3: Commit the failing tests**
 
 ```bash
 git add src/__tests__/lib/executor/runtime/writeback.test.ts
@@ -287,7 +287,7 @@ git commit -m "test: cover controlled run asset writeback"
 - Modify: `src/lib/executor/runtime/writeback.ts`
 - Test: `src/__tests__/lib/executor/runtime/writeback.test.ts`
 
-- [ ] **Step 1: Add server writeback helpers**
+- [x] **Step 1: Add server writeback helpers**
 
 In `src/lib/executor/runtime/writeback.ts`, add `writeControlledStepAssets(input)` alongside the existing receipt type usage. It must:
 
@@ -297,11 +297,11 @@ In `src/lib/executor/runtime/writeback.ts`, add `writeControlledStepAssets(input
 - call `upsertKnowledgeAssetInStore` for `knowledge_asset`,
 - return unsupported receipts for `workflow_run` and `draft`.
 
-- [ ] **Step 2: Preserve the existing receipt API**
+- [x] **Step 2: Preserve the existing receipt API**
 
 Keep `buildWritebackReceipts` exported as a thin compatibility wrapper or migrate callers in Task 3. Do not remove exported names until all imports are updated.
 
-- [ ] **Step 3: Run the focused writeback tests**
+- [x] **Step 3: Run the focused writeback tests**
 
 Run:
 
@@ -311,7 +311,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 4: Commit the implementation**
+- [x] **Step 4: Commit the implementation**
 
 ```bash
 git add src/lib/executor/runtime/writeback.ts src/__tests__/lib/executor/runtime/writeback.test.ts
@@ -327,7 +327,7 @@ git commit -m "feat: write controlled run outputs to assets"
 - Modify: `src/lib/executor/step-executor.ts`
 - Modify: `src/__tests__/lib/executor/runtime/resume.test.ts`
 
-- [ ] **Step 1: Add a failing resume integration assertion**
+- [x] **Step 1: Add a failing resume integration assertion**
 
 Extend `src/__tests__/lib/executor/runtime/resume.test.ts` so the final approved `writeback` path asserts:
 
@@ -335,7 +335,7 @@ Extend `src/__tests__/lib/executor/runtime/resume.test.ts` so the final approved
 - the sales asset store has one completed asset,
 - the knowledge asset store has one active sales playbook asset.
 
-- [ ] **Step 2: Update executor writeback call**
+- [x] **Step 2: Update executor writeback call**
 
 In `src/lib/executor/step-executor.ts`, replace synthetic `buildWritebackReceipts` usage with `await writeControlledStepAssets(...)` when `shouldPersistControlledTrace` is true and the playbook step is known.
 
@@ -347,7 +347,7 @@ The call must pass:
 - previous `trace.stepResults`,
 - approval state for the step.
 
-- [ ] **Step 3: Run resume tests**
+- [x] **Step 3: Run resume tests**
 
 Run:
 
@@ -357,7 +357,7 @@ npm test -- src/__tests__/lib/executor/runtime/resume.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 4: Run controlled runtime tests**
+- [x] **Step 4: Run controlled runtime tests**
 
 Run:
 
@@ -367,7 +367,7 @@ npm run test:controlled-runtime
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit executor integration**
+- [x] **Step 5: Commit executor integration**
 
 ```bash
 git add src/lib/executor/step-executor.ts src/__tests__/lib/executor/runtime/resume.test.ts
@@ -384,7 +384,7 @@ git commit -m "feat: persist controlled run writeback receipts"
 - Modify: `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
 - Modify: this plan checklist
 
-- [ ] **Step 1: Run full verification**
+- [x] **Step 1: Run full verification**
 
 Run:
 
@@ -402,7 +402,7 @@ Expected:
 - lint exits 0 with only the existing `<img>` warning if still present,
 - build exits 0 with only the existing `<img>` warning if still present.
 
-- [ ] **Step 2: Update docs**
+- [x] **Step 2: Update docs**
 
 Update:
 
@@ -410,7 +410,7 @@ Update:
 - `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md` progress snapshot,
 - this plan checklist.
 
-- [ ] **Step 3: Commit verification docs**
+- [x] **Step 3: Commit verification docs**
 
 ```bash
 git add CHANGELOG.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-05-controlled-run-asset-writeback.md

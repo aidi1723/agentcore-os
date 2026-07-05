@@ -5,6 +5,15 @@ import { readJsonBodyWithLimit } from "@/lib/server/request-body";
 import { runMultiStepTask } from "@/lib/executor/core";
 import { normalizeAgentCoreTaskRequest } from "@/lib/executor/contracts";
 import { waitForApproval } from "@/lib/executor/approval-store";
+import {
+  getControlledPlaybook,
+  getControlledPlaybookForScenario,
+} from "@/lib/executor/playbooks/catalog";
+import { resolveExecutionPlanFromPlaybook } from "@/lib/executor/playbooks/resolver";
+import {
+  validateControlledPlaybook,
+  validateExecutionPlanAgainstPlaybook,
+} from "@/lib/executor/playbooks/validator";
 import type {
   ExecutionCallbacks,
   ExecutionPlan,
@@ -43,6 +52,31 @@ export async function POST(req: Request) {
         ? body.approvalMode
         : "each-review-step",
   };
+
+  const playbookId = typeof body.playbookId === "string" ? body.playbookId.trim() : "";
+  const scenarioId = typeof body.scenarioId === "string" ? body.scenarioId.trim() : "";
+  const controlledPlaybook =
+    (playbookId ? getControlledPlaybook(playbookId) : null) ??
+    (scenarioId ? getControlledPlaybookForScenario(scenarioId) : null);
+
+  if (controlledPlaybook) {
+    const controlledPlan = resolveExecutionPlanFromPlaybook(controlledPlaybook);
+    const playbookValidation = validateControlledPlaybook(controlledPlaybook);
+    const planValidation = validateExecutionPlanAgainstPlaybook(controlledPlan, controlledPlaybook);
+    const validation = {
+      valid: playbookValidation.valid && planValidation.valid,
+      errors: [...playbookValidation.errors, ...planValidation.errors],
+    };
+    if (!validation.valid) {
+      return NextResponse.json(
+        { ok: false, error: "Invalid controlled playbook plan", details: validation.errors },
+        { status: 400 },
+      );
+    }
+    normalized.controlledPlaybookId = controlledPlaybook.id;
+    normalized.controlledPlan = controlledPlan;
+    normalized.multiStep.maxSteps = controlledPlan.totalSteps;
+  }
 
   const encoder = new TextEncoder();
   const executionId = normalized.metadata.requestId;

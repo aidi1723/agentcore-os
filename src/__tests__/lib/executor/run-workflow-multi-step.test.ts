@@ -15,6 +15,14 @@ function makeScenario(stageCount: number): WorkspaceScenario {
   } as unknown as WorkspaceScenario;
 }
 
+function makeSalesScenario(): WorkspaceScenario {
+  return {
+    ...makeScenario(5),
+    id: "sales-pipeline",
+    title: "Sales Pipeline Desk",
+  } as WorkspaceScenario;
+}
+
 describe("runWorkflowMultiStep", () => {
   it("returns false for ineligible scenarios (< 2 stages)", async () => {
     const result = await runWorkflowMultiStep({
@@ -57,6 +65,31 @@ describe("runWorkflowMultiStep", () => {
 
     expect(result).toBe(true);
     expect(onStepComplete).toHaveBeenCalledTimes(2);
+  });
+
+  it("sends controlled playbook identity for eligible workflow scenarios", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      body: {
+        getReader: () => ({
+          read: vi.fn().mockResolvedValueOnce({ done: true, value: undefined }),
+        }),
+      },
+    });
+    global.fetch = fetchMock;
+
+    await runWorkflowMultiStep({
+      runId: "run-sales-1",
+      scenario: makeSalesScenario(),
+    });
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(JSON.parse(String(init.body))).toMatchObject({
+      workflowRunId: "run-sales-1",
+      scenarioId: "sales-pipeline",
+      playbookId: "sales-pipeline-v1",
+      approvalMode: "each-review-step",
+    });
   });
 
   it("calls failWorkflowRun on HTTP error", async () => {

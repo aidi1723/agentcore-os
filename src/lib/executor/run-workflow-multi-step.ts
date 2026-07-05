@@ -12,6 +12,7 @@ import {
   isMultiStepEligible,
   workflowStagesToExecutionSteps,
 } from "@/lib/executor/workflow-bridge";
+import { getControlledPlaybookForScenario } from "@/lib/executor/playbooks/catalog";
 import type { StepResult } from "@/lib/executor/contracts";
 import { buildAgentCoreApiUrl } from "@/lib/app-api";
 
@@ -34,6 +35,7 @@ export async function runWorkflowMultiStep(options: WorkflowMultiStepOptions): P
   }
 
   const steps = workflowStagesToExecutionSteps(scenario.workflowStages);
+  const controlledPlaybook = getControlledPlaybookForScenario(scenario.id);
 
   try {
     const res = await fetch(buildAgentCoreApiUrl("/api/agent/stream"), {
@@ -42,7 +44,9 @@ export async function runWorkflowMultiStep(options: WorkflowMultiStepOptions): P
       body: JSON.stringify({
         message: `Execute workflow: ${scenario.title}`,
         workflowRunId: runId,
-        maxSteps: steps.length,
+        scenarioId: scenario.id,
+        playbookId: controlledPlaybook?.id,
+        maxSteps: controlledPlaybook?.steps.length ?? steps.length,
         approvalMode: "each-review-step",
       }),
     });

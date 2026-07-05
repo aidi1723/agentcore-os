@@ -13,6 +13,8 @@ import {
   updateControlledExecutionStep,
 } from "@/lib/server/controlled-execution-store";
 import { resumeControlledExecutionRun } from "@/lib/executor/runtime/resume";
+import { listKnowledgeAssetStoreSnapshot } from "@/lib/server/knowledge-asset-store";
+import { listSalesAssetStoreSnapshot } from "@/lib/server/sales-asset-store";
 
 let tmpDir: string;
 let originalCwd: () => string;
@@ -48,7 +50,14 @@ async function seedRun() {
     output: {
       summary: "lead",
       missingFields: [],
-      normalizedLead: { company: "ACME" },
+      normalizedLead: {
+        company: "ACME",
+        contact: "Ada",
+        inquiryChannel: "email",
+        preferredLanguage: "en",
+        productLine: "uPVC windows",
+        need: "apartment project windows",
+      },
     },
     toolCallResults: [],
   });
@@ -163,6 +172,48 @@ describe("resumeControlledExecutionRun", () => {
     expect(run?.currentStepId).toBe("writeback");
     expect(calls).toHaveLength(1);
     expect(calls[0]).toContain("人工确认草稿");
+  });
+
+  it("writes real assets and durable receipts after final approved writeback", async () => {
+    const calls: string[] = [];
+    registerResumeTools(calls);
+    await seedRun();
+    await resolveControlledApproval("resume-run-1", "human_review", { approved: true });
+
+    const firstResume = await resumeControlledExecutionRun("resume-run-1");
+    expect(firstResume.ok).toBe(true);
+
+    await resolveControlledApproval("resume-run-1", "writeback", { approved: true });
+    const finalResume = await resumeControlledExecutionRun("resume-run-1");
+    const run = await getControlledExecutionRun("resume-run-1");
+    const writebackStep = run?.steps.find((step) => step.stepId === "writeback");
+
+    expect(finalResume.ok).toBe(true);
+    expect(finalResume.resumedStepIds).toEqual(["writeback"]);
+    expect(run?.state).toBe("completed");
+    expect(writebackStep?.writebackReceipts.map((receipt) => receipt.target)).toEqual([
+      "sales_asset",
+      "knowledge_asset",
+    ]);
+    expect(writebackStep?.writebackReceipts.every((receipt) => receipt.ok)).toBe(true);
+
+    const salesSnapshot = await listSalesAssetStoreSnapshot();
+    expect(salesSnapshot.salesAssets).toHaveLength(1);
+    expect(salesSnapshot.salesAssets[0]).toMatchObject({
+      workflowRunId: "workflow-1",
+      company: "ACME",
+      status: "completed",
+      latestDraftBody: "Approved body",
+    });
+
+    const knowledgeSnapshot = await listKnowledgeAssetStoreSnapshot();
+    expect(knowledgeSnapshot.knowledgeAssets).toHaveLength(1);
+    expect(knowledgeSnapshot.knowledgeAssets[0]).toMatchObject({
+      sourceKey: "controlled-run:resume-run-1:knowledge_asset",
+      workflowRunId: "workflow-1",
+      assetType: "sales_playbook",
+      status: "active",
+    });
   });
 
   it("returns a conflict when a resumed step fails", async () => {

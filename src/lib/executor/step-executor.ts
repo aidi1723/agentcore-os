@@ -17,8 +17,12 @@ import { shouldRequireApproval } from "@/lib/executor/guardrails";
 import { getControlledPlaybook } from "@/lib/executor/playbooks/catalog";
 import { buildControlledStepInput } from "@/lib/executor/runtime/step-input";
 import { validateControlledOutput } from "@/lib/executor/runtime/schema";
-import { buildWritebackReceipts } from "@/lib/executor/runtime/writeback";
 import {
+  buildWritebackReceipts,
+  writeControlledStepAssets,
+} from "@/lib/executor/runtime/writeback";
+import {
+  getControlledExecutionRun,
   updateControlledExecutionRun,
   updateControlledExecutionStep,
 } from "@/lib/server/controlled-execution-store";
@@ -213,6 +217,7 @@ export async function executeMultiStep(
       : request.multiStep?.approvalMode ?? "each-review-step";
     const needsApproval = mustAwaitApproval(step, config, approvalMode);
     const alreadyApprovedForResume = approvedStepIds.has(step.id);
+    let approvedForWriteback = !needsApproval || alreadyApprovedForResume;
     if (needsApproval && !alreadyApprovedForResume) {
       callbacks.onAwaitingApproval(step);
 
@@ -258,6 +263,7 @@ export async function executeMultiStep(
         callbacks.onError(rejectedResult.error ?? "User rejected step");
         break;
       }
+      approvedForWriteback = true;
     }
 
     // Execute step
@@ -327,10 +333,32 @@ export async function executeMultiStep(
       : null;
     const writebackReceipts =
       result.status === "completed"
-        ? buildWritebackReceipts({
-            step: controlledStepContract,
-            approved: step.mode !== "review" && step.mode !== "manual",
-          })
+        ? shouldPersistControlledTrace
+          ? await getControlledExecutionRun(reqId)
+              .then((run) =>
+                run
+                  ? writeControlledStepAssets({
+                      run,
+                      step: controlledStepContract,
+                      result,
+                      previousResults: trace.stepResults,
+                      approved: approvedForWriteback,
+                    })
+                  : buildWritebackReceipts({
+                      step: controlledStepContract,
+                      approved: approvedForWriteback,
+                    }),
+              )
+              .catch(() =>
+                buildWritebackReceipts({
+                  step: controlledStepContract,
+                  approved: approvedForWriteback,
+                }),
+              )
+          : buildWritebackReceipts({
+              step: controlledStepContract,
+              approved: approvedForWriteback,
+            })
         : [];
     trace.stepResults.push(result);
     if (shouldPersistControlledTrace) {

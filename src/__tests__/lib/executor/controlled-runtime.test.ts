@@ -250,7 +250,8 @@ describe("controlled runtime execution", () => {
     expect(intake?.writebackReceipts.length).toBeGreaterThan(0);
     expect(intake?.writebackReceipts[0]).toMatchObject({
       target: "workflow_run",
-      ok: true,
+      ok: false,
+      summary: "Skipped unsupported writeback target workflow_run",
     });
   });
 });

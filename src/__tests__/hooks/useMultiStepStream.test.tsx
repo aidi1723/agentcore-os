@@ -1,9 +1,9 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useMultiStepStream } from "@/hooks/useMultiStepStream";
 
-function mockStreamResponse(payload: string) {
+function mockStreamResponse(payload: string, executionId = "exec-1") {
   const reader = {
     read: vi.fn()
       .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode(payload) })
@@ -12,14 +12,92 @@ function mockStreamResponse(payload: string) {
 
   return {
     ok: true,
+    status: 200,
     headers: {
-      get: (name: string) => (name === "X-Execution-Id" ? "exec-1" : null),
+      get: (name: string) => (name === "X-Execution-Id" ? executionId : null),
     },
     body: {
       getReader: () => reader,
     },
   };
 }
+
+function mockJsonResponse(body: unknown, status = 200) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    json: vi.fn().mockResolvedValue(body),
+  };
+}
+
+function makeRun(overrides: Record<string, unknown> = {}) {
+  return {
+    id: "exec-1",
+    requestId: "exec-1",
+    sessionId: "webos-spotlight",
+    playbookId: "sales-pipeline-v1",
+    playbookVersion: "1.0.0",
+    planId: "plan-1",
+    state: "completed",
+    currentStepId: "review",
+    createdAt: 1,
+    updatedAt: 2,
+    plan: {
+      id: "plan-1",
+      goal: "controlled client recovery",
+      totalSteps: 2,
+      requiresApproval: true,
+      steps: [
+        {
+          id: "review",
+          title: "Review",
+          description: "Review the generated draft",
+          mode: "review",
+          dependsOn: [],
+          toolCalls: [],
+        },
+        {
+          id: "writeback",
+          title: "Writeback",
+          description: "Persist approved output",
+          mode: "manual",
+          dependsOn: ["review"],
+          toolCalls: [],
+        },
+      ],
+    },
+    steps: [
+      {
+        stepId: "review",
+        state: "completed",
+        startedAt: 1,
+        finishedAt: 11,
+        input: null,
+        output: { approved: true },
+        attempts: 1,
+        toolCallResults: [],
+        writebackReceipts: [],
+      },
+      {
+        stepId: "writeback",
+        state: "completed",
+        startedAt: 12,
+        finishedAt: 20,
+        input: null,
+        output: { written: true },
+        attempts: 1,
+        toolCallResults: [],
+        writebackReceipts: [],
+      },
+    ],
+    ...overrides,
+  };
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
 describe("useMultiStepStream", () => {
   it("keeps failed execution_done as an error state", async () => {
@@ -61,5 +139,66 @@ describe("useMultiStepStream", () => {
 
     expect(result.current.status).toBe("error");
     expect(result.current.error).toBe("Stream ended before execution_done");
+  });
+
+  it("continues a durable run after approval by calling the resume route", async () => {
+    const payload = [
+      "event: plan_ready\n",
+      `data: ${JSON.stringify({ plan: makeRun().plan })}\n`,
+      "\n",
+      "event: approval_needed\n",
+      `data: ${JSON.stringify({
+        executionId: "exec-1",
+        stepId: "review",
+        title: "Review",
+        description: "Approve generated draft",
+        mode: "review",
+      })}\n`,
+      "\n",
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: false, error: "Awaiting approval for review" })}\n`,
+      "\n",
+    ].join("");
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockStreamResponse(payload))
+      .mockResolvedValueOnce(mockJsonResponse({ ok: true }))
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          resumedStepIds: ["review", "writeback"],
+          run: makeRun(),
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.start("Run controlled workflow");
+    });
+
+    expect(result.current.status).toBe("awaiting_approval");
+    expect(result.current.approvalRequest?.stepId).toBe("review");
+
+    await act(async () => {
+      await result.current.approve(true);
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/agent/approve"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(result.current.status).toBe("done");
+    expect(result.current.approvalRequest).toBeNull();
+    expect(result.current.stepResults.map((step) => step.stepId)).toEqual(["review", "writeback"]);
   });
 });

@@ -492,9 +492,13 @@ export function useMultiStepStream() {
 
       setStateForGeneration(generation, (s) => ({
         ...s,
-        status: s.status === "done" ? "done" : "running",
         approvalRequest: null,
-        error: null,
+        ...(streamActiveRef.current
+          ? {
+              status: s.status === "done" ? "done" : "running",
+              error: null,
+            }
+          : {}),
       }));
     } catch (err) {
       if (!isCurrentGeneration(generation)) return;

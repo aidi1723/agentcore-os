@@ -655,6 +655,8 @@ describe("useMultiStepStream", () => {
       String(url).includes("/api/runtime/executor/controlled-runs/exec-1/resume"),
     )).toBe(false);
     expect(result.current.approvalRequest).toBeNull();
+    expect(result.current.status).toBe("error");
+    expect(result.current.error).toBe("Stream ended before execution_done");
   });
 
   it("reports the resume HTTP status when an error response is not JSON", async () => {

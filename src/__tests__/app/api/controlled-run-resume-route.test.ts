@@ -10,17 +10,25 @@ import {
 
 let tmpDir: string;
 let originalCwd: () => string;
+let originalApiToken: string | undefined;
 
 beforeEach(async () => {
   tmpDir = await mkdtemp(path.join(os.tmpdir(), "controlled-resume-route-test-"));
   originalCwd = process.cwd;
+  originalApiToken = process.env.AGENTCORE_API_AUTH_TOKEN;
   process.cwd = () => tmpDir;
+  delete process.env.AGENTCORE_API_AUTH_TOKEN;
   const jsonStore = await import("@/lib/server/json-store");
   jsonStore.invalidateCache();
 });
 
 afterEach(async () => {
   process.cwd = originalCwd;
+  if (originalApiToken === undefined) {
+    delete process.env.AGENTCORE_API_AUTH_TOKEN;
+  } else {
+    process.env.AGENTCORE_API_AUTH_TOKEN = originalApiToken;
+  }
   await rm(tmpDir, { recursive: true, force: true });
 });
 

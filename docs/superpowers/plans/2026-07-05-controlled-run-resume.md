@@ -62,7 +62,7 @@ Modify:
 - Modify: `src/lib/executor/contracts.ts`
 - Test: `src/__tests__/lib/executor/step-executor.test.ts`
 
-- [ ] **Step 1: Write failing continuation tests**
+- [x] **Step 1: Write failing continuation tests**
 
 Append to `src/__tests__/lib/executor/step-executor.test.ts`:
 
@@ -169,7 +169,7 @@ it("skips approval only for explicitly approved resume steps", async () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -179,7 +179,7 @@ npm test -- src/__tests__/lib/executor/step-executor.test.ts
 
 Expected: FAIL because `executeMultiStep` does not accept continuation options and cannot emit `awaiting_approval` without waiting.
 
-- [ ] **Step 3: Add continuation option type**
+- [x] **Step 3: Add continuation option type**
 
 Modify `src/lib/executor/contracts.ts` after `ExecutionCallbacks`:
 
@@ -193,7 +193,7 @@ export type ExecuteMultiStepOptions = {
 };
 ```
 
-- [ ] **Step 4: Update executor imports and signature**
+- [x] **Step 4: Update executor imports and signature**
 
 Modify the import list in `src/lib/executor/step-executor.ts`:
 
@@ -213,7 +213,7 @@ export async function executeMultiStep(
 ): Promise<MultiStepTrace> {
 ```
 
-- [ ] **Step 5: Initialize trace from continuation options**
+- [x] **Step 5: Initialize trace from continuation options**
 
 Inside `executeMultiStep`, before building `trace`, add:
 
@@ -252,7 +252,7 @@ Change the loop:
   for (let i = startStepIndex; i < plan.steps.length; i++) {
 ```
 
-- [ ] **Step 6: Pause at unapproved approval gates**
+- [x] **Step 6: Pause at unapproved approval gates**
 
 Replace the approval gate block in `src/lib/executor/step-executor.ts` with:
 
@@ -310,7 +310,7 @@ Replace the approval gate block in `src/lib/executor/step-executor.ts` with:
     }
 ```
 
-- [ ] **Step 7: Preserve awaiting run state at finalization**
+- [x] **Step 7: Preserve awaiting run state at finalization**
 
 Replace final controlled run update:
 
@@ -333,7 +333,7 @@ With:
     }).catch(() => null);
 ```
 
-- [ ] **Step 8: Run executor tests**
+- [x] **Step 8: Run executor tests**
 
 Run:
 
@@ -343,7 +343,7 @@ npm test -- src/__tests__/lib/executor/step-executor.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/lib/executor/contracts.ts src/lib/executor/step-executor.ts src/__tests__/lib/executor/step-executor.test.ts

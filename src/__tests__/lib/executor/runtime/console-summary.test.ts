@@ -21,6 +21,7 @@ function makeRun(): ControlledExecutionRunRecord {
     createdAt: 100,
     updatedAt: 200,
     finishedAt: 220,
+    auditEvents: [],
     plan: {
       id: "plan-1",
       goal: "Sales follow-up",
@@ -131,6 +132,7 @@ describe("buildControlledRunConsoleSummary", () => {
     expect(summary.awaitingApprovalSteps).toBe(0);
     expect(summary.failedSteps).toBe(0);
     expect(summary.approvalCount).toBe(1);
+    expect(summary.auditEventCount).toBe(0);
     expect(summary.writebackReceiptCount).toBe(3);
     expect(summary.assetLandings).toEqual([
       {
@@ -210,6 +212,57 @@ describe("buildControlledRunConsoleSummary", () => {
     expect(summary.pendingApprovalStepId).toBeUndefined();
     expect(summary.canApprove).toBe(false);
     expect(summary.canResume).toBe(true);
+  });
+
+  it("marks retryable failed controlled runs", () => {
+    const run = makeRun();
+    run.state = "failed";
+    run.currentStepId = "intake";
+    run.error = "temporary failure";
+    run.auditEvents = [
+      {
+        id: "audit-1",
+        type: "console_retry_requested",
+        stepId: "intake",
+        message: "Retry from console",
+        createdAt: 230,
+        actor: "local_user",
+      },
+    ];
+    run.plan.steps[0] = {
+      ...run.plan.steps[0],
+      onFailure: { action: "retry", maxRetries: 1 },
+    };
+    run.steps[0] = {
+      ...run.steps[0],
+      state: "failed",
+      error: "temporary failure",
+    };
+
+    const summary = buildControlledRunConsoleSummary(run);
+
+    expect(summary.failedStepId).toBe("intake");
+    expect(summary.canRetry).toBe(true);
+    expect(summary.retryReason).toBeUndefined();
+    expect(summary.auditEventCount).toBe(1);
+  });
+
+  it("explains non-retryable failed controlled runs", () => {
+    const run = makeRun();
+    run.state = "failed";
+    run.currentStepId = "writeback";
+    run.steps[2] = {
+      ...run.steps[2],
+      state: "failed",
+      error: "writeback failed",
+    };
+
+    const summary = buildControlledRunConsoleSummary(run);
+
+    expect(summary.failedStepId).toBe("writeback");
+    expect(summary.canRetry).toBe(false);
+    expect(summary.retryReason).toBe("Failed step is not retryable");
+    expect(summary.auditEventCount).toBe(0);
   });
 
   it("filters controlled run summaries by state and query", () => {

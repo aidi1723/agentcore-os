@@ -51,6 +51,10 @@ export type ControlledRunConsoleSummary = {
   approvalCount: number;
   writebackReceiptCount: number;
   assetLandings: ControlledRunAssetLandingSummary[];
+  failedStepId?: string;
+  canRetry: boolean;
+  retryReason?: string;
+  auditEventCount: number;
   pendingApprovalStepId?: string;
   canApprove: boolean;
   canResume: boolean;
@@ -93,6 +97,46 @@ function buildAssetLandings(
     }));
 }
 
+function firstFailedStepInPlanOrder(run: ControlledExecutionRunRecord) {
+  for (const planStep of run.plan.steps) {
+    const record = run.steps.find(
+      (step) => step.stepId === planStep.id && step.state === "failed",
+    );
+    if (record) return { planStep, record };
+  }
+  return null;
+}
+
+function deriveRetryState(run: ControlledExecutionRunRecord) {
+  const failedStep = firstFailedStepInPlanOrder(run);
+  if (!failedStep) {
+    return {
+      failedStepId: undefined,
+      canRetry: false,
+      retryReason: run.state === "failed" ? "No failed step" : "Run is not failed",
+    };
+  }
+  if (run.state !== "failed") {
+    return {
+      failedStepId: failedStep.record.stepId,
+      canRetry: false,
+      retryReason: "Run is not failed",
+    };
+  }
+  if (failedStep.planStep.onFailure?.action !== "retry") {
+    return {
+      failedStepId: failedStep.record.stepId,
+      canRetry: false,
+      retryReason: "Failed step is not retryable",
+    };
+  }
+  return {
+    failedStepId: failedStep.record.stepId,
+    canRetry: true,
+    retryReason: undefined,
+  };
+}
+
 export function buildControlledRunConsoleSummary(
   run: ControlledExecutionRunRecord,
 ): ControlledRunConsoleSummary {
@@ -117,6 +161,7 @@ export function buildControlledRunConsoleSummary(
     run.state === "completed" ||
     run.state === "failed" ||
     run.state === "cancelled";
+  const retryState = deriveRetryState(run);
 
   return {
     id: run.id,
@@ -135,6 +180,10 @@ export function buildControlledRunConsoleSummary(
     approvalCount: run.steps.filter((step) => Boolean(step.approval)).length,
     writebackReceiptCount: receipts.length,
     assetLandings: buildAssetLandings(receipts),
+    failedStepId: retryState.failedStepId,
+    canRetry: retryState.canRetry,
+    retryReason: retryState.retryReason,
+    auditEventCount: run.auditEvents.length,
     pendingApprovalStepId: pendingApprovalStep?.stepId,
     canApprove: Boolean(pendingApprovalStep),
     canResume: !isTerminal && !pendingApprovalStep,

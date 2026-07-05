@@ -383,9 +383,10 @@ export function useMultiStepStream() {
       if (!isCurrentGeneration(generation)) return;
 
       if (res.ok && data.ok) {
-        resumeAfterApprovalRef.current = false;
+        const projected = projectRunState(data.data.run);
+        resumeAfterApprovalRef.current = Boolean(projected.approvalRequest);
         streamActiveRef.current = false;
-        setStateForGeneration(generation, () => projectRunState(data.data.run));
+        setStateForGeneration(generation, () => projected);
         return;
       }
 
@@ -398,8 +399,10 @@ export function useMultiStepStream() {
         const durableRun = await fetchDurableControlledRun(data.data.runId ?? targetRunId);
         if (!isCurrentGeneration(generation)) return;
         if (durableRun) {
+          const projected = projectRunState(durableRun);
+          resumeAfterApprovalRef.current = Boolean(projected.approvalRequest);
           streamActiveRef.current = false;
-          setStateForGeneration(generation, () => projectRunState(durableRun));
+          setStateForGeneration(generation, () => projected);
           return;
         }
       }
@@ -436,7 +439,7 @@ export function useMultiStepStream() {
     if (!executionId || !approvalRequest) return;
 
     const generation = operationGenerationRef.current;
-    const shouldResumeAfterApproval = resumeAfterApprovalRef.current || !streamActiveRef.current;
+    const shouldResumeAfterApproval = resumeAfterApprovalRef.current;
     approvalInFlightRef.current = true;
     try {
       const res = await fetch(buildAgentCoreApiUrl("/api/agent/approve"), {

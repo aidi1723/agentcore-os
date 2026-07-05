@@ -506,6 +506,61 @@ describe("useMultiStepStream", () => {
     expect(result.current.status).toBe("done");
   });
 
+  it("does not resume a retained SSE approval after the stream ends without durable recovery", async () => {
+    const payload = [
+      "event: plan_ready\n",
+      `data: ${JSON.stringify({ plan: makeRun().plan })}\n`,
+      "\n",
+      "event: approval_needed\n",
+      `data: ${JSON.stringify({
+        executionId: "exec-1",
+        stepId: "review",
+        title: "Review",
+        description: "Approve generated draft",
+        mode: "review",
+      })}\n`,
+      "\n",
+    ].join("");
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockStreamResponse(payload))
+      .mockResolvedValueOnce(mockJsonResponse({ ok: true }))
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          resumedStepIds: ["review"],
+          run: makeRun(),
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.start("Run controlled workflow");
+    });
+
+    expect(result.current.status).toBe("error");
+    expect(result.current.error).toBe("Stream ended before execution_done");
+    expect(result.current.approvalRequest?.stepId).toBe("review");
+
+    await act(async () => {
+      await result.current.approve(true);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/agent/approve"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock.mock.calls.some(([url]) =>
+      String(url).includes("/api/runtime/executor/controlled-runs/exec-1/resume"),
+    )).toBe(false);
+    expect(result.current.approvalRequest).toBeNull();
+  });
+
   it("reports the resume HTTP status when an error response is not JSON", async () => {
     const payload = [
       "event: execution_done\n",
@@ -718,6 +773,61 @@ describe("useMultiStepStream", () => {
     );
     expect(fetchMock).toHaveBeenNthCalledWith(
       4,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(result.current.status).toBe("done");
+    expect(result.current.stepResults.map((step) => step.stepId)).toEqual(["review", "writeback"]);
+  });
+
+  it("resumes after approving a successful durable resume projection", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "awaiting_approval",
+          resumedStepIds: ["review"],
+          run: makeAwaitingWritebackRun({ state: "pending", requestedAt: 12 }),
+        },
+      }))
+      .mockResolvedValueOnce(mockJsonResponse({ ok: true }))
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          resumedStepIds: ["writeback"],
+          run: makeRun(),
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.resume("exec-1");
+    });
+
+    expect(result.current.status).toBe("awaiting_approval");
+    expect(result.current.approvalRequest?.stepId).toBe("writeback");
+
+    await act(async () => {
+      await result.current.approve(true);
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/agent/approve"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
       expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
       expect.objectContaining({ method: "POST" }),
     );

@@ -1,4 +1,5 @@
 import type {
+  ControlledExecutionRunState,
   ControlledExecutionRunRecord,
   ControlledExecutionStepRecord,
   ControlledWritebackReceipt,
@@ -45,7 +46,15 @@ export type ControlledRunConsoleSummary = {
   approvalCount: number;
   writebackReceiptCount: number;
   assetLandings: ControlledRunAssetLandingSummary[];
+  pendingApprovalStepId?: string;
+  canApprove: boolean;
+  canResume: boolean;
   steps: ControlledRunStepConsoleSummary[];
+};
+
+export type ControlledRunConsoleFilters = {
+  state: "all" | ControlledExecutionRunState;
+  query: string;
 };
 
 const ASSET_LABELS: Record<string, string> = {
@@ -87,6 +96,13 @@ export function buildControlledRunConsoleSummary(
     error: step.error,
   }));
   const receipts = run.steps.flatMap((step) => step.writebackReceipts);
+  const pendingApprovalStep = run.steps.find(
+    (step) => step.state === "awaiting_approval" && step.approval?.state === "pending",
+  );
+  const isTerminal =
+    run.state === "completed" ||
+    run.state === "failed" ||
+    run.state === "cancelled";
 
   return {
     id: run.id,
@@ -104,6 +120,30 @@ export function buildControlledRunConsoleSummary(
     approvalCount: run.steps.filter((step) => Boolean(step.approval)).length,
     writebackReceiptCount: receipts.length,
     assetLandings: buildAssetLandings(receipts),
+    pendingApprovalStepId: pendingApprovalStep?.stepId,
+    canApprove: Boolean(pendingApprovalStep),
+    canResume: !isTerminal && !pendingApprovalStep,
     steps,
   };
+}
+
+export function filterControlledRunConsoleSummaries(
+  summaries: ControlledRunConsoleSummary[],
+  filters: ControlledRunConsoleFilters,
+) {
+  const query = filters.query.trim().toLowerCase();
+  return summaries.filter((summary) => {
+    if (filters.state !== "all" && summary.state !== filters.state) return false;
+    if (!query) return true;
+    return [
+      summary.id,
+      summary.title,
+      summary.workflowRunId,
+      summary.playbookId,
+      summary.scenarioId,
+      summary.currentStepId,
+    ]
+      .filter((value): value is string => typeof value === "string")
+      .some((value) => value.toLowerCase().includes(query));
+  });
 }

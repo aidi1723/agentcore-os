@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buildControlledRunConsoleSummary } from "@/lib/executor/runtime/console-summary";
+import {
+  buildControlledRunConsoleSummary,
+  filterControlledRunConsoleSummaries,
+} from "@/lib/executor/runtime/console-summary";
 import type { ControlledExecutionRunRecord } from "@/lib/executor/runtime/types";
 
 function makeRun(): ControlledExecutionRunRecord {
@@ -161,5 +164,71 @@ describe("buildControlledRunConsoleSummary", () => {
       "sales_asset",
       "knowledge_asset",
     ]);
+  });
+
+  it("marks pending approval and resumable controlled runs", () => {
+    const run = makeRun();
+    run.state = "awaiting_approval";
+    run.currentStepId = "human_review";
+    run.steps[1] = {
+      ...run.steps[1],
+      state: "awaiting_approval",
+      approval: {
+        executionId: "run-console-1",
+        stepId: "human_review",
+        state: "pending",
+        requestedAt: 170,
+      },
+    };
+
+    const summary = buildControlledRunConsoleSummary(run);
+
+    expect(summary.pendingApprovalStepId).toBe("human_review");
+    expect(summary.canApprove).toBe(true);
+    expect(summary.canResume).toBe(false);
+  });
+
+  it("marks non-terminal runs without pending approval as resumable", () => {
+    const run = makeRun();
+    run.state = "running";
+    run.currentStepId = "writeback";
+
+    const summary = buildControlledRunConsoleSummary(run);
+
+    expect(summary.pendingApprovalStepId).toBeUndefined();
+    expect(summary.canApprove).toBe(false);
+    expect(summary.canResume).toBe(true);
+  });
+
+  it("filters controlled run summaries by state and query", () => {
+    const completed = buildControlledRunConsoleSummary(makeRun());
+    const awaitingRun = makeRun();
+    awaitingRun.id = "run-awaiting";
+    awaitingRun.workflowRunId = "workflow-awaiting";
+    awaitingRun.state = "awaiting_approval";
+    awaitingRun.playbookId = "support-playbook";
+    awaitingRun.plan = { ...awaitingRun.plan, goal: "Support follow-up" };
+    const awaiting = buildControlledRunConsoleSummary(awaitingRun);
+
+    expect(
+      filterControlledRunConsoleSummaries([completed, awaiting], {
+        state: "awaiting_approval",
+        query: "",
+      }).map((summary) => summary.id),
+    ).toEqual(["run-awaiting"]);
+
+    expect(
+      filterControlledRunConsoleSummaries([completed, awaiting], {
+        state: "all",
+        query: "workflow-1",
+      }).map((summary) => summary.id),
+    ).toEqual(["run-console-1"]);
+
+    expect(
+      filterControlledRunConsoleSummaries([completed, awaiting], {
+        state: "all",
+        query: "support",
+      }).map((summary) => summary.id),
+    ).toEqual(["run-awaiting"]);
   });
 });

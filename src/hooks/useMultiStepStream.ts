@@ -137,6 +137,7 @@ export function useMultiStepStream() {
   const abortRef = useRef<AbortController | null>(null);
   const streamActiveRef = useRef(false);
   const resumeAfterApprovalRef = useRef(false);
+  const approvalInFlightRef = useRef(false);
 
   const start = useCallback(async (message: string, options?: {
     maxSteps?: number;
@@ -145,6 +146,7 @@ export function useMultiStepStream() {
     abortRef.current?.abort();
     streamActiveRef.current = false;
     resumeAfterApprovalRef.current = false;
+    approvalInFlightRef.current = false;
     const controller = new AbortController();
     abortRef.current = controller;
 
@@ -344,49 +346,62 @@ export function useMultiStepStream() {
   }, [state.executionId]);
 
   const approve = useCallback(async (approved: boolean, feedback?: string) => {
+    if (approvalInFlightRef.current) return;
+
     const { executionId, approvalRequest } = state;
     if (!executionId || !approvalRequest) return;
 
-    const res = await fetch(buildAgentCoreApiUrl("/api/agent/approve"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        executionId,
-        stepId: approvalRequest.stepId,
-        approved,
-        feedback,
-      }),
-    });
+    approvalInFlightRef.current = true;
+    try {
+      const res = await fetch(buildAgentCoreApiUrl("/api/agent/approve"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          executionId,
+          stepId: approvalRequest.stepId,
+          approved,
+          feedback,
+        }),
+      });
 
-    if (!res.ok) {
-      setState((s) => ({ ...s, status: "error", error: `Approval failed: HTTP ${res.status}` }));
-      return;
-    }
+      if (!res.ok) {
+        setState((s) => ({ ...s, status: "error", error: `Approval failed: HTTP ${res.status}` }));
+        return;
+      }
 
-    if (!approved) {
-      resumeAfterApprovalRef.current = false;
+      if (!approved) {
+        resumeAfterApprovalRef.current = false;
+        setState((s) => ({
+          ...s,
+          status: "error",
+          approvalRequest: null,
+          error: feedback ?? "User rejected step",
+        }));
+        return;
+      }
+
+      if (resumeAfterApprovalRef.current || !streamActiveRef.current) {
+        resumeAfterApprovalRef.current = false;
+        setState((s) => ({ ...s, approvalRequest: null }));
+        await resume(executionId);
+        return;
+      }
+
+      setState((s) => ({
+        ...s,
+        status: "running",
+        approvalRequest: null,
+        error: null,
+      }));
+    } catch (err) {
       setState((s) => ({
         ...s,
         status: "error",
-        approvalRequest: null,
-        error: feedback ?? "User rejected step",
+        error: err instanceof Error ? err.message : "Approval failed",
       }));
-      return;
+    } finally {
+      approvalInFlightRef.current = false;
     }
-
-    if (resumeAfterApprovalRef.current || !streamActiveRef.current) {
-      resumeAfterApprovalRef.current = false;
-      setState((s) => ({ ...s, approvalRequest: null }));
-      await resume(executionId);
-      return;
-    }
-
-    setState((s) => ({
-      ...s,
-      status: "running",
-      approvalRequest: null,
-      error: null,
-    }));
   }, [resume, state]);
 
   const stop = useCallback(() => {

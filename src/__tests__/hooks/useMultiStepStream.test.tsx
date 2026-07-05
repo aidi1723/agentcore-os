@@ -30,6 +30,16 @@ function mockJsonResponse(body: unknown, status = 200) {
   };
 }
 
+function deferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve;
+    reject = promiseReject;
+  });
+  return { promise, resolve, reject };
+}
+
 function mockGatedStreamResponse(
   firstPayload: string,
   secondPayload: string,
@@ -234,6 +244,73 @@ describe("useMultiStepStream", () => {
     expect(result.current.status).toBe("done");
     expect(result.current.approvalRequest).toBeNull();
     expect(result.current.stepResults.map((step) => step.stepId)).toEqual(["review", "writeback"]);
+  });
+
+  it("ignores duplicate approval calls while approval is in flight", async () => {
+    const payload = [
+      "event: plan_ready\n",
+      `data: ${JSON.stringify({ plan: makeRun().plan })}\n`,
+      "\n",
+      "event: approval_needed\n",
+      `data: ${JSON.stringify({
+        executionId: "exec-1",
+        stepId: "review",
+        title: "Review",
+        description: "Approve generated draft",
+        mode: "review",
+      })}\n`,
+      "\n",
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: false, error: "Awaiting approval for review" })}\n`,
+      "\n",
+    ].join("");
+    const approvalResponse = deferred<ReturnType<typeof mockJsonResponse>>();
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockStreamResponse(payload))
+      .mockReturnValueOnce(approvalResponse.promise)
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          resumedStepIds: ["review", "writeback"],
+          run: makeRun(),
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.start("Run controlled workflow");
+    });
+
+    expect(result.current.status).toBe("awaiting_approval");
+    expect(result.current.approvalRequest?.stepId).toBe("review");
+
+    let firstApproval!: Promise<void>;
+    let secondApproval!: Promise<void>;
+    act(() => {
+      firstApproval = result.current.approve(true);
+      secondApproval = result.current.approve(true);
+    });
+
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/agent/approve"))).toHaveLength(1);
+
+    await act(async () => {
+      approvalResponse.resolve(mockJsonResponse({ ok: true }));
+      await firstApproval;
+      await secondApproval;
+    });
+
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/agent/approve"))).toHaveLength(1);
+    expect(
+      fetchMock.mock.calls.filter(([url]) =>
+        String(url).includes("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      ),
+    ).toHaveLength(1);
+    expect(result.current.status).toBe("done");
+    expect(result.current.approvalRequest).toBeNull();
   });
 
   it("does not call resume after approval while the original stream is active", async () => {

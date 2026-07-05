@@ -48,7 +48,7 @@ Modify:
 
 ### Task 1: Add Controlled Run List API
 
-- [ ] **Step 1: Write the failing route test**
+- [x] **Step 1: Write the failing route test**
 
 Extend `src/__tests__/app/api/controlled-run-route.test.ts`:
 
@@ -86,7 +86,7 @@ it("lists recent controlled execution runs", async () => {
 });
 ```
 
-- [ ] **Step 2: Verify it fails**
+- [x] **Step 2: Verify it fails**
 
 Run:
 
@@ -96,7 +96,7 @@ npm test -- src/__tests__/app/api/controlled-run-route.test.ts
 
 Expected: import fails because the list route does not exist.
 
-- [ ] **Step 3: Implement the route**
+- [x] **Step 3: Implement the route**
 
 Create `src/app/api/runtime/executor/controlled-runs/route.ts`:
 
@@ -126,7 +126,7 @@ export async function GET(req: Request) {
 }
 ```
 
-- [ ] **Step 4: Verify route test passes**
+- [x] **Step 4: Verify route test passes**
 
 Run:
 
@@ -136,7 +136,7 @@ npm test -- src/__tests__/app/api/controlled-run-route.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/api/runtime/executor/controlled-runs/route.ts src/__tests__/app/api/controlled-run-route.test.ts
@@ -145,7 +145,7 @@ git commit -m "feat: list controlled runs for runtime console"
 
 ### Task 2: Add Controlled Run Console Summary
 
-- [ ] **Step 1: Write failing unit tests**
+- [x] **Step 1: Write failing unit tests**
 
 Create `src/__tests__/lib/executor/runtime/console-summary.test.ts` covering:
 
@@ -155,7 +155,7 @@ Create `src/__tests__/lib/executor/runtime/console-summary.test.ts` covering:
 - asset landing labels for `sales_asset` and `knowledge_asset`,
 - step summary fields.
 
-- [ ] **Step 2: Verify it fails**
+- [x] **Step 2: Verify it fails**
 
 Run:
 
@@ -165,7 +165,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: import fails because `console-summary.ts` does not exist.
 
-- [ ] **Step 3: Implement summary helper**
+- [x] **Step 3: Implement summary helper**
 
 Create `src/lib/executor/runtime/console-summary.ts` with:
 
@@ -175,7 +175,7 @@ export function buildControlledRunConsoleSummary(run: ControlledExecutionRunReco
 
 The function must derive metadata and step summaries without fetching or mutating state.
 
-- [ ] **Step 4: Verify summary tests pass**
+- [x] **Step 4: Verify summary tests pass**
 
 Run:
 
@@ -185,7 +185,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/executor/runtime/console-summary.ts src/__tests__/lib/executor/runtime/console-summary.test.ts
@@ -194,11 +194,11 @@ git commit -m "feat: summarize controlled runs for console"
 
 ### Task 3: Wire Runtime Console Panel
 
-- [ ] **Step 1: Add controlled run state and fetchers**
+- [x] **Step 1: Add controlled run state and fetchers**
 
 Modify `src/components/apps/ClawRuntimeConsoleAppWindow.tsx` to fetch `/api/runtime/executor/controlled-runs`, select the first run by default, and build summaries with `buildControlledRunConsoleSummary`.
 
-- [ ] **Step 2: Render controlled run panel**
+- [x] **Step 2: Render controlled run panel**
 
 Add a panel labeled `受控运行 Trace` with recent run list and selected step trace. Show:
 
@@ -210,7 +210,7 @@ Add a panel labeled `受控运行 Trace` with recent run list and selected step 
 - writeback receipts,
 - asset landing labels.
 
-- [ ] **Step 3: Verify controlled runtime tests**
+- [x] **Step 3: Verify controlled runtime tests**
 
 Run:
 
@@ -220,7 +220,7 @@ npm run test:controlled-runtime
 
 Expected: PASS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/apps/ClawRuntimeConsoleAppWindow.tsx
@@ -229,7 +229,7 @@ git commit -m "feat: show controlled run trace in runtime console"
 
 ### Task 4: Final Verification And Docs
 
-- [ ] **Step 1: Run full verification**
+- [x] **Step 1: Run full verification**
 
 Run:
 
@@ -242,11 +242,11 @@ npm run build
 
 Expected: all pass; lint/build may keep the existing `<img>` warning.
 
-- [ ] **Step 2: Update docs and memory**
+- [x] **Step 2: Update docs and memory**
 
 Update changelog, development manual, this plan checklist, and daily memory with the final verification.
 
-- [ ] **Step 3: Commit docs**
+- [x] **Step 3: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-05-runtime-console-trace-asset-landing.md

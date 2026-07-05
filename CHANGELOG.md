@@ -118,6 +118,12 @@
 - Kept unsupported `workflow_run` and `draft` writeback targets explicit as skipped receipts until their stores are wired in a later slice.
 - Added unit and resume integration coverage for approved writeback, unapproved skips, unsupported targets, idempotency, and final resume-driven asset creation.
 
+### Runtime Console Trace Landing
+
+- Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.
+- Added a tested controlled run console summary helper that exposes step state counts, approvals, schema validation, writeback receipts, and sales/knowledge asset landing labels.
+- Added a `受控运行 Trace` panel to the Runtime Console showing recent controlled runs, selected run metadata, step trace, approval state, receipt summaries, and asset landing identifiers.
+
 ### Framework Alignment
 
 - Added project-level `AGENTS.md` workflow rules and `DESIGN.md` design contract as the default collaboration and UI implementation framework for future work.
@@ -126,8 +132,9 @@
 ### Verification
 
 - Verified `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` — 4 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts` — 1 test passing.
 - Verified `npm test -- src/__tests__/lib/executor/runtime/resume.test.ts` — 8 tests passing.
-- Verified `npm run test:controlled-runtime` — 14 files, 96 tests passing.
+- Verified `npm run test:controlled-runtime` — 14 files, 97 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.
 - Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - Verified `npm run build` — exit 0 with the same existing `<img>` warning.

@@ -320,18 +320,19 @@ type ControlledPlaybookStep = {
 - Phase 3 的 durable run / approval / resume 基线：controlled run store、approval record、resume route、client-side resume/recovery 已打通。
 - Client recovery：审批后 resume、手动 resume、stream loss、resume conflict、approval-in-flight 后 stream loss 等路径都有回归测试。
 - Phase 4 资产写回闭环：approved `sales-pipeline-v1` final writeback 已能写入 server-backed sales asset 和 knowledge asset，并把真实 receipt 记录回 controlled step trace。
+- Phase 5 第一批 Runtime Console trace landing：控制台可以列出 recent controlled runs，并展示 selected run 的 step trace、approval、schema、writeback receipt 和 sales/knowledge asset landing labels。
 
 仍未完成：
 
-- Runtime Console 还不能按 run 展示完整 trace、approval 决策、writeback receipt 和资产落点。
 - `workflow_run` 和 `draft` writeback 仍是显式 skipped receipt，后续需要接入对应 server store。
-- UI 还没有把 controlled run 的写回资产作为可点击落点串起来。
+- Runtime Console 目前展示的是资产落点标识，还没有深度串联到具体 CRM / Knowledge Vault 记录的点击定位。
+- Runtime Console 还没有支持审批操作、失败重试和 trace 过滤。
 
 因此下一阶段默认进入：
 
-**Phase 5. Runtime Console Trace And Asset Landing**
+**Phase 6. Runtime Console Operations**
 
-目标是把 controlled run 的 plan、step input/output、approval 决策、writeback receipt 和资产落点集中展示出来，让用户能一眼看到“运行到了哪里、谁批准了什么、结果写到了哪里”。
+目标是在已能查看 trace 的基础上，补上可操作性：审批入口、失败重试、资产深链跳转、按 playbook / state / workflowRunId 过滤。
 
 ### Phase 0. 冻结方向
 
@@ -450,6 +451,8 @@ type ControlledPlaybookStep = {
 完成标准：
 
 - 用户能一眼知道“机器在执行什么、卡在哪里、需要我确认什么、结果去了哪里”。
+- Runtime Console 至少能列出 recent controlled runs。
+- Runtime Console 能展示 selected run 的 step trace、approval 决策、schema validation、writeback receipt 和资产落点标识。
 
 ## 9. 开发规范
 

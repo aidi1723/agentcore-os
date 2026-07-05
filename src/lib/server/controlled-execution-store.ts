@@ -218,14 +218,32 @@ export async function requestControlledApproval(executionId: string, stepId: str
     state: "pending",
     requestedAt: timestamp,
   };
-  await updateControlledExecutionRun(executionId, {
-    state: "awaiting_approval",
-    currentStepId: stepId,
-  });
-  await updateControlledExecutionStep(executionId, stepId, {
-    state: "awaiting_approval",
-    approval,
-  });
+  await readModifyWrite<unknown[]>(FILE_NAME, [], (current) =>
+    current.map((raw) => {
+      const run = normalizeRun(raw);
+      if (!run || run.id !== executionId) return raw;
+      const isTerminal =
+        run.state === "completed" || run.state === "failed" || run.state === "cancelled";
+      const steps = run.steps.map((step) => {
+        if (step.stepId !== stepId) return step;
+        if (step.approval && step.approval.state !== "pending") {
+          return step;
+        }
+        return normalizeStep({
+          ...step,
+          state: "awaiting_approval",
+          approval,
+        });
+      });
+      return {
+        ...run,
+        steps,
+        state: isTerminal ? run.state : "awaiting_approval",
+        currentStepId: stepId,
+        updatedAt: timestamp,
+      };
+    }),
+  );
   return approval;
 }
 

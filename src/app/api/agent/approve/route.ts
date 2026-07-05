@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     );
   }
 
-  resolveApproval(
+  await resolveApproval(
     body.executionId,
     body.stepId,
     body.approved,

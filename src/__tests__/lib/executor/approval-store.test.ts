@@ -1,5 +1,25 @@
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
+import { mkdtemp, rm } from "node:fs/promises";
+import path from "node:path";
+import os from "node:os";
 import { waitForApproval, resolveApproval } from "@/lib/executor/approval-store";
+
+let tmpDir: string;
+let originalCwd: () => string;
+
+beforeEach(async () => {
+  tmpDir = await mkdtemp(path.join(os.tmpdir(), "approval-store-test-"));
+  originalCwd = process.cwd;
+  process.cwd = () => tmpDir;
+  const jsonStore = await import("@/lib/server/json-store");
+  jsonStore.invalidateCache();
+});
+
+afterEach(async () => {
+  vi.useRealTimers();
+  process.cwd = originalCwd;
+  await rm(tmpDir, { recursive: true, force: true });
+});
 
 describe("approval-store", () => {
   it("resolves when approval is granted", async () => {
@@ -28,5 +48,47 @@ describe("approval-store", () => {
   it("ignores resolve for unknown key", () => {
     // Should not throw
     resolveApproval("unknown", "unknown", true);
+  });
+
+  it("persists approval decisions for controlled executions", async () => {
+    const { createControlledExecutionRun, getControlledExecutionRun } = await import(
+      "@/lib/server/controlled-execution-store"
+    );
+    const { waitForApproval, resolveApproval } = await import("@/lib/executor/approval-store");
+
+    await createControlledExecutionRun({
+      id: "exec-durable-approval",
+      requestId: "req-durable-approval",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan: {
+        id: "plan-approval",
+        goal: "approval",
+        totalSteps: 1,
+        requiresApproval: true,
+        steps: [
+          {
+            id: "human_review",
+            title: "Review",
+            description: "Review",
+            mode: "review",
+            dependsOn: [],
+            toolCalls: [{ toolName: "human_ask" }],
+          },
+        ],
+      },
+    });
+
+    const promise = waitForApproval("exec-durable-approval", "human_review", 1_000);
+    await resolveApproval("exec-durable-approval", "human_review", false, "not ready");
+    await expect(promise).resolves.toEqual({ approved: false, feedback: "not ready" });
+
+    const run = await getControlledExecutionRun("exec-durable-approval");
+    expect(run?.state).toBe("failed");
+    expect(run?.steps[0]?.approval).toMatchObject({
+      state: "rejected",
+      feedback: "not ready",
+    });
   });
 });

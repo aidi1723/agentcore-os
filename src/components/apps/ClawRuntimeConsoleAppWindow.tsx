@@ -27,6 +27,7 @@ import {
 import {
   buildControlledRunConsoleSummary,
   filterControlledRunConsoleSummaries,
+  type ControlledRunAssetLandingSummary,
   type ControlledRunConsoleSummary,
 } from "@/lib/executor/runtime/console-summary";
 import type {
@@ -35,7 +36,11 @@ import type {
 } from "@/lib/executor/runtime/types";
 import { addRuntimeEventListener, RuntimeEventNames } from "@/lib/runtime-events";
 import { loadSettings, type AppSettings, type InterfaceLanguage } from "@/lib/settings";
-import { requestOpenSettings } from "@/lib/ui-events";
+import {
+  requestOpenDealDesk,
+  requestOpenKnowledgeVault,
+  requestOpenSettings,
+} from "@/lib/ui-events";
 
 const DEFAULT_BASE = "http://127.0.0.1:18789";
 const DEFAULT_SESSION = "agent:main:main";
@@ -444,6 +449,27 @@ export function ClawRuntimeConsoleAppWindow({
       showToast(error instanceof Error ? error.message : "继续执行请求异常", "error");
     } finally {
       setControlledRunActionLoading(null);
+    }
+  };
+
+  const handleOpenControlledRunAsset = (asset: ControlledRunAssetLandingSummary) => {
+    if (asset.appId === "deal_desk") {
+      requestOpenDealDesk({
+        workflowRunId: asset.workflowRunId ?? selectedControlledRunSummary?.workflowRunId,
+        workflowScenarioId: selectedControlledRunSummary?.scenarioId,
+        workflowSource: `Runtime Console asset ${asset.assetId ?? asset.target}`,
+        workflowNextStep:
+          "Review the controlled run sales asset and continue the sales workflow.",
+      });
+      showToast("已打开 Deal Desk", "ok");
+      return;
+    }
+
+    if (asset.appId === "knowledge_vault") {
+      requestOpenKnowledgeVault({
+        query: asset.assetId ?? asset.sourceKey ?? asset.detail,
+      });
+      showToast("已打开 Knowledge Vault", "ok");
     }
   };
 
@@ -1033,17 +1059,51 @@ export function ClawRuntimeConsoleAppWindow({
                               <div className="text-xs font-semibold text-gray-900">
                                 {asset.label}
                               </div>
-                              <div
-                                className={[
-                                  "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]",
-                                  asset.ok
-                                    ? "bg-emerald-100 text-emerald-700"
-                                    : "bg-amber-100 text-amber-700",
-                                ].join(" ")}
-                              >
-                                {asset.ok ? "Written" : "Skipped"}
+                              <div className="flex shrink-0 items-center gap-2">
+                                <div
+                                  className={[
+                                    "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                                    asset.ok
+                                      ? "bg-emerald-100 text-emerald-700"
+                                      : "bg-amber-100 text-amber-700",
+                                  ].join(" ")}
+                                >
+                                  {asset.ok ? "Written" : "Skipped"}
+                                </div>
+                                {asset.ok && asset.appId ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenControlledRunAsset(asset)}
+                                    className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2 py-1 text-[10px] font-semibold text-gray-700 transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                                  >
+                                    <ExternalLink className="h-3 w-3" />
+                                    打开
+                                  </button>
+                                ) : null}
                               </div>
                             </div>
+                            {asset.assetId || asset.sourceKey || asset.workflowRunId ? (
+                              <div className="mt-2 space-y-1 text-[11px] leading-5 text-gray-500">
+                                {asset.assetId ? (
+                                  <div className="break-words">
+                                    <span className="font-semibold text-gray-700">Asset：</span>
+                                    {asset.assetId}
+                                  </div>
+                                ) : null}
+                                {asset.sourceKey ? (
+                                  <div className="break-words">
+                                    <span className="font-semibold text-gray-700">Source：</span>
+                                    {asset.sourceKey}
+                                  </div>
+                                ) : null}
+                                {asset.workflowRunId ? (
+                                  <div className="break-words">
+                                    <span className="font-semibold text-gray-700">Workflow：</span>
+                                    {asset.workflowRunId}
+                                  </div>
+                                ) : null}
+                              </div>
+                            ) : null}
                             <div className="mt-2 break-words text-xs leading-5 text-gray-600">
                               {asset.detail}
                             </div>

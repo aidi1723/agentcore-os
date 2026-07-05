@@ -13,8 +13,10 @@ import { getTool } from "@/lib/executor/tools";
 import type { ToolContext } from "@/lib/executor/tools/registry";
 import { executorLog } from "@/lib/executor/logger";
 import { shouldRequireApproval } from "@/lib/executor/guardrails";
+import { getControlledPlaybook } from "@/lib/executor/playbooks/catalog";
 import { buildControlledStepInput } from "@/lib/executor/runtime/step-input";
 import { validateControlledOutput } from "@/lib/executor/runtime/schema";
+import { buildWritebackReceipts } from "@/lib/executor/runtime/writeback";
 import {
   updateControlledExecutionRun,
   updateControlledExecutionStep,
@@ -280,6 +282,18 @@ export async function executeMultiStep(
     if (result.status === "failed" && step.onFailure?.action === "await_human") {
       result.error = result.error ?? "Step failed and requires human intervention";
     }
+    const controlledStepContract = request.controlledPlaybookId
+      ? getControlledPlaybook(request.controlledPlaybookId)?.steps.find(
+          (playbookStep) => playbookStep.id === step.id,
+        ) ?? null
+      : null;
+    const writebackReceipts =
+      result.status === "completed"
+        ? buildWritebackReceipts({
+            step: controlledStepContract,
+            approved: step.mode !== "review" && step.mode !== "manual",
+          })
+        : [];
     trace.stepResults.push(result);
     if (shouldPersistControlledTrace) {
       await updateControlledExecutionStep(reqId, step.id, {
@@ -288,6 +302,7 @@ export async function executeMultiStep(
         error: result.error,
         attempts,
         toolCallResults: result.toolCallResults,
+        writebackReceipts,
       }).catch(() => null);
     }
     callbacks.onStepComplete(result);

@@ -233,4 +233,24 @@ describe("controlled runtime execution", () => {
     expect(run?.playbookId).toBe("sales-pipeline-v1");
     expect(run?.planId).toBe("playbook:sales-pipeline-v1:1.0.0");
   });
+
+  it("records writeback receipts for controlled steps with writesTo targets", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    const { getControlledExecutionRun } = await import(
+      "@/lib/server/controlled-execution-store"
+    );
+    const request = buildRequest();
+    const { callbacks } = buildCallbacks();
+
+    const result = await runMultiStepTask(request, callbacks);
+    const run = await getControlledExecutionRun(request.metadata.requestId);
+    const intake = run?.steps.find((step) => step.stepId === "intake");
+
+    expect(result.ok).toBe(true);
+    expect(intake?.writebackReceipts.length).toBeGreaterThan(0);
+    expect(intake?.writebackReceipts[0]).toMatchObject({
+      target: "workflow_run",
+      ok: true,
+    });
+  });
 });

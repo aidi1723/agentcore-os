@@ -268,4 +268,56 @@ describe("step-executor", () => {
     expect(trace.error).toContain("Missing required field: summary");
     expect(trace.stepResults[0]?.status).toBe("failed");
   });
+
+  it("retries failed controlled steps according to onFailure maxRetries", async () => {
+    let calls = 0;
+    registerTool({
+      name: "flaky_retry_tool",
+      description: "flaky retry tool",
+      parameters: { type: "object" },
+      requiresApproval: false,
+      execute: async () => {
+        calls += 1;
+        return {
+          toolName: "flaky_retry_tool",
+          success: calls >= 2,
+          output: calls >= 2 ? { ok: true } : null,
+          durationMs: 0,
+          sideEffects: calls >= 2 ? [] : ["temporary failure"],
+        };
+      },
+    });
+
+    const plan = makePlan([
+      makeStep({
+        id: "retry_step",
+        toolCalls: [{ toolName: "flaky_retry_tool" }],
+        onFailure: { action: "retry", maxRetries: 1 },
+      }),
+    ]);
+
+    const trace = await executeMultiStep(plan, makeControlledRequest(), makeCallbacks());
+
+    expect(calls).toBe(2);
+    expect(trace.success).toBe(true);
+    expect(trace.stepResults[0]?.status).toBe("completed");
+  });
+
+  it("stops controlled execution when onFailure is fail_run", async () => {
+    const plan = makePlan([
+      makeStep({
+        id: "first",
+        toolCalls: [{ toolName: "missing_tool" }],
+        onFailure: { action: "fail_run" },
+      }),
+      makeStep({ id: "second", dependsOn: ["first"] }),
+    ]);
+
+    const callbacks = makeCallbacks();
+    const trace = await executeMultiStep(plan, makeControlledRequest(), callbacks);
+
+    expect(trace.success).toBe(false);
+    expect(trace.stepResults.map((result) => result.stepId)).toEqual(["first"]);
+    expect(callbacks.onError).toHaveBeenCalled();
+  });
 });

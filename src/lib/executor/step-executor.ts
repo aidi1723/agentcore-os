@@ -239,13 +239,29 @@ export async function executeMultiStep(
         input: stepInput,
       }).catch(() => null);
     }
-    const result = await executeSingleStep(
-      step,
-      request,
-      callbacks,
-      config,
-      abortController.signal,
-    );
+    const maxRetries =
+      step.onFailure?.action === "retry" ? Math.max(0, step.onFailure.maxRetries ?? 0) : 0;
+    let result: StepResult | null = null;
+    let attempts = 0;
+    for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
+      attempts = attempt + 1;
+      result = await executeSingleStep(
+        step,
+        request,
+        callbacks,
+        config,
+        abortController.signal,
+      );
+      if (result.status === "completed") break;
+      if (shouldPersistControlledTrace) {
+        await updateControlledExecutionStep(reqId, step.id, {
+          attempts,
+          error: result.error,
+          toolCallResults: result.toolCallResults,
+        }).catch(() => null);
+      }
+    }
+    if (!result) continue;
     if (result.status === "completed" && step.outputSchema) {
       const validation = validateControlledOutput(
         result.output,
@@ -261,12 +277,16 @@ export async function executeMultiStep(
         result.error = validation.errors.join("; ");
       }
     }
+    if (result.status === "failed" && step.onFailure?.action === "await_human") {
+      result.error = result.error ?? "Step failed and requires human intervention";
+    }
     trace.stepResults.push(result);
     if (shouldPersistControlledTrace) {
       await updateControlledExecutionStep(reqId, step.id, {
         state: result.status,
         output: result.output,
         error: result.error,
+        attempts,
         toolCallResults: result.toolCallResults,
       }).catch(() => null);
     }
@@ -279,6 +299,10 @@ export async function executeMultiStep(
       if (consecutiveFailures >= 3) {
         executorLog("error", "execution_abort", { requestId: reqId, detail: "3 consecutive failures" });
         callbacks.onError("3 consecutive step failures — aborting execution");
+        break;
+      }
+      if (step.onFailure?.action === "fail_run") {
+        callbacks.onError(result.error ?? "Step failed");
         break;
       }
     } else {

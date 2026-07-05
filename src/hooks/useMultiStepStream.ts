@@ -420,16 +420,17 @@ export function useMultiStepStream() {
         }
       }
 
+      const fallbackStatus: MultiStepStatus =
+        data.ok === false && data.data?.state === "awaiting_approval"
+          ? "awaiting_approval"
+          : data.ok === false && data.data?.state === "completed"
+            ? "done"
+            : "error";
       setStateForGeneration(generation, (s) => ({
         ...s,
-        status:
-          data.ok === false && data.data?.state === "awaiting_approval"
-            ? "awaiting_approval"
-            : data.ok === false && data.data?.state === "completed"
-              ? "done"
-              : "error",
+        status: fallbackStatus,
         currentStepId: data.ok === false ? data.data?.currentStepId ?? s.currentStepId : s.currentStepId,
-        error,
+        error: fallbackStatus === "done" ? null : error,
       }));
     } catch (err) {
       if (!isCurrentGeneration(generation)) return;
@@ -452,7 +453,6 @@ export function useMultiStepStream() {
     if (!executionId || !approvalRequest) return;
 
     const generation = operationGenerationRef.current;
-    const shouldResumeAfterApproval = resumeAfterApprovalRef.current && !streamActiveRef.current;
     approvalInFlightRef.current = true;
     try {
       const res = await fetch(buildAgentCoreApiUrl("/api/agent/approve"), {
@@ -483,6 +483,7 @@ export function useMultiStepStream() {
         return;
       }
 
+      const shouldResumeAfterApproval = resumeAfterApprovalRef.current && !streamActiveRef.current;
       if (shouldResumeAfterApproval) {
         resumeAfterApprovalRef.current = false;
         setStateForGeneration(generation, (s) => ({ ...s, approvalRequest: null }));

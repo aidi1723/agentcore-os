@@ -602,6 +602,83 @@ describe("useMultiStepStream", () => {
     expect(result.current.status).toBe("done");
   });
 
+  it("resumes when pending approval resolves after terminal awaiting approval", async () => {
+    const firstPayload = [
+      "event: plan_ready\n",
+      `data: ${JSON.stringify({ plan: makeRun().plan })}\n`,
+      "\n",
+      "event: approval_needed\n",
+      `data: ${JSON.stringify({
+        executionId: "exec-1",
+        stepId: "review",
+        title: "Review",
+        description: "Approve generated draft",
+        mode: "review",
+      })}\n`,
+      "\n",
+    ].join("");
+    const secondPayload = [
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: false, error: "Awaiting approval for review" })}\n`,
+      "\n",
+    ].join("");
+    const stream = mockGatedStreamResponse(firstPayload, secondPayload);
+    const approvalResponse = deferred<ReturnType<typeof mockJsonResponse>>();
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(stream.response)
+      .mockReturnValueOnce(approvalResponse.promise)
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          resumedStepIds: ["review", "writeback"],
+          run: makeRun(),
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    let startPromise!: Promise<void>;
+    act(() => {
+      startPromise = result.current.start("Run controlled workflow");
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe("awaiting_approval");
+      expect(result.current.approvalRequest?.stepId).toBe("review");
+    });
+
+    let approvalPromise!: Promise<void>;
+    act(() => {
+      approvalPromise = result.current.approve(true);
+    });
+
+    await act(async () => {
+      stream.releaseNextRead();
+      await startPromise;
+    });
+
+    await act(async () => {
+      approvalResponse.resolve(mockJsonResponse({ ok: true }));
+      await approvalPromise;
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/agent/approve"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(result.current.status).toBe("done");
+    expect(result.current.approvalRequest).toBeNull();
+  });
+
   it("does not resume a retained SSE approval after the stream ends without durable recovery", async () => {
     const payload = [
       "event: plan_ready\n",

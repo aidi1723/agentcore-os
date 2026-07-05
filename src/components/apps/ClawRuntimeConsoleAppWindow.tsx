@@ -24,6 +24,11 @@ import {
   getDesktopRuntimeStatusSummary,
   getRuntimeBridgeConfig,
 } from "@/lib/desktop-runtime";
+import {
+  buildControlledRunConsoleSummary,
+  type ControlledRunConsoleSummary,
+} from "@/lib/executor/runtime/console-summary";
+import type { ControlledExecutionRunRecord } from "@/lib/executor/runtime/types";
 import { addRuntimeEventListener, RuntimeEventNames } from "@/lib/runtime-events";
 import { loadSettings, type AppSettings, type InterfaceLanguage } from "@/lib/settings";
 import { requestOpenSettings } from "@/lib/ui-events";
@@ -64,6 +69,18 @@ type ExecutorSessionDetail = Omit<ExecutorSessionSummary, "turns"> & {
   turns: ExecutorSessionTurn[];
 };
 
+function runStateClassName(state: string) {
+  if (state === "completed") return "bg-emerald-100 text-emerald-700";
+  if (state === "failed" || state === "cancelled") return "bg-rose-100 text-rose-700";
+  if (state === "awaiting_approval") return "bg-amber-100 text-amber-700";
+  return "bg-blue-100 text-blue-700";
+}
+
+function runStateLabel(state: string) {
+  if (state === "awaiting_approval") return "Awaiting";
+  return state.replace(/_/g, " ");
+}
+
 function safeUrl(base: string, path: string) {
   const trimmed = base.trim().replace(/\/+$/, "") || DEFAULT_BASE;
   return `${trimmed}${path}`;
@@ -91,8 +108,13 @@ export function ClawRuntimeConsoleAppWindow({
     useState<ExecutorSessionDetail | null>(null);
   const [selectedExecutorSessionLoading, setSelectedExecutorSessionLoading] = useState(false);
   const [selectedExecutorSessionError, setSelectedExecutorSessionError] = useState("");
+  const [controlledRuns, setControlledRuns] = useState<ControlledExecutionRunRecord[]>([]);
+  const [controlledRunsLoading, setControlledRunsLoading] = useState(false);
+  const [controlledRunsError, setControlledRunsError] = useState("");
+  const [selectedControlledRunId, setSelectedControlledRunId] = useState("");
   const executorSessionRequestRef = useRef(0);
   const selectedExecutorSessionIdRef = useRef("");
+  const selectedControlledRunIdRef = useRef("");
   const { toast, showToast } = useTimedToast(2000);
   const isVisible = state === "open" || state === "opening";
   const {
@@ -124,6 +146,10 @@ export function ClawRuntimeConsoleAppWindow({
   useEffect(() => {
     selectedExecutorSessionIdRef.current = selectedExecutorSessionId;
   }, [selectedExecutorSessionId]);
+
+  useEffect(() => {
+    selectedControlledRunIdRef.current = selectedControlledRunId;
+  }, [selectedControlledRunId]);
 
   const refreshExecutorSessionDetail = useCallback(async (sessionId: string) => {
     const normalizedId = sessionId.trim();
@@ -218,6 +244,45 @@ export function ClawRuntimeConsoleAppWindow({
     void refreshExecutorSessions();
   }, [isVisible, refreshExecutorSessions]);
 
+  const refreshControlledRuns = useCallback(async () => {
+    setControlledRunsLoading(true);
+    setControlledRunsError("");
+    try {
+      const res = await fetch(buildAgentCoreApiUrl("/api/runtime/executor/controlled-runs"), {
+        method: "GET",
+        cache: "no-store",
+      });
+      const data = (await res.json().catch(() => null)) as
+        | null
+        | { ok?: boolean; data?: { runs?: ControlledExecutionRunRecord[] }; error?: string };
+      const runs = Array.isArray(data?.data?.runs) ? data.data.runs : null;
+      if (!res.ok || !data?.ok || !runs) {
+        setControlledRuns([]);
+        setSelectedControlledRunId("");
+        setControlledRunsError(data?.error || "无法加载受控运行记录");
+        return;
+      }
+      const nextRuns = runs.slice(0, 8);
+      setControlledRuns(nextRuns);
+      setSelectedControlledRunId(
+        nextRuns.find((run) => run.id === selectedControlledRunIdRef.current)?.id ??
+          nextRuns[0]?.id ??
+          "",
+      );
+    } catch (error) {
+      setControlledRuns([]);
+      setSelectedControlledRunId("");
+      setControlledRunsError(error instanceof Error ? error.message : "请求异常");
+    } finally {
+      setControlledRunsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    void refreshControlledRuns();
+  }, [isVisible, refreshControlledRuns]);
+
   const dashboardUrl = useMemo(() => safeUrl(baseUrl, "/"), [baseUrl]);
   const chatUrl = useMemo(
     () => safeUrl(baseUrl, `/chat?session=${encodeURIComponent(session.trim() || DEFAULT_SESSION)}`),
@@ -300,6 +365,17 @@ export function ClawRuntimeConsoleAppWindow({
   const totalPendingSyncs = useMemo(
     () => syncStatuses.reduce((sum, status) => sum + status.pendingCount, 0),
     [syncStatuses],
+  );
+  const controlledRunSummaries = useMemo(
+    () => controlledRuns.map(buildControlledRunConsoleSummary),
+    [controlledRuns],
+  );
+  const selectedControlledRunSummary = useMemo<ControlledRunConsoleSummary | null>(
+    () =>
+      controlledRunSummaries.find((run) => run.id === selectedControlledRunId) ??
+      controlledRunSummaries[0] ??
+      null,
+    [controlledRunSummaries, selectedControlledRunId],
   );
 
   return (
@@ -626,6 +702,258 @@ export function ClawRuntimeConsoleAppWindow({
           language={interfaceLanguage}
           onOpenAsset={(target) => jumpToAssetTarget(target)}
         />
+
+        <div className="rounded-2xl border border-gray-200 bg-white p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-gray-900">受控运行 Trace</div>
+              <div className="mt-2 text-xs leading-5 text-gray-500">
+                查看固定 playbook 的执行步骤、审批决策、写回 receipt 和资产落点。
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={refreshControlledRuns}
+              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+            >
+              <RefreshCw
+                className={[
+                  "h-3.5 w-3.5",
+                  controlledRunsLoading ? "animate-spin" : "",
+                ].join(" ")}
+              />
+              {controlledRunsLoading ? "刷新中" : "刷新"}
+            </button>
+          </div>
+
+          {controlledRunsError ? (
+            <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs leading-6 text-rose-700">
+              {controlledRunsError}
+            </div>
+          ) : null}
+
+          <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(340px,1fr)]">
+            <div className="space-y-3">
+              {controlledRunSummaries.length > 0 ? (
+                controlledRunSummaries.map((run) => (
+                  <button
+                    key={run.id}
+                    type="button"
+                    onClick={() => setSelectedControlledRunId(run.id)}
+                    className={[
+                      "block w-full rounded-2xl border px-4 py-4 text-left transition-colors",
+                      run.id === selectedControlledRunSummary?.id
+                        ? "border-sky-200 bg-sky-50/70"
+                        : "border-gray-200 bg-gray-50 hover:bg-gray-100",
+                    ].join(" ")}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-gray-900">
+                          {run.title}
+                        </div>
+                        <div className="mt-1 text-[11px] uppercase tracking-[0.14em] text-gray-500">
+                          {run.playbookId}
+                        </div>
+                      </div>
+                      <div
+                        className={[
+                          "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                          runStateClassName(run.state),
+                        ].join(" ")}
+                      >
+                        {runStateLabel(run.state)}
+                      </div>
+                    </div>
+                    <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] text-gray-500">
+                      <div>
+                        <span className="font-semibold text-gray-900">{run.completedSteps}</span>{" "}
+                        done
+                      </div>
+                      <div>
+                        <span className="font-semibold text-gray-900">
+                          {run.awaitingApprovalSteps}
+                        </span>{" "}
+                        awaiting
+                      </div>
+                      <div>
+                        <span className="font-semibold text-gray-900">
+                          {run.writebackReceiptCount}
+                        </span>{" "}
+                        receipts
+                      </div>
+                    </div>
+                    <div className="mt-3 text-[11px] text-gray-500">
+                      {new Date(run.updatedAt).toLocaleString()}
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-xs leading-6 text-gray-500">
+                  {controlledRunsLoading
+                    ? "正在加载受控运行..."
+                    : "还没有受控运行记录。执行 sales-pipeline-v1 后，这里会显示完整 trace。"}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4">
+              {selectedControlledRunSummary ? (
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {selectedControlledRunSummary.title}
+                      </div>
+                      <div className="mt-1 text-[11px] leading-5 text-gray-500">
+                        {selectedControlledRunSummary.workflowRunId || selectedControlledRunSummary.id}
+                      </div>
+                    </div>
+                    <div
+                      className={[
+                        "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                        runStateClassName(selectedControlledRunSummary.state),
+                      ].join(" ")}
+                    >
+                      {runStateLabel(selectedControlledRunSummary.state)}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-[11px] text-gray-500">
+                    <div>
+                      <span className="font-semibold text-gray-900">Current step：</span>
+                      {selectedControlledRunSummary.currentStepId || "无"}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-900">Approvals：</span>
+                      {selectedControlledRunSummary.approvalCount}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-900">Failed：</span>
+                      {selectedControlledRunSummary.failedSteps}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-900">Assets：</span>
+                      {selectedControlledRunSummary.assetLandings.length}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 rounded-2xl border border-gray-200 bg-white px-4 py-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                      Asset landings
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {selectedControlledRunSummary.assetLandings.length > 0 ? (
+                        selectedControlledRunSummary.assetLandings.map((asset, index) => (
+                          <div
+                            key={`${asset.target}-${index}`}
+                            className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-3"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="text-xs font-semibold text-gray-900">
+                                {asset.label}
+                              </div>
+                              <div
+                                className={[
+                                  "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                                  asset.ok
+                                    ? "bg-emerald-100 text-emerald-700"
+                                    : "bg-amber-100 text-amber-700",
+                                ].join(" ")}
+                              >
+                                {asset.ok ? "Written" : "Skipped"}
+                              </div>
+                            </div>
+                            <div className="mt-2 break-words text-xs leading-5 text-gray-600">
+                              {asset.detail}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-xs leading-6 text-gray-500">
+                          这次运行还没有写入 sales asset 或 knowledge asset。
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    {selectedControlledRunSummary.steps.map((step, index) => (
+                      <div key={step.id} className="rounded-2xl border border-gray-200 bg-white px-4 py-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold text-gray-900">
+                              {index + 1}. {step.title}
+                            </div>
+                            <div className="mt-1 text-[11px] text-gray-500">{step.id}</div>
+                          </div>
+                          <div
+                            className={[
+                              "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                              runStateClassName(step.state),
+                            ].join(" ")}
+                          >
+                            {runStateLabel(step.state)}
+                          </div>
+                        </div>
+                        <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-gray-500">
+                          <div>
+                            <span className="font-semibold text-gray-900">Attempts：</span>
+                            {step.attempts}
+                          </div>
+                          <div>
+                            <span className="font-semibold text-gray-900">Receipts：</span>
+                            {step.receiptCount}
+                          </div>
+                          <div>
+                            <span className="font-semibold text-gray-900">Approval：</span>
+                            {step.approvalState || "无"}
+                          </div>
+                          <div>
+                            <span className="font-semibold text-gray-900">Schema：</span>
+                            {typeof step.schemaValid === "boolean"
+                              ? step.schemaValid
+                                ? "valid"
+                                : "invalid"
+                              : "未检查"}
+                          </div>
+                        </div>
+                        {step.approvalFeedback || step.error || step.schemaErrors.length > 0 ? (
+                          <div className="mt-3 rounded-xl bg-gray-50 px-3 py-3 text-xs leading-6 text-gray-600">
+                            {step.approvalFeedback ? `审批反馈：${step.approvalFeedback}` : null}
+                            {step.error ? `错误：${step.error}` : null}
+                            {step.schemaErrors.length > 0
+                              ? `Schema：${step.schemaErrors.join("; ")}`
+                              : null}
+                          </div>
+                        ) : null}
+                        {step.writebackReceipts.length > 0 ? (
+                          <div className="mt-3 space-y-2">
+                            {step.writebackReceipts.map((receipt, receiptIndex) => (
+                              <div
+                                key={`${receipt.target}-${receiptIndex}`}
+                                className="rounded-xl bg-gray-50 px-3 py-2 text-xs leading-5 text-gray-600"
+                              >
+                                <span className="font-semibold text-gray-900">
+                                  {receipt.target}：
+                                </span>
+                                {receipt.summary}
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-4 py-6 text-xs leading-6 text-gray-500">
+                  选中左侧受控运行后，这里会显示步骤 trace、审批和写回资产。
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5">
           <div className="flex items-center justify-between gap-3">

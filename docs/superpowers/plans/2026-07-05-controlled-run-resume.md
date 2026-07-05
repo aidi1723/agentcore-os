@@ -993,7 +993,7 @@ git commit -m "feat: expose controlled run resume route"
 
 - Modify: `package.json`
 
-- [ ] **Step 1: Add resume tests to controlled runtime gate**
+- [x] **Step 1: Add resume tests to controlled runtime gate**
 
 Replace the `test:controlled-runtime` script in `package.json` with:
 
@@ -1001,7 +1001,7 @@ Replace the `test:controlled-runtime` script in `package.json` with:
 "test:controlled-runtime": "vitest run src/__tests__/lib/executor/playbooks/sales-pipeline.test.ts src/__tests__/lib/executor/playbooks/validator.test.ts src/__tests__/lib/executor/runtime/schema.test.ts src/__tests__/lib/executor/runtime/step-input.test.ts src/__tests__/lib/executor/runtime/resume.test.ts src/__tests__/lib/server/controlled-execution-store.test.ts src/__tests__/lib/executor/approval-store.test.ts src/__tests__/lib/executor/controlled-runtime.test.ts src/__tests__/lib/executor/step-executor.test.ts src/__tests__/lib/executor/run-workflow-multi-step.test.ts src/__tests__/app/api/agent-stream-route.test.ts src/__tests__/app/api/controlled-run-route.test.ts src/__tests__/app/api/controlled-run-resume-route.test.ts src/__tests__/hooks/useMultiStepStream.test.tsx"
 ```
 
-- [ ] **Step 2: Run controlled runtime gate**
+- [x] **Step 2: Run controlled runtime gate**
 
 Run:
 
@@ -1011,7 +1011,7 @@ npm run test:controlled-runtime
 
 Expected: PASS.
 
-- [ ] **Step 3: Run core workflow regression**
+- [x] **Step 3: Run core workflow regression**
 
 Run:
 
@@ -1021,7 +1021,7 @@ npm run test:core-workflows
 
 Expected: PASS.
 
-- [ ] **Step 4: Run lint**
+- [x] **Step 4: Run lint**
 
 Run:
 
@@ -1031,7 +1031,7 @@ npm run lint
 
 Expected: PASS. Existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx` is acceptable if still present and unchanged.
 
-- [ ] **Step 5: Run build**
+- [x] **Step 5: Run build**
 
 Run:
 
@@ -1041,7 +1041,7 @@ npm run build
 
 Expected: PASS. Existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx` is acceptable if still present and unchanged.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add package.json

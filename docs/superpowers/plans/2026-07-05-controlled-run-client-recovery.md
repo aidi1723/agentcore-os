@@ -641,7 +641,7 @@ git commit -m "test: cover controlled run client recovery edges"
 - Modify: `src/components/MultiStepPanel.tsx`
 - Test indirectly through TypeScript, lint, and build.
 
-- [ ] **Step 1: Add `resuming` to the status badge**
+- [x] **Step 1: Add `resuming` to the status badge**
 
 Update the `StatusBadge` map:
 
@@ -657,7 +657,7 @@ const map: Record<MultiStepStatus, { label: string; color: string }> = {
 };
 ```
 
-- [ ] **Step 2: Read resume state from the hook**
+- [x] **Step 2: Read resume state from the hook**
 
 Update the hook destructuring:
 
@@ -677,7 +677,7 @@ const {
 } = useMultiStepStream();
 ```
 
-- [ ] **Step 3: Add the gated resume button**
+- [x] **Step 3: Add the gated resume button**
 
 Add this button block after the error paragraph and before the stop button:
 
@@ -692,7 +692,7 @@ Add this button block after the error paragraph and before the stop button:
 )}
 ```
 
-- [ ] **Step 4: Run the focused hook tests**
+- [x] **Step 4: Run the focused hook tests**
 
 Run:
 
@@ -702,7 +702,7 @@ npm test -- src/__tests__/hooks/useMultiStepStream.test.tsx
 
 Expected: PASS.
 
-- [ ] **Step 5: Run lint**
+- [x] **Step 5: Run lint**
 
 Run:
 
@@ -712,7 +712,7 @@ npm run lint
 
 Expected: exit 0. The existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx` may still appear.
 
-- [ ] **Step 6: Commit the panel UI**
+- [x] **Step 6: Commit the panel UI**
 
 ```bash
 git add src/components/MultiStepPanel.tsx

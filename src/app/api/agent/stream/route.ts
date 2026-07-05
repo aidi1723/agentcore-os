@@ -40,6 +40,10 @@ export async function POST(req: Request) {
     sessionId: (body.sessionId as string) ?? undefined,
     source: "multi-step-stream",
     useSkills: true,
+    workspaceContext: {
+      workflowRunId: typeof body.workflowRunId === "string" ? body.workflowRunId : undefined,
+      scenarioId: typeof body.scenarioId === "string" ? body.scenarioId : undefined,
+    },
     ...(body.llm ? { llm: body.llm as any } : {}),
     ...(body.fallbackLlm ? { fallbackLlm: body.fallbackLlm as any } : {}),
   });
@@ -81,6 +85,13 @@ export async function POST(req: Request) {
 
   const encoder = new TextEncoder();
   const executionId = normalized.metadata.requestId;
+  const workflowRunId = typeof body.workflowRunId === "string" ? body.workflowRunId : undefined;
+  const streamMeta = {
+    executionId,
+    requestId: normalized.metadata.requestId,
+    playbookId: normalized.controlledPlaybookId,
+    workflowRunId,
+  };
 
   const stream = new ReadableStream({
     start(controller) {
@@ -123,7 +134,7 @@ export async function POST(req: Request) {
       runMultiStepTask(normalized, callbacks)
         .then((result) => {
           send("execution_done", {
-            executionId,
+            ...streamMeta,
             ok: result.ok,
             totalSteps: result.trace.plan.totalSteps,
             completedSteps: result.trace.stepResults.filter((r) => r.status === "completed").length,

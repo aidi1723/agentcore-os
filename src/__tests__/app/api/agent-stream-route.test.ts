@@ -70,4 +70,42 @@ describe("/api/agent/stream", () => {
     expect(capturedRequest?.controlledPlaybookId).toBe("sales-pipeline-v1");
     expect(capturedRequest?.multiStep?.approvalMode).toBe("each-review-step");
   });
+
+  it("includes controlled run metadata in execution_done", async () => {
+    runMultiStepTaskMock.mockImplementation(async (request: AgentCoreTaskRequest) => {
+      const now = Date.now();
+      return {
+        ok: true,
+        trace: {
+          source: request.metadata.source,
+          engine: "agentcore_executor",
+          sessionId: request.session.id,
+          requestId: request.metadata.requestId,
+          startedAt: now,
+          finishedAt: now,
+          durationMs: 0,
+          attemptCount: 0,
+          fallbackUsed: false,
+          attempts: [],
+          skillReceipts: [],
+          success: true,
+          plan: request.controlledPlan!,
+          stepResults: [],
+          currentStepIndex: 0,
+        },
+      };
+    });
+
+    const response = await POST(
+      makeRequest({
+        message: "Run sales pipeline",
+        workflowRunId: "workflow-stream-1",
+        playbookId: "sales-pipeline-v1",
+      }),
+    );
+    const text = await response.text();
+
+    expect(text).toContain('"playbookId":"sales-pipeline-v1"');
+    expect(text).toContain('"workflowRunId":"workflow-stream-1"');
+  });
 });

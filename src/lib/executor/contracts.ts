@@ -72,6 +72,8 @@ export type AgentCoreTaskRequest = {
   fallbackModelConfigs?: AgentCoreExecutorLlmConfig[];
   executionPolicy: AgentCoreExecutionPolicy;
   multiStep?: AgentCoreMultiStepPolicy;
+  controlledPlaybookId?: string;
+  controlledPlan?: ExecutionPlan;
 };
 
 export type AgentCoreLegacyTaskRequest = {
@@ -100,6 +102,8 @@ export type AgentCoreLegacyTaskRequest = {
   workspaceContext?: Record<string, unknown> | null;
   llm?: AgentCoreExecutorLlmConfig | null;
   fallbackLlm?: AgentCoreExecutorLlmConfig[] | null;
+  controlledPlaybookId?: string;
+  controlledPlan?: ExecutionPlan;
 };
 
 export type AgentCoreTaskTraceAttempt = {
@@ -241,6 +245,11 @@ export function normalizeAgentCoreTaskRequest(
     },
     modelConfig: input.llm ?? null,
     fallbackModelConfigs: Array.isArray(input.fallbackLlm) ? input.fallbackLlm : [],
+    controlledPlaybookId:
+      typeof input.controlledPlaybookId === "string" && input.controlledPlaybookId.trim()
+        ? input.controlledPlaybookId.trim()
+        : undefined,
+    controlledPlan: input.controlledPlan,
     executionPolicy: {
       timeoutSeconds: normalizeTimeoutSeconds(input.timeoutSeconds),
       maxAttempts: normalizeMaxAttempts(input.maxAttempts),

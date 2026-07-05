@@ -664,7 +664,7 @@ export async function runMultiStepTask(
     return "";
   };
 
-  const plan = await planSteps(normalizedRequest, callLlm);
+  const plan = normalizedRequest.controlledPlan ?? await planSteps(normalizedRequest, callLlm);
 
   if (plan.steps.length === 0) {
     const emptyTrace: MultiStepTrace = {

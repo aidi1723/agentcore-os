@@ -43,6 +43,10 @@ Completed in the current controlled runtime line:
 - Runtime Console state filter and text search.
 - Runtime Console approve / reject / resume.
 - Runtime Console asset search and open actions.
+- Runtime Console failed step retry eligibility.
+- Runtime Console failed run recovery panel and `重试失败步骤` action.
+- Durable audit events for console-initiated retry.
+- Retry route for eligible failed controlled steps.
 
 Current verification baseline:
 
@@ -53,26 +57,33 @@ npm run lint
 npm run build
 ```
 
+Current `test:controlled-runtime` coverage:
+
+- 17 test files.
+- 110 tests.
+- Includes playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, and Runtime Console retry UI wiring.
+
 Known current lint/build note:
 
 - existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 
-## P0. Runtime Console Failure Recovery
+## Completed. Runtime Console Failure Recovery
 
 Why:
 
 - Runtime Console can now approve, reject, resume, and open written assets.
-- Failed controlled runs still mostly show error state instead of a precise recovery action.
-- Controlled runtime will not be operationally trustworthy until failure recovery is explicit, tested, and auditable.
+- Failed controlled runs needed a precise recovery action instead of only an error state.
+- Controlled runtime needs failure recovery to be explicit, tested, and auditable.
 
-Scope:
+Delivered:
 
-- Derive failed step recovery metadata in `console-summary`.
-- Add retry eligibility rules based on run state, step state, and playbook `onFailure`.
-- Add a server route for controlled failed-step retry or restart.
-- Add Runtime Console controls for retry / restart where allowed.
-- Record console-initiated recovery actions into trace metadata.
-- Add regression coverage for retry safety and non-retryable failures.
+- `console-summary` derives failed step recovery metadata.
+- Retry eligibility is gated by run state, failed step state, and playbook `onFailure.action === "retry"`.
+- `POST /api/runtime/executor/controlled-runs/[runId]/retry` retries the first eligible failed step.
+- Console-initiated retry appends durable audit metadata.
+- Runtime Console shows failed step and recovery status for failed runs.
+- Runtime Console shows `重试失败步骤` only when retry is allowed.
+- Regression coverage covers retry safety, non-retryable failures, retry route behavior, and Runtime Console retry UI wiring.
 
 Primary files:
 
@@ -84,16 +95,17 @@ Primary files:
 - `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
 - `src/__tests__/lib/executor/runtime/resume.test.ts`
 - `src/__tests__/lib/executor/runtime/console-summary.test.ts`
-- `src/__tests__/app/api/controlled-run-resume-route.test.ts`
+- `src/__tests__/app/api/controlled-run-retry-route.test.ts`
+- `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
 
-Expected outcome:
+Outcome:
 
 - Runtime Console shows why a controlled run failed.
 - Operators can see whether the failed step is retryable.
-- Retry / restart actions are persisted and auditable.
+- Retry actions are persisted and auditable.
 - Non-retryable failures stay blocked instead of being replayed unsafely.
 
-## P1. Record-Level Asset Focus
+## P0. Record-Level Asset Focus
 
 Why:
 
@@ -122,7 +134,7 @@ Expected outcome:
 - A controlled run's asset landing opens the exact retained asset, not only the destination app.
 - Operators can inspect what was written without manual search.
 
-## P2. Complete Skipped Writeback Targets
+## P1. Complete Skipped Writeback Targets
 
 Why:
 
@@ -151,7 +163,7 @@ Expected outcome:
 - Controlled runs can update workflow and draft state with real receipts.
 - Unsupported writeback target count is reduced.
 
-## P3. Support Playbook Migration
+## P2. Support Playbook Migration
 
 Why:
 
@@ -182,7 +194,7 @@ Expected outcome:
 - Support workflow becomes the second controlled playbook.
 - Runtime Console can compare multiple playbook families.
 
-## P4. Trace Governance
+## P3. Trace Governance
 
 Why:
 

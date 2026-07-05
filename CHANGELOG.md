@@ -138,6 +138,15 @@
 - Extended controlled run search to match asset ids, source keys, workflow ids, receipt summaries, and run errors.
 - Added Runtime Console `打开` actions for successful sales and knowledge asset landings using the existing cross-app open event helpers.
 
+### Runtime Console Failure Recovery
+
+- Added durable controlled run audit events for console-initiated recovery actions.
+- Added retry eligibility metadata to controlled run summaries: `failedStepId`, `canRetry`, `retryReason`, and `auditEventCount`.
+- Added `retryControlledExecutionRun(runId)` and `POST /api/runtime/executor/controlled-runs/[runId]/retry`, gated by playbook `onFailure.action === "retry"`.
+- Preserved completed prior step results while retrying from the first failed retryable step.
+- Added Runtime Console failed-run recovery details and a `重试失败步骤` action for eligible failed runs.
+- Expanded `test:controlled-runtime` so it covers console summary recovery metadata, retry route behavior, and Runtime Console retry UI wiring.
+
 ### Framework Alignment
 
 - Added project-level `AGENTS.md` workflow rules and `DESIGN.md` design contract as the default collaboration and UI implementation framework for future work.
@@ -148,9 +157,10 @@
 ### Verification
 
 - Verified `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` — 4 tests passing.
-- Verified `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts` — 4 tests passing.
-- Verified `npm test -- src/__tests__/lib/executor/runtime/resume.test.ts` — 8 tests passing.
-- Verified `npm run test:controlled-runtime` — 14 files, 97 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts` — 6 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/runtime/resume.test.ts` — 10 tests passing.
+- Verified `npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` — 1 test passing.
+- Verified `npm run test:controlled-runtime` — 17 files, 110 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.
 - Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - Verified `npm run build` — exit 0 with the same existing `<img>` warning.

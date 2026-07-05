@@ -316,6 +316,7 @@ type ControlledPlaybookStep = {
 - [Runtime Console Trace And Asset Landing Implementation Plan](superpowers/plans/2026-07-05-runtime-console-trace-asset-landing.md)
 - [Runtime Console Operations Implementation Plan](superpowers/plans/2026-07-05-runtime-console-operations.md)
 - [Runtime Console Asset Deep Links Implementation Plan](superpowers/plans/2026-07-05-runtime-console-asset-deep-links.md)
+- [Runtime Console Failure Recovery Implementation Plan](superpowers/plans/2026-07-05-runtime-console-failure-recovery.md)
 
 ### 8.1 当前进度快照（2026-07-05）
 
@@ -330,18 +331,18 @@ type ControlledPlaybookStep = {
 - Phase 5 第一批 Runtime Console trace landing：控制台可以列出 recent controlled runs，并展示 selected run 的 step trace、approval、schema、writeback receipt 和 sales/knowledge asset landing labels。
 - Phase 6 Runtime Console operations：控制台已经支持 state filter、文本搜索、pending approval approve/reject、non-terminal run resume，并在操作后刷新 durable controlled run summary。
 - Phase 7 第一批 asset deep links：writeback receipt 已记录结构化 `assetId` / `sourceKey` / `workflowRunId`，Runtime Console 可按资产字段搜索，并能从成功 landing 打开 Deal Desk / Knowledge Vault。
+- Phase 7b failure recovery：controlled run 已有 durable audit events；summary 可展示 `failedStepId`、`canRetry`、`retryReason` 和 `auditEventCount`；Runtime Console 可对符合 playbook retry policy 的 failed step 执行 `重试失败步骤`；retry route 会从第一个失败 step 继续执行，不重放已完成前置步骤。
 
 仍未完成：
 
 - `workflow_run` 和 `draft` writeback 仍是显式 skipped receipt，后续需要接入对应 server store。
 - Deal Desk / Knowledge Vault 目前接收的是 workflow / query prefill，还不是 record-level selected asset focus。
-- Runtime Console 还没有失败重试 / retry policy 操作，也没有 failed step 级别的恢复审计。
 
 因此下一阶段默认进入：
 
-**Phase 7b. Runtime Console Failure Recovery**
+**Phase 7c. Record-Level Asset Focus**
 
-目标是在已能查看、操作、搜索并跳转资产 landing 的基础上，补上失败恢复：failed step retry / restart controls、可重试条件、失败原因展示和 console-initiated recovery 审计。
+目标是在 Runtime Console 已能打开 Deal Desk / Knowledge Vault 的基础上，进一步把跳转定位到具体写回的 sales asset / knowledge asset 记录，而不是只带 workflow/query 上下文。
 
 ### Phase 0. 冻结方向
 
@@ -494,7 +495,7 @@ type ControlledPlaybookStep = {
 - 把 trace 里的资产落点变成真正可跳转、可定位、可复盘的业务入口。
 - 把失败恢复从 generic resume 扩展到更精确的 failed step retry / restart controls。
 
-第一批已完成：
+第一批已完成：Asset Deep Links
 
 - `ControlledWritebackReceipt` 支持结构化 `assetId`、`sourceKey`、`workflowRunId`。
 - sales asset / knowledge asset 成功写回时会把真实资产 id 写入 receipt。
@@ -502,11 +503,18 @@ type ControlledPlaybookStep = {
 - Runtime Console search 已覆盖 asset id、source key、workflow id、receipt summary 和 run error。
 - Runtime Console 成功 asset landing 可打开 Deal Desk 或 Knowledge Vault，并带入 workflow/query 上下文。
 
+第二批已完成：Failure Recovery
+
+- controlled run 记录新增 `auditEvents`，用于持久化 console-initiated recovery 动作。
+- Runtime Console summary 新增 `failedStepId`、`canRetry`、`retryReason`、`auditEventCount`。
+- `retryControlledExecutionRun(runId)` 会按 playbook 顺序找到第一个 failed step，并且只在该 step 声明 `onFailure.action === "retry"` 时允许重试。
+- retry route 复用受控 multi-step execution，从 failed step 的 index 继续执行，保留已完成前置 step 的结果。
+- Runtime Console selected run detail 会展示 failed step / recovery 信息，并只在 eligible failed run 上显示 `重试失败步骤`。
+
 建议拆分：
 
 - record-level focus：Deal Desk / Knowledge Vault 根据 prefill 直接选中 sales asset / knowledge asset。
-- 失败恢复：为 failed run 暴露可 retry 的 step、失败原因、可重试条件和审批风险。
-- 操作审计：把 console-initiated approve / reject / resume / retry 明确记录到 trace metadata。
+- 操作审计增强：把 console-initiated approve / reject / resume 也明确记录到 trace metadata，目前 retry 已有 audit event。
 
 完成标准：
 
@@ -616,6 +624,13 @@ npm run test:core-workflows
 ```
 
 `test:controlled-runtime` 是第一阶段的最小门禁，覆盖 sales playbook、plan validator、显式 controlled plan 执行和 workflow runner 请求收口。
+
+截至 2026-07-05，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 17 个测试文件、110 个测试，包括：
+
+- sales playbook / validator / schema / step input。
+- controlled run store、approval store、controlled execution、step executor、workflow bridge。
+- durable resume、failed-step retry runtime、retry route、controlled run list / detail route。
+- client stream recovery 和 Runtime Console retry UI wiring。
 
 ### 10.3 手工验收场景
 

@@ -42,6 +42,7 @@ Modify:
 - `src/lib/executor/runtime/resume.ts`
 - `src/__tests__/lib/executor/runtime/resume.test.ts`
 - `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
+- `package.json`
 - `CHANGELOG.md`
 - `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
 - `docs/NEXT_STEPS.md`
@@ -51,16 +52,17 @@ Create:
 
 - `src/app/api/runtime/executor/controlled-runs/[runId]/retry/route.ts`
 - `src/__tests__/app/api/controlled-run-retry-route.test.ts`
+- `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
 
 ---
 
 ### Task 1: Add Audit Event State
 
-- [ ] **Step 1: Write failing store normalization test**
+- [x] **Step 1: Write failing store normalization test**
 
 Extend `src/__tests__/lib/server/controlled-execution-store.test.ts` with a test that creates or updates a run with an audit event and verifies it is persisted through `getControlledExecutionRun`.
 
-- [ ] **Step 2: Verify test fails**
+- [x] **Step 2: Verify test fails**
 
 Run:
 
@@ -70,7 +72,7 @@ npm test -- src/__tests__/lib/server/controlled-execution-store.test.ts
 
 Expected: FAIL because controlled run records do not expose `auditEvents`.
 
-- [ ] **Step 3: Implement audit event type and store support**
+- [x] **Step 3: Implement audit event type and store support**
 
 Modify `src/lib/executor/runtime/types.ts`:
 
@@ -93,7 +95,7 @@ Normalize missing audit events to `[]` in `controlled-execution-store.ts`, and a
 appendControlledRunAuditEvent(runId, event)
 ```
 
-- [ ] **Step 4: Verify store tests pass**
+- [x] **Step 4: Verify store tests pass**
 
 Run:
 
@@ -103,7 +105,7 @@ npm test -- src/__tests__/lib/server/controlled-execution-store.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/executor/runtime/types.ts src/lib/server/controlled-execution-store.ts src/__tests__/lib/server/controlled-execution-store.test.ts
@@ -112,14 +114,14 @@ git commit -m "feat: audit controlled run recovery events"
 
 ### Task 2: Derive Retry Eligibility In Console Summary
 
-- [ ] **Step 1: Write failing summary tests**
+- [x] **Step 1: Write failing summary tests**
 
 Extend `src/__tests__/lib/executor/runtime/console-summary.test.ts` with:
 
 - a failed run whose failed step has `onFailure: { action: "retry", maxRetries: 1 }`, expecting `failedStepId`, `canRetry: true`, and `auditEventCount`,
 - a failed run whose failed step has no retry policy, expecting `canRetry: false` and `retryReason`.
 
-- [ ] **Step 2: Verify summary tests fail**
+- [x] **Step 2: Verify summary tests fail**
 
 Run:
 
@@ -129,7 +131,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: FAIL because retry summary fields do not exist.
 
-- [ ] **Step 3: Implement summary fields**
+- [x] **Step 3: Implement summary fields**
 
 Modify `src/lib/executor/runtime/console-summary.ts`:
 
@@ -139,7 +141,7 @@ Modify `src/lib/executor/runtime/console-summary.ts`:
 - add `auditEventCount: number`,
 - derive retry only for failed runs with first failed step and matching plan step `onFailure.action === "retry"`.
 
-- [ ] **Step 4: Verify summary tests pass**
+- [x] **Step 4: Verify summary tests pass**
 
 Run:
 
@@ -149,7 +151,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/executor/runtime/console-summary.ts src/__tests__/lib/executor/runtime/console-summary.test.ts
@@ -158,7 +160,7 @@ git commit -m "feat: summarize controlled run retry eligibility"
 
 ### Task 3: Implement Retry Runtime And Route
 
-- [ ] **Step 1: Write failing retry runtime tests**
+- [x] **Step 1: Write failing retry runtime tests**
 
 Extend `src/__tests__/lib/executor/runtime/resume.test.ts` with tests that:
 
@@ -168,7 +170,7 @@ Extend `src/__tests__/lib/executor/runtime/resume.test.ts` with tests that:
 - verify an audit event is recorded,
 - verify non-retryable failed steps return `409`.
 
-- [ ] **Step 2: Write failing retry route tests**
+- [x] **Step 2: Write failing retry route tests**
 
 Create `src/__tests__/app/api/controlled-run-retry-route.test.ts` covering:
 
@@ -176,7 +178,7 @@ Create `src/__tests__/app/api/controlled-run-retry-route.test.ts` covering:
 - `409` for non-retryable failed run,
 - `200` for retryable failed run.
 
-- [ ] **Step 3: Verify retry tests fail**
+- [x] **Step 3: Verify retry tests fail**
 
 Run:
 
@@ -186,7 +188,7 @@ npm test -- src/__tests__/lib/executor/runtime/resume.test.ts src/__tests__/app/
 
 Expected: FAIL because retry runtime and route do not exist.
 
-- [ ] **Step 4: Implement retry runtime**
+- [x] **Step 4: Implement retry runtime**
 
 Modify `src/lib/executor/runtime/resume.ts`:
 
@@ -198,11 +200,11 @@ Modify `src/lib/executor/runtime/resume.ts`:
 - call `executeMultiStep` with `startStepIndex`,
 - return updated run and `retriedStepIds`.
 
-- [ ] **Step 5: Implement retry route**
+- [x] **Step 5: Implement retry route**
 
 Create `src/app/api/runtime/executor/controlled-runs/[runId]/retry/route.ts` using the same auth and response conventions as the resume route.
 
-- [ ] **Step 6: Verify retry tests pass**
+- [x] **Step 6: Verify retry tests pass**
 
 Run:
 
@@ -212,7 +214,7 @@ npm test -- src/__tests__/lib/executor/runtime/resume.test.ts src/__tests__/app/
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/executor/runtime/resume.ts src/app/api/runtime/executor/controlled-runs/[runId]/retry/route.ts src/__tests__/lib/executor/runtime/resume.test.ts src/__tests__/app/api/controlled-run-retry-route.test.ts
@@ -221,7 +223,7 @@ git commit -m "feat: retry failed controlled run steps"
 
 ### Task 4: Wire Runtime Console Retry Action
 
-- [ ] **Step 1: Add retry handler**
+- [x] **Step 1: Add retry handler**
 
 Modify `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`:
 
@@ -230,7 +232,7 @@ Modify `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`:
 - reuse `controlledRunActionLoading`,
 - refresh controlled runs after success.
 
-- [ ] **Step 2: Render failed run recovery UI**
+- [x] **Step 2: Render failed run recovery UI**
 
 In selected run detail:
 
@@ -238,7 +240,7 @@ In selected run detail:
 - render `重试失败步骤` when `canRetry`,
 - keep existing approve / reject / resume behavior unchanged.
 
-- [ ] **Step 3: Verify controlled runtime, lint, and build**
+- [x] **Step 3: Verify controlled runtime, lint, and build**
 
 Run:
 
@@ -250,16 +252,16 @@ npm run build
 
 Expected: PASS, with only the existing `<img>` warning for lint/build.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
-git add src/components/apps/ClawRuntimeConsoleAppWindow.tsx
+git add package.json src/components/apps/ClawRuntimeConsoleAppWindow.tsx src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx
 git commit -m "feat: retry controlled runs from runtime console"
 ```
 
 ### Task 5: Final Verification And Docs
 
-- [ ] **Step 1: Run full verification**
+- [x] **Step 1: Run full verification**
 
 Run:
 
@@ -270,16 +272,40 @@ npm run lint
 npm run build
 ```
 
-- [ ] **Step 2: Update docs and memory**
+- [x] **Step 2: Update docs and memory**
 
 Update changelog, development manual, next steps, this plan checklist, and daily memory.
 
-- [ ] **Step 3: Commit docs**
+- [x] **Step 3: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/NEXT_STEPS.md docs/superpowers/plans/2026-07-05-runtime-console-failure-recovery.md
 git commit -m "docs: track runtime console failure recovery"
 ```
+
+## Completion Notes
+
+- Task 1 committed as `82f196c feat: audit controlled run recovery events`.
+- Task 2 committed as `0c6dd93 feat: summarize controlled run retry eligibility`.
+- Task 3 committed as `43e2958 feat: retry failed controlled run steps`.
+- Task 4 committed as `4f23cad feat: retry controlled runs from runtime console`.
+- `test:controlled-runtime` now includes console summary recovery tests, retry route tests, and Runtime Console retry UI wiring.
+
+Final verification performed:
+
+```bash
+npm run test:controlled-runtime
+npm run test:core-workflows
+npm run lint
+npm run build
+```
+
+Results:
+
+- `npm run test:controlled-runtime` — 17 files, 110 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing `<img>` warning.
 
 ## Self-Review
 

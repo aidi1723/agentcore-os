@@ -26,9 +26,13 @@ import {
 } from "@/lib/desktop-runtime";
 import {
   buildControlledRunConsoleSummary,
+  filterControlledRunConsoleSummaries,
   type ControlledRunConsoleSummary,
 } from "@/lib/executor/runtime/console-summary";
-import type { ControlledExecutionRunRecord } from "@/lib/executor/runtime/types";
+import type {
+  ControlledExecutionRunRecord,
+  ControlledExecutionRunState,
+} from "@/lib/executor/runtime/types";
 import { addRuntimeEventListener, RuntimeEventNames } from "@/lib/runtime-events";
 import { loadSettings, type AppSettings, type InterfaceLanguage } from "@/lib/settings";
 import { requestOpenSettings } from "@/lib/ui-events";
@@ -68,6 +72,17 @@ type ExecutorSessionTurn = {
 type ExecutorSessionDetail = Omit<ExecutorSessionSummary, "turns"> & {
   turns: ExecutorSessionTurn[];
 };
+
+const CONTROLLED_RUN_STATE_FILTERS: Array<{
+  value: "all" | ControlledExecutionRunState;
+  label: string;
+}> = [
+  { value: "all", label: "All" },
+  { value: "running", label: "Running" },
+  { value: "awaiting_approval", label: "Awaiting" },
+  { value: "completed", label: "Completed" },
+  { value: "failed", label: "Failed" },
+];
 
 function runStateClassName(state: string) {
   if (state === "completed") return "bg-emerald-100 text-emerald-700";
@@ -112,6 +127,12 @@ export function ClawRuntimeConsoleAppWindow({
   const [controlledRunsLoading, setControlledRunsLoading] = useState(false);
   const [controlledRunsError, setControlledRunsError] = useState("");
   const [selectedControlledRunId, setSelectedControlledRunId] = useState("");
+  const [controlledRunStateFilter, setControlledRunStateFilter] =
+    useState<"all" | ControlledExecutionRunState>("all");
+  const [controlledRunQuery, setControlledRunQuery] = useState("");
+  const [controlledRunActionLoading, setControlledRunActionLoading] = useState<string | null>(
+    null,
+  );
   const executorSessionRequestRef = useRef(0);
   const selectedExecutorSessionIdRef = useRef("");
   const selectedControlledRunIdRef = useRef("");
@@ -362,6 +383,70 @@ export function ClawRuntimeConsoleAppWindow({
     refreshSidecarStatus();
   };
 
+  const handleResolveControlledApproval = async (
+    runId: string,
+    stepId: string,
+    approved: boolean,
+  ) => {
+    const actionId = `${runId}:${stepId}:${approved ? "approve" : "reject"}`;
+    setControlledRunActionLoading(actionId);
+    try {
+      const res = await fetch(buildAgentCoreApiUrl("/api/agent/approve"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          executionId: runId,
+          stepId,
+          approved,
+          feedback: approved ? undefined : "Rejected from Runtime Console",
+        }),
+      });
+      const data = (await res.json().catch(() => null)) as null | {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!res.ok || !data?.ok) {
+        showToast(data?.error || "审批操作失败", "error");
+        return;
+      }
+      showToast(approved ? "已批准受控步骤" : "已拒绝受控步骤", "ok");
+      await refreshControlledRuns();
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "审批请求异常", "error");
+    } finally {
+      setControlledRunActionLoading(null);
+    }
+  };
+
+  const handleResumeControlledRun = async (runId: string) => {
+    const actionId = `${runId}:resume`;
+    setControlledRunActionLoading(actionId);
+    try {
+      const res = await fetch(
+        buildAgentCoreApiUrl(
+          `/api/runtime/executor/controlled-runs/${encodeURIComponent(runId)}/resume`,
+        ),
+        {
+          method: "POST",
+        },
+      );
+      const data = (await res.json().catch(() => null)) as null | {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!res.ok || !data?.ok) {
+        showToast(data?.error || "继续执行失败", "error");
+        return;
+      }
+      showToast("受控运行已继续执行", "ok");
+      await refreshControlledRuns();
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "继续执行请求异常", "error");
+    } finally {
+      setControlledRunActionLoading(null);
+    }
+  };
+
   const totalPendingSyncs = useMemo(
     () => syncStatuses.reduce((sum, status) => sum + status.pendingCount, 0),
     [syncStatuses],
@@ -370,12 +455,20 @@ export function ClawRuntimeConsoleAppWindow({
     () => controlledRuns.map(buildControlledRunConsoleSummary),
     [controlledRuns],
   );
+  const filteredControlledRunSummaries = useMemo(
+    () =>
+      filterControlledRunConsoleSummaries(controlledRunSummaries, {
+        state: controlledRunStateFilter,
+        query: controlledRunQuery,
+      }),
+    [controlledRunQuery, controlledRunStateFilter, controlledRunSummaries],
+  );
   const selectedControlledRunSummary = useMemo<ControlledRunConsoleSummary | null>(
     () =>
-      controlledRunSummaries.find((run) => run.id === selectedControlledRunId) ??
-      controlledRunSummaries[0] ??
+      filteredControlledRunSummaries.find((run) => run.id === selectedControlledRunId) ??
+      filteredControlledRunSummaries[0] ??
       null,
-    [controlledRunSummaries, selectedControlledRunId],
+    [filteredControlledRunSummaries, selectedControlledRunId],
   );
 
   return (
@@ -732,10 +825,36 @@ export function ClawRuntimeConsoleAppWindow({
             </div>
           ) : null}
 
+          <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap gap-2">
+              {CONTROLLED_RUN_STATE_FILTERS.map((filter) => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  onClick={() => setControlledRunStateFilter(filter.value)}
+                  className={[
+                    "rounded-xl border px-3 py-2 text-xs font-semibold transition-colors",
+                    controlledRunStateFilter === filter.value
+                      ? "border-gray-900 bg-gray-900 text-white"
+                      : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50",
+                  ].join(" ")}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+            <input
+              value={controlledRunQuery}
+              onChange={(event) => setControlledRunQuery(event.target.value)}
+              placeholder="Search run / workflow / playbook"
+              className="min-h-10 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs text-gray-900 outline-none transition-shadow placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-sky-500 lg:w-[280px]"
+            />
+          </div>
+
           <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(340px,1fr)]">
             <div className="space-y-3">
-              {controlledRunSummaries.length > 0 ? (
-                controlledRunSummaries.map((run) => (
+              {filteredControlledRunSummaries.length > 0 ? (
+                filteredControlledRunSummaries.map((run) => (
                   <button
                     key={run.id}
                     type="button"
@@ -792,7 +911,9 @@ export function ClawRuntimeConsoleAppWindow({
                 <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-xs leading-6 text-gray-500">
                   {controlledRunsLoading
                     ? "正在加载受控运行..."
-                    : "还没有受控运行记录。执行 sales-pipeline-v1 后，这里会显示完整 trace。"}
+                    : controlledRunSummaries.length > 0
+                      ? "当前筛选条件下没有受控运行。"
+                      : "还没有受控运行记录。执行 sales-pipeline-v1 后，这里会显示完整 trace。"}
                 </div>
               )}
             </div>
@@ -837,6 +958,65 @@ export function ClawRuntimeConsoleAppWindow({
                       {selectedControlledRunSummary.assetLandings.length}
                     </div>
                   </div>
+
+                  {selectedControlledRunSummary.canApprove ||
+                  selectedControlledRunSummary.canResume ? (
+                    <div className="mt-4 flex flex-wrap gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-3">
+                      {selectedControlledRunSummary.canApprove &&
+                      selectedControlledRunSummary.pendingApprovalStepId ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void handleResolveControlledApproval(
+                                selectedControlledRunSummary.id,
+                                selectedControlledRunSummary.pendingApprovalStepId!,
+                                true,
+                              )
+                            }
+                            disabled={controlledRunActionLoading !== null}
+                            className="rounded-xl border border-emerald-600 bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {controlledRunActionLoading ===
+                            `${selectedControlledRunSummary.id}:${selectedControlledRunSummary.pendingApprovalStepId}:approve`
+                              ? "批准中..."
+                              : "批准步骤"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void handleResolveControlledApproval(
+                                selectedControlledRunSummary.id,
+                                selectedControlledRunSummary.pendingApprovalStepId!,
+                                false,
+                              )
+                            }
+                            disabled={controlledRunActionLoading !== null}
+                            className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {controlledRunActionLoading ===
+                            `${selectedControlledRunSummary.id}:${selectedControlledRunSummary.pendingApprovalStepId}:reject`
+                              ? "拒绝中..."
+                              : "拒绝步骤"}
+                          </button>
+                        </>
+                      ) : null}
+                      {selectedControlledRunSummary.canResume ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void handleResumeControlledRun(selectedControlledRunSummary.id)
+                          }
+                          disabled={controlledRunActionLoading !== null}
+                          className="rounded-xl border border-sky-600 bg-sky-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {controlledRunActionLoading === `${selectedControlledRunSummary.id}:resume`
+                            ? "继续中..."
+                            : "继续执行"}
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
 
                   <div className="mt-4 rounded-2xl border border-gray-200 bg-white px-4 py-3">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">

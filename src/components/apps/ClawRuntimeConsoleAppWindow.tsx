@@ -452,6 +452,35 @@ export function ClawRuntimeConsoleAppWindow({
     }
   };
 
+  const handleRetryControlledRun = async (runId: string) => {
+    const actionId = `${runId}:retry`;
+    setControlledRunActionLoading(actionId);
+    try {
+      const res = await fetch(
+        buildAgentCoreApiUrl(
+          `/api/runtime/executor/controlled-runs/${encodeURIComponent(runId)}/retry`,
+        ),
+        {
+          method: "POST",
+        },
+      );
+      const data = (await res.json().catch(() => null)) as null | {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!res.ok || !data?.ok) {
+        showToast(data?.error || "重试失败步骤失败", "error");
+        return;
+      }
+      showToast("已重试失败步骤", "ok");
+      await refreshControlledRuns();
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "重试失败步骤请求异常", "error");
+    } finally {
+      setControlledRunActionLoading(null);
+    }
+  };
+
   const handleOpenControlledRunAsset = (asset: ControlledRunAssetLandingSummary) => {
     if (asset.appId === "deal_desk") {
       requestOpenDealDesk({
@@ -985,8 +1014,24 @@ export function ClawRuntimeConsoleAppWindow({
                     </div>
                   </div>
 
+                  {selectedControlledRunSummary.state === "failed" ? (
+                    <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-6 text-amber-800">
+                      <div>
+                        <span className="font-semibold">Failed step：</span>
+                        {selectedControlledRunSummary.failedStepId || "无"}
+                      </div>
+                      <div>
+                        <span className="font-semibold">Recovery：</span>
+                        {selectedControlledRunSummary.canRetry
+                          ? "Playbook policy allows retry from the failed step."
+                          : selectedControlledRunSummary.retryReason || "当前运行不可重试。"}
+                      </div>
+                    </div>
+                  ) : null}
+
                   {selectedControlledRunSummary.canApprove ||
-                  selectedControlledRunSummary.canResume ? (
+                  selectedControlledRunSummary.canResume ||
+                  selectedControlledRunSummary.canRetry ? (
                     <div className="mt-4 flex flex-wrap gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-3">
                       {selectedControlledRunSummary.canApprove &&
                       selectedControlledRunSummary.pendingApprovalStepId ? (
@@ -1039,6 +1084,18 @@ export function ClawRuntimeConsoleAppWindow({
                           {controlledRunActionLoading === `${selectedControlledRunSummary.id}:resume`
                             ? "继续中..."
                             : "继续执行"}
+                        </button>
+                      ) : null}
+                      {selectedControlledRunSummary.canRetry ? (
+                        <button
+                          type="button"
+                          onClick={() => void handleRetryControlledRun(selectedControlledRunSummary.id)}
+                          disabled={controlledRunActionLoading !== null}
+                          className="rounded-xl border border-amber-600 bg-amber-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {controlledRunActionLoading === `${selectedControlledRunSummary.id}:retry`
+                            ? "重试中..."
+                            : "重试失败步骤"}
                         </button>
                       ) : null}
                     </div>

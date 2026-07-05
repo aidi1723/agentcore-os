@@ -4,8 +4,20 @@ import { useCallback, useRef, useState } from "react";
 
 import { buildAgentCoreApiUrl } from "@/lib/app-api";
 import type { ExecutionPlan, ExecutionStep, StepResult } from "@/lib/executor/contracts";
+import type {
+  ControlledApprovalRecord,
+  ControlledExecutionRunRecord,
+  ControlledExecutionStepRecord,
+} from "@/lib/executor/runtime/types";
 
-export type MultiStepStatus = "idle" | "connecting" | "running" | "awaiting_approval" | "done" | "error";
+export type MultiStepStatus =
+  | "idle"
+  | "connecting"
+  | "running"
+  | "resuming"
+  | "awaiting_approval"
+  | "done"
+  | "error";
 
 export type ApprovalRequest = {
   executionId: string;
@@ -24,6 +36,94 @@ export type MultiStepStreamState = {
   approvalRequest: ApprovalRequest | null;
   error: string | null;
 };
+
+type ResumeResponse =
+  | {
+      ok: true;
+      data: {
+        runId: string;
+        state: ControlledExecutionRunRecord["state"];
+        resumedStepIds: string[];
+        run: ControlledExecutionRunRecord;
+      };
+    }
+  | {
+      ok: false;
+      error: string;
+      data?: {
+        runId?: string;
+        state?: ControlledExecutionRunRecord["state"];
+        currentStepId?: string;
+      };
+    };
+
+function stepDurationMs(step: ControlledExecutionStepRecord) {
+  if (typeof step.startedAt === "number" && typeof step.finishedAt === "number") {
+    return Math.max(0, step.finishedAt - step.startedAt);
+  }
+  return 0;
+}
+
+function durableStepToResult(step: ControlledExecutionStepRecord): StepResult | null {
+  if (step.state !== "completed" && step.state !== "skipped" && step.state !== "failed") {
+    return null;
+  }
+  return {
+    stepId: step.stepId,
+    status: step.state,
+    output: step.output ?? null,
+    toolCallResults: step.toolCallResults ?? [],
+    tokensUsed: (step.toolCallResults ?? []).reduce((sum, item) => sum + (item.tokensUsed ?? 0), 0),
+    durationMs: stepDurationMs(step),
+    error: step.error,
+  };
+}
+
+function approvalToRequest(
+  run: ControlledExecutionRunRecord,
+  step: ControlledExecutionStepRecord,
+  approval: ControlledApprovalRecord,
+): ApprovalRequest {
+  const planStep = run.plan.steps.find((item) => item.id === step.stepId);
+  return {
+    executionId: run.id,
+    stepId: step.stepId,
+    title: planStep?.title ?? step.stepId,
+    description: planStep?.description,
+    mode: planStep?.mode,
+  };
+}
+
+function projectRunState(run: ControlledExecutionRunRecord): MultiStepStreamState {
+  const approvalStep = run.steps.find(
+    (step) => step.state === "awaiting_approval" && step.approval?.state === "pending",
+  );
+  const approvalRequest = approvalStep?.approval
+    ? approvalToRequest(run, approvalStep, approvalStep.approval)
+    : null;
+  const stepResults = run.steps
+    .map(durableStepToResult)
+    .filter((item): item is StepResult => Boolean(item));
+  const error = run.state === "failed" || run.state === "cancelled" ? run.error ?? "Controlled run failed" : null;
+  const status: MultiStepStatus =
+    run.state === "completed"
+      ? "done"
+      : run.state === "failed" || run.state === "cancelled"
+        ? "error"
+        : run.state === "awaiting_approval"
+          ? "awaiting_approval"
+          : "running";
+
+  return {
+    status,
+    executionId: run.id,
+    plan: run.plan,
+    currentStepId: run.currentStepId ?? null,
+    stepResults,
+    approvalRequest,
+    error,
+  };
+}
 
 export function useMultiStepStream() {
   const [state, setState] = useState<MultiStepStreamState>({
@@ -150,6 +250,10 @@ export function useMultiStepStream() {
         setState((s) =>
           data.ok === true
             ? { ...s, status: "done" }
+            : s.approvalRequest &&
+                typeof data.error === "string" &&
+                data.error.toLowerCase().includes("awaiting approval")
+              ? { ...s, status: "awaiting_approval", error: null }
             : {
                 ...s,
                 status: "error",
@@ -163,11 +267,59 @@ export function useMultiStepStream() {
     }
   }
 
+  const resume = useCallback(async (runId?: string) => {
+    const targetRunId = runId ?? state.executionId;
+    if (!targetRunId) {
+      setState((s) => ({
+        ...s,
+        status: "error",
+        error: "Cannot resume controlled run without an execution id",
+      }));
+      return;
+    }
+
+    setState((s) => ({ ...s, status: "resuming", error: null }));
+
+    try {
+      const res = await fetch(
+        buildAgentCoreApiUrl(`/api/runtime/executor/controlled-runs/${encodeURIComponent(targetRunId)}/resume`),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      const data = (await res.json()) as ResumeResponse;
+      if (res.ok && data.ok) {
+        setState(projectRunState(data.data.run));
+        return;
+      }
+
+      const error = data.ok === false ? data.error : `Resume failed: HTTP ${res.status}`;
+      setState((s) => ({
+        ...s,
+        status:
+          data.ok === false && data.data?.state === "awaiting_approval"
+            ? "awaiting_approval"
+            : data.ok === false && data.data?.state === "completed"
+              ? "done"
+              : "error",
+        currentStepId: data.ok === false ? data.data?.currentStepId ?? s.currentStepId : s.currentStepId,
+        error,
+      }));
+    } catch (err) {
+      setState((s) => ({
+        ...s,
+        status: "error",
+        error: err instanceof Error ? err.message : "Resume failed",
+      }));
+    }
+  }, [state.executionId]);
+
   const approve = useCallback(async (approved: boolean, feedback?: string) => {
     const { executionId, approvalRequest } = state;
     if (!executionId || !approvalRequest) return;
 
-    await fetch(buildAgentCoreApiUrl("/api/agent/approve"), {
+    const res = await fetch(buildAgentCoreApiUrl("/api/agent/approve"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -178,13 +330,34 @@ export function useMultiStepStream() {
       }),
     });
 
-    setState((s) => ({ ...s, status: "running", approvalRequest: null }));
-  }, [state]);
+    if (!res.ok) {
+      setState((s) => ({ ...s, status: "error", error: `Approval failed: HTTP ${res.status}` }));
+      return;
+    }
+
+    if (!approved) {
+      setState((s) => ({
+        ...s,
+        status: "error",
+        approvalRequest: null,
+        error: feedback ?? "User rejected step",
+      }));
+      return;
+    }
+
+    setState((s) => ({ ...s, approvalRequest: null }));
+    await resume(executionId);
+  }, [resume, state]);
 
   const stop = useCallback(() => {
     abortRef.current?.abort();
     setState((s) => ({ ...s, status: "done" }));
   }, []);
 
-  return { ...state, start, approve, stop };
+  const canResume =
+    Boolean(state.executionId) &&
+    state.status !== "resuming" &&
+    (state.status === "error" || (state.status === "awaiting_approval" && !state.approvalRequest));
+
+  return { ...state, start, approve, resume, stop, canResume };
 }

@@ -359,7 +359,7 @@ git commit -m "feat: support controlled execution continuation"
 - Create: `src/lib/executor/runtime/resume.ts`
 - Test: `src/__tests__/lib/executor/runtime/resume.test.ts`
 
-- [ ] **Step 1: Write failing resume helper tests**
+- [x] **Step 1: Write failing resume helper tests**
 
 Create `src/__tests__/lib/executor/runtime/resume.test.ts`:
 
@@ -533,7 +533,7 @@ describe("resumeControlledExecutionRun", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -543,7 +543,7 @@ npm test -- src/__tests__/lib/executor/runtime/resume.test.ts
 
 Expected: FAIL because `src/lib/executor/runtime/resume.ts` does not exist.
 
-- [ ] **Step 3: Implement resume helper**
+- [x] **Step 3: Implement resume helper**
 
 Create `src/lib/executor/runtime/resume.ts`:
 
@@ -746,7 +746,7 @@ export async function resumeControlledExecutionRun(
 }
 ```
 
-- [ ] **Step 4: Run resume helper tests**
+- [x] **Step 4: Run resume helper tests**
 
 Run:
 
@@ -756,7 +756,7 @@ npm test -- src/__tests__/lib/executor/runtime/resume.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Run executor tests**
+- [x] **Step 5: Run executor tests**
 
 Run:
 
@@ -766,7 +766,7 @@ npm test -- src/__tests__/lib/executor/step-executor.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/executor/runtime/resume.ts src/__tests__/lib/executor/runtime/resume.test.ts

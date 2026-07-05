@@ -41,6 +41,15 @@ export type ControlledWritebackReceipt = {
   workflowRunId?: string;
 };
 
+export type ControlledRunAuditEvent = {
+  id: string;
+  type: "console_retry_requested";
+  stepId?: string;
+  message?: string;
+  createdAt: number;
+  actor: "local_user";
+};
+
 export type ControlledExecutionStepRecord = {
   stepId: string;
   state: ControlledExecutionStepState;
@@ -71,6 +80,7 @@ export type ControlledExecutionRunRecord = {
   updatedAt: number;
   finishedAt?: number;
   error?: string;
+  auditEvents: ControlledRunAuditEvent[];
   plan: ExecutionPlan;
   steps: ControlledExecutionStepRecord[];
 };

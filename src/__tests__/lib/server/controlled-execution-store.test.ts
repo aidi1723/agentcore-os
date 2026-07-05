@@ -157,4 +157,45 @@ describe("controlled-execution-store", () => {
       "exec-4",
     );
   });
+
+  it("persists controlled run audit events", async () => {
+    const {
+      appendControlledRunAuditEvent,
+      createControlledExecutionRun,
+      getControlledExecutionRun,
+    } = await import("@/lib/server/controlled-execution-store");
+
+    await createControlledExecutionRun({
+      id: "exec-audit",
+      requestId: "req-audit",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan,
+    });
+
+    expect((await getControlledExecutionRun("exec-audit"))?.auditEvents).toEqual([]);
+
+    await appendControlledRunAuditEvent("exec-audit", {
+      id: "audit-1",
+      type: "console_retry_requested",
+      stepId: "intake",
+      message: "Retry from Runtime Console",
+      createdAt: 123,
+      actor: "local_user",
+    });
+
+    const run = await getControlledExecutionRun("exec-audit");
+
+    expect(run?.auditEvents).toEqual([
+      {
+        id: "audit-1",
+        type: "console_retry_requested",
+        stepId: "intake",
+        message: "Retry from Runtime Console",
+        createdAt: 123,
+        actor: "local_user",
+      },
+    ]);
+  });
 });

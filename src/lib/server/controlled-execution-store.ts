@@ -3,6 +3,7 @@ import type {
   ControlledApprovalRecord,
   ControlledExecutionRunRecord,
   ControlledExecutionStepRecord,
+  ControlledRunAuditEvent,
 } from "@/lib/executor/runtime/types";
 import { redactSensitiveText } from "@/lib/executor/redaction";
 import { readJsonFile, readModifyWrite } from "@/lib/server/json-store";
@@ -37,6 +38,22 @@ function normalizeStep(input: ControlledExecutionStepRecord): ControlledExecutio
   };
 }
 
+function normalizeAuditEvent(input: unknown): ControlledRunAuditEvent | null {
+  if (!input || typeof input !== "object") return null;
+  const item = input as ControlledRunAuditEvent;
+  if (!item.id || item.type !== "console_retry_requested" || item.actor !== "local_user") {
+    return null;
+  }
+  return {
+    id: String(item.id),
+    type: "console_retry_requested",
+    stepId: item.stepId ? String(item.stepId) : undefined,
+    message: clipError(item.message),
+    createdAt: Number.isFinite(item.createdAt) ? item.createdAt : now(),
+    actor: "local_user",
+  };
+}
+
 function normalizeRun(input: unknown): ControlledExecutionRunRecord | null {
   if (!input || typeof input !== "object") return null;
   const item = input as ControlledExecutionRunRecord;
@@ -59,6 +76,11 @@ function normalizeRun(input: unknown): ControlledExecutionRunRecord | null {
     updatedAt: Number.isFinite(item.updatedAt) ? item.updatedAt : now(),
     finishedAt: Number.isFinite(item.finishedAt) ? item.finishedAt : undefined,
     error: clipError(item.error),
+    auditEvents: Array.isArray(item.auditEvents)
+      ? item.auditEvents
+          .map(normalizeAuditEvent)
+          .filter((event): event is ControlledRunAuditEvent => Boolean(event))
+      : [],
     plan: item.plan,
     steps: Array.isArray(item.steps) ? item.steps.map(normalizeStep) : [],
   };
@@ -108,6 +130,7 @@ export async function createControlledExecutionRun(input: {
     state: "running",
     createdAt: timestamp,
     updatedAt: timestamp,
+    auditEvents: [],
     plan: input.plan,
     steps: buildInitialSteps(input.plan),
   };
@@ -164,6 +187,28 @@ export async function updateControlledExecutionRun(
           patch.state === "completed" || patch.state === "failed" || patch.state === "cancelled"
             ? timestamp
             : run.finishedAt,
+      };
+      return updated;
+    }),
+  );
+  return updated;
+}
+
+export async function appendControlledRunAuditEvent(
+  id: string,
+  event: ControlledRunAuditEvent,
+) {
+  const normalizedEvent = normalizeAuditEvent(event);
+  if (!normalizedEvent) return null;
+  let updated: ControlledExecutionRunRecord | null = null;
+  await readModifyWrite<unknown[]>(FILE_NAME, [], (current) =>
+    current.map((raw) => {
+      const run = normalizeRun(raw);
+      if (!run || run.id !== id) return raw;
+      updated = {
+        ...run,
+        auditEvents: [...run.auditEvents, normalizedEvent],
+        updatedAt: now(),
       };
       return updated;
     }),

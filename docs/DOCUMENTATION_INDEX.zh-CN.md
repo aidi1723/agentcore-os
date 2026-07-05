@@ -2,14 +2,19 @@
 
 这是当前 `v1.3.0` 稳定版对外发布对应的中文入口页。
 
+> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。后续开发请先阅读项目框架总纲和可控 Runtime 开发手册。
+
 ## 建议阅读顺序
 
 1. [README](../README.md)
-2. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
-3. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
-4. [快速开始](GETTING_STARTED.md)
-5. [用户指南（中文）](USER_GUIDE.zh-CN.md)
-6. [上一稳定版市场发布文案](LAUNCH_COPY_v1.2.0.zh-CN.md)
+2. [项目框架总纲](PROJECT_FRAMEWORK.zh-CN.md)
+3. [可控 Agent Runtime 开发手册](CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
+4. [架构说明](ARCHITECTURE.md)
+5. [当前执行 backlog](NEXT_STEPS.md)
+6. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
+7. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
+8. [快速开始](GETTING_STARTED.md)
+9. [用户指南（中文）](USER_GUIDE.zh-CN.md)
 
 ## 对外分发
 
@@ -22,6 +27,8 @@
 
 ## 其他核心文档
 
+- [项目框架总纲](PROJECT_FRAMEWORK.zh-CN.md)
+- [可控 Agent Runtime 开发手册](CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
 - [架构说明](ARCHITECTURE.md)
 - [连接器说明](CONNECTORS.md)
 - [使用场景](USE_CASES.md)
@@ -31,7 +38,6 @@
 
 ## 内部工程与学习
 
-- [可控 Agent Runtime 开发手册](CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
 - [企业级执行层升级方案](AGENT_EXECUTION_ENTERPRISE_UPGRADE.zh-CN.md)
 - [团队 Memo：如何看待 build-your-own-x](TEAM_MEMO_BUILD_YOUR_OWN_X.zh-CN.md)
 - [工程学习地图](ENGINEERING_LEARNING_MAP.zh-CN.md)

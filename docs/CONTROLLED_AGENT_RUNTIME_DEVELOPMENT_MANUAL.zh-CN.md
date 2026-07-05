@@ -6,6 +6,10 @@ Last updated: 2026-07-05
 
 AgentCore OS 后续不再优先朝“完整 AI OS 大壳”扩展，也不再投入做一个普通 skill。
 
+项目级总纲见：
+
+- [AgentCore OS 项目框架总纲](PROJECT_FRAMEWORK.zh-CN.md)
+
 新的核心方向是：
 
 **把 AgentCore OS 收缩成一个可控 Skill / Playbook Runtime：读取固定工作流，按确定步骤执行，限制工具边界，保留人工审批，记录 trace，并把结果写回资产层。**
@@ -309,7 +313,7 @@ type ControlledPlaybookStep = {
 
 - [Controlled Agent Runtime Next Steps Implementation Plan](superpowers/plans/2026-07-05-controlled-agent-runtime-next-steps.md)
 - [Controlled Run Asset Writeback Implementation Plan](superpowers/plans/2026-07-05-controlled-run-asset-writeback.md)
-- [Runtime Console Trace And Asset Landing Implementation Plan](superpowers/plans/2026-07-05-runtime-console-trace-landing.md)
+- [Runtime Console Trace And Asset Landing Implementation Plan](superpowers/plans/2026-07-05-runtime-console-trace-asset-landing.md)
 - [Runtime Console Operations Implementation Plan](superpowers/plans/2026-07-05-runtime-console-operations.md)
 - [Runtime Console Asset Deep Links Implementation Plan](superpowers/plans/2026-07-05-runtime-console-asset-deep-links.md)
 

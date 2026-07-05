@@ -142,6 +142,8 @@
 
 - Added project-level `AGENTS.md` workflow rules and `DESIGN.md` design contract as the default collaboration and UI implementation framework for future work.
 - Re-centered the next-stage backlog around controlled runtime reliability, traceability, approval recovery, and asset writeback instead of adding more app-shell surface area.
+- Added `docs/PROJECT_FRAMEWORK.zh-CN.md` as the project-level framework for the controlled Skill / Playbook Runtime pivot.
+- Rewrote the architecture, roadmap, next steps, README entry, documentation index, and contribution guidance so future work starts from the runtime direction instead of the old app-shell framing.
 
 ### Verification
 

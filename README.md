@@ -6,6 +6,8 @@
 AgentCore OS 是一个**本地优先、面向真实工作的 AI 工作底座**。
 它不是只会聊天的单点工具，而是把模型、文件、工具、审批、连接器和工作流资产，放进一个可持续积累的本地工作系统里。
 
+> 2026-07-05 之后的工程主线已经收口为 **可控 Skill / Playbook Runtime**：固定 playbook 步骤、限制工具边界、保留人工审批、记录 trace、支持恢复，并把 approved output 写回业务资产。项目框架总纲见 [docs/PROJECT_FRAMEWORK.zh-CN.md](docs/PROJECT_FRAMEWORK.zh-CN.md)。
+
 我们的目标很直接：
 
 **让更多个人、团队和企业，以更低门槛、更高安全性、更强可控性，真正把 AI 用到日常业务里。**
@@ -20,11 +22,11 @@ AgentCore OS 当前对外更适合这样理解：
 
 当前稳定主线聚焦：
 
-- 销售与商务推进
-- 客服与用户支持
-- 内容生产与分发
-- 研究与情报沉淀
-- Knowledge Vault / Task Manager / Console / Settings 组成的控制面
+- 可控 Playbook Runtime
+- 销售与商务推进的 `sales-pipeline-v1` 受控执行链
+- 人工审批、durable trace、resume / recovery
+- approved output 写回 sales asset / knowledge asset
+- Runtime Console 作为查看、审批、恢复和资产落点复盘的控制面
 
 ## 当前稳定版本
 
@@ -128,6 +130,8 @@ npm run test:stability
 
 ### 建议先看
 
+- [项目框架总纲（中文）](docs/PROJECT_FRAMEWORK.zh-CN.md)
+- [可控 Agent Runtime 开发手册](docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
 - [文档总入口](docs/DOCUMENTATION_INDEX.zh-CN.md)
 - [用户指南（中文）](docs/USER_GUIDE.zh-CN.md)
 - 当前版本发布说明：[English](docs/releases/v1.3.0.md) / [中文](docs/releases/v1.3.0.zh-CN.md)

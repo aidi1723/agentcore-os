@@ -1,57 +1,107 @@
 # Roadmap
 
-This roadmap tracks the current stable line after `v1.3.0`. The project should not grow by adding more standalone apps in the near term. The priority is turning the existing surface area into fewer reliable, scenario-ready workflows.
+Last updated: 2026-07-05
 
-## Current Focus
+This roadmap tracks the current post-`v1.3.0` engineering direction.
 
-### Scenario-first product focus
+The project should not grow by adding more standalone apps in the near term. The priority is making AgentCore OS a reliable **Controlled Skill / Playbook Runtime**.
 
-- Reduce “many apps” feeling and strengthen 3 real workflow lines
-- Make scenario packs executable, guided, and easier to complete
-- Prioritize automation usefulness, runtime safety, and workflow reliability
+## North Star
 
-### Desktop UX
+AgentCore OS should execute fixed business playbooks with:
 
-- Continue hardening window resize and size persistence
-- Better snapping/tiling presets (2-up, 3-up) and keyboard tiling shortcuts
-- Spotlight: recent apps/commands, better ranking, command help (`?`)
+- deterministic steps,
+- explicit input / output schemas,
+- restricted tools,
+- human approval gates,
+- durable trace,
+- resumable execution,
+- structured asset writeback,
+- Runtime Console operations.
 
-### Workflow system (solo / small teams)
+## Current Completed Baseline
 
-- Playbooks library: save/share SOPs (steps + links to apps + prompts)
-- Runnable scenario packs with stronger app prefills and next-step guidance
-- Draft templates/snippets and “repurpose” flows (long → short, video → carousel)
-- Lightweight “daily ops” dashboard (today list + inbox + quick actions)
+The first controlled path is `sales-pipeline-v1`.
 
-### Intelligent workflow assistance
+Already completed:
 
-- Better cross-app handoff for content, research, and daily ops workflows
-- AI suggestions that recommend the next action, not only generate text
-- Reusable structured outputs and presets for the highest-value scenarios
+- fixed playbook resolver / validator,
+- controlled execution records,
+- durable approval records,
+- resume route,
+- client recovery for interrupted streams,
+- approved writeback into sales and knowledge assets,
+- Runtime Console trace landing,
+- Runtime Console approve / reject / resume,
+- Runtime Console asset metadata search and open actions.
 
-### Publishing hub (BYO connectors)
+## Near-Term Roadmap
 
-- Publish queue: retries, backoff, per-platform concurrency, better receipts
-- Connector profiles: test connection, health, and a clearer “dry-run vs dispatch” UI
-- Add reference connector recipes for approved services (Make/Zapier/Buffer/Metricool)
+### P0. Runtime Console Failure Recovery
 
-### Project maturity
+Add failed-step recovery controls:
 
-- Keep current version, release notes, and Tauri package versions aligned
-- Expand docs for deployment/preview and secrets in production
-- CI hardening and dependency update automation
+- failed step detail,
+- retry eligibility,
+- retry / restart action,
+- console recovery audit metadata,
+- regression coverage for retry safety.
 
-## Near-term (unversioned)
+### P1. Record-Level Asset Focus
 
-- Content workflow compounding: research/source -> repurpose -> publish
-- Runnable scenario packs with guided next actions
-- Better AI usefulness inside existing apps
-- Publish queue + retries + richer receipts UI
-- Better window management (resize, tiling, multi-monitor awareness)
-- Searchable app commands and recent history in Spotlight
+Make asset deep links more precise:
 
-## Long-term
+- open Deal Desk with the written sales asset selected,
+- open Knowledge Vault with the written knowledge asset selected,
+- preserve workflow context while focusing the asset,
+- keep historical receipt compatibility.
 
-- Server-backed auth and storage
-- Plugin system for third-party apps/connectors
-- Accessibility pass (keyboard navigation, ARIA, focus trapping)
+### P2. Complete Writeback Targets
+
+Wire currently skipped targets:
+
+- `workflow_run`
+- `draft`
+
+Expected outcome:
+
+- controlled runs can update workflow state and draft assets with real receipts.
+
+### P3. Support Playbook Migration
+
+Create a controlled support workflow:
+
+- intake,
+- classify,
+- draft reply,
+- human review,
+- writeback support asset / knowledge asset.
+
+### P4. Trace Governance
+
+Harden trace as an operational asset:
+
+- redaction,
+- retention policy,
+- export,
+- replay support,
+- trace-to-test fixture generation.
+
+## Later Roadmap
+
+After controlled runtime stabilizes:
+
+- creator/content playbook migration,
+- stronger retrieval and Knowledge Vault reuse,
+- connector hardening,
+- desktop sidecar parity cleanup,
+- accessibility and keyboard navigation pass.
+
+## Deprioritized Until Runtime Stabilizes
+
+- more standalone apps,
+- generic plugin marketplace,
+- open-ended multi-agent orchestration,
+- decorative OS-shell UI expansion,
+- broad admin SaaS features,
+- model-provider work not tied to controlled execution.

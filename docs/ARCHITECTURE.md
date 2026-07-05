@@ -1,44 +1,212 @@
 # Architecture
 
-## High-level
+Last updated: 2026-07-05
 
-- Next.js App Router UI (`src/app`)
-- “Desktop OS” page with window manager (`src/app/page.tsx`)
-- App registry + manifests (`src/apps/registry.ts`, `src/apps/types.ts`)
-- Window shell (`src/components/windows/AppWindowShell.tsx`)
-- Local-first storage (`src/lib/settings.ts`, `src/lib/drafts.ts`, `src/lib/publish.ts`, `src/lib/tasks.ts`, `src/lib/playbooks.ts`)
-- API routes (server-side) for LLM/OpenClaw/publish dispatch (`src/app/api/**`)
+## Current Architecture Direction
 
-## Window manager model
+AgentCore OS is now organized around a **Controlled Skill / Playbook Runtime**.
 
-- Each app has an `AppId` and a window component (`AppWindowProps`)
-- Window visibility uses `AppState`: `closed | opening | open | minimized | closing`
-- Z-order is an array (`appZOrder`), last item is top-most
-- Active window is tracked separately to render “active” styling
-- Window shell persists geometry (position + size) via a `storageKey`
-- Global shortcuts can dispatch window commands (tiling/maximize/restore)
+The desktop shell and app windows remain useful, but they are no longer the architectural center. The core system is the runtime that executes fixed playbooks with explicit tool boundaries, human approval gates, durable trace records, recovery paths, and asset writeback.
 
-## “Apps”
+For the full project frame, read:
 
-An app is a manifest:
+- [Project Framework](PROJECT_FRAMEWORK.zh-CN.md)
+- [Controlled Agent Runtime Development Manual](CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
 
-- `id`: stable identifier
-- `name`: display name
-- `icon`: lucide icon
-- `window`: React component
+## High-Level Runtime Stack
 
-This keeps the desktop UI generic while allowing you to plug in new apps quickly.
+```text
+User / Trigger
+  -> Playbook Resolver
+  -> Plan Validator
+  -> Runtime State Machine
+  -> Step Runner
+  -> Tool Gateway
+  -> Approval Gate
+  -> Trace Store
+  -> Asset / Memory Writeback
+  -> Runtime Console
+```
 
-## Solutions Hub + Playbooks
+## Core Runtime Modules
 
-- Solutions Hub curates “mature workflow packs” that can be installed as Playbooks
-- Playbooks are local-first SOP records (export/import as JSON)
+### Playbooks
 
-## Publishing flow
+Primary files:
 
-1) A draft is created/saved (localStorage)
-2) Publisher selects platforms and calls `POST /api/publish/dispatch`
-3) Server generates per-platform variants (OpenClaw if available, else fallback)
-4) If “dispatch” mode and webhook URLs exist, server POSTs to webhooks (BYO connector)
-5) Connector returns receipts; Publisher can show recent receipts via connector proxy routes
-6) Publisher stores publish jobs server-side and can run the queue outside the browser window via the publish queue worker
+- `src/lib/executor/playbooks/types.ts`
+- `src/lib/executor/playbooks/catalog.ts`
+- `src/lib/executor/playbooks/resolver.ts`
+- `src/lib/executor/playbooks/validator.ts`
+- `src/lib/executor/playbooks/sales-pipeline.ts`
+
+Responsibilities:
+
+- define fixed workflow steps,
+- declare input / output schemas,
+- declare allowed tools,
+- declare approval requirements,
+- declare writeback targets,
+- provide stable execution plans for controlled runs.
+
+Current first path:
+
+- `sales-pipeline-v1`
+
+### Executor Core
+
+Primary files:
+
+- `src/lib/executor/contracts.ts`
+- `src/lib/executor/core.ts`
+- `src/lib/executor/step-executor.ts`
+- `src/lib/executor/guardrails.ts`
+- `src/lib/executor/logger.ts`
+
+Responsibilities:
+
+- execute validated plans,
+- enforce tool and approval boundaries,
+- validate controlled step outputs,
+- track step attempts,
+- record step results and failures.
+
+The model can generate content inside a step. It must not decide the authoritative step order for controlled playbooks.
+
+### Runtime State
+
+Primary files:
+
+- `src/lib/executor/runtime/types.ts`
+- `src/lib/server/controlled-execution-store.ts`
+- `src/lib/executor/runtime/resume.ts`
+- `src/lib/executor/runtime/writeback.ts`
+- `src/lib/executor/runtime/console-summary.ts`
+
+Responsibilities:
+
+- persist controlled execution runs,
+- persist approval records,
+- support resume / recovery,
+- write approved outputs into assets,
+- summarize recent runs for Runtime Console.
+
+### APIs
+
+Primary routes:
+
+- `POST /api/agent/stream`
+- `POST /api/agent/approve`
+- `GET /api/runtime/executor/controlled-runs`
+- `GET /api/runtime/executor/controlled-runs/[runId]`
+- `POST /api/runtime/executor/controlled-runs/[runId]/resume`
+
+Rules:
+
+- API routes are facades over runtime state and executor core.
+- They must not introduce separate execution semantics.
+- Runtime state is the source of truth for controlled execution continuity.
+
+### Runtime Console
+
+Primary file:
+
+- `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
+
+Responsibilities:
+
+- show recent controlled runs,
+- show selected run trace,
+- show approval state and schema state,
+- approve / reject pending steps,
+- resume non-terminal runs,
+- show asset landing metadata,
+- open Deal Desk / Knowledge Vault from successful asset landings.
+
+The console is an operations surface, not a decorative dashboard.
+
+## UI And App Layer
+
+The UI still uses the existing desktop-window architecture:
+
+- Next.js App Router UI: `src/app`
+- App registry: `src/apps/registry.ts`, `src/apps/types.ts`
+- Window shell: `src/components/windows/AppWindowShell.tsx`
+- Window state: `src/stores/window-store.ts`
+- Shared UI events: `src/lib/ui-events.ts`
+
+Architectural rule:
+
+**Apps are business surfaces. Runtime state is not owned by app component state.**
+
+For example:
+
+- Deal Desk can display and continue sales work.
+- Knowledge Vault can display retained knowledge.
+- Runtime Console owns controlled run operation and trace review.
+
+## State Model
+
+State is split into four classes:
+
+- UI transient state: window geometry, active window, onboarding flags.
+- Local-first working cache: device-level preferences and light workbench data.
+- Durable domain state: deals, support tickets, assets, workflow runs.
+- Execution and audit state: controlled runs, approvals, trace, publish jobs, executor sessions.
+
+Execution and audit state must be durable and inspectable. It must not live only in browser local state.
+
+See:
+
+- [State Inventory](STATE_INVENTORY.zh-CN.md)
+- [ADR-003 Durable State Partitioning](adr/ADR-003-DURABLE_STATE_PARTITIONING.zh-CN.md)
+
+## Asset Writeback
+
+Controlled writeback currently supports:
+
+- `sales_asset`
+- `knowledge_asset`
+
+Writeback rules:
+
+- approved output can be written,
+- rejected or unapproved output is skipped,
+- successful receipts include structured `assetId`, `sourceKey`, and `workflowRunId` when available,
+- unsupported targets remain explicit skipped receipts.
+
+Still pending:
+
+- `workflow_run`
+- `draft`
+
+## Compatibility Layers
+
+Legacy OpenClaw and desktop sidecar paths remain compatibility surfaces.
+
+Rules:
+
+- External runtimes are adapters, not control planes.
+- Compatibility routes should converge on AgentCore executor contracts.
+- New execution behavior must not bypass controlled runtime rules.
+
+See:
+
+- [Executor Convergence](EXECUTOR_CONVERGENCE.zh-CN.md)
+
+## Verification Gates
+
+Runtime changes should normally pass:
+
+```bash
+npm run test:controlled-runtime
+npm run test:core-workflows
+npm run lint
+npm run build
+```
+
+Docs-only changes should at least pass:
+
+```bash
+git diff --check
+```

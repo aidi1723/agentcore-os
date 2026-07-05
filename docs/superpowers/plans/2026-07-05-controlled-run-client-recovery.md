@@ -38,7 +38,7 @@ Do not modify backend routes in this plan.
 
 - Modify: `src/__tests__/hooks/useMultiStepStream.test.tsx`
 
-- [ ] **Step 1: Add test helpers and cleanup**
+- [x] **Step 1: Add test helpers and cleanup**
 
 Modify the imports and helper area at the top of `src/__tests__/hooks/useMultiStepStream.test.tsx`:
 
@@ -145,7 +145,7 @@ afterEach(() => {
 });
 ```
 
-- [ ] **Step 2: Add a failing test for approve(true) followed by resume**
+- [x] **Step 2: Add a failing test for approve(true) followed by resume**
 
 Add this test inside `describe("useMultiStepStream", () => { ... })`:
 
@@ -212,7 +212,7 @@ it("continues a durable run after approval by calling the resume route", async (
 });
 ```
 
-- [ ] **Step 3: Run the focused test and verify it fails**
+- [x] **Step 3: Run the focused test and verify it fails**
 
 Run:
 
@@ -222,7 +222,7 @@ npm test -- src/__tests__/hooks/useMultiStepStream.test.tsx
 
 Expected: FAIL because `approve(true)` does not call the resume route and the hook has no durable run projection.
 
-- [ ] **Step 4: Commit the failing test**
+- [x] **Step 4: Commit the failing test**
 
 ```bash
 git add src/__tests__/hooks/useMultiStepStream.test.tsx

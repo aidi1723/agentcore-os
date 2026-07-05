@@ -238,7 +238,7 @@ git commit -m "test: cover controlled run client resume after approval"
 - Modify: `src/hooks/useMultiStepStream.ts`
 - Test: `src/__tests__/hooks/useMultiStepStream.test.tsx`
 
-- [ ] **Step 1: Add imports, status, and helper types**
+- [x] **Step 1: Add imports, status, and helper types**
 
 In `src/hooks/useMultiStepStream.ts`, update the type imports and status type:
 
@@ -284,7 +284,7 @@ type ResumeResponse =
     };
 ```
 
-- [ ] **Step 2: Add projection helpers**
+- [x] **Step 2: Add projection helpers**
 
 Add these helpers above `export function useMultiStepStream()`:
 
@@ -358,7 +358,7 @@ function projectRunState(run: ControlledExecutionRunRecord): MultiStepStreamStat
 }
 ```
 
-- [ ] **Step 3: Add the resume callback**
+- [x] **Step 3: Add the resume callback**
 
 Inside `useMultiStepStream`, after `handleEvent`, add:
 
@@ -412,7 +412,7 @@ Inside `useMultiStepStream`, after `handleEvent`, add:
   }, [state.executionId]);
 ```
 
-- [ ] **Step 4: Update approve to call resume only after approval**
+- [x] **Step 4: Update approve to call resume only after approval**
 
 Replace the current `approve` callback with:
 
@@ -452,7 +452,7 @@ Replace the current `approve` callback with:
   }, [resume, state]);
 ```
 
-- [ ] **Step 5: Add canResume and return resume**
+- [x] **Step 5: Add canResume and return resume**
 
 Before the final return, add:
 
@@ -467,7 +467,7 @@ Before the final return, add:
 
 Remove the previous `return { ...state, start, approve, stop };`.
 
-- [ ] **Step 6: Run the focused hook test**
+- [x] **Step 6: Run the focused hook test**
 
 Run:
 
@@ -477,7 +477,7 @@ npm test -- src/__tests__/hooks/useMultiStepStream.test.tsx
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit the implementation**
+- [x] **Step 7: Commit the implementation**
 
 ```bash
 git add src/hooks/useMultiStepStream.ts src/__tests__/hooks/useMultiStepStream.test.tsx

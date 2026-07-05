@@ -493,7 +493,7 @@ git commit -m "feat: resume controlled runs from client hook"
 - Modify: `src/__tests__/hooks/useMultiStepStream.test.tsx`
 - Modify: `src/hooks/useMultiStepStream.ts`
 
-- [ ] **Step 1: Add conflict and manual resume tests**
+- [x] **Step 1: Add conflict and manual resume tests**
 
 Add these tests inside the hook test `describe`:
 
@@ -615,7 +615,7 @@ it("allows manual resume after a stream error when a run id is known", async () 
 });
 ```
 
-- [ ] **Step 2: Run the focused tests**
+- [x] **Step 2: Run the focused tests**
 
 Run:
 
@@ -625,7 +625,7 @@ npm test -- src/__tests__/hooks/useMultiStepStream.test.tsx
 
 Expected: PASS. If the conflict test leaves `status: "error"`, update the `resume` conflict mapping in `src/hooks/useMultiStepStream.ts` exactly as specified in Task 2 Step 3.
 
-- [ ] **Step 3: Commit the expanded coverage**
+- [x] **Step 3: Commit the expanded coverage**
 
 ```bash
 git add src/__tests__/hooks/useMultiStepStream.test.tsx src/hooks/useMultiStepStream.ts

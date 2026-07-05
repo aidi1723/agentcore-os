@@ -782,7 +782,7 @@ git commit -m "feat: resume durable controlled runs"
 - Create: `src/app/api/runtime/executor/controlled-runs/[runId]/resume/route.ts`
 - Test: `src/__tests__/app/api/controlled-run-resume-route.test.ts`
 
-- [ ] **Step 1: Write failing route tests**
+- [x] **Step 1: Write failing route tests**
 
 Create `src/__tests__/app/api/controlled-run-resume-route.test.ts`:
 
@@ -902,7 +902,7 @@ describe("controlled run resume route", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -912,7 +912,7 @@ npm test -- src/__tests__/app/api/controlled-run-resume-route.test.ts
 
 Expected: FAIL because the route does not exist.
 
-- [ ] **Step 3: Implement route**
+- [x] **Step 3: Implement route**
 
 Create `src/app/api/runtime/executor/controlled-runs/[runId]/resume/route.ts`:
 
@@ -958,7 +958,7 @@ export async function POST(
 }
 ```
 
-- [ ] **Step 4: Run route tests**
+- [x] **Step 4: Run route tests**
 
 Run:
 
@@ -968,7 +968,7 @@ npm test -- src/__tests__/app/api/controlled-run-resume-route.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Run resume helper tests**
+- [x] **Step 5: Run resume helper tests**
 
 Run:
 
@@ -978,7 +978,7 @@ npm test -- src/__tests__/lib/executor/runtime/resume.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add 'src/app/api/runtime/executor/controlled-runs/[runId]/resume/route.ts' src/__tests__/app/api/controlled-run-resume-route.test.ts

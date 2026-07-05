@@ -26,7 +26,7 @@ function StatusBadge({ status }: { status: MultiStepStatus }) {
     idle: { label: "就绪", color: "bg-gray-100 text-gray-600" },
     connecting: { label: "连接中", color: "bg-yellow-100 text-yellow-700" },
     running: { label: "执行中", color: "bg-blue-100 text-blue-700" },
-    resuming: { label: "恢复中", color: "bg-blue-100 text-blue-700" },
+    resuming: { label: "恢复中", color: "bg-cyan-100 text-cyan-700" },
     awaiting_approval: { label: "等待审批", color: "bg-orange-100 text-orange-700" },
     done: { label: "完成", color: "bg-green-100 text-green-700" },
     error: { label: "错误", color: "bg-red-100 text-red-700" },
@@ -36,8 +36,19 @@ function StatusBadge({ status }: { status: MultiStepStatus }) {
 }
 
 export function MultiStepPanel() {
-  const { status, plan, currentStepId, stepResults, approvalRequest, error, start, approve, stop } =
-    useMultiStepStream();
+  const {
+    status,
+    plan,
+    currentStepId,
+    stepResults,
+    approvalRequest,
+    error,
+    start,
+    approve,
+    resume,
+    stop,
+    canResume,
+  } = useMultiStepStream();
 
   return (
     <div className="flex flex-col gap-3 p-4 rounded-lg border border-gray-200 bg-white text-sm">
@@ -102,6 +113,15 @@ export function MultiStepPanel() {
       )}
 
       {error && <p className="text-xs text-red-600">{error}</p>}
+
+      {canResume && (
+        <button
+          onClick={() => resume()}
+          className="self-end px-3 py-1 rounded text-xs font-medium bg-cyan-50 text-cyan-700 border border-cyan-200 hover:bg-cyan-100"
+        >
+          继续执行
+        </button>
+      )}
 
       {status === "running" && (
         <button

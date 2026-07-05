@@ -131,6 +131,13 @@
 - Wired Runtime Console approve / reject actions through the existing `/api/agent/approve` route and controlled run resume through the existing resume route.
 - Refreshed the controlled run list after console operations so approval and resume state stays aligned with durable runtime records.
 
+### Runtime Console Asset Deep Links
+
+- Added structured `assetId`, `sourceKey`, and `workflowRunId` metadata to successful controlled sales and knowledge writeback receipts.
+- Surfaced structured asset landing metadata in Runtime Console summaries, including target app ids for Deal Desk and Knowledge Vault.
+- Extended controlled run search to match asset ids, source keys, workflow ids, receipt summaries, and run errors.
+- Added Runtime Console `打开` actions for successful sales and knowledge asset landings using the existing cross-app open event helpers.
+
 ### Framework Alignment
 
 - Added project-level `AGENTS.md` workflow rules and `DESIGN.md` design contract as the default collaboration and UI implementation framework for future work.

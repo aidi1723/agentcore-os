@@ -47,7 +47,7 @@ Modify:
 
 ### Task 1: Add Structured Writeback Receipt Metadata
 
-- [ ] **Step 1: Write failing writeback metadata tests**
+- [x] **Step 1: Write failing writeback metadata tests**
 
 Extend `src/__tests__/lib/executor/runtime/writeback.test.ts` with assertions on successful receipts:
 
@@ -71,7 +71,7 @@ expect(receipts).toEqual(
 );
 ```
 
-- [ ] **Step 2: Verify writeback tests fail**
+- [x] **Step 2: Verify writeback tests fail**
 
 Run:
 
@@ -81,7 +81,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts
 
 Expected: FAIL because receipts do not expose `assetId`, `sourceKey`, or `workflowRunId`.
 
-- [ ] **Step 3: Extend receipt type and writeback metadata**
+- [x] **Step 3: Extend receipt type and writeback metadata**
 
 Modify `src/lib/executor/runtime/types.ts`:
 
@@ -122,7 +122,7 @@ return {
 } satisfies ControlledWritebackReceipt;
 ```
 
-- [ ] **Step 4: Verify writeback tests pass**
+- [x] **Step 4: Verify writeback tests pass**
 
 Run:
 
@@ -132,7 +132,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/executor/runtime/types.ts src/lib/executor/runtime/writeback.ts src/__tests__/lib/executor/runtime/writeback.test.ts
@@ -141,7 +141,7 @@ git commit -m "feat: add controlled writeback asset metadata"
 
 ### Task 2: Surface Asset Link Metadata In Console Summary
 
-- [ ] **Step 1: Write failing summary tests**
+- [x] **Step 1: Write failing summary tests**
 
 Extend `src/__tests__/lib/executor/runtime/console-summary.test.ts` so the sample receipts include metadata and the expected `assetLandings` include:
 
@@ -182,7 +182,7 @@ expect(
 ).toEqual(["run-console-1"]);
 ```
 
-- [ ] **Step 2: Verify summary tests fail**
+- [x] **Step 2: Verify summary tests fail**
 
 Run:
 
@@ -192,7 +192,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: FAIL because asset landing metadata and asset query fields are not derived.
 
-- [ ] **Step 3: Implement summary metadata and filter fields**
+- [x] **Step 3: Implement summary metadata and filter fields**
 
 Modify `src/lib/executor/runtime/console-summary.ts`:
 
@@ -220,7 +220,7 @@ const ASSET_APP_IDS: Record<string, ControlledRunAssetLandingSummary["appId"]> =
 
 Return the receipt metadata from `buildAssetLandings`, and extend filtering with `summary.error`, landing fields, and receipt summaries.
 
-- [ ] **Step 4: Verify summary tests pass**
+- [x] **Step 4: Verify summary tests pass**
 
 Run:
 
@@ -230,7 +230,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/executor/runtime/console-summary.ts src/__tests__/lib/executor/runtime/console-summary.test.ts
@@ -239,7 +239,7 @@ git commit -m "feat: derive controlled run asset links"
 
 ### Task 3: Wire Runtime Console Asset Open Actions
 
-- [ ] **Step 1: Import app open helpers**
+- [x] **Step 1: Import app open helpers**
 
 Modify `src/components/apps/ClawRuntimeConsoleAppWindow.tsx` imports:
 
@@ -250,7 +250,7 @@ import {
 } from "@/lib/ui-events";
 ```
 
-- [ ] **Step 2: Add asset open handler**
+- [x] **Step 2: Add asset open handler**
 
 Add a local handler near the other controlled run handlers:
 
@@ -276,7 +276,7 @@ function handleOpenControlledRunAsset(asset: ControlledRunAssetLandingSummary) {
 }
 ```
 
-- [ ] **Step 3: Render metadata and open buttons**
+- [x] **Step 3: Render metadata and open buttons**
 
 In the `Asset landings` block:
 
@@ -284,7 +284,7 @@ In the `Asset landings` block:
 - render an `打开` button only when `asset.ok && asset.appId`,
 - call `handleOpenControlledRunAsset(asset)`.
 
-- [ ] **Step 4: Verify controlled runtime, lint, and build**
+- [x] **Step 4: Verify controlled runtime, lint, and build**
 
 Run:
 
@@ -296,7 +296,7 @@ npm run build
 
 Expected: PASS, with only the existing `<img>` warning for lint/build.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/apps/ClawRuntimeConsoleAppWindow.tsx
@@ -305,7 +305,7 @@ git commit -m "feat: open controlled run asset landings"
 
 ### Task 4: Final Verification And Docs
 
-- [ ] **Step 1: Run full verification**
+- [x] **Step 1: Run full verification**
 
 Run:
 
@@ -316,11 +316,11 @@ npm run lint
 npm run build
 ```
 
-- [ ] **Step 2: Update docs and memory**
+- [x] **Step 2: Update docs and memory**
 
 Update changelog, development manual, this plan checklist, and daily memory with Phase 7 asset deep-link progress.
 
-- [ ] **Step 3: Commit docs**
+- [x] **Step 3: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-05-runtime-console-asset-deep-links.md
@@ -332,3 +332,18 @@ git commit -m "docs: track runtime console asset deep links"
 - Spec coverage: receipt metadata, summary metadata, query filtering, UI open actions, docs, and verification are covered.
 - Placeholder scan: no TODO/TBD placeholders.
 - Type consistency: `assetId`, `sourceKey`, `workflowRunId`, and `appId` use the same names across receipt, summary, tests, and UI.
+
+## Completion Notes
+
+- `ControlledWritebackReceipt` now supports `assetId`, `sourceKey`, and `workflowRunId`.
+- `writeControlledStepAssets` records structured metadata for successful sales and knowledge asset writes.
+- `ControlledRunAssetLandingSummary` now exposes asset metadata and target app ids for `deal_desk` / `knowledge_vault`.
+- Runtime Console asset search now includes asset ids, source keys, workflow ids, receipt summaries, and run errors.
+- Runtime Console asset landings now show structured metadata and provide `打开` actions for successful sales / knowledge landings.
+- Verification completed:
+  - `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` — 4 tests passed.
+  - `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts` — 4 tests passed.
+  - `npm run test:controlled-runtime` — 14 files, 97 tests passed.
+  - `npm run test:core-workflows` — all regressions passed.
+  - `npm run lint` — exit 0, existing `<img>` warning only.
+  - `npm run build` — exit 0, same existing warning.

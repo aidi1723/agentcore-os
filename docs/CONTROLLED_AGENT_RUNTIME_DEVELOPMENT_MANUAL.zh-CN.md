@@ -311,6 +311,7 @@ type ControlledPlaybookStep = {
 - [Controlled Run Asset Writeback Implementation Plan](superpowers/plans/2026-07-05-controlled-run-asset-writeback.md)
 - [Runtime Console Trace And Asset Landing Implementation Plan](superpowers/plans/2026-07-05-runtime-console-trace-landing.md)
 - [Runtime Console Operations Implementation Plan](superpowers/plans/2026-07-05-runtime-console-operations.md)
+- [Runtime Console Asset Deep Links Implementation Plan](superpowers/plans/2026-07-05-runtime-console-asset-deep-links.md)
 
 ### 8.1 当前进度快照（2026-07-05）
 
@@ -324,18 +325,19 @@ type ControlledPlaybookStep = {
 - Phase 4 资产写回闭环：approved `sales-pipeline-v1` final writeback 已能写入 server-backed sales asset 和 knowledge asset，并把真实 receipt 记录回 controlled step trace。
 - Phase 5 第一批 Runtime Console trace landing：控制台可以列出 recent controlled runs，并展示 selected run 的 step trace、approval、schema、writeback receipt 和 sales/knowledge asset landing labels。
 - Phase 6 Runtime Console operations：控制台已经支持 state filter、文本搜索、pending approval approve/reject、non-terminal run resume，并在操作后刷新 durable controlled run summary。
+- Phase 7 第一批 asset deep links：writeback receipt 已记录结构化 `assetId` / `sourceKey` / `workflowRunId`，Runtime Console 可按资产字段搜索，并能从成功 landing 打开 Deal Desk / Knowledge Vault。
 
 仍未完成：
 
 - `workflow_run` 和 `draft` writeback 仍是显式 skipped receipt，后续需要接入对应 server store。
-- Runtime Console 目前展示的是资产落点标识，还没有深度串联到具体 CRM / Knowledge Vault 记录的点击定位。
-- Runtime Console 还没有失败重试 / retry policy 操作，也没有按 `playbookId`、`workflowRunId`、asset id 做更精确的深链过滤。
+- Deal Desk / Knowledge Vault 目前接收的是 workflow / query prefill，还不是 record-level selected asset focus。
+- Runtime Console 还没有失败重试 / retry policy 操作，也没有 failed step 级别的恢复审计。
 
 因此下一阶段默认进入：
 
-**Phase 7. Runtime Console Deep Links And Failure Recovery**
+**Phase 7b. Runtime Console Failure Recovery**
 
-目标是在已能查看和操作 trace 的基础上，补上业务落地定位和失败恢复：CRM / Knowledge Vault 深链跳转、失败 step retry / resume 控制、按 playbook / workflowRunId / asset id 的精确过滤。
+目标是在已能查看、操作、搜索并跳转资产 landing 的基础上，补上失败恢复：failed step retry / restart controls、可重试条件、失败原因展示和 console-initiated recovery 审计。
 
 ### Phase 0. 冻结方向
 
@@ -488,17 +490,24 @@ type ControlledPlaybookStep = {
 - 把 trace 里的资产落点变成真正可跳转、可定位、可复盘的业务入口。
 - 把失败恢复从 generic resume 扩展到更精确的 failed step retry / restart controls。
 
+第一批已完成：
+
+- `ControlledWritebackReceipt` 支持结构化 `assetId`、`sourceKey`、`workflowRunId`。
+- sales asset / knowledge asset 成功写回时会把真实资产 id 写入 receipt。
+- Runtime Console summary 会把 receipt 转换为带 `appId` 的 asset landing。
+- Runtime Console search 已覆盖 asset id、source key、workflow id、receipt summary 和 run error。
+- Runtime Console 成功 asset landing 可打开 Deal Desk 或 Knowledge Vault，并带入 workflow/query 上下文。
+
 建议拆分：
 
-- 资产深链：从 writeback receipt 解析 sales asset / knowledge asset id，并跳转到对应 CRM / Knowledge Vault 记录。
-- 精确过滤：按 `playbookId`、`workflowRunId`、run state、asset id 过滤 controlled run summary。
+- record-level focus：Deal Desk / Knowledge Vault 根据 prefill 直接选中 sales asset / knowledge asset。
 - 失败恢复：为 failed run 暴露可 retry 的 step、失败原因、可重试条件和审批风险。
 - 操作审计：把 console-initiated approve / reject / resume / retry 明确记录到 trace metadata。
 
 完成标准：
 
-- 用户能从一次 controlled run 直接跳到它写回的业务资产。
-- 用户能筛出某个 workflowRunId 或 playbookId 的所有 controlled runs。
+- 用户能从一次 controlled run 直接跳到它写回的业务资产所在业务面板。
+- 用户能筛出某个 workflowRunId、playbookId 或 asset id 的 controlled runs。
 - failed run 不再只显示错误文本，而能展示下一步可执行恢复动作。
 
 ## 9. 开发规范

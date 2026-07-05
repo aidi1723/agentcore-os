@@ -133,6 +133,28 @@ function projectRunState(run: ControlledExecutionRunRecord): MultiStepStreamStat
   };
 }
 
+const RESUME_CONFLICT_HYDRATION_STATES = new Set<ControlledExecutionRunRecord["state"]>([
+  "awaiting_approval",
+  "completed",
+  "failed",
+  "cancelled",
+]);
+
+async function fetchDurableControlledRun(runId: string): Promise<ControlledExecutionRunRecord | null> {
+  try {
+    const runRes = await fetch(
+      buildAgentCoreApiUrl(`/api/runtime/executor/controlled-runs/${encodeURIComponent(runId)}`),
+    );
+    const runData = (await runRes.json()) as ControlledRunResponse;
+    if (runRes.ok && runData.ok && runData.data?.run) {
+      return runData.data.run;
+    }
+  } catch {
+    // Keep the original resume response fallback when durable hydration is unavailable.
+  }
+  return null;
+}
+
 export function useMultiStepStream() {
   const [state, setState] = useState<MultiStepStreamState>({
     status: "idle",
@@ -149,11 +171,80 @@ export function useMultiStepStream() {
   const resumeAfterApprovalRef = useRef(false);
   const approvalInFlightRef = useRef(false);
   const resumeInFlightRef = useRef(false);
+  const operationGenerationRef = useRef(0);
+
+  const isCurrentGeneration = useCallback((generation: number) => {
+    return operationGenerationRef.current === generation;
+  }, []);
+
+  const setStateForGeneration = useCallback((
+    generation: number,
+    updater: (current: MultiStepStreamState) => MultiStepStreamState,
+  ) => {
+    if (!isCurrentGeneration(generation)) return;
+    setState((current) => (
+      isCurrentGeneration(generation) ? updater(current) : current
+    ));
+  }, [isCurrentGeneration]);
+
+  const handleEvent = useCallback((event: string, data: Record<string, unknown>, generation: number) => {
+    if (!isCurrentGeneration(generation)) return;
+
+    switch (event) {
+      case "plan_ready":
+        setStateForGeneration(generation, (s) => ({ ...s, plan: data.plan as ExecutionPlan }));
+        break;
+      case "step_start":
+        setStateForGeneration(generation, (s) => ({ ...s, currentStepId: data.stepId as string }));
+        break;
+      case "step_complete":
+        setStateForGeneration(generation, (s) => ({
+          ...s,
+          stepResults: [...s.stepResults, data as unknown as StepResult],
+          currentStepId: null,
+        }));
+        break;
+      case "approval_needed":
+        setStateForGeneration(generation, (s) => ({
+          ...s,
+          status: "awaiting_approval",
+          approvalRequest: data as unknown as ApprovalRequest,
+        }));
+        break;
+      case "execution_done":
+        setStateForGeneration(generation, (s) =>
+          data.ok === true
+            ? (() => {
+                resumeAfterApprovalRef.current = false;
+                return { ...s, status: "done" };
+              })()
+            : s.status !== "error" &&
+                s.approvalRequest &&
+                typeof data.error === "string" &&
+                data.error.toLowerCase().includes("awaiting approval")
+              ? (() => {
+                  resumeAfterApprovalRef.current = true;
+                  return { ...s, status: "awaiting_approval", error: null };
+                })()
+              : {
+                  ...s,
+                  status: "error",
+                  error: typeof data.error === "string" ? data.error : "Execution failed",
+                },
+        );
+        break;
+      case "error":
+        setStateForGeneration(generation, (s) => ({ ...s, status: "error", error: data.error as string }));
+        break;
+    }
+  }, [isCurrentGeneration, setStateForGeneration]);
 
   const start = useCallback(async (message: string, options?: {
     maxSteps?: number;
     approvalMode?: "none" | "each-review-step" | "final";
   }) => {
+    operationGenerationRef.current += 1;
+    const generation = operationGenerationRef.current;
     abortRef.current?.abort();
     streamActiveRef.current = false;
     resumeAfterApprovalRef.current = false;
@@ -185,12 +276,12 @@ export function useMultiStepStream() {
       });
 
       if (!res.ok || !res.body) {
-        setState((s) => ({ ...s, status: "error", error: `HTTP ${res.status}` }));
+        setStateForGeneration(generation, (s) => ({ ...s, status: "error", error: `HTTP ${res.status}` }));
         return;
       }
 
       const executionId = res.headers.get("X-Execution-Id") ?? null;
-      setState((s) => ({ ...s, status: "running", executionId }));
+      setStateForGeneration(generation, (s) => ({ ...s, status: "running", executionId }));
 
       const reader = res.body.getReader();
       streamActiveRef.current = true;
@@ -202,6 +293,7 @@ export function useMultiStepStream() {
       try {
         while (true) {
           const { done, value } = await reader.read();
+          if (!isCurrentGeneration(generation)) return;
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
@@ -219,19 +311,19 @@ export function useMultiStepStream() {
               } else if (eventType === "error") {
                 streamFailed = true;
               }
-              handleEvent(eventType, data);
+              handleEvent(eventType, data, generation);
               eventType = "";
             }
           }
         }
       } finally {
-        if (abortRef.current === controller) {
+        if (abortRef.current === controller && isCurrentGeneration(generation)) {
           streamActiveRef.current = false;
         }
       }
 
       if (!executionDone && !streamFailed) {
-        setState((s) => ({
+        setStateForGeneration(generation, (s) => ({
           ...s,
           status: "error",
           error: "Stream ended before execution_done",
@@ -239,67 +331,18 @@ export function useMultiStepStream() {
       }
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
-      setState((s) => ({
+      setStateForGeneration(generation, (s) => ({
         ...s,
         status: "error",
         error: err instanceof Error ? err.message : String(err),
       }));
     }
-  }, []);
-
-  function handleEvent(event: string, data: Record<string, unknown>) {
-    switch (event) {
-      case "plan_ready":
-        setState((s) => ({ ...s, plan: data.plan as ExecutionPlan }));
-        break;
-      case "step_start":
-        setState((s) => ({ ...s, currentStepId: data.stepId as string }));
-        break;
-      case "step_complete":
-        setState((s) => ({
-          ...s,
-          stepResults: [...s.stepResults, data as unknown as StepResult],
-          currentStepId: null,
-        }));
-        break;
-      case "approval_needed":
-        setState((s) => ({
-          ...s,
-          status: "awaiting_approval",
-          approvalRequest: data as unknown as ApprovalRequest,
-        }));
-        break;
-      case "execution_done":
-        setState((s) =>
-          data.ok === true
-            ? (() => {
-                resumeAfterApprovalRef.current = false;
-                return { ...s, status: "done" };
-              })()
-            : s.status !== "error" &&
-                s.approvalRequest &&
-                typeof data.error === "string" &&
-                data.error.toLowerCase().includes("awaiting approval")
-              ? (() => {
-                  resumeAfterApprovalRef.current = true;
-                  return { ...s, status: "awaiting_approval", error: null };
-                })()
-            : {
-                ...s,
-                status: "error",
-                error: typeof data.error === "string" ? data.error : "Execution failed",
-              },
-        );
-        break;
-      case "error":
-        setState((s) => ({ ...s, status: "error", error: data.error as string }));
-        break;
-    }
-  }
+  }, [handleEvent, isCurrentGeneration, setStateForGeneration]);
 
   const resume = useCallback(async (runId?: string) => {
     if (resumeInFlightRef.current) return;
 
+    const generation = operationGenerationRef.current;
     const targetRunId = runId ?? state.executionId;
     if (!targetRunId) {
       setState((s) => ({
@@ -321,41 +364,42 @@ export function useMultiStepStream() {
           headers: { "Content-Type": "application/json" },
         },
       );
+      if (!isCurrentGeneration(generation)) return;
+
       let data: ResumeResponse;
       try {
         data = (await res.json()) as ResumeResponse;
       } catch {
-        setState((s) => ({
+        setStateForGeneration(generation, (s) => ({
           ...s,
           status: "error",
           error: `Resume failed: HTTP ${res.status}`,
         }));
         return;
       }
+      if (!isCurrentGeneration(generation)) return;
 
       if (res.ok && data.ok) {
         resumeAfterApprovalRef.current = false;
-        setState(projectRunState(data.data.run));
+        setStateForGeneration(generation, () => projectRunState(data.data.run));
         return;
       }
 
       const error = data.ok === false ? data.error : `Resume failed: HTTP ${res.status}`;
-      if (data.ok === false && data.data?.state === "awaiting_approval") {
-        try {
-          const runRes = await fetch(
-            buildAgentCoreApiUrl(`/api/runtime/executor/controlled-runs/${encodeURIComponent(targetRunId)}`),
-          );
-          const runData = (await runRes.json()) as ControlledRunResponse;
-          if (runRes.ok && runData.ok && runData.data?.run) {
-            setState(projectRunState(runData.data.run));
-            return;
-          }
-        } catch {
-          // Fall through to the conflict response fallback below.
+      if (
+        data.ok === false &&
+        data.data?.state &&
+        RESUME_CONFLICT_HYDRATION_STATES.has(data.data.state)
+      ) {
+        const durableRun = await fetchDurableControlledRun(data.data.runId ?? targetRunId);
+        if (!isCurrentGeneration(generation)) return;
+        if (durableRun) {
+          setStateForGeneration(generation, () => projectRunState(durableRun));
+          return;
         }
       }
 
-      setState((s) => ({
+      setStateForGeneration(generation, (s) => ({
         ...s,
         status:
           data.ok === false && data.data?.state === "awaiting_approval"
@@ -367,15 +411,18 @@ export function useMultiStepStream() {
         error,
       }));
     } catch (err) {
-      setState((s) => ({
+      if (!isCurrentGeneration(generation)) return;
+      setStateForGeneration(generation, (s) => ({
         ...s,
         status: "error",
         error: err instanceof Error ? err.message : "Resume failed",
       }));
     } finally {
-      resumeInFlightRef.current = false;
+      if (isCurrentGeneration(generation)) {
+        resumeInFlightRef.current = false;
+      }
     }
-  }, [state.executionId]);
+  }, [isCurrentGeneration, setStateForGeneration, state.executionId]);
 
   const approve = useCallback(async (approved: boolean, feedback?: string) => {
     if (approvalInFlightRef.current) return;
@@ -383,6 +430,7 @@ export function useMultiStepStream() {
     const { executionId, approvalRequest } = state;
     if (!executionId || !approvalRequest) return;
 
+    const generation = operationGenerationRef.current;
     approvalInFlightRef.current = true;
     try {
       const res = await fetch(buildAgentCoreApiUrl("/api/agent/approve"), {
@@ -395,15 +443,16 @@ export function useMultiStepStream() {
           feedback,
         }),
       });
+      if (!isCurrentGeneration(generation)) return;
 
       if (!res.ok) {
-        setState((s) => ({ ...s, status: "error", error: `Approval failed: HTTP ${res.status}` }));
+        setStateForGeneration(generation, (s) => ({ ...s, status: "error", error: `Approval failed: HTTP ${res.status}` }));
         return;
       }
 
       if (!approved) {
         resumeAfterApprovalRef.current = false;
-        setState((s) => ({
+        setStateForGeneration(generation, (s) => ({
           ...s,
           status: "error",
           approvalRequest: null,
@@ -414,30 +463,38 @@ export function useMultiStepStream() {
 
       if (resumeAfterApprovalRef.current || !streamActiveRef.current) {
         resumeAfterApprovalRef.current = false;
-        setState((s) => ({ ...s, approvalRequest: null }));
+        setStateForGeneration(generation, (s) => ({ ...s, approvalRequest: null }));
         await resume(executionId);
         return;
       }
 
-      setState((s) => ({
+      setStateForGeneration(generation, (s) => ({
         ...s,
         status: "running",
         approvalRequest: null,
         error: null,
       }));
     } catch (err) {
-      setState((s) => ({
+      if (!isCurrentGeneration(generation)) return;
+      setStateForGeneration(generation, (s) => ({
         ...s,
         status: "error",
         error: err instanceof Error ? err.message : "Approval failed",
       }));
     } finally {
-      approvalInFlightRef.current = false;
+      if (isCurrentGeneration(generation)) {
+        approvalInFlightRef.current = false;
+      }
     }
-  }, [resume, state]);
+  }, [isCurrentGeneration, resume, setStateForGeneration, state]);
 
   const stop = useCallback(() => {
+    operationGenerationRef.current += 1;
     abortRef.current?.abort();
+    streamActiveRef.current = false;
+    resumeAfterApprovalRef.current = false;
+    approvalInFlightRef.current = false;
+    resumeInFlightRef.current = false;
     setState((s) => ({ ...s, status: "done" }));
   }, []);
 

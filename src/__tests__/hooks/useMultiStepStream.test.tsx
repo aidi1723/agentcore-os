@@ -481,6 +481,48 @@ describe("useMultiStepStream", () => {
     expect(result.current.status).toBe("done");
   });
 
+  it("does not let a stale resume overwrite a newer run", async () => {
+    const resumeResponse = deferred<ReturnType<typeof mockJsonResponse>>();
+    const payload = [
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: true })}\n`,
+      "\n",
+    ].join("");
+    const fetchMock = vi.fn()
+      .mockReturnValueOnce(resumeResponse.promise)
+      .mockResolvedValueOnce(mockStreamResponse(payload, "new-run"));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    let oldResume!: Promise<void>;
+    act(() => {
+      oldResume = result.current.resume("old-run");
+    });
+
+    await act(async () => {
+      await result.current.start("new run");
+    });
+
+    expect(result.current.executionId).toBe("new-run");
+
+    await act(async () => {
+      resumeResponse.resolve(mockJsonResponse({
+        ok: true,
+        data: {
+          runId: "old-run",
+          state: "completed",
+          resumedStepIds: ["review", "writeback"],
+          run: makeRun({ id: "old-run", requestId: "old-run" }),
+        },
+      }));
+      await oldResume;
+    });
+
+    expect(result.current.status).toBe("done");
+    expect(result.current.executionId).toBe("new-run");
+  });
+
   it.each([
     ["pending approval", { state: "pending", requestedAt: 12 }],
     ["timed-out approval", { state: "timed_out", requestedAt: 12 }],
@@ -524,6 +566,45 @@ describe("useMultiStepStream", () => {
     expect(result.current.currentStepId).toBe("writeback");
     expect(result.current.approvalRequest?.stepId).toBe("writeback");
     expect(result.current.approvalRequest?.title).toBe("Writeback");
+  });
+
+  it("hydrates durable completed state after a resume conflict", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: false,
+        error: "Cannot resume completed controlled run",
+        data: {
+          runId: "exec-1",
+          state: "completed",
+          currentStepId: "writeback",
+        },
+      }, 409))
+      .mockResolvedValueOnce(mockJsonResponse({
+        ok: true,
+        data: {
+          run: makeRun(),
+        },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useMultiStepStream());
+
+    await act(async () => {
+      await result.current.resume("exec-1");
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1/resume"),
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/runtime/executor/controlled-runs/exec-1"),
+    );
+    expect(result.current.status).toBe("done");
+    expect(result.current.stepResults.map((step) => step.stepId)).toEqual(["review", "writeback"]);
+    expect(result.current.error).toBeNull();
   });
 
   it.each([

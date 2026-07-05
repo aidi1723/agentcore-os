@@ -10,6 +10,10 @@ export type ControlledRunAssetLandingSummary = {
   label: string;
   detail: string;
   ok: boolean;
+  assetId?: string;
+  sourceKey?: string;
+  workflowRunId?: string;
+  appId?: "deal_desk" | "knowledge_vault";
 };
 
 export type ControlledRunStepConsoleSummary = {
@@ -39,6 +43,7 @@ export type ControlledRunConsoleSummary = {
   currentStepId?: string;
   workflowRunId?: string;
   scenarioId?: string;
+  error?: string;
   updatedAt: number;
   completedSteps: number;
   awaitingApprovalSteps: number;
@@ -62,6 +67,11 @@ const ASSET_LABELS: Record<string, string> = {
   knowledge_asset: "Knowledge asset",
 };
 
+const ASSET_APP_IDS: Record<string, ControlledRunAssetLandingSummary["appId"]> = {
+  sales_asset: "deal_desk",
+  knowledge_asset: "knowledge_vault",
+};
+
 function titleForStep(run: ControlledExecutionRunRecord, stepId: string) {
   return run.plan.steps.find((step) => step.id === stepId)?.title ?? stepId;
 }
@@ -76,6 +86,10 @@ function buildAssetLandings(
       label: ASSET_LABELS[receipt.target] ?? receipt.target,
       detail: receipt.summary,
       ok: receipt.ok,
+      assetId: receipt.assetId,
+      sourceKey: receipt.sourceKey,
+      workflowRunId: receipt.workflowRunId,
+      appId: ASSET_APP_IDS[receipt.target],
     }));
 }
 
@@ -113,6 +127,7 @@ export function buildControlledRunConsoleSummary(
     currentStepId: run.currentStepId,
     workflowRunId: run.workflowRunId,
     scenarioId: run.scenarioId,
+    error: run.error,
     updatedAt: run.updatedAt,
     completedSteps: run.steps.filter((step) => step.state === "completed").length,
     awaitingApprovalSteps: run.steps.filter((step) => step.state === "awaiting_approval").length,
@@ -135,6 +150,24 @@ export function filterControlledRunConsoleSummaries(
   return summaries.filter((summary) => {
     if (filters.state !== "all" && summary.state !== filters.state) return false;
     if (!query) return true;
+    const assetValues = summary.assetLandings.flatMap((asset) => [
+      asset.target,
+      asset.label,
+      asset.detail,
+      asset.assetId,
+      asset.sourceKey,
+      asset.workflowRunId,
+      asset.appId,
+    ]);
+    const receiptValues = summary.steps.flatMap((step) =>
+      step.writebackReceipts.flatMap((receipt) => [
+        receipt.target,
+        receipt.summary,
+        receipt.assetId,
+        receipt.sourceKey,
+        receipt.workflowRunId,
+      ]),
+    );
     return [
       summary.id,
       summary.title,
@@ -142,6 +175,9 @@ export function filterControlledRunConsoleSummaries(
       summary.playbookId,
       summary.scenarioId,
       summary.currentStepId,
+      summary.error,
+      ...assetValues,
+      ...receiptValues,
     ]
       .filter((value): value is string => typeof value === "string")
       .some((value) => value.toLowerCase().includes(query));

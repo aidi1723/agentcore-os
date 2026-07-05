@@ -102,6 +102,8 @@ function makeRun(): ControlledExecutionRunRecord {
             ok: true,
             summary: "Wrote sales asset controlled-sales-asset:workflow-1 for workflow workflow-1",
             writtenAt: 210,
+            assetId: "controlled-sales-asset:workflow-1",
+            workflowRunId: "workflow-1",
           },
           {
             target: "knowledge_asset",
@@ -109,6 +111,9 @@ function makeRun(): ControlledExecutionRunRecord {
             summary:
               "Wrote knowledge asset controlled-knowledge-asset:run-console-1 from controlled-run:run-console-1:knowledge_asset",
             writtenAt: 211,
+            assetId: "controlled-knowledge-asset:run-console-1",
+            sourceKey: "controlled-run:run-console-1:knowledge_asset",
+            workflowRunId: "workflow-1",
           },
         ],
       },
@@ -133,6 +138,9 @@ describe("buildControlledRunConsoleSummary", () => {
         label: "Sales asset",
         detail: "Wrote sales asset controlled-sales-asset:workflow-1 for workflow workflow-1",
         ok: true,
+        assetId: "controlled-sales-asset:workflow-1",
+        workflowRunId: "workflow-1",
+        appId: "deal_desk",
       },
       {
         target: "knowledge_asset",
@@ -140,6 +148,10 @@ describe("buildControlledRunConsoleSummary", () => {
         detail:
           "Wrote knowledge asset controlled-knowledge-asset:run-console-1 from controlled-run:run-console-1:knowledge_asset",
         ok: true,
+        assetId: "controlled-knowledge-asset:run-console-1",
+        sourceKey: "controlled-run:run-console-1:knowledge_asset",
+        workflowRunId: "workflow-1",
+        appId: "knowledge_vault",
       },
     ]);
 
@@ -208,6 +220,20 @@ describe("buildControlledRunConsoleSummary", () => {
     awaitingRun.state = "awaiting_approval";
     awaitingRun.playbookId = "support-playbook";
     awaitingRun.plan = { ...awaitingRun.plan, goal: "Support follow-up" };
+    awaitingRun.steps[2] = {
+      ...awaitingRun.steps[2],
+      writebackReceipts: [
+        {
+          target: "sales_asset",
+          ok: true,
+          summary:
+            "Wrote sales asset controlled-sales-asset:workflow-awaiting for workflow workflow-awaiting",
+          writtenAt: 210,
+          assetId: "controlled-sales-asset:workflow-awaiting",
+          workflowRunId: "workflow-awaiting",
+        },
+      ],
+    };
     const awaiting = buildControlledRunConsoleSummary(awaitingRun);
 
     expect(
@@ -227,8 +253,15 @@ describe("buildControlledRunConsoleSummary", () => {
     expect(
       filterControlledRunConsoleSummaries([completed, awaiting], {
         state: "all",
-        query: "support",
+        query: "support-playbook",
       }).map((summary) => summary.id),
     ).toEqual(["run-awaiting"]);
+
+    expect(
+      filterControlledRunConsoleSummaries([completed, awaiting], {
+        state: "all",
+        query: "controlled-knowledge-asset:run-console-1",
+      }).map((summary) => summary.id),
+    ).toEqual(["run-console-1"]);
   });
 });

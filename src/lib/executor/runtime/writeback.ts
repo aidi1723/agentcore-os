@@ -145,6 +145,8 @@ async function writeSalesAsset(input: WriteControlledStepAssetsInput, writtenAt:
     ok: true,
     summary: `Wrote sales asset ${stored.id} for workflow ${stored.workflowRunId}`,
     writtenAt,
+    assetId: stored.id,
+    workflowRunId: stored.workflowRunId,
   } satisfies ControlledWritebackReceipt;
 }
 
@@ -165,6 +167,9 @@ async function writeKnowledgeAsset(input: WriteControlledStepAssetsInput, writte
     ok: true,
     summary: `Wrote knowledge asset ${stored.id} from ${stored.sourceKey}`,
     writtenAt,
+    assetId: stored.id,
+    sourceKey: stored.sourceKey,
+    workflowRunId: stored.workflowRunId,
   } satisfies ControlledWritebackReceipt;
 }
 

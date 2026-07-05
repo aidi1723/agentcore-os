@@ -36,6 +36,9 @@ export type ControlledWritebackReceipt = {
   ok: boolean;
   summary: string;
   writtenAt: number;
+  assetId?: string;
+  sourceKey?: string;
+  workflowRunId?: string;
 };
 
 export type ControlledExecutionStepRecord = {

@@ -140,6 +140,23 @@ describe("writeControlledStepAssets", () => {
     expect(receipts.every((receipt) => receipt.ok)).toBe(true);
     expect(receipts[0].summary).toContain("workflow-1");
     expect(receipts[1].summary).toContain("controlled-run:run-1:knowledge_asset");
+    expect(receipts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          target: "sales_asset",
+          ok: true,
+          assetId: "controlled-sales-asset:workflow-1",
+          workflowRunId: "workflow-1",
+        }),
+        expect.objectContaining({
+          target: "knowledge_asset",
+          ok: true,
+          assetId: "controlled-knowledge-asset:run-1",
+          sourceKey: "controlled-run:run-1:knowledge_asset",
+          workflowRunId: "workflow-1",
+        }),
+      ]),
+    );
 
     const salesSnapshot = await listSalesAssetStoreSnapshot();
     expect(salesSnapshot.salesAssets).toHaveLength(1);

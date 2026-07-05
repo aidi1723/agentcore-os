@@ -60,7 +60,8 @@ export async function runWorkflowMultiStep(options: WorkflowMultiStepOptions): P
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
-    let completedSteps = 0;
+    let executionDone = false;
+    let streamFailed = false;
 
     while (true) {
       const { done, value } = await reader.read();
@@ -78,17 +79,23 @@ export async function runWorkflowMultiStep(options: WorkflowMultiStepOptions): P
           const data = JSON.parse(line.slice(6));
 
           if (eventType === "step_complete") {
-            completedSteps++;
             const result = data as StepResult;
             if (result.status === "completed") {
               advanceWorkflowRun(runId);
             }
             onStepComplete?.(result);
           } else if (eventType === "error") {
+            streamFailed = true;
             failWorkflowRun(runId);
             onError?.(data.error);
           } else if (eventType === "execution_done") {
-            completeWorkflowRun(runId);
+            executionDone = true;
+            if (data.ok === true) {
+              completeWorkflowRun(runId);
+            } else if (!streamFailed) {
+              failWorkflowRun(runId);
+              onError?.(typeof data.error === "string" ? data.error : "Execution failed");
+            }
           }
 
           eventType = "";
@@ -96,8 +103,9 @@ export async function runWorkflowMultiStep(options: WorkflowMultiStepOptions): P
       }
     }
 
-    if (completedSteps === steps.length) {
-      completeWorkflowRun(runId);
+    if (!executionDone && !streamFailed) {
+      failWorkflowRun(runId);
+      onError?.("Stream ended before execution_done");
     }
 
     return true;

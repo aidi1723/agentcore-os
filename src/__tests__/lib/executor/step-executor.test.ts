@@ -36,6 +36,14 @@ function makeRequest(): AgentCoreTaskRequest {
   } as unknown as AgentCoreTaskRequest;
 }
 
+function makeControlledRequest(): AgentCoreTaskRequest {
+  return {
+    ...makeRequest(),
+    controlledPlaybookId: "sales-pipeline-v1",
+    multiStep: { enabled: true, maxSteps: 10, approvalMode: "none" },
+  };
+}
+
 function makeCallbacks(): ExecutionCallbacks & { events: Array<{ type: string; data?: unknown }> } {
   const events: Array<{ type: string; data?: unknown }> = [];
   return {
@@ -80,8 +88,9 @@ describe("step-executor", () => {
     expect(callbacks.onAwaitingApproval).toHaveBeenCalledOnce();
     expect(callbacks.waitForApproval).toHaveBeenCalledOnce();
     expect(calls).toHaveLength(0);
-    expect(trace.stepResults[0].status).toBe("skipped");
+    expect(trace.stepResults[0].status).toBe("failed");
     expect(trace.stepResults[0].error).toContain("blocked");
+    expect(trace.success).toBe(false);
   });
 
   it("passes explicit tool params to tool execution", async () => {
@@ -164,15 +173,27 @@ describe("step-executor", () => {
     expect(callbacks.waitForApproval).toHaveBeenCalledOnce();
   });
 
-  it("skips step when approval is denied", async () => {
+  it("fails the trace when approval is denied", async () => {
     const plan = makePlan([makeStep({ mode: "review" })]);
     const callbacks = makeCallbacks();
     callbacks.waitForApproval = vi.fn(async () => ({ approved: false, feedback: "nope" }));
 
     const trace = await executeMultiStep(plan, makeRequest(), callbacks);
 
-    expect(trace.stepResults[0].status).toBe("skipped");
+    expect(trace.stepResults[0].status).toBe("failed");
     expect(trace.stepResults[0].error).toContain("nope");
+    expect(trace.success).toBe(false);
+    expect(trace.error).toContain("nope");
+  });
+
+  it("requires approval for controlled review steps even when caller asks for no approvals", async () => {
+    const plan = makePlan([makeStep({ mode: "review" })]);
+    const callbacks = makeCallbacks();
+
+    await executeMultiStep(plan, makeControlledRequest(), callbacks);
+
+    expect(callbacks.onAwaitingApproval).toHaveBeenCalledOnce();
+    expect(callbacks.waitForApproval).toHaveBeenCalledOnce();
   });
 
   it("aborts after 3 consecutive failures", async () => {

@@ -102,6 +102,14 @@ export function validateExecutionPlanAgainstPlaybook(
       continue;
     }
 
+    const expectedToolCalls =
+      contract.toolCalls && contract.toolCalls.length > 0
+        ? contract.toolCalls
+        : contract.allowedTools.slice(0, 1).map((toolName) => ({ toolName }));
+    if (!arraysEqual(step.toolCalls, expectedToolCalls)) {
+      errors.push(`Step ${stepId} toolCalls must match playbook toolCalls`);
+    }
+
     for (const toolCall of step.toolCalls) {
       if (!isRecord(toolCall) || typeof toolCall.toolName !== "string") {
         errors.push(`Step ${stepId} references unknown tool: undefined`);

@@ -59,6 +59,38 @@ describe("validateExecutionPlanAgainstPlaybook", () => {
     expect(result.errors).toContain("Step qualify uses disallowed tool: code_execute");
   });
 
+  it("rejects plan steps that remove required playbook tool calls", () => {
+    const plan = resolveExecutionPlanFromPlaybook(salesPipelinePlaybook);
+    const result = validateExecutionPlanAgainstPlaybook(
+      {
+        ...plan,
+        steps: plan.steps.map((step) =>
+          step.id === "intake" ? { ...step, toolCalls: [] } : step,
+        ),
+      },
+      salesPipelinePlaybook,
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain("Step intake toolCalls must match playbook toolCalls");
+  });
+
+  it("rejects plan steps that replace playbook tool calls with another allowed tool", () => {
+    const plan = resolveExecutionPlanFromPlaybook(salesPipelinePlaybook);
+    const result = validateExecutionPlanAgainstPlaybook(
+      {
+        ...plan,
+        steps: plan.steps.map((step) =>
+          step.id === "intake" ? { ...step, toolCalls: [{ toolName: "human_ask" }] } : step,
+        ),
+      },
+      salesPipelinePlaybook,
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain("Step intake toolCalls must match playbook toolCalls");
+  });
+
   it("rejects plans missing required playbook steps", () => {
     const plan = resolveExecutionPlanFromPlaybook(salesPipelinePlaybook);
     const result = validateExecutionPlanAgainstPlaybook(

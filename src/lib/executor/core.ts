@@ -25,6 +25,12 @@ import {
 import { normalizeBaseUrl } from "@/lib/url-utils";
 import { planSteps } from "@/lib/executor/planner";
 import { executeMultiStep } from "@/lib/executor/step-executor";
+import { getControlledPlaybook } from "@/lib/executor/playbooks/catalog";
+import { resolveExecutionPlanFromPlaybook } from "@/lib/executor/playbooks/resolver";
+import {
+  validateControlledPlaybook,
+  validateExecutionPlanAgainstPlaybook,
+} from "@/lib/executor/playbooks/validator";
 
 type AgentCoreTaskOk = {
   ok: true;
@@ -614,6 +620,86 @@ export type MultiStepTaskResult = {
   error?: string;
 };
 
+function buildFailedMultiStepTrace(
+  request: AgentCoreTaskRequest,
+  plan: MultiStepTrace["plan"],
+  error: string,
+): MultiStepTrace {
+  const now = Date.now();
+  return {
+    source: request.metadata.source,
+    engine: "agentcore_executor",
+    provider: request.modelConfig?.provider,
+    model: request.modelConfig?.model,
+    sessionId: request.session.id,
+    requestId: request.metadata.requestId,
+    idempotencyKey: request.metadata.idempotencyKey,
+    startedAt: now,
+    finishedAt: now,
+    durationMs: 0,
+    attemptCount: 0,
+    fallbackUsed: false,
+    attempts: [],
+    skillReceipts: [],
+    success: false,
+    error,
+    plan,
+    stepResults: [],
+    currentStepIndex: 0,
+  };
+}
+
+function buildEmptyFailedPlan(goal: string): MultiStepTrace["plan"] {
+  return {
+    id: "controlled-plan-validation-failed",
+    goal,
+    steps: [],
+    totalSteps: 0,
+    requiresApproval: true,
+  };
+}
+
+function resolveControlledPlanIfRequested(request: AgentCoreTaskRequest) {
+  if (!request.controlledPlaybookId && request.controlledPlan) {
+    return {
+      ok: false as const,
+      error: "Invalid controlled playbook plan: controlledPlaybookId is required",
+      plan: request.controlledPlan,
+    };
+  }
+
+  if (!request.controlledPlaybookId) return null;
+
+  const playbook = getControlledPlaybook(request.controlledPlaybookId);
+  const plan =
+    request.controlledPlan ?? (playbook ? resolveExecutionPlanFromPlaybook(playbook) : null);
+
+  if (!playbook || !plan) {
+    return {
+      ok: false as const,
+      error: `Invalid controlled playbook plan: unknown playbook ${request.controlledPlaybookId}`,
+      plan: plan ?? buildEmptyFailedPlan(request.taskInput.userMessage),
+    };
+  }
+
+  const playbookValidation = validateControlledPlaybook(playbook);
+  const planValidation = validateExecutionPlanAgainstPlaybook(plan, playbook);
+  const errors = [...playbookValidation.errors, ...planValidation.errors];
+
+  if (!playbookValidation.valid || !planValidation.valid) {
+    return {
+      ok: false as const,
+      error: `Invalid controlled playbook plan: ${errors.join("; ")}`,
+      plan,
+    };
+  }
+
+  return {
+    ok: true as const,
+    plan,
+  };
+}
+
 export async function runMultiStepTask(
   request: AgentCoreTaskRequest | AgentCoreLegacyTaskRequest,
   callbacks: ExecutionCallbacks,
@@ -627,6 +713,19 @@ export async function runMultiStepTask(
     "metadata" in request
       ? request
       : normalizeAgentCoreTaskRequest(request);
+
+  const controlledPlanResolution = resolveControlledPlanIfRequested(normalizedRequest);
+  if (controlledPlanResolution && !controlledPlanResolution.ok) {
+    return {
+      ok: false,
+      error: controlledPlanResolution.error,
+      trace: buildFailedMultiStepTrace(
+        normalizedRequest,
+        controlledPlanResolution.plan,
+        controlledPlanResolution.error,
+      ),
+    };
+  }
 
   // Build a callLlm helper for the planner using the same model config
   const candidates = buildExecutionCandidates(
@@ -664,7 +763,7 @@ export async function runMultiStepTask(
     return "";
   };
 
-  const plan = normalizedRequest.controlledPlan ?? await planSteps(normalizedRequest, callLlm);
+  const plan = controlledPlanResolution?.plan ?? await planSteps(normalizedRequest, callLlm);
 
   if (plan.steps.length === 0) {
     const emptyTrace: MultiStepTrace = {

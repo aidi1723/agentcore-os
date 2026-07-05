@@ -79,6 +79,8 @@ export function useMultiStepStream() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let executionDone = false;
+      let streamFailed = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -94,13 +96,24 @@ export function useMultiStepStream() {
             eventType = line.slice(7);
           } else if (line.startsWith("data: ") && eventType) {
             const data = JSON.parse(line.slice(6));
+            if (eventType === "execution_done") {
+              executionDone = true;
+            } else if (eventType === "error") {
+              streamFailed = true;
+            }
             handleEvent(eventType, data);
             eventType = "";
           }
         }
       }
 
-      setState((s) => (s.status === "running" ? { ...s, status: "done" } : s));
+      if (!executionDone && !streamFailed) {
+        setState((s) => ({
+          ...s,
+          status: "error",
+          error: "Stream ended before execution_done",
+        }));
+      }
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
       setState((s) => ({
@@ -134,7 +147,15 @@ export function useMultiStepStream() {
         }));
         break;
       case "execution_done":
-        setState((s) => ({ ...s, status: "done" }));
+        setState((s) =>
+          data.ok === true
+            ? { ...s, status: "done" }
+            : {
+                ...s,
+                status: "error",
+                error: typeof data.error === "string" ? data.error : "Execution failed",
+              },
+        );
         break;
       case "error":
         setState((s) => ({ ...s, status: "error", error: data.error as string }));

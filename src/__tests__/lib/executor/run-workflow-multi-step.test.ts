@@ -1,6 +1,13 @@
-import { describe, it, expect, vi } from "vitest";
+import { beforeEach, describe, it, expect, vi } from "vitest";
 import { runWorkflowMultiStep } from "@/lib/executor/run-workflow-multi-step";
+import { completeWorkflowRun, failWorkflowRun } from "@/lib/workflow-runs";
 import type { WorkspaceScenario } from "@/lib/workspace-presets";
+
+vi.mock("@/lib/workflow-runs", () => ({
+  advanceWorkflowRun: vi.fn(),
+  completeWorkflowRun: vi.fn(),
+  failWorkflowRun: vi.fn(),
+}));
 
 function makeScenario(stageCount: number): WorkspaceScenario {
   return {
@@ -24,6 +31,10 @@ function makeSalesScenario(): WorkspaceScenario {
 }
 
 describe("runWorkflowMultiStep", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("returns false for ineligible scenarios (< 2 stages)", async () => {
     const result = await runWorkflowMultiStep({
       runId: "run-1",
@@ -104,5 +115,106 @@ describe("runWorkflowMultiStep", () => {
 
     expect(result).toBe(true);
     expect(onError).toHaveBeenCalledWith("Stream failed: HTTP 500");
+  });
+
+  it("fails the workflow instead of completing it when stream execution reports failure", async () => {
+    const ssePayload = [
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: false, error: "approval rejected" })}\n`,
+      "\n",
+    ].join("");
+
+    const mockReader = {
+      read: vi.fn()
+        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode(ssePayload) })
+        .mockResolvedValueOnce({ done: true, value: undefined }),
+    };
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      body: { getReader: () => mockReader },
+    });
+
+    const onError = vi.fn();
+    const result = await runWorkflowMultiStep({
+      runId: "run-4",
+      scenario: makeScenario(2),
+      onError,
+    });
+
+    expect(result).toBe(true);
+    expect(completeWorkflowRun).not.toHaveBeenCalled();
+    expect(failWorkflowRun).toHaveBeenCalledWith("run-4");
+    expect(onError).toHaveBeenCalledWith("approval rejected");
+  });
+
+  it("does not duplicate failure callbacks when an error is followed by failed execution_done", async () => {
+    const ssePayload = [
+      "event: error\n",
+      `data: ${JSON.stringify({ error: "approval rejected" })}\n`,
+      "\n",
+      "event: execution_done\n",
+      `data: ${JSON.stringify({ ok: false, error: "approval rejected" })}\n`,
+      "\n",
+    ].join("");
+
+    const mockReader = {
+      read: vi.fn()
+        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode(ssePayload) })
+        .mockResolvedValueOnce({ done: true, value: undefined }),
+    };
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      body: { getReader: () => mockReader },
+    });
+
+    const onError = vi.fn();
+    const result = await runWorkflowMultiStep({
+      runId: "run-duplicate-failure",
+      scenario: makeScenario(2),
+      onError,
+    });
+
+    expect(result).toBe(true);
+    expect(completeWorkflowRun).not.toHaveBeenCalled();
+    expect(failWorkflowRun).toHaveBeenCalledTimes(1);
+    expect(failWorkflowRun).toHaveBeenCalledWith("run-duplicate-failure");
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(onError).toHaveBeenCalledWith("approval rejected");
+  });
+
+  it("does not complete the workflow when the stream ends before execution_done", async () => {
+    const ssePayload = [
+      "event: step_complete\n",
+      `data: ${JSON.stringify({ stepId: "stage_0", status: "completed", durationMs: 100, tokensUsed: 50, toolCallResults: [] })}\n`,
+      "\n",
+      "event: step_complete\n",
+      `data: ${JSON.stringify({ stepId: "stage_1", status: "completed", durationMs: 200, tokensUsed: 80, toolCallResults: [] })}\n`,
+      "\n",
+    ].join("");
+
+    const mockReader = {
+      read: vi.fn()
+        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode(ssePayload) })
+        .mockResolvedValueOnce({ done: true, value: undefined }),
+    };
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      body: { getReader: () => mockReader },
+    });
+
+    const onError = vi.fn();
+    const result = await runWorkflowMultiStep({
+      runId: "run-5",
+      scenario: makeScenario(2),
+      onError,
+    });
+
+    expect(result).toBe(true);
+    expect(completeWorkflowRun).not.toHaveBeenCalled();
+    expect(failWorkflowRun).toHaveBeenCalledWith("run-5");
+    expect(onError).toHaveBeenCalledWith("Stream ended before execution_done");
   });
 });

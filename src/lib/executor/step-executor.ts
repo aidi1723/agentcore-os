@@ -188,21 +188,27 @@ export async function executeMultiStep(
     }
 
     // Human approval gate
-    const approvalMode = request.multiStep?.approvalMode ?? "each-review-step";
+    const approvalMode = request.controlledPlaybookId
+      ? "each-review-step"
+      : request.multiStep?.approvalMode ?? "each-review-step";
     if (mustAwaitApproval(step, config, approvalMode)) {
       callbacks.onAwaitingApproval(step);
       const approval = await callbacks.waitForApproval(step.id);
       if (!approval.approved) {
-        trace.stepResults.push({
+        const rejectedResult: StepResult = {
           stepId: step.id,
-          status: "skipped",
+          status: "failed",
           output: null,
           toolCallResults: [],
           tokensUsed: 0,
           durationMs: 0,
           error: approval.feedback ?? "User rejected step",
-        });
-        continue;
+        };
+        trace.stepResults.push(rejectedResult);
+        trace.error = rejectedResult.error;
+        callbacks.onStepComplete(rejectedResult);
+        callbacks.onError(rejectedResult.error ?? "User rejected step");
+        break;
       }
     }
 
@@ -240,6 +246,9 @@ export async function executeMultiStep(
   trace.success = trace.stepResults.every(
     (r) => r.status === "completed" || r.status === "skipped",
   );
+  if (!trace.success && !trace.error) {
+    trace.error = trace.stepResults.find((result) => result.status === "failed")?.error;
+  }
 
   executorLog("info", "execution_done", {
     requestId: reqId,

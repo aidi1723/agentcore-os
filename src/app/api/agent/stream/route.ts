@@ -76,6 +76,7 @@ export async function POST(req: Request) {
     normalized.controlledPlaybookId = controlledPlaybook.id;
     normalized.controlledPlan = controlledPlan;
     normalized.multiStep.maxSteps = controlledPlan.totalSteps;
+    normalized.multiStep.approvalMode = "each-review-step";
   }
 
   const encoder = new TextEncoder();

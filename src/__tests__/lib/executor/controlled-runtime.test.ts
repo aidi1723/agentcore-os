@@ -1,12 +1,26 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { runMultiStepTask } from "@/lib/executor/core";
+import { registerTool } from "@/lib/executor/tools/registry";
 import type {
   AgentCoreTaskRequest,
   ExecutionCallbacks,
 } from "@/lib/executor/contracts";
 import { resolveExecutionPlanFromPlaybook } from "@/lib/executor/playbooks/resolver";
 import { salesPipelinePlaybook } from "@/lib/executor/playbooks/sales-pipeline";
+
+registerTool({
+  name: "llm_generate",
+  description: "test LLM generator",
+  parameters: { type: "object" },
+  requiresApproval: false,
+  execute: async () => ({
+    toolName: "llm_generate",
+    success: true,
+    output: { ok: true },
+    durationMs: 0,
+  }),
+});
 
 function buildRequest(): AgentCoreTaskRequest {
   const plan = resolveExecutionPlanFromPlaybook(salesPipelinePlaybook);
@@ -37,13 +51,7 @@ function buildRequest(): AgentCoreTaskRequest {
       approvalMode: "none",
     },
     controlledPlaybookId: "sales-pipeline-v1",
-    controlledPlan: {
-      ...plan,
-      steps: plan.steps.map((step) => ({
-        ...step,
-        toolCalls: [],
-      })),
-    },
+    controlledPlan: plan,
   };
 }
 
@@ -93,5 +101,48 @@ describe("controlled runtime execution", () => {
     expect(events[0]).toBe("plan:playbook:sales-pipeline-v1:1.0.0");
     expect(result.ok).toBe(true);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects a supplied controlled plan that diverges from its playbook contract", async () => {
+    const fetchMock = vi.fn(async () => {
+      throw new Error("Planner should not call LLM when controlledPlan is supplied");
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const request = buildRequest();
+    request.controlledPlan = {
+      ...request.controlledPlan!,
+      steps: request.controlledPlan!.steps.filter((step) => step.id !== "human_review"),
+      totalSteps: request.controlledPlan!.totalSteps - 1,
+    };
+    const { callbacks, events } = buildCallbacks();
+
+    const result = await runMultiStepTask(request, callbacks);
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain("Invalid controlled playbook plan");
+    expect(result.trace.success).toBe(false);
+    expect(result.trace.stepResults).toHaveLength(0);
+    expect(events).toEqual([]);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects a supplied controlled plan that removes playbook tool calls", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    const request = buildRequest();
+    request.controlledPlan = {
+      ...request.controlledPlan!,
+      steps: request.controlledPlan!.steps.map((step) =>
+        step.id === "intake" ? { ...step, toolCalls: [] } : step,
+      ),
+    };
+    const { callbacks, events } = buildCallbacks();
+
+    const result = await runMultiStepTask(request, callbacks);
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain("Step intake toolCalls must match playbook toolCalls");
+    expect(result.trace.success).toBe(false);
+    expect(result.trace.stepResults).toHaveLength(0);
+    expect(events).toEqual([]);
   });
 });

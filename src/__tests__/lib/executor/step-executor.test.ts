@@ -320,4 +320,105 @@ describe("step-executor", () => {
     expect(trace.stepResults.map((result) => result.stepId)).toEqual(["first"]);
     expect(callbacks.onError).toHaveBeenCalled();
   });
+
+  it("continues from a later step with initial completed results", async () => {
+    const calls: string[] = [];
+    registerTool({
+      name: "resume_continuation_tool",
+      description: "resume continuation test tool",
+      parameters: { type: "object" },
+      requiresApproval: false,
+      execute: async (params) => {
+        calls.push(String((params as { prompt?: string }).prompt ?? ""));
+        return {
+          toolName: "resume_continuation_tool",
+          success: true,
+          output: { resumed: true },
+          durationMs: 0,
+        };
+      },
+    });
+
+    const plan = makePlan([
+      makeStep({ id: "first", description: "first", toolCalls: [{ toolName: "resume_continuation_tool" }] }),
+      makeStep({
+        id: "second",
+        description: "second",
+        dependsOn: ["first"],
+        toolCalls: [{ toolName: "resume_continuation_tool" }],
+      }),
+    ]);
+
+    const trace = await executeMultiStep(plan, makeControlledRequest(), makeCallbacks(), undefined, {
+      initialStepResults: [
+        {
+          stepId: "first",
+          status: "completed",
+          output: { already: true },
+          toolCallResults: [],
+          tokensUsed: 0,
+          durationMs: 1,
+        },
+      ],
+      startStepIndex: 1,
+      suppressPlanReady: true,
+    });
+
+    expect(calls).toEqual(["second"]);
+    expect(trace.stepResults.map((result) => result.stepId)).toEqual(["first", "second"]);
+    expect(trace.success).toBe(true);
+  });
+
+  it("pauses instead of failing when resume reaches an unapproved review step", async () => {
+    const callbacks = makeCallbacks();
+    const plan = makePlan([
+      makeStep({ id: "first" }),
+      makeStep({ id: "review", mode: "review", dependsOn: ["first"] }),
+    ]);
+
+    const trace = await executeMultiStep(plan, makeControlledRequest(), callbacks, undefined, {
+      initialStepResults: [
+        {
+          stepId: "first",
+          status: "completed",
+          output: { ok: true },
+          toolCallResults: [],
+          tokensUsed: 0,
+          durationMs: 1,
+        },
+      ],
+      startStepIndex: 1,
+      pauseOnApprovalRequired: true,
+      suppressPlanReady: true,
+    });
+
+    expect(callbacks.onAwaitingApproval).toHaveBeenCalledOnce();
+    expect(callbacks.waitForApproval).not.toHaveBeenCalled();
+    expect(trace.stepResults.at(-1)).toMatchObject({
+      stepId: "review",
+      status: "awaiting_approval",
+    });
+    expect(trace.success).toBe(false);
+    expect(trace.error).toBe("Awaiting approval for review");
+  });
+
+  it("skips approval only for explicitly approved resume steps", async () => {
+    const callbacks = makeCallbacks();
+    const plan = makePlan([
+      makeStep({ id: "review", mode: "review" }),
+      makeStep({ id: "writeback", mode: "manual", dependsOn: ["review"] }),
+    ]);
+
+    const trace = await executeMultiStep(plan, makeControlledRequest(), callbacks, undefined, {
+      approvedStepIds: ["review"],
+      pauseOnApprovalRequired: true,
+      suppressPlanReady: true,
+    });
+
+    expect(callbacks.waitForApproval).not.toHaveBeenCalled();
+    expect(trace.stepResults.map((result) => `${result.stepId}:${result.status}`)).toEqual([
+      "review:completed",
+      "writeback:awaiting_approval",
+    ]);
+  });
 });

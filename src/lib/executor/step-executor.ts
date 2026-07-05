@@ -1,6 +1,7 @@
 import type {
   AgentCoreTaskRequest,
   ExecutionCallbacks,
+  ExecuteMultiStepOptions,
   ExecutionPlan,
   ExecutionStep,
   GuardrailConfig,
@@ -139,12 +140,19 @@ export async function executeMultiStep(
   request: AgentCoreTaskRequest,
   callbacks: ExecutionCallbacks,
   guardrails?: Partial<GuardrailConfig>,
+  options: ExecuteMultiStepOptions = {},
 ): Promise<MultiStepTrace> {
   const config: GuardrailConfig = { ...DEFAULT_GUARDRAILS, ...guardrails };
   const executionStart = Date.now();
   const abortController = new AbortController();
   const reqId = request.metadata.requestId;
   const shouldPersistControlledTrace = Boolean(request.controlledPlaybookId);
+  const initialStepResults = options.initialStepResults ?? [];
+  const startStepIndex =
+    typeof options.startStepIndex === "number"
+      ? Math.max(0, Math.min(plan.steps.length, Math.floor(options.startStepIndex)))
+      : 0;
+  const approvedStepIds = new Set(options.approvedStepIds ?? []);
 
   executorLog("info", "execution_start", { requestId: reqId, detail: `${plan.totalSteps} steps` });
 
@@ -165,15 +173,17 @@ export async function executeMultiStep(
     skillReceipts: [],
     success: false,
     plan,
-    stepResults: [],
+    stepResults: [...initialStepResults],
     currentStepIndex: 0,
   };
 
-  callbacks.onPlanReady(plan);
+  if (!options.suppressPlanReady) {
+    callbacks.onPlanReady(plan);
+  }
 
   let consecutiveFailures = 0;
 
-  for (let i = 0; i < plan.steps.length; i++) {
+  for (let i = startStepIndex; i < plan.steps.length; i++) {
     const step = plan.steps[i];
     trace.currentStepIndex = i;
 
@@ -201,8 +211,36 @@ export async function executeMultiStep(
     const approvalMode = request.controlledPlaybookId
       ? "each-review-step"
       : request.multiStep?.approvalMode ?? "each-review-step";
-    if (mustAwaitApproval(step, config, approvalMode)) {
+    const needsApproval = mustAwaitApproval(step, config, approvalMode);
+    const alreadyApprovedForResume = approvedStepIds.has(step.id);
+    if (needsApproval && !alreadyApprovedForResume) {
       callbacks.onAwaitingApproval(step);
+
+      if (options.pauseOnApprovalRequired) {
+        const awaitingResult: StepResult = {
+          stepId: step.id,
+          status: "awaiting_approval",
+          output: null,
+          toolCallResults: [],
+          tokensUsed: 0,
+          durationMs: 0,
+          error: `Awaiting approval for ${step.id}`,
+        };
+        trace.stepResults.push(awaitingResult);
+        trace.error = awaitingResult.error;
+        if (shouldPersistControlledTrace) {
+          await updateControlledExecutionRun(reqId, {
+            state: "awaiting_approval",
+            currentStepId: step.id,
+          }).catch(() => null);
+          await updateControlledExecutionStep(reqId, step.id, {
+            state: "awaiting_approval",
+            error: awaitingResult.error,
+          }).catch(() => null);
+        }
+        break;
+      }
+
       const approval = await callbacks.waitForApproval(step.id);
       if (!approval.approved) {
         const rejectedResult: StepResult = {
@@ -337,9 +375,12 @@ export async function executeMultiStep(
   }
 
   if (shouldPersistControlledTrace) {
+    const awaitingApproval = trace.stepResults.some(
+      (result) => result.status === "awaiting_approval",
+    );
     await updateControlledExecutionRun(reqId, {
-      state: trace.success ? "completed" : "failed",
-      error: trace.error,
+      state: trace.success ? "completed" : awaitingApproval ? "awaiting_approval" : "failed",
+      error: awaitingApproval ? undefined : trace.error,
     }).catch(() => null);
   }
 

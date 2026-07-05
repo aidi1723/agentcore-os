@@ -348,6 +348,14 @@ export type ExecutionCallbacks = {
   onError: (error: string) => void;
 };
 
+export type ExecuteMultiStepOptions = {
+  initialStepResults?: StepResult[];
+  startStepIndex?: number;
+  approvedStepIds?: string[];
+  pauseOnApprovalRequired?: boolean;
+  suppressPlanReady?: boolean;
+};
+
 export type GuardrailConfig = {
   maxTotalTokens: number;
   maxSteps: number;

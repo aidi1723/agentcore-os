@@ -41,7 +41,15 @@
           "outputRedacted": true
         }
       ],
-      "writebackTargets": []
+      "writebackTargets": [
+        {
+          "target": "workflow_run",
+          "ok": true,
+          "assetId": "workflow-fixture-1",
+          "sourceKey": "controlled-run:run-fixture-1:workflow_run",
+          "workflowRunId": "workflow-fixture-1"
+        }
+      ]
     },
     {
       "stepId": "qualify",
@@ -58,7 +66,15 @@
           "outputRedacted": true
         }
       ],
-      "writebackTargets": []
+      "writebackTargets": [
+        {
+          "target": "sales_asset",
+          "ok": true,
+          "assetId": "sales-asset-qualify-1",
+          "sourceKey": "controlled-run:run-fixture-1:sales_asset:qualify",
+          "workflowRunId": "workflow-fixture-1"
+        }
+      ]
     },
     {
       "stepId": "draft_outreach",
@@ -101,7 +117,15 @@
         }
       ],
       "approvalState": "approved",
-      "writebackTargets": []
+      "writebackTargets": [
+        {
+          "target": "workflow_run",
+          "ok": true,
+          "assetId": "workflow-fixture-1",
+          "sourceKey": "controlled-run:run-fixture-1:workflow_run:human_review",
+          "workflowRunId": "workflow-fixture-1"
+        }
+      ]
     },
     {
       "stepId": "writeback",
@@ -118,6 +142,7 @@
           "outputRedacted": true
         }
       ],
+      "approvalState": "approved",
       "schemaValid": true,
       "writebackTargets": [
         {
@@ -125,6 +150,20 @@
           "ok": true,
           "assetId": "sales-asset-1",
           "sourceKey": "controlled-run:run-fixture-1:sales_asset",
+          "workflowRunId": "workflow-fixture-1"
+        },
+        {
+          "target": "knowledge_asset",
+          "ok": true,
+          "assetId": "knowledge-asset-1",
+          "sourceKey": "controlled-run:run-fixture-1:knowledge_asset",
+          "workflowRunId": "workflow-fixture-1"
+        },
+        {
+          "target": "workflow_run",
+          "ok": true,
+          "assetId": "workflow-fixture-1",
+          "sourceKey": "controlled-run:run-fixture-1:workflow_run:writeback",
           "workflowRunId": "workflow-fixture-1"
         }
       ]

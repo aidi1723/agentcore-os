@@ -2,8 +2,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { previewControlledExecutionRunRetention } from "@/lib/server/controlled-execution-store";
 
-const DEFAULT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
-const DEFAULT_MIN_TERMINAL_RUNS = 20;
+export const DEFAULT_RETENTION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+export const DEFAULT_RETENTION_MIN_TERMINAL_RUNS = 20;
 
 function readOptionValue(argv, index, option) {
   const value = argv[index + 1];
@@ -39,8 +39,8 @@ function parseNonNegativeInteger(value, option) {
 
 export function parseRetentionPreviewArgs(argv) {
   const options = {
-    maxAgeMs: DEFAULT_MAX_AGE_MS,
-    minTerminalRunsToKeep: DEFAULT_MIN_TERMINAL_RUNS,
+    maxAgeMs: DEFAULT_RETENTION_MAX_AGE_MS,
+    minTerminalRunsToKeep: DEFAULT_RETENTION_MIN_TERMINAL_RUNS,
     now: undefined,
     cwd: undefined,
   };

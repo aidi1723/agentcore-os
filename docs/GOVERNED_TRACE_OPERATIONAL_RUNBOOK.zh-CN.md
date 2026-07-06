@@ -173,6 +173,19 @@ npm run trace:retention:preview -- --cwd /path/to/workspace --now 10000 --max-ag
 
 `pruneControlledExecutionRuns()` is the mutating retention helper. It uses the same decision model as preview, then prunes old terminal runs while preserving active and approval-blocked runs according to policy.
 
+Preferred guarded local prune command:
+
+```bash
+npm run trace:retention:prune -- --max-age-days 30 --min-terminal-runs 20 --expected-pruned-run-ids <ids-from-preview-or-none> --confirm-prune
+```
+
+Rules:
+
+- run `trace:retention:preview` first;
+- copy the exact preview `prunedRunIds` into `--expected-pruned-run-ids`;
+- use `--expected-pruned-run-ids none` only when the fresh preview has no candidates;
+- if expected ids do not match a fresh preview, the prune command fails without mutating storage.
+
 Before pruning, confirm:
 
 - no active fixture refresh depends on the run;

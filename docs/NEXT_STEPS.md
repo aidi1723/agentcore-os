@@ -81,6 +81,7 @@ Completed in the current controlled runtime line:
 - Runtime UI Delivery Polish Closeout: Playwright screenshot evidence confirms the new `Delivery handoff` band renders in Runtime Console with 0 browser console errors; the stage is closed and should not expand into full UI redesign.
 - Trace Operations Retention Preview: controlled execution cleanup now has a dry-run preview report that shows policy cutoff, kept/pruned run ids, and per-run retention reasons before mutating storage.
 - Trace Retention Preview CLI: `npm run trace:retention:preview` now exposes the dry-run retention report as a local operator command without adding prune, UI, route, fixture refresh, or real replay behavior.
+- Trace Retention Prune Guard: `npm run trace:retention:prune` now provides a guarded local prune command that refuses mutation unless `--confirm-prune` is present and `--expected-pruned-run-ids` exactly matches the fresh preview.
 
 Current verification baseline:
 
@@ -98,9 +99,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 39 test files.
-- 201 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, and delivery demo seed/check helper coverage.
+- 40 test files.
+- 206 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, and delivery demo seed/check helper coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -181,6 +182,35 @@ npm run trace:retention:preview -- --max-age-days 30 --min-terminal-runs 20
 ```
 
 - The next retention slice can add a reviewed prune command or handoff checklist, but should still avoid scheduled cleanup and real replay.
+
+## Completed. Trace Retention Prune Guard
+
+Why:
+
+- Retention preview and preview CLI made cleanup decisions visible, but the mutating cleanup path still needed an operator guard.
+- A stale preview should not be enough to delete controlled run trace history.
+
+Delivered:
+
+- Added `scripts/trace-operations/retention-prune.mjs`.
+- Added `npm run trace:retention:prune`.
+- The command runs a fresh preview before mutation.
+- Mutation is refused unless `--confirm-prune` is present.
+- Mutation is refused unless `--expected-pruned-run-ids` exactly matches the fresh preview.
+- `--expected-pruned-run-ids none` is accepted as a no-mutation handoff path when the fresh preview has no prune candidates.
+- Added subprocess coverage for missing confirmation, stale expected ids, matching prune, and no-candidate no-rewrite behavior.
+- Added [Trace Retention Prune Guard spec](superpowers/specs/2026-07-06-trace-retention-prune-guard-design.md) and [implementation plan](superpowers/plans/2026-07-06-trace-retention-prune-guard.md).
+
+Outcome:
+
+- The retention lifecycle now has a safe local sequence:
+
+```bash
+npm run trace:retention:preview -- --max-age-days 30 --min-terminal-runs 20
+npm run trace:retention:prune -- --max-age-days 30 --min-terminal-runs 20 --expected-pruned-run-ids <ids-from-preview-or-none> --confirm-prune
+```
+
+- This closes the current Trace Operations Hardening delivery slice. Future work should be treated as a new phase, not required closeout for the current local delivery path.
 
 ## Completed. Delivery Demo Smoke Path
 

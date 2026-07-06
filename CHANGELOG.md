@@ -112,6 +112,8 @@
 - Added retention preview regression coverage for active runs, approval-blocked runs, newest terminal retention, terminal runs inside the retention window, and expired terminal pruning.
 - Added `npm run trace:retention:preview` as a local dry-run operator command for machine-readable retention reports.
 - The command supports `--max-age-ms`, `--max-age-days`, `--min-terminal-runs`, `--now`, and `--cwd`, and is covered by `test:controlled-runtime`.
+- Added guarded local `npm run trace:retention:prune`, which requires `--confirm-prune` and exact `--expected-pruned-run-ids` matching a fresh preview before mutating controlled run storage.
+- The guarded prune command keeps `none` as a no-mutation handoff path when the fresh preview has no prune candidates.
 
 ### Project Introduction Alignment
 

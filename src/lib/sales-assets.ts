@@ -153,6 +153,11 @@ export function getSalesAssets() {
   return salesAssetState.getItems();
 }
 
+export function getSalesAssetById(assetId?: string | null) {
+  if (!assetId) return null;
+  return getSalesAssets().find((asset) => asset.id === assetId) ?? null;
+}
+
 export function getSalesAssetByWorkflowRunId(workflowRunId?: string | null) {
   if (!workflowRunId) return null;
   return getSalesAssets().find((asset) => asset.workflowRunId === workflowRunId) ?? null;

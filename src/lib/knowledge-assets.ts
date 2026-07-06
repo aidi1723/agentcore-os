@@ -158,6 +158,16 @@ export function getKnowledgeAssets() {
   return knowledgeAssetState.getItems();
 }
 
+export function getKnowledgeAssetById(assetId?: string | null) {
+  if (!assetId) return null;
+  return getKnowledgeAssets().find((asset) => asset.id === assetId) ?? null;
+}
+
+export function getKnowledgeAssetBySourceKey(sourceKey?: string | null) {
+  if (!sourceKey) return null;
+  return getKnowledgeAssets().find((asset) => asset.sourceKey === sourceKey) ?? null;
+}
+
 export function upsertKnowledgeAsset(
   sourceKey: string,
   patch: Omit<

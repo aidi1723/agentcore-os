@@ -258,7 +258,7 @@ npm run build
 
 Expected: all exit 0. Existing `<img>` warning may remain.
 
-- [ ] **Step 5: Commit docs and gate inclusion**
+- [x] **Step 5: Commit docs and gate inclusion**
 
 ```bash
 git add package.json docs/DELIVERY_DEMO_SMOKE_PATH.zh-CN.md docs/NEXT_STEPS.md docs/ROADMAP.md docs/RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md README.md CHANGELOG.md docs/superpowers/specs/2026-07-06-delivery-demo-smoke-path-design.md docs/superpowers/plans/2026-07-06-delivery-demo-smoke-path.md
@@ -275,6 +275,7 @@ Implementation status:
 - `6d12bae` added the RED demo data test.
 - `cd18b7f` added the deterministic demo data builder.
 - `dbddeb0` added local delivery demo seed/check scripts, npm commands, and script helper coverage.
+- `f331a38` added the delivery demo operator guide and aligned project docs.
 - Documentation alignment completed in this plan, README, changelog, roadmap, next-stage backlog, documentation index, project framework, Runtime Console delivery audit, memory record, and `docs/DELIVERY_DEMO_SMOKE_PATH.zh-CN.md`.
 
 Final verification:

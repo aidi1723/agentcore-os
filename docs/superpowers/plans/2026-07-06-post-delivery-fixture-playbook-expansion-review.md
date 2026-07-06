@@ -34,7 +34,7 @@
 **Files:**
 - Modify: `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts`
 
-- [ ] **Step 1: Add failing test**
+- [x] **Step 1: Add failing test**
 
 Add imports:
 
@@ -54,7 +54,7 @@ Add this test after `lists sales and support governed fixtures`:
   });
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run:
 
@@ -64,7 +64,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts
 
 Expected: this may pass immediately if the current invariant already holds. If it passes, make the RED check explicit by temporarily changing the expected fixture list in the test to `fixturePlaybookIds.slice(0, 1)`, verify it fails, then restore the intended assertion before implementation commit.
 
-- [ ] **Step 3: Commit coverage test**
+- [x] **Step 3: Commit coverage test**
 
 ```bash
 git add src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts
@@ -77,7 +77,7 @@ git commit -m "test: assert governed fixture playbook coverage"
 **Files:**
 - Create: `docs/POST_DELIVERY_FIXTURE_PLAYBOOK_EXPANSION_REVIEW.zh-CN.md`
 
-- [ ] **Step 1: Add review document**
+- [x] **Step 1: Add review document**
 
 Create the document with:
 
@@ -137,7 +137,7 @@ Focus:
 - no real replay or new playbook until a separate spec justifies it.
 ```
 
-- [ ] **Step 2: Commit review document**
+- [x] **Step 2: Commit review document**
 
 ```bash
 git add docs/POST_DELIVERY_FIXTURE_PLAYBOOK_EXPANSION_REVIEW.zh-CN.md
@@ -155,7 +155,7 @@ git commit -m "docs: add post-delivery expansion review"
 - Modify: `CHANGELOG.md`
 - Modify: this plan
 
-- [ ] **Step 1: Update project records**
+- [x] **Step 1: Update project records**
 
 Record:
 
@@ -164,7 +164,7 @@ Record:
 - No new controlled playbook now.
 - Next recommended phase: Trace Operations Hardening.
 
-- [ ] **Step 2: Verify stale text is gone**
+- [x] **Step 2: Verify stale text is gone**
 
 Run:
 
@@ -209,4 +209,14 @@ Update this plan with final verification output and commit if needed.
 
 ## Completion Notes
 
-Pending implementation.
+Implementation status:
+
+- `29bffe5` added the governed fixture/playbook coverage regression.
+- `475b12d` added the post-delivery expansion review document.
+- Project record alignment is in progress.
+
+RED/GREEN evidence:
+
+- RED: `npm test -- src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` failed when the coverage assertion expected an extra `missing-playbook`.
+- GREEN: the same command passed after restoring the real invariant.
+- Stale status scan passed across README, changelog, documentation index, Next Steps, Roadmap, Project Framework, and Runtime Console audit.

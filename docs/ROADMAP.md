@@ -247,15 +247,16 @@ Completed local browser evidence:
 
 ### P14. Governed Fixture And Playbook Expansion Review
 
-Next, review whether to expand fixtures or playbooks:
+Completed post-delivery review:
 
-- inspect current sales/support governed fixture coverage,
-- decide whether the next phase should add fixture coverage, migrate a new controlled playbook, or harden operational retention,
-- produce a focused spec before any new fixture JSON or playbook code is added.
+- all registered controlled playbooks have committed governed fixture coverage,
+- delivery demo seed data remains local-only demo data, not fixture source material,
+- no new fixture JSON is needed now,
+- no new controlled playbook migration is needed now.
 
 ### P15. Governed Fixture And Playbook Expansion
 
-Expand only when the current governed trace/replay gates stay stable:
+Deferred until a new durable contract appears:
 
 - add fixture JSON when a new playbook, writeback target family, terminal state, or real contract gap requires it,
 - add new controlled playbooks only through spec -> plan -> tests -> fixture/replay gates,
@@ -263,7 +264,7 @@ Expand only when the current governed trace/replay gates stay stable:
 
 ### P16. Trace Operations Hardening
 
-Turn the governed trace operational runbook into a tighter maintenance path:
+Next, turn the governed trace operational runbook into a tighter maintenance path:
 
 - raw trace retention discipline,
 - fixture refresh stop-condition enforcement,

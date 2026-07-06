@@ -115,6 +115,13 @@
 - Verified the browser path Home -> Runtime Console -> `delivery-demo-run-completed` -> five asset landings -> governed trace copy with 0 console errors.
 - Set the next phase to Governed Fixture And Playbook Expansion Review.
 
+### Post-Delivery Fixture And Playbook Expansion Review
+
+- Added a governed fixture/playbook coverage regression proving every registered controlled playbook has one committed governed fixture entry.
+- Added `docs/POST_DELIVERY_FIXTURE_PLAYBOOK_EXPANSION_REVIEW.zh-CN.md`.
+- Recorded the decision not to add new fixture JSON or migrate a new playbook immediately after local delivery smoke.
+- Set the next phase to Trace Operations Hardening.
+
 ### Runtime Console Delivery Readiness Audit
 
 - Added `docs/RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md`.

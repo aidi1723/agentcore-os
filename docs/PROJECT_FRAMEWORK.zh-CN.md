@@ -130,7 +130,7 @@ User / Trigger
 - replay sandbox catalog CI summary 已通过 `npm run replay:sandbox:fixtures` 实现为 compact JSON 命令。
 - replay sandbox failure diagnostics taxonomy 已把 contract bridge failure、sandbox artifact failure 和 guarantee violation 固定为稳定 `failureKind` / `guaranteeErrors` 输出。
 - replay sandbox failure harness direct modes 已覆盖 contract、sandbox 和 guarantee failures。
-- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path 与 Browser Evidence And Release Readiness Sweep 已完成；因此下一阶段应先做 Governed Fixture / Playbook Expansion Review，仍不能直接写真实工具 replay。
+- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep 与 Post-Delivery Fixture / Playbook Expansion Review 已完成；因此下一阶段应先做 Trace Operations Hardening，仍不能直接写真实工具 replay。
 
 ## 6. 文档体系
 
@@ -335,7 +335,15 @@ git diff --check
 - 已确认浏览器 console 没有 error；只保留 dev/preload warnings。
 - 没有在本阶段新增真实 replay 或新 playbook。
 
-### P14. Governed Fixture / Playbook Expansion
+### P14. Governed Fixture / Playbook Expansion Review
+
+目标：
+
+- 已复核当前 registered playbooks 与 committed governed fixtures 一一覆盖。
+- 已确认 delivery demo seed data 不是新增 committed fixture 的来源。
+- 已确认当前不新增 fixture JSON，不迁移新 controlled playbook。
+
+### P15. Governed Fixture / Playbook Expansion
 
 目标：
 
@@ -343,7 +351,7 @@ git diff --check
 - 新 fixture 必须通过 redaction、approval、writeback metadata、stable identity 和 catalog coverage 审查。
 - 新 playbook 必须先进入 spec / plan / TDD / fixture replay 边界，而不是直接接真实工具。
 
-### P15. Operational Retention And Maintenance Hardening
+### P16. Operational Retention And Maintenance Hardening
 
 目标：
 
@@ -351,7 +359,7 @@ git diff --check
 - 继续收紧 raw trace retention、fixture refresh stop condition、summary/harness drift 处理。
 - 保持 `trace:fixtures` 作为机器可读自动化合同，`trace:fixtures:summary` 作为人读 triage。
 
-### P16. Runtime-Serving UI / App Polish
+### P17. Runtime-Serving UI / App Polish
 
 目标：
 

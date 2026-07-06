@@ -76,6 +76,7 @@ Completed in the current controlled runtime line:
 - Runtime Console Delivery Readiness Audit: current branch can move to demo smoke path, but should not claim production release readiness yet.
 - Delivery Demo Smoke Path: local deterministic seed/check scripts now provide completed, awaiting approval, and retryable failed demo runs plus sales / knowledge / workflow / draft / support asset records for Runtime Console handoff.
 - Browser Evidence And Release Readiness Sweep: Playwright smoke verified Home -> Runtime Console -> `delivery-demo-run-completed` -> five asset landings -> governed trace copy with 0 browser console errors.
+- Post-Delivery Fixture And Playbook Expansion Review: every registered controlled playbook now has a committed governed fixture coverage assertion; no new fixture JSON or playbook migration is needed immediately after delivery smoke.
 
 Current verification baseline:
 
@@ -154,6 +155,25 @@ Outcome:
 - Current branch is ready for local delivery demo.
 - Production readiness is still not claimed.
 - Next recommended phase: Governed Fixture And Playbook Expansion Review.
+
+## Completed. Post-Delivery Fixture And Playbook Expansion Review
+
+Why:
+
+- Delivery smoke raised the question of whether the project should now expand fixtures or migrate another playbook.
+- The existing catalog coverage guide said no extra fixture was needed, but the post-delivery state needed a test-backed decision.
+
+Delivered:
+
+- Added a governed fixture catalog regression proving every registered controlled playbook has exactly one committed governed fixture entry.
+- Added [Post-Delivery Fixture And Playbook Expansion Review](POST_DELIVERY_FIXTURE_PLAYBOOK_EXPANSION_REVIEW.zh-CN.md).
+- Recorded that delivery demo seed data remains local demo data, not a governed fixture source.
+- Recorded that no new fixture JSON or new controlled playbook migration is needed now.
+
+Outcome:
+
+- Future playbook additions must update governed fixture coverage.
+- The next default phase is Trace Operations Hardening, not automatic fixture/playbook expansion.
 
 ## Completed. Runtime Console Failure Recovery
 
@@ -1067,14 +1087,15 @@ Outcome:
 - Current branch has proceeded through the command-level delivery smoke path and browser evidence sweep.
 - It can be described as local delivery demo ready, but not as a production-ready release.
 
-## Recommended Next. Governed Fixture And Playbook Expansion Review
+## Recommended Next. Trace Operations Hardening
 
 Suggested scope:
 
-- Inspect current sales/support governed fixture coverage.
-- Decide whether the next phase should add fixture coverage, migrate a new controlled playbook, or harden operational retention.
-- Produce a focused spec before any new fixture JSON or playbook code is added.
-- Do not add real replay, route calls, store writes, or external system mutations in the review phase.
+- Tighten raw trace retention and artifact handoff discipline.
+- Align release checklist wording around local delivery demo readiness versus production readiness.
+- Keep fixture refresh stop conditions explicit.
+- Keep browser evidence repeatable without committing temporary screenshots.
+- Do not add real replay, new playbooks, route calls, store writes, or external system mutations in this phase.
 
 ## Completed. Support Runtime Console Record Focus
 

@@ -10,6 +10,8 @@ Use it when a controlled playbook changes and `npm run trace:fixtures --silent` 
 
 This workflow is intentionally manual. The builder command prints fixture JSON to stdout. A maintainer reviews the generated JSON and decides whether to replace a committed fixture file.
 
+If `npm run trace:fixtures --silent` fails, first read [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md) to identify whether the failure is playbook drift, stale fixture metadata, or an unsafe candidate fixture.
+
 ## 2. Hard Boundaries
 
 Do not add automation that bypasses review:
@@ -56,6 +58,8 @@ If the command exits non-zero, do not replace any committed fixture. Fix the art
 ## 5. Review Candidate Fixture
 
 Before replacing a committed fixture file, inspect `/tmp/governed-trace-fixture.json`.
+
+Use the replay contract matrix as the interpretation layer for every failed `failedItems[].diagnostics` field.
 
 Required checks:
 
@@ -113,7 +117,7 @@ Expected:
 - `guarantees.toolCallsExecuted: false`;
 - `guarantees.assetsWritten: false`.
 
-If this fails, inspect `failedItems[].diagnostics` before editing playbooks or fixtures again.
+If this fails, inspect `failedItems[].replayErrors` and `failedItems[].diagnostics`, then use the replay contract guide to decide whether to update the playbook, refresh the fixture, or reject the artifact source.
 
 ## 8. Verify Runtime Gate
 

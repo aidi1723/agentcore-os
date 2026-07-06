@@ -209,6 +209,11 @@
 - Replay now checks current playbook version, scenario id, expected plan id, plan step count, plan approval flag, completed step attempts, approved terminal state, and stable successful writeback metadata.
 - Added replay tests for version drift, plan metadata drift, missing attempts, non-approved completed approval steps, and missing stable writeback metadata.
 
+### Fixture Replay Contract Documentation
+
+- Added `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md` as the Governed Trace Fixture Replay Contract guide covering invariant checks, diagnostics, failure triage, and maintainer commands for fixture refresh review.
+- Linked the contract guide from the governed fixture refresh workflow and documentation index.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

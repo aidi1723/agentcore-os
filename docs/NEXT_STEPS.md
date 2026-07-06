@@ -64,6 +64,7 @@ Completed in the current controlled runtime line:
 - `npm run trace:fixture:build -- <artifact.json>` local builder command for converting governed trace artifact files into validated fixture JSON.
 - Governed trace fixture refresh workflow guide for manual fixture replacement and review.
 - Deeper fixture replay golden invariants for playbook version, scenario, plan metadata, completed attempts, approval terminal state, and stable writeback identity metadata.
+- Governed trace fixture replay contract guide for replay invariant interpretation, diagnostics reference, and maintainer failure triage.
 
 Current verification baseline:
 
@@ -483,19 +484,46 @@ Outcome:
 - Fixture replay now catches subtle plan/writeback identity drift before a fixture refresh is accepted.
 - Catalog reports and `npm run trace:fixtures` inherit the deeper diagnostics automatically.
 
-## Recommended Next. Fixture Replay Contract Documentation
+## Completed. Fixture Replay Contract Documentation
 
 Why:
 
 - The replay runner now enforces a broader invariant matrix.
 - Maintainers refreshing fixtures need a concise reference for which field failed and why it matters.
-- This documentation should come before adding more automation around fixture refresh.
+- This documentation should come before adding more automation around fixture replay summaries.
+
+Delivered:
+
+- Added `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`.
+- Documented the replay invariant matrix for fixture schema, redaction, playbook registration, version/scenario, step order, plan metadata, approvals, writeback targets, stable writeback metadata, completed attempts, and no-side-effect guarantees.
+- Added a diagnostics reference for every current `ControlledTraceReplayDiagnostics` field.
+- Added failure triage for playbook drift, stale fixtures, bad governed artifact source, and unsafe candidate fixtures.
+- Linked the guide from the governed fixture refresh workflow and documentation index.
+
+Primary files:
+
+- `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`
+- `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`
+- `docs/DOCUMENTATION_INDEX.zh-CN.md`
+
+Outcome:
+
+- Maintainers can interpret `failedItems[].replayErrors` and `failedItems[].diagnostics` without reading replay source.
+- The fixture refresh workflow now has a clear decision point before replacing committed fixtures.
+
+## Recommended Next. Fixture Replay Error Summary CLI
+
+Why:
+
+- `npm run trace:fixtures` intentionally outputs machine-readable JSON.
+- Maintainers now have the contract guide, but a concise human-readable local failure summary would reduce triage friction.
+- This should stay separate from the JSON command so CI integrations remain stable.
 
 Suggested scope:
 
-- Document the replay invariant matrix for maintainers.
-- Add a compact table covering playbook, plan, step, approval, and writeback metadata.
-- Link the matrix from the fixture refresh guide so reviewers know why a candidate fixture fails.
+- Keep `trace:fixtures` as the machine-readable JSON command.
+- Add a separate local command that prints a human-readable failure summary from the same catalog report.
+- Do not discover fixtures automatically, refresh fixtures, call routes, replay tools, mutate stores, or write assets.
 
 ## Completed. Support Runtime Console Record Focus
 

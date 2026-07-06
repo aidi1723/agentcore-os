@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FilePlus2, Headphones, Plus, Sparkles, Trash2 } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
 import { AppToast } from "@/components/AppToast";
@@ -94,6 +94,11 @@ export function SupportCopilotAppWindow({
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [assetRevision, setAssetRevision] = useState(0);
+  const [focusRetryRevision, setFocusRetryRevision] = useState(0);
+  const [pendingFocus, setPendingFocus] = useState<{
+    detail: SupportCopilotPrefill;
+    startRevision: number;
+  } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast, showToast } = useTimedToast(2200);
 
@@ -103,6 +108,7 @@ export function SupportCopilotAppWindow({
       const next = getSupportTickets();
       setTickets(next);
       setSelectedId((current) => current ?? next[0]?.id ?? null);
+      setFocusRetryRevision((value) => value + 1);
     };
     sync();
     const unsub = subscribeSupportTickets(sync);
@@ -114,18 +120,33 @@ export function SupportCopilotAppWindow({
     };
   }, [isVisible]);
 
+  const resolveSupportRecordFocus = useCallback(
+    (detail: SupportCopilotPrefill, reportMissing: boolean) => {
+      const asset = getSupportAssetForFocus(detail);
+      const targetTicket = asset ? findTicketForSupportAsset(asset) : null;
+      if (targetTicket) {
+        setSelectedId(targetTicket.id);
+        setPendingFocus(null);
+        showToast("已定位到客服工单", "ok");
+        return true;
+      }
+      if (reportMissing) {
+        setPendingFocus(null);
+        showToast("未找到对应客服工单", "error");
+      }
+      return false;
+    },
+    [showToast],
+  );
+
   useEffect(() => {
     const onPrefill = (event: Event) => {
       const detail = (event as CustomEvent<SupportCopilotPrefill>).detail;
       if (hasSupportRecordFocus(detail)) {
-        const asset = getSupportAssetForFocus(detail);
-        const targetTicket = asset ? findTicketForSupportAsset(asset) : null;
-        if (targetTicket) {
-          setSelectedId(targetTicket.id);
-          showToast("已定位到客服工单", "ok");
-          return;
+        const resolved = resolveSupportRecordFocus(detail, false);
+        if (!resolved) {
+          setPendingFocus({ detail, startRevision: focusRetryRevision });
         }
-        showToast("未找到对应客服工单", "error");
         return;
       }
 
@@ -143,10 +164,13 @@ export function SupportCopilotAppWindow({
     };
     window.addEventListener("openclaw:support-copilot-prefill", onPrefill);
     return () => window.removeEventListener("openclaw:support-copilot-prefill", onPrefill);
-  }, [showToast]);
+  }, [focusRetryRevision, resolveSupportRecordFocus, showToast]);
 
   useEffect(() => {
-    const bump = () => setAssetRevision((value) => value + 1);
+    const bump = () => {
+      setAssetRevision((value) => value + 1);
+      setFocusRetryRevision((value) => value + 1);
+    };
     const off = subscribeSupportAssets(bump);
     const onStorage = () => bump();
     window.addEventListener("storage", onStorage);
@@ -155,6 +179,12 @@ export function SupportCopilotAppWindow({
       window.removeEventListener("storage", onStorage);
     };
   }, []);
+
+  useEffect(() => {
+    if (!pendingFocus || focusRetryRevision <= pendingFocus.startRevision) return;
+    const retryCount = focusRetryRevision - pendingFocus.startRevision;
+    resolveSupportRecordFocus(pendingFocus.detail, retryCount >= 2);
+  }, [focusRetryRevision, pendingFocus, resolveSupportRecordFocus]);
 
   useEffect(() => {
     const onSelect = (event: Event) => {

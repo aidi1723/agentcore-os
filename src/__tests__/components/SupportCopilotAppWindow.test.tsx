@@ -118,4 +118,67 @@ describe("SupportCopilotAppWindow record focus", () => {
     expect(screen.getByDisplayValue("Broad handoff")).toBeInTheDocument();
     expect(getSupportTickets()).toHaveLength(1);
   });
+
+  it("keeps support record focus pending until asset and ticket stores update", async () => {
+    renderSupportCopilot();
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent("openclaw:support-copilot-prefill", {
+          detail: {
+            assetId: "support-asset-pending",
+            sourceKey: "controlled-run:run-pending:support_asset",
+            workflowRunId: "workflow-pending",
+          },
+        }),
+      );
+    });
+
+    expect(getSupportTickets()).toHaveLength(0);
+    expect(screen.queryByText("未找到对应客服工单")).not.toBeInTheDocument();
+
+    act(() => {
+      const ticketId = createSupportTicket({
+        customer: "Hydrated Customer",
+        subject: "Hydrated issue",
+        workflowRunId: "workflow-pending",
+      });
+      upsertSupportAsset("workflow-pending", {
+        sourceKey: "controlled-run:run-pending:support_asset",
+        scenarioId: "support-ops",
+        ticketId,
+        customer: "Hydrated Customer",
+        channel: "email",
+        issueSummary: "Hydrated issue",
+      });
+    });
+
+    await screen.findByDisplayValue("Hydrated Customer");
+    expect(getSupportTickets()).toHaveLength(1);
+  });
+
+  it("does not create a synthetic ticket when an exact support record stays missing", async () => {
+    renderSupportCopilot();
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent("openclaw:support-copilot-prefill", {
+          detail: {
+            assetId: "missing-support-asset",
+            sourceKey: "controlled-run:run-missing:support_asset",
+            workflowRunId: "workflow-missing",
+          },
+        }),
+      );
+    });
+
+    expect(screen.queryByText("未找到对应客服工单")).not.toBeInTheDocument();
+
+    act(() => {
+      window.dispatchEvent(new Event("storage"));
+    });
+
+    await screen.findByText("未找到对应客服工单");
+    expect(getSupportTickets()).toHaveLength(0);
+  });
 });

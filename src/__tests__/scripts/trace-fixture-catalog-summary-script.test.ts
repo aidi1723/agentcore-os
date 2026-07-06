@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
-import { controlledTraceFixtureCatalog } from "@/__tests__/fixtures/controlled-traces/catalog";
 import { buildControlledTraceFixtureCatalogReport } from "@/__tests__/fixtures/controlled-traces/catalog-report";
 import { formatControlledTraceFixtureCatalogSummary } from "@/__tests__/fixtures/controlled-traces/catalog-summary";
+import { buildCombinedSummaryFailureCatalogEntry } from "@/__tests__/fixtures/controlled-traces/synthetic-failures";
 import { describe, expect, it } from "vitest";
 
 describe("trace fixture catalog summary script", () => {
@@ -40,27 +40,15 @@ describe("trace fixture catalog summary script", () => {
   });
 
   it("renders failed fixture diagnostics without mutating committed fixtures", () => {
-    const fixture = structuredClone(controlledTraceFixtureCatalog[0].fixture);
-    fixture.playbookVersion = "0.9.0";
-    const writebackStep = fixture.steps.find((step) => step.stepId === "writeback");
-    const salesTarget = writebackStep?.writebackTargets.find(
-      (target) => target.target === "sales_asset",
-    );
-    if (salesTarget) delete salesTarget.sourceKey;
-
     const report = buildControlledTraceFixtureCatalogReport([
-      {
-        id: "sales-pipeline-drift",
-        playbookId: "sales-pipeline-v1",
-        fixture,
-      },
+      buildCombinedSummaryFailureCatalogEntry(),
     ]);
 
     const summary = formatControlledTraceFixtureCatalogSummary(report);
 
     expect(summary).toContain("Status: FAILED");
     expect(summary).toContain("Fixtures: 1 total, 0 passed, 1 failed");
-    expect(summary).toContain("Failed fixture: sales-pipeline-drift");
+    expect(summary).toContain("Failed fixture: sales-pipeline-summary-drift");
     expect(summary).toContain(
       "Fixture playbook version does not match current playbook sales-pipeline-v1",
     );

@@ -70,6 +70,7 @@ Completed in the current controlled runtime line:
 - Governed fixture refresh review checklist for candidate fixture replacement decisions.
 - Governed trace fixture CI gate guide for local, fixture-refresh, and CI-style command usage.
 - Governed trace fixture catalog coverage guide for committed fixture expansion decisions.
+- Governed trace operational runbook for artifact export, fixture refresh, replay gates, retention, and real replay boundaries.
 
 Current verification baseline:
 
@@ -726,13 +727,31 @@ Outcome:
 - The fixture catalog has a controlled maintenance path.
 - Future fixture additions require a durable contract reason.
 
-## Recommended Next. Trace Governance Operational Runbook
+## Completed. Trace Governance Operational Runbook
+
+Why:
+
+- Trace governance had export, refresh, replay, CI gate, and catalog coverage docs, but no ordered maintainer lifecycle.
+- Maintainers needed a single runbook that prevents command-order mistakes and keeps metadata replay separate from real replay.
+
+Delivered:
+
+- Added `docs/GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md`.
+- Documented export, artifact classification, fixture candidate build, candidate review, replay gates, failure escalation, retention, and handoff.
+- Added explicit real replay boundaries.
+
+Outcome:
+
+- Governed trace operations now have one entry point.
+- Future real replay work is clearly separated from current no-side-effect metadata replay.
+
+## Recommended Next. Real Replay Boundary Design
 
 Suggested scope:
 
-- Document governed trace artifact lifecycle from export, fixture candidate generation, replay gates, retention, and operator handoff.
-- Clarify boundaries between metadata replay, real tool replay, and production execution.
-- Keep this phase documentation/operations-first unless the runbook exposes a missing command or unsafe gap.
+- Design the boundary for any future real replay before adding code.
+- Define sandboxing, credential isolation, approval simulation, store isolation, side-effect blocking, and replay result ownership.
+- Keep this phase design-first; do not execute tools or mutate stores in replay until the boundary is explicit.
 
 ## Completed. Support Runtime Console Record Focus
 

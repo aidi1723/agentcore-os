@@ -14,6 +14,8 @@ If `npm run trace:fixtures --silent` fails, first read [Governed Trace Fixture R
 
 For local and CI-style gate policy, see [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md).
 
+For the full artifact export, classification, fixture refresh, replay gate, retention, and handoff lifecycle, see [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md).
+
 ## 2. Hard Boundaries
 
 Do not add automation that bypasses review:

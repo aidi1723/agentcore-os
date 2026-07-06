@@ -36,7 +36,7 @@
 **Files:**
 - Create: `docs/GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md`
 
-- [ ] **Step 1: Write purpose and boundaries**
+- [x] **Step 1: Write purpose and boundaries**
 
 Create the runbook with:
 
@@ -73,7 +73,7 @@ This runbook does not grant permission to bypass trace governance:
 - no unrestricted external sharing of governed artifacts.
 ```
 
-- [ ] **Step 2: Add lifecycle stages**
+- [x] **Step 2: Add lifecycle stages**
 
 Add:
 
@@ -91,7 +91,7 @@ Add:
 | Handoff | Record decision and next action | Maintainer | Commit, issue, or rejected candidate note | Ownership or next step unclear |
 ```
 
-- [ ] **Step 3: Add artifact export and classification**
+- [x] **Step 3: Add artifact export and classification**
 
 Add:
 
@@ -141,7 +141,7 @@ Choose exactly one intent:
 Do not build fixtures merely because a trace is interesting. Fixture candidates must preserve a durable contract.
 ```
 
-- [ ] **Step 4: Add build/review/gate flow**
+- [x] **Step 4: Add build/review/gate flow**
 
 Add:
 
@@ -205,7 +205,7 @@ git diff --check
 ```
 ````
 
-- [ ] **Step 5: Add escalation, retention, and real replay boundaries**
+- [x] **Step 5: Add escalation, retention, and real replay boundaries**
 
 Add:
 
@@ -258,7 +258,7 @@ Future real replay requires a separate design covering tool sandboxing, credenti
 - Modify: `docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md`
 - Modify: `docs/DOCUMENTATION_INDEX.zh-CN.md`
 
-- [ ] **Step 1: Link from refresh workflow**
+- [x] **Step 1: Link from refresh workflow**
 
 Add near the purpose section:
 
@@ -266,7 +266,7 @@ Add near the purpose section:
 For the full artifact export, classification, fixture refresh, replay gate, retention, and handoff lifecycle, see [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md).
 ```
 
-- [ ] **Step 2: Link from CI gates**
+- [x] **Step 2: Link from CI gates**
 
 Add to the companion docs list:
 
@@ -274,7 +274,7 @@ Add to the companion docs list:
 - [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
 ```
 
-- [ ] **Step 3: Link from documentation index**
+- [x] **Step 3: Link from documentation index**
 
 Add beside the governed trace fixture docs:
 
@@ -290,7 +290,7 @@ Add beside the governed trace fixture docs:
 - Modify: `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Update changelog**
+- [x] **Step 1: Update changelog**
 
 Add:
 
@@ -302,7 +302,7 @@ Add:
 - Documented that current replay remains metadata-only and that real LLM/tool replay requires a separate design with side-effect controls.
 ```
 
-- [ ] **Step 2: Update Next Steps**
+- [x] **Step 2: Update Next Steps**
 
 Add the runbook to the completed baseline and add:
 
@@ -330,7 +330,7 @@ Outcome:
 
 Set recommended next scope to a design-only review for real replay sandbox/side-effect boundaries.
 
-- [ ] **Step 3: Update controlled runtime manual**
+- [x] **Step 3: Update controlled runtime manual**
 
 Add the runbook link to the phase list and progress:
 
@@ -344,7 +344,7 @@ Set next phase to:
 Phase 10v. Real Replay Boundary Design
 ```
 
-- [ ] **Step 4: Update local memory**
+- [x] **Step 4: Update local memory**
 
 Append:
 
@@ -364,7 +364,7 @@ Do not stage `memory/2026-07-06.md`.
 - Verify docs and existing command gates.
 - Commit tracked documentation updates only.
 
-- [ ] **Step 1: Run fixture replay gates**
+- [x] **Step 1: Run fixture replay gates**
 
 Run:
 
@@ -380,7 +380,14 @@ trace:fixtures exits 0 with ok=true, total=2, passed=2, failed=0.
 trace:fixtures:summary exits 0 and prints Status: OK.
 ```
 
-- [ ] **Step 2: Run full regression gates**
+Observed:
+
+```text
+trace:fixtures exited 0 with ok=true, total=2, passed=2, failed=0.
+trace:fixtures:summary exited 0 with Status: OK.
+```
+
+- [x] **Step 2: Run full regression gates**
 
 Run:
 
@@ -398,7 +405,17 @@ Expected:
 All commands exit 0. Lint/build may still show the existing <img> warning in src/__tests__/components/ShellUI.test.tsx.
 ```
 
-- [ ] **Step 3: Commit docs completion**
+Observed:
+
+```text
+npm run test:controlled-runtime: 30 files, 166 tests passed.
+npm run test:core-workflows: all core workflow regressions passed.
+npm run lint: exit 0 with existing <img> warning in src/__tests__/components/ShellUI.test.tsx.
+npm run build: exit 0 with the same existing warning.
+git diff --check: exit 0.
+```
+
+- [x] **Step 3: Commit docs completion**
 
 Stage only:
 

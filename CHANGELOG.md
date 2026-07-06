@@ -261,6 +261,12 @@
 - Recorded the decision that no new committed fixture is needed while sales and support cover all registered playbooks and current writeback target families.
 - Added expansion rules for future fixtures based on new playbooks, durable writeback target families, stable terminal-state contracts, or real contract gaps.
 
+### Trace Governance Operational Runbook
+
+- Added a governed trace operational runbook covering artifact export, artifact intent classification, candidate fixture generation, refresh review, replay gates, retention, and handoff.
+- Clarified stop conditions for unsafe artifacts, replay drift, missing stable writeback metadata, runtime gate failures, and summary/harness mismatches.
+- Documented that current replay remains metadata-only and that real LLM/tool replay requires a separate design with side-effect controls.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

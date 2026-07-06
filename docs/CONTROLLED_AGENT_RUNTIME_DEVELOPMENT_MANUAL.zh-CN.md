@@ -331,6 +331,7 @@ type ControlledPlaybookStep = {
 - [Fixture Replay Refresh Review Checklist Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-refresh-review-checklist.md)
 - [Fixture Replay CI Gate Documentation Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-ci-gate-documentation.md)
 - [Fixture Replay Catalog Expansion Review Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-catalog-expansion-review.md)
+- [Trace Governance Operational Runbook Implementation Plan](superpowers/plans/2026-07-06-trace-governance-operational-runbook.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -371,17 +372,18 @@ type ControlledPlaybookStep = {
 - Phase 10r fixture replay refresh review checklist：已把 governed fixture refresh 的候选 fixture 审查拆成 source identity、redaction、playbook contract、approval、writeback identity、failure triage、sensitive search 和 replacement diff gates。失败分类链接到 replay contract failure fixture matrix。
 - Phase 10s fixture replay CI gate documentation：已新增 governed trace fixture CI gate guide，明确 `trace:fixtures` 是自动化 JSON contract，`trace:fixtures:summary` 是人读 triage，`trace:fixture:build` 只属于人工 refresh workflow。
 - Phase 10t fixture replay catalog expansion review：已新增 catalog coverage guide，确认当前 sales/support completed fixtures 覆盖所有注册 playbook、当前 writeback target family、approved approval path、redaction metadata 和 stable writeback identity；本阶段不新增 fixture JSON。
+- Phase 10u trace governance operational runbook：已新增 governed trace operational runbook，把 artifact export、intent classification、fixture candidate build、refresh review、catalog gates、retention cleanup、failure escalation 和 real replay boundary 串成维护者执行路径。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- Trace governance 还缺少面向维护者和 operator 的端到端运行手册，把 export、refresh、catalog gate、retention、real replay boundary 串成一条运营路径。
+- 真实 replay 的 sandbox、credential isolation、approval simulation、store isolation、side-effect blocking 和结果归属仍未设计。
 
 因此下一阶段默认进入：
 
-**Phase 10u. Trace Governance Operational Runbook**
+**Phase 10v. Real Replay Boundary Design**
 
-目标是把 governed trace artifact lifecycle、fixture refresh、catalog replay gate、retention policy 和未来 real replay boundary 写成维护者可执行的 operational runbook。该阶段优先 documentation/operations，除非 runbook 暴露缺失命令或不安全边界。
+目标是在写任何 real replay 代码前，先明确 sandbox、credential、approval、store、side effect 和 replay result ownership 边界。该阶段应 design-first，不执行真实工具、不写 store、不写资产。
 
 ### Phase 0. 冻结方向
 

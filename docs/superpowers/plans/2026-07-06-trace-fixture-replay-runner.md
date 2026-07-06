@@ -24,7 +24,7 @@
 **Files:**
 - Create: `src/__tests__/lib/executor/runtime/trace-replay.test.ts`
 
-- [ ] **Step 1: Write failing happy-path replay test**
+- [x] **Step 1: Write failing happy-path replay test**
 
 Create a test importing the committed fixture:
 
@@ -53,7 +53,7 @@ describe("trace replay", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify RED**
+- [x] **Step 2: Run test to verify RED**
 
 Run:
 
@@ -63,7 +63,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-replay.test.ts
 
 Expected: FAIL because `src/lib/executor/runtime/trace-replay.ts` does not exist.
 
-- [ ] **Step 3: Add failing contract mismatch tests**
+- [x] **Step 3: Add failing contract mismatch tests**
 
 Extend the test file with a clone helper and mismatch cases:
 
@@ -120,7 +120,7 @@ Expected: tests still fail because the runner does not exist.
 **Files:**
 - Create: `src/lib/executor/runtime/trace-replay.ts`
 
-- [ ] **Step 1: Implement minimal pure replay runner**
+- [x] **Step 1: Implement minimal pure replay runner**
 
 Create:
 
@@ -153,7 +153,7 @@ Implementation rules:
 - Require each playbook `writesTo` target on the same fixture step.
 - Never import or call stores, routes, tool executors, or writeback helpers.
 
-- [ ] **Step 2: Run targeted test to verify GREEN**
+- [x] **Step 2: Run targeted test to verify GREEN**
 
 Run:
 
@@ -163,7 +163,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-replay.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 3: Commit runner**
+- [x] **Step 3: Commit runner**
 
 ```bash
 git add src/lib/executor/runtime/trace-replay.ts src/__tests__/lib/executor/runtime/trace-replay.test.ts
@@ -177,7 +177,7 @@ git commit -m "feat: replay governed trace fixtures"
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add replay tests to controlled-runtime script**
+- [x] **Step 1: Add replay tests to controlled-runtime script**
 
 Insert:
 
@@ -191,7 +191,7 @@ after:
 src/__tests__/lib/executor/runtime/trace-fixtures.test.ts
 ```
 
-- [ ] **Step 2: Run controlled runtime tests**
+- [x] **Step 2: Run controlled runtime tests**
 
 Run:
 
@@ -201,7 +201,7 @@ npm run test:controlled-runtime
 
 Expected: PASS and includes `trace-replay.test.ts`.
 
-- [ ] **Step 3: Commit script coverage**
+- [x] **Step 3: Commit script coverage**
 
 ```bash
 git add package.json
@@ -219,7 +219,7 @@ git commit -m "test: include trace fixture replay coverage"
 - Modify: `docs/superpowers/plans/2026-07-06-trace-fixture-replay-runner.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run full verification before docs**
+- [x] **Step 1: Run full verification before docs**
 
 Run:
 
@@ -233,7 +233,7 @@ git diff --check
 
 Expected: all commands exit 0. `lint` and `build` may show only the existing `<img>` warning.
 
-- [ ] **Step 2: Update docs and records**
+- [x] **Step 2: Update docs and records**
 
 Record:
 
@@ -243,7 +243,7 @@ Record:
 - mismatch failures cover step order, required approval, writeback targets, and missing playbook;
 - next recommended phase.
 
-- [ ] **Step 3: Re-run final verification after docs**
+- [x] **Step 3: Re-run final verification after docs**
 
 Run:
 
@@ -257,7 +257,7 @@ git diff --check
 
 Expected: all commands exit 0 with only the known existing `<img>` warning if present.
 
-- [ ] **Step 4: Commit docs**
+- [x] **Step 4: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-trace-fixture-replay-runner.md
@@ -271,3 +271,33 @@ git commit -m "docs: complete trace fixture replay runner"
 - Spec coverage: replay report, base fixture validation, playbook lookup, step order, required approval, writeback target checks, non-execution guarantees, tests, script coverage, docs, and verification are covered.
 - Placeholder scan: no placeholder markers remain.
 - Type consistency: `ControlledTraceReplayReport` and `replayControlledTraceFixture()` are used consistently across tests and implementation.
+
+## Completion Record
+
+Commits:
+
+- `dc25ff1` — `docs: spec trace fixture replay runner`
+- `c84d987` — `feat: replay governed trace fixtures`
+- `6d66e7e` — `test: include trace fixture replay coverage`
+
+Verification before final docs:
+
+- `npm test -- src/__tests__/lib/executor/runtime/trace-replay.test.ts` — 1 file / 5 tests passed.
+- `npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts src/__tests__/lib/executor/runtime/trace-replay.test.ts` — 2 files / 8 tests passed.
+- `npm run test:controlled-runtime` — 25 files / 142 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
+
+Final verification after docs:
+
+- `npm run test:controlled-runtime` — 25 files / 142 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
+
+Next phase:
+
+- Trace Fixture Catalog And Support Coverage.

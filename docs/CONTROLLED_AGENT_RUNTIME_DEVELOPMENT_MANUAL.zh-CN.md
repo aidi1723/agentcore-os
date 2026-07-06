@@ -320,6 +320,7 @@ type ControlledPlaybookStep = {
 - [Runtime Console Record-Level Asset Focus Implementation Plan](superpowers/plans/2026-07-06-runtime-console-record-level-asset-focus.md)
 - [Runtime Console Workflow And Draft Deep Links Implementation Plan](superpowers/plans/2026-07-06-runtime-console-workflow-draft-deep-links.md)
 - [Support Playbook Migration Implementation Plan](superpowers/plans/2026-07-06-support-playbook-migration.md)
+- [Trace Fixture Replay Runner Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-replay-runner.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -343,17 +344,18 @@ type ControlledPlaybookStep = {
 - Phase 10 trace governance artifact slice：已新增 governed trace artifact builder 和本地 `trace-artifact` route。它保留 run/playbook/step/approval/writeback/audit 的结构化元数据，同时脱敏 step input/output、tool output、approval feedback、audit message、run/step error、plan goal 和 step description。原始 controlled run store 和 Runtime Console 操作路径保持不变。
 - Phase 10b trace governance console export and retention：Runtime Console selected run 已有 `复制脱敏 Trace` 动作，会从 governed `trace-artifact` route 获取 `{ export, artifact }` 并复制 JSON；store 层已有 `pruneControlledExecutionRuns()`，只清理旧 terminal run，保留 `running` 和 `awaiting_approval` run。
 - Phase 10c trace fixture generation：已新增 `trace-fixtures.ts`，可把 governed trace artifact 转换成稳定 regression fixture；fixture validation 会检查 redaction boundary、step order、known playbook match、tool output redaction、approval/schema/writeback metadata，并已有 sales pipeline sample fixture。
+- Phase 10d trace fixture replay runner：已新增 `trace-replay.ts`，可用 committed governed fixture 校验当前 playbook 合约。replay 会先执行 fixture validation，再检查 playbook 是否注册、step order 是否匹配、requiresApproval step 是否有 approval state、每个 playbook `writesTo` target 是否在同一步 fixture metadata 中出现。该 runner 是纯校验，不调用 LLM、不调用工具、不写 store、不写资产。
 
 仍未完成：
 
-- Trace replay / fixture runner 还没有落地。
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
+- 目前只有 sales fixture 进入 replay；support fixture 和 fixture catalog 还没有落地。
 
 因此下一阶段默认进入：
 
-**Phase 10d. Trace Fixture Replay Runner**
+**Phase 10e. Trace Fixture Catalog And Support Coverage**
 
-目标是在已有 governed fixture 的基础上，增加最小 replay validation runner，用 fixture 持续校验当前 playbook 合约。
+目标是把 replay 从单个 sales fixture 扩展成可枚举 fixture catalog，并补齐 support playbook 的 governed fixture。
 
 ### Phase 0. 冻结方向
 
@@ -684,18 +686,42 @@ type ControlledPlaybookStep = {
 - 用 committed governed fixtures 持续验证当前 playbook 合约。
 - 在不调用真实工具的前提下，检测 playbook step order、approval boundary、writeback target 是否和 fixture 兼容。
 
-建议范围：
+已完成范围：
 
 - 新增 `trace-replay.ts`，读取 `ControlledTraceFixture` 并生成 replay validation report。
 - 校验 fixture 的 step order 是否仍匹配当前 controlled playbook。
 - 校验 fixture 中 approval/writeback metadata 是否符合当前 playbook 预期。
 - 增加 sales pipeline fixture replay 测试。
+- replay report 明确声明 `toolCallsExecuted: false` 和 `assetsWritten: false`。
+- sales sample fixture 已对齐当前 `sales-pipeline-v1` 的 approval / writeback target 合约。
 
 完成标准：
 
-- sample fixture 可通过 replay validation。
-- 修改 playbook step order 时 replay validation 能失败。
-- 不调用 LLM、不调用工具、不写回资产。
+- sample fixture 可通过 replay validation。已完成。
+- 修改 playbook step order 时 replay validation 能失败。已完成。
+- 缺失 approval state / writeback target / playbook 注册时 replay validation 能失败。已完成。
+- 不调用 LLM、不调用工具、不写回资产。已完成。
+
+### Phase 10e. Trace Fixture Catalog And Support Coverage
+
+目标：
+
+- 把单个 sales fixture replay 扩展为 fixture catalog。
+- 为 `support-resolution-v1` 增加 committed governed fixture。
+- 让 `test:controlled-runtime` 一次性 replay 所有 committed fixtures。
+
+建议范围：
+
+- 新增 catalog helper，列出 `src/__tests__/fixtures/controlled-traces/` 下当前受支持 fixture。
+- 新增 support governed fixture，保留 step order、approval state、schema/writeback target metadata 和 redaction boundary。
+- 增加 catalog replay 测试，遍历所有 fixture 并输出稳定 failure message。
+- 保持纯校验，不做工具 replay、不读写 runtime stores、不新增导入 route。
+
+完成标准：
+
+- Sales 和 support fixture 都能通过 replay validation。
+- 任一 fixture 对应 playbook step order、approval gate 或 writeback target 漂移时，catalog replay test 失败。
+- `test:controlled-runtime` 覆盖 fixture catalog replay。
 
 ## 9. 开发规范
 

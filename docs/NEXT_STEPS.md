@@ -56,6 +56,7 @@ Completed in the current controlled runtime line:
 - Governed trace artifact builder and local trace artifact route.
 - Runtime Console governed trace copy action and conservative terminal-run prune helper.
 - Governed trace fixture builder, validator, and committed sales pipeline trace fixture.
+- Pure trace fixture replay runner that checks committed governed fixtures against current controlled playbook contracts without executing tools or writing assets.
 
 Current verification baseline:
 
@@ -68,9 +69,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 24 test files.
-- 137 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, and governed trace fixture validation.
+- 25 test files.
+- 142 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, and pure trace fixture replay validation.
 
 Known current lint/build note:
 
@@ -252,6 +253,55 @@ Outcome:
 - Runtime Console can compare multiple playbook families.
 - Approved support runs write support assets, FAQ knowledge assets, drafts, and completed workflow runs.
 - Support writeback is covered by `test:controlled-runtime`.
+
+## Completed. Trace Fixture Replay Runner
+
+Why:
+
+- Phase 10c made governed fixtures safe to commit, but fixtures did not yet prove compatibility with the live playbook catalog.
+- Controlled playbook evolution needs deterministic failure when step order, approval gates, or writeback targets drift.
+
+Delivered:
+
+- Added `replayControlledTraceFixture()` in `src/lib/executor/runtime/trace-replay.ts`.
+- Replay first runs `validateControlledTraceFixture()` and prefixes fixture safety failures.
+- Replay checks that the fixture playbook is registered, fixture step order matches the current playbook, approval-gated steps include approval state, and each declared playbook writeback target appears on the same fixture step.
+- Replay reports explicit non-execution guarantees: `toolCallsExecuted: false` and `assetsWritten: false`.
+- Updated the committed sales governed fixture so it matches current `sales-pipeline-v1` approval/writeback expectations.
+- Added mismatch coverage for step order drift, missing approval state, missing writeback target, and missing playbook.
+
+Primary files:
+
+- `src/lib/executor/runtime/trace-replay.ts`
+- `src/__tests__/lib/executor/runtime/trace-replay.test.ts`
+- `src/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json`
+- `package.json`
+
+Outcome:
+
+- Committed governed fixtures can now act as contract tests for controlled playbook changes.
+- Replay remains pure: no LLM calls, no tool calls, no route calls, no store mutation, and no asset writes.
+- `test:controlled-runtime` now covers trace fixture replay.
+
+## Recommended Next. Trace Fixture Catalog And Support Coverage
+
+Why:
+
+- The replay runner currently validates one committed sales fixture.
+- The project now has two controlled playbooks, so support needs the same fixture/replay contract.
+- A small fixture catalog will let future CI run all committed fixture replays without hardcoding each file in separate tests.
+
+Suggested scope:
+
+- Add a typed fixture catalog for committed governed trace fixtures.
+- Add a committed governed `support-resolution-v1` fixture.
+- Add a test that replays every catalog fixture and reports fixture id / playbook id failures.
+- Keep the scope pure: no fixture generation route, no runtime store mutation, no tool replay.
+
+Completion target:
+
+- `test:controlled-runtime` validates every committed governed trace fixture through one catalog replay test.
+- Sales and support playbook fixtures both fail deterministically if their current playbook contract drifts.
 
 ## Completed. Support Runtime Console Record Focus
 

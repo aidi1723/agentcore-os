@@ -148,6 +148,14 @@
 - Added a committed sales pipeline governed trace fixture under `src/__tests__/fixtures/controlled-traces/`.
 - Expanded `test:controlled-runtime` to cover governed trace fixture generation and validation.
 
+### Trace Fixture Replay Runner
+
+- Added a pure governed trace fixture replay runner that validates committed fixtures against the current controlled playbook catalog without invoking LLMs, tools, API routes, stores, or writeback helpers.
+- Replay reports include checked step ids, deterministic errors, and explicit guarantees that no tool calls were executed and no assets were written.
+- Replay validation checks base fixture safety, registered playbook existence, current step order, required approval state, and per-step writeback target coverage.
+- Aligned the committed sales governed trace fixture with the current `sales-pipeline-v1` writeback / approval contract.
+- Expanded `test:controlled-runtime` to include trace fixture replay coverage.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

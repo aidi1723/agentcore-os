@@ -1,0 +1,186 @@
+{
+  "schemaVersion": "controlled-trace-fixture/v1",
+  "fixtureId": "controlled-trace-fixture:support-run-fixture-1",
+  "sourceRunId": "support-run-fixture-1",
+  "playbookId": "support-resolution-v1",
+  "playbookVersion": "1.0.0",
+  "planId": "playbook:support-resolution-v1:1.0.0",
+  "scenarioId": "support-ops",
+  "workflowRunId": "support-workflow-fixture-1",
+  "terminalState": "completed",
+  "generatedAt": 300,
+  "governance": {
+    "mode": "fixture",
+    "redactedAt": 210
+  },
+  "plan": {
+    "id": "playbook:support-resolution-v1:1.0.0",
+    "totalSteps": 5,
+    "requiresApproval": true,
+    "stepOrder": [
+      "intake",
+      "classify",
+      "draft_reply",
+      "human_review",
+      "writeback"
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "intake",
+      "state": "completed",
+      "attempts": 1,
+      "hasRedactedInput": true,
+      "hasRedactedOutput": true,
+      "toolCalls": [
+        {
+          "toolName": "llm_generate",
+          "success": true,
+          "durationMs": 12,
+          "tokensUsed": 5,
+          "outputRedacted": true
+        }
+      ],
+      "writebackTargets": [
+        {
+          "target": "workflow_run",
+          "ok": true,
+          "assetId": "support-workflow-fixture-1",
+          "sourceKey": "controlled-run:support-run-fixture-1:workflow_run",
+          "workflowRunId": "support-workflow-fixture-1"
+        }
+      ]
+    },
+    {
+      "stepId": "classify",
+      "state": "completed",
+      "attempts": 1,
+      "hasRedactedInput": true,
+      "hasRedactedOutput": true,
+      "toolCalls": [
+        {
+          "toolName": "llm_generate",
+          "success": true,
+          "durationMs": 12,
+          "tokensUsed": 5,
+          "outputRedacted": true
+        }
+      ],
+      "writebackTargets": [
+        {
+          "target": "support_asset",
+          "ok": true,
+          "assetId": "support-asset-classify-1",
+          "sourceKey": "controlled-support-asset:support-workflow-fixture-1",
+          "workflowRunId": "support-workflow-fixture-1"
+        }
+      ]
+    },
+    {
+      "stepId": "draft_reply",
+      "state": "completed",
+      "attempts": 1,
+      "hasRedactedInput": true,
+      "hasRedactedOutput": true,
+      "toolCalls": [
+        {
+          "toolName": "llm_generate",
+          "success": true,
+          "durationMs": 12,
+          "tokensUsed": 5,
+          "outputRedacted": true
+        }
+      ],
+      "writebackTargets": [
+        {
+          "target": "draft",
+          "ok": true,
+          "assetId": "controlled-draft:support-workflow-fixture-1",
+          "sourceKey": "controlled-run:support-run-fixture-1:draft",
+          "workflowRunId": "support-workflow-fixture-1"
+        }
+      ]
+    },
+    {
+      "stepId": "human_review",
+      "state": "completed",
+      "attempts": 1,
+      "hasRedactedInput": true,
+      "hasRedactedOutput": true,
+      "toolCalls": [
+        {
+          "toolName": "human_ask",
+          "success": true,
+          "durationMs": 12,
+          "tokensUsed": 0,
+          "outputRedacted": true
+        }
+      ],
+      "approvalState": "approved",
+      "writebackTargets": [
+        {
+          "target": "workflow_run",
+          "ok": true,
+          "assetId": "support-workflow-fixture-1",
+          "sourceKey": "controlled-run:support-run-fixture-1:workflow_run:human_review",
+          "workflowRunId": "support-workflow-fixture-1"
+        }
+      ]
+    },
+    {
+      "stepId": "writeback",
+      "state": "completed",
+      "attempts": 1,
+      "hasRedactedInput": true,
+      "hasRedactedOutput": true,
+      "toolCalls": [
+        {
+          "toolName": "human_ask",
+          "success": true,
+          "durationMs": 12,
+          "tokensUsed": 0,
+          "outputRedacted": true
+        }
+      ],
+      "approvalState": "approved",
+      "schemaValid": true,
+      "writebackTargets": [
+        {
+          "target": "support_asset",
+          "ok": true,
+          "assetId": "support-asset-1",
+          "sourceKey": "controlled-support-asset:support-workflow-fixture-1",
+          "workflowRunId": "support-workflow-fixture-1"
+        },
+        {
+          "target": "knowledge_asset",
+          "ok": true,
+          "assetId": "support-knowledge-asset-1",
+          "sourceKey": "controlled-run:support-run-fixture-1:knowledge_asset",
+          "workflowRunId": "support-workflow-fixture-1"
+        },
+        {
+          "target": "workflow_run",
+          "ok": true,
+          "assetId": "support-workflow-fixture-1",
+          "sourceKey": "controlled-run:support-run-fixture-1:workflow_run:writeback",
+          "workflowRunId": "support-workflow-fixture-1"
+        }
+      ]
+    }
+  ],
+  "auditEventTypes": [
+    "console_retry_requested"
+  ],
+  "assertions": {
+    "stepOrder": [
+      "intake",
+      "classify",
+      "draft_reply",
+      "human_review",
+      "writeback"
+    ],
+    "redactionBoundary": "required",
+    "knownPlaybookMatched": true
+  }
+}

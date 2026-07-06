@@ -11,6 +11,7 @@ import type {
 } from "@/lib/executor/contracts";
 import { resolveExecutionPlanFromPlaybook } from "@/lib/executor/playbooks/resolver";
 import { salesPipelinePlaybook } from "@/lib/executor/playbooks/sales-pipeline";
+import { supportResolutionPlaybook } from "@/lib/executor/playbooks/support-resolution";
 
 let tmpDir: string;
 let originalCwd: () => string;
@@ -50,12 +51,42 @@ registerTool({
         risks: [],
         nextAction: "Draft outreach",
       };
-    } else if (prompt.includes("生成可供人工审核")) {
+    } else if (prompt.includes("生成可供人工审核的客户跟进")) {
       output = {
         subject: "Following up on your window inquiry",
         body: "Thanks for your inquiry. We can confirm details after reviewing requirements.",
         assumptions: [],
         needsHumanCheck: [],
+      };
+    } else if (prompt.includes("把客服消息整理")) {
+      output = {
+        summary: "Support request from Ada",
+        missingFields: [],
+        normalizedIssue: {
+          customer: "Ada Customer",
+          channel: "email",
+          subject: "Delivery delay",
+          issue: "Order has not arrived",
+          orderId: "ORD-9",
+          productLine: "uPVC windows",
+          language: "en",
+        },
+      };
+    } else if (prompt.includes("判断问题类型")) {
+      output = {
+        category: "delivery_delay",
+        priority: "high",
+        risks: ["SLA risk"],
+        missingInfo: [],
+        nextAction: "Confirm logistics ETA",
+      };
+    } else if (prompt.includes("生成可供人工审核的客服回复")) {
+      output = {
+        subject: "Delivery update",
+        body: "We are checking logistics and will update you shortly.",
+        tone: "calm",
+        assumptions: [],
+        needsHumanCheck: ["Confirm ETA"],
       };
     }
     return {
@@ -77,7 +108,20 @@ registerTool({
     return {
       toolName: "human_ask",
       success: true,
-      output: prompt.includes("把已批准结果写回")
+      output: prompt.includes("把已批准客服处理结果写回")
+        ? {
+            supportAssetUpdated: true,
+            knowledgeAssetCandidate: "Support FAQ candidate",
+            faqCandidate: "Confirm ETA before promising compensation.",
+          }
+        : prompt.includes("人工确认回复事实")
+          ? {
+              approved: true,
+              approvedReply: "Approved support reply",
+              reviewNotes: "No refund promise",
+              nextAction: "Send ETA update",
+            }
+          : prompt.includes("把已批准结果写回")
         ? {
             salesAssetUpdated: true,
             knowledgeAssetCandidate: "Approved outreach content",
@@ -121,6 +165,27 @@ function buildRequest(): AgentCoreTaskRequest {
       approvalMode: "none",
     },
     controlledPlaybookId: "sales-pipeline-v1",
+    controlledPlan: plan,
+  };
+}
+
+function buildSupportRequest(): AgentCoreTaskRequest {
+  const plan = resolveExecutionPlanFromPlaybook(supportResolutionPlaybook);
+  return {
+    ...buildRequest(),
+    taskInput: { userMessage: "Execute controlled support resolution" },
+    session: { id: "test-support-session" },
+    metadata: { requestId: "controlled-support-runtime-test", source: "test" },
+    context: {
+      systemPrompt: "",
+      workspace: { activeScenarioId: "support-ops" },
+    },
+    multiStep: {
+      enabled: true,
+      maxSteps: 5,
+      approvalMode: "none",
+    },
+    controlledPlaybookId: "support-resolution-v1",
     controlledPlan: plan,
   };
 }
@@ -295,6 +360,70 @@ describe("controlled runtime execution", () => {
       title: "Following up on your window inquiry",
       workflowRunId: "controlled-runtime-test",
       workflowStageId: "draft_outreach",
+    });
+  });
+
+  it("executes support controlled playbook and writes support records", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    const { getControlledExecutionRun } = await import(
+      "@/lib/server/controlled-execution-store"
+    );
+    const { listSupportAssetStoreSnapshot } = await import(
+      "@/lib/server/support-asset-store"
+    );
+    const { listKnowledgeAssetStoreSnapshot } = await import(
+      "@/lib/server/knowledge-asset-store"
+    );
+    const { listWorkflowRunStoreSnapshot } = await import(
+      "@/lib/server/workflow-run-store"
+    );
+    const { listDraftStoreSnapshot } = await import("@/lib/server/draft-store");
+    const request = buildSupportRequest();
+    const { callbacks } = buildCallbacks();
+
+    const result = await runMultiStepTask(request, callbacks);
+    const run = await getControlledExecutionRun(request.metadata.requestId);
+
+    expect(result.ok).toBe(true);
+    expect(run?.playbookId).toBe("support-resolution-v1");
+    expect(run?.steps.map((step) => step.stepId)).toEqual([
+      "intake",
+      "classify",
+      "draft_reply",
+      "human_review",
+      "writeback",
+    ]);
+    expect(run?.steps.find((step) => step.stepId === "classify")?.writebackReceipts).toEqual([
+      expect.objectContaining({ target: "support_asset", ok: true }),
+    ]);
+    expect(run?.steps.find((step) => step.stepId === "writeback")?.writebackReceipts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "support_asset", ok: true }),
+        expect.objectContaining({ target: "knowledge_asset", ok: true }),
+        expect.objectContaining({ target: "workflow_run", ok: true }),
+      ]),
+    );
+
+    expect((await listSupportAssetStoreSnapshot()).supportAssets[0]).toMatchObject({
+      id: "controlled-support-asset:controlled-support-runtime-test",
+      workflowRunId: "controlled-support-runtime-test",
+      scenarioId: "support-ops",
+      latestReply: "Approved support reply",
+      status: "completed",
+    });
+    expect((await listKnowledgeAssetStoreSnapshot()).knowledgeAssets[0]).toMatchObject({
+      workflowRunId: "controlled-support-runtime-test",
+      assetType: "support_faq",
+    });
+    expect((await listWorkflowRunStoreSnapshot()).workflowRuns[0]).toMatchObject({
+      id: "controlled-support-runtime-test",
+      scenarioId: "support-ops",
+      state: "completed",
+    });
+    expect((await listDraftStoreSnapshot()).drafts[0]).toMatchObject({
+      id: "controlled-draft:controlled-support-runtime-test",
+      workflowRunId: "controlled-support-runtime-test",
+      workflowStageId: "draft_reply",
     });
   });
 });

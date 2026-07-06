@@ -15,6 +15,8 @@ import { buildAgentCoreApiUrl } from "@/lib/app-api";
 import { jumpToAssetTarget } from "@/lib/asset-jumps";
 import { subscribeCreatorAssets, type CreatorAssetRecord } from "@/lib/creator-assets";
 import {
+  getKnowledgeAssetById,
+  getKnowledgeAssetBySourceKey,
   getKnowledgeAssets,
   incrementKnowledgeAssetReuse,
   removeKnowledgeAsset,
@@ -70,6 +72,7 @@ export function KnowledgeVaultAppWindow({
   const [editingScene, setEditingScene] = useState("");
   const [editingBody, setEditingBody] = useState("");
   const [query, setQuery] = useState("");
+  const [focusedAssetId, setFocusedAssetId] = useState<string | null>(null);
   const [creatorSliceAssets, setCreatorSliceAssets] = useState<CreatorAssetRecord[]>([]);
   const [creatorSliceLoading, setCreatorSliceLoading] = useState(false);
   const [ask, setAsk] = useState("");
@@ -111,8 +114,22 @@ export function KnowledgeVaultAppWindow({
   useEffect(() => {
     const onPrefill = (event: Event) => {
       const detail = (event as CustomEvent<KnowledgeVaultPrefill>).detail;
+      const focusedAsset =
+        getKnowledgeAssetById(detail?.assetId) ?? getKnowledgeAssetBySourceKey(detail?.sourceKey);
+      if (focusedAsset) {
+        setFocusedAssetId(focusedAsset.id);
+        setQuery(focusedAsset.title);
+        setAsk(detail?.query ?? focusedAsset.title);
+        setAnswer("");
+        setStructuredAnswer(null);
+        showToast("已定位到知识资产", "ok");
+        return;
+      }
+
+      setFocusedAssetId(null);
       setAsk(detail?.query ?? "");
       setAnswer("");
+      setStructuredAnswer(null);
       showToast("已带入知识库问题", "ok");
     };
     window.addEventListener("openclaw:vault-prefill", onPrefill);
@@ -496,34 +513,51 @@ export function KnowledgeVaultAppWindow({
                     暂无流程资产。完成销售或客服闭环后，可把结构化资产草稿确认入库。
                   </div>
                 ) : (
-                  filteredAssets.map((asset) => (
-                    <div key={asset.id} className="px-5 py-4">
-                      <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-                        <div className="min-w-0">
-                          {editingAssetId === asset.id ? (
-                            <div className="space-y-3">
-                              <input
-                                value={editingTitle}
-                                onChange={(e) => setEditingTitle(e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="资产标题"
-                              />
-                              <input
-                                value={editingScene}
-                                onChange={(e) => setEditingScene(e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                                placeholder="适用场景"
-                              />
-                              <input
-                                value={editingTags}
-                                onChange={(e) => setEditingTags(e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500"
-                                placeholder="标签，使用逗号分隔"
-                              />
-                            </div>
-                          ) : (
-                            <div className="text-sm font-semibold text-gray-900">{asset.title}</div>
-                          )}
+                  filteredAssets.map((asset) => {
+                    const focused = asset.id === focusedAssetId;
+                    return (
+                      <div
+                        key={asset.id}
+                        className={[
+                          "px-5 py-4 border-l-2",
+                          focused
+                            ? "border-l-sky-500 bg-sky-50/60"
+                            : "border-l-transparent bg-white",
+                        ].join(" ")}
+                      >
+                        <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                          <div className="min-w-0">
+                            {editingAssetId === asset.id ? (
+                              <div className="space-y-3">
+                                <input
+                                  value={editingTitle}
+                                  onChange={(e) => setEditingTitle(e.target.value)}
+                                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="资产标题"
+                                />
+                                <input
+                                  value={editingScene}
+                                  onChange={(e) => setEditingScene(e.target.value)}
+                                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                  placeholder="适用场景"
+                                />
+                                <input
+                                  value={editingTags}
+                                  onChange={(e) => setEditingTags(e.target.value)}
+                                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500"
+                                  placeholder="标签，使用逗号分隔"
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex flex-wrap items-center gap-2">
+                                <div className="text-sm font-semibold text-gray-900">{asset.title}</div>
+                                {focused ? (
+                                  <span className="rounded-full border border-sky-200 bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-sky-700">
+                                    已聚焦
+                                  </span>
+                                ) : null}
+                              </div>
+                            )}
                           <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-gray-500">
                             <span className="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1">
                               {asset.assetType === "sales_playbook" ? "销售资产" : "FAQ 资产"}
@@ -642,7 +676,8 @@ export function KnowledgeVaultAppWindow({
                         </div>
                       </div>
                     </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

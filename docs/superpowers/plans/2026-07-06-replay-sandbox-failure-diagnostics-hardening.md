@@ -41,7 +41,7 @@
 - Modify: `src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts`
 - Modify: `src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
 
-- [ ] **Step 1: Add report-level synthetic failure tests**
+- [x] **Step 1: Add report-level synthetic failure tests**
 
 Append tests to `src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts`:
 
@@ -136,7 +136,7 @@ Add these tests inside the existing `describe` block:
   });
 ```
 
-- [ ] **Step 2: Add compact output failed-item assertions**
+- [x] **Step 2: Add compact output failed-item assertions**
 
 In `src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`, extend the failed harness item assertion with:
 
@@ -152,7 +152,7 @@ and update the local `ReplaySandboxCatalogSummaryOutput` failed item type with:
     guaranteeErrors: string[];
 ```
 
-- [ ] **Step 3: Run tests and verify RED**
+- [x] **Step 3: Run tests and verify RED**
 
 Run:
 
@@ -162,7 +162,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.tes
 
 Expected: FAIL because `failureKind`, `guaranteeErrors`, and `runSandbox` injection do not exist.
 
-- [ ] **Step 4: Commit failing tests**
+- [x] **Step 4: Commit failing tests**
 
 ```bash
 git add src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts
@@ -178,7 +178,7 @@ git commit -m "test: specify replay sandbox failure diagnostics"
 - Modify: `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`
 - Modify: `src/__tests__/fixtures/controlled-traces/replay-sandbox-report-output.ts`
 
-- [ ] **Step 1: Extend report types and injection seam**
+- [x] **Step 1: Extend report types and injection seam**
 
 In `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`, add:
 
@@ -212,7 +212,7 @@ function buildItem(
 Use `options.runSandbox(contractBuild.contract)` instead of calling
 `runNoSideEffectReplaySandbox()` directly.
 
-- [ ] **Step 2: Add stable classification logic**
+- [x] **Step 2: Add stable classification logic**
 
 For failed contract build items, return:
 
@@ -255,7 +255,7 @@ export function buildReplaySandboxCatalogReport(
 }
 ```
 
-- [ ] **Step 3: Extend compact failed output**
+- [x] **Step 3: Extend compact failed output**
 
 In `src/__tests__/fixtures/controlled-traces/replay-sandbox-report-output.ts`, add to failed item output:
 
@@ -264,7 +264,7 @@ In `src/__tests__/fixtures/controlled-traces/replay-sandbox-report-output.ts`, a
         guaranteeErrors: item.guaranteeErrors,
 ```
 
-- [ ] **Step 4: Run targeted tests and verify GREEN**
+- [x] **Step 4: Run targeted tests and verify GREEN**
 
 Run:
 
@@ -274,7 +274,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.tes
 
 Expected: PASS.
 
-- [ ] **Step 5: Run replay sandbox command**
+- [x] **Step 5: Run replay sandbox command**
 
 Run:
 
@@ -284,7 +284,7 @@ npm run replay:sandbox:fixtures --silent
 
 Expected: exit 0, `ok: true`, `failedItems: []`.
 
-- [ ] **Step 6: Commit implementation**
+- [x] **Step 6: Commit implementation**
 
 ```bash
 git add src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts src/__tests__/fixtures/controlled-traces/replay-sandbox-report-output.ts
@@ -299,7 +299,7 @@ git commit -m "feat: classify replay sandbox catalog failures"
 **Files:**
 - No source file changes expected.
 
-- [ ] **Step 1: Run controlled runtime gate**
+- [x] **Step 1: Run controlled runtime gate**
 
 Run:
 
@@ -309,7 +309,7 @@ npm run test:controlled-runtime
 
 Expected: PASS with the same 35 files and three more tests than the prior 181 test baseline.
 
-- [ ] **Step 2: Commit if package or gate files changed**
+- [x] **Step 2: Commit if package or gate files changed**
 
 No commit is expected for this task unless the command list changes.
 
@@ -330,12 +330,12 @@ No commit is expected for this task unless the command list changes.
 - Modify: `docs/superpowers/plans/2026-07-06-replay-sandbox-failure-diagnostics-hardening.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Mark this plan complete**
+- [x] **Step 1: Mark this plan complete**
 
 Update this plan's task checkboxes and add completion notes with commits and
 verification evidence.
 
-- [ ] **Step 2: Update project docs**
+- [x] **Step 2: Update project docs**
 
 Record the new capability as:
 
@@ -352,7 +352,7 @@ Set the next recommended phase to:
 Replay Sandbox Failure Harness Expansion
 ```
 
-- [ ] **Step 3: Update daily memory**
+- [x] **Step 3: Update daily memory**
 
 Append a concise record to `memory/2026-07-06.md` with:
 
@@ -362,7 +362,7 @@ Append a concise record to `memory/2026-07-06.md` with:
 - verification commands and observed results;
 - next recommended phase.
 
-- [ ] **Step 4: Run final verification**
+- [x] **Step 4: Run final verification**
 
 Run:
 
@@ -378,7 +378,7 @@ npm run test:core-workflows
 
 Expected: all commands exit 0.
 
-- [ ] **Step 5: Commit docs and records**
+- [x] **Step 5: Commit docs and records**
 
 ```bash
 git add CHANGELOG.md README.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/DOCUMENTATION_INDEX.zh-CN.md docs/NEXT_STEPS.md docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md docs/PROJECT_FRAMEWORK.zh-CN.md docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md docs/ROADMAP.md docs/superpowers/plans/2026-07-06-replay-sandbox-failure-diagnostics-hardening.md
@@ -390,13 +390,46 @@ git commit -m "docs: complete replay sandbox failure diagnostics"
 
 ## Final Verification Checklist
 
-- [ ] `git diff --check`
-- [ ] `npm run replay:sandbox:fixtures --silent`
-- [ ] `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
-- [ ] `npm run trace:fixtures --silent`
-- [ ] `npm run trace:fixtures:summary --silent`
-- [ ] `npm run test:controlled-runtime`
-- [ ] `npm run test:core-workflows`
+- [x] `git diff --check`
+- [x] `npm run replay:sandbox:fixtures --silent`
+- [x] `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
+- [x] `npm run trace:fixtures --silent`
+- [x] `npm run trace:fixtures:summary --silent`
+- [x] `npm run test:controlled-runtime`
+- [x] `npm run test:core-workflows`
+
+## Completion Notes
+
+Completed on 2026-07-06.
+
+Commits:
+
+- `0edf721` — `docs: spec replay sandbox failure diagnostics`
+- `870f3e3` — `docs: plan replay sandbox failure diagnostics`
+- `72b6fef` — `test: specify replay sandbox failure diagnostics`
+- `a6e924b` — `feat: classify replay sandbox catalog failures`
+
+TDD evidence:
+
+- RED: targeted replay sandbox catalog report/script tests failed before `failureKind`, `guaranteeErrors`, and injected `runSandbox` existed.
+- GREEN: targeted replay sandbox catalog report/script tests passed after implementation.
+
+Delivered capability:
+
+- Replay sandbox failure diagnostics taxonomy for contract, sandbox, and guarantee failures.
+- Failed report items now classify `contract_build_failed`, `sandbox_artifact_failed`, and `guarantee_violation`.
+- Compact failed JSON now includes `failureKind` and `guaranteeErrors`.
+- Default committed fixture catalog remains all green and no-side-effect.
+
+Final verification evidence:
+
+- `git diff --check` — passed.
+- `npm run replay:sandbox:fixtures --silent` — passed, 2 total / 2 passed / 0 failed.
+- `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts` — passed, 2 files / 8 tests.
+- `npm run trace:fixtures --silent` — passed, 2 total / 2 passed / 0 failed.
+- `npm run trace:fixtures:summary --silent` — passed, Status OK.
+- `npm run test:controlled-runtime` — passed, 35 files / 184 tests.
+- `npm run test:core-workflows` — passed, all core workflow regressions passed.
 
 ## Expected Next Phase
 

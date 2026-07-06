@@ -71,7 +71,7 @@ Completed in the current controlled runtime line:
 - Governed trace fixture CI gate guide for local, fixture-refresh, and CI-style command usage.
 - Governed trace fixture catalog coverage guide for committed fixture expansion decisions.
 - Governed trace operational runbook for artifact export, fixture refresh, replay gates, retention, and real replay boundaries.
-- Replay sandbox contract types, no-side-effect replay sandbox prototype, fixture-to-contract bridge, and catalog-level replay sandbox report for committed governed fixtures.
+- Replay sandbox contract types, no-side-effect replay sandbox prototype, fixture-to-contract bridge, catalog-level replay sandbox report, replay sandbox catalog CI summary, and failure diagnostics taxonomy for committed governed fixtures.
 
 Current verification baseline:
 
@@ -86,9 +86,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 34 test files.
-- 181 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
+- 35 test files.
+- 184 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -923,13 +923,33 @@ Outcome:
 - Committed sales/support governed fixtures now have both a TypeScript report helper and a local compact JSON CI command.
 - The command remains no-side-effect: no real replay, no route calls, no runtime store reads/writes, no fixture JSON changes, and no asset writes.
 
-## Recommended Next. Replay Sandbox Failure Diagnostics Hardening
+## Completed. Replay Sandbox Failure Diagnostics Hardening
+
+Why:
+
+- The replay sandbox catalog CI command had a failed-output harness, but failure items did not classify contract build failures, sandbox artifact failures, or guarantee violations.
+- Maintainers needed stable failed JSON fields before expanding failure harness modes.
+
+Delivered:
+
+- Added report-level synthetic failure coverage for contract build failure, injected sandbox artifact failure, and no-side-effect guarantee violation.
+- Added a pure optional `runSandbox` injection path for tests without changing committed fixture JSON or default command behavior.
+- Added per-item `failureKind` and `guaranteeErrors` fields.
+- Compact failed JSON now includes `failureKind` and `guaranteeErrors`.
+- Kept `npm run replay:sandbox:fixtures` green for committed sales/support fixtures.
+
+Outcome:
+
+- Replay sandbox failure diagnostics taxonomy for contract, sandbox, and guarantee failures is now stable.
+- The command remains no-side-effect: no real replay, no route calls, no runtime store reads/writes, no fixture JSON changes, and no asset writes.
+
+## Recommended Next. Replay Sandbox Failure Harness Expansion
 
 Suggested scope:
 
-- Add reusable synthetic sandbox / contract failure coverage.
-- Keep `replay:sandbox:fixtures` failed output shape stable.
-- Distinguish contract bridge failure, sandbox preflight failure, and guarantee failure diagnostics.
+- Add direct harness modes for contract, sandbox, and guarantee failures.
+- Keep committed `replay:sandbox:fixtures` green while focused harness commands produce stable failed JSON and non-zero exits.
+- Reuse the Phase 10ac taxonomy instead of introducing new failure labels.
 - Do not add failing committed fixture JSON.
 
 ## Completed. Support Runtime Console Record Focus

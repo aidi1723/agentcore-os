@@ -104,6 +104,14 @@
 
 ## Unreleased
 
+### Replay Sandbox Failure Diagnostics Hardening
+
+- Added replay sandbox failure diagnostics taxonomy for contract, sandbox, and guarantee failures.
+- Classified replay sandbox catalog failures as `contract_build_failed`, `sandbox_artifact_failed`, or `guarantee_violation`.
+- Added `failureKind` and `guaranteeErrors` to compact failed replay sandbox catalog JSON output.
+- Added synthetic/test-only failure coverage without adding failing committed fixture JSON or changing the no-side-effect replay boundary.
+- Expanded `test:controlled-runtime` to 35 files / 184 tests.
+
 ### Replay Sandbox Catalog CI Summary
 
 - Added `npm run replay:sandbox:fixtures` for compact JSON replay sandbox catalog health.

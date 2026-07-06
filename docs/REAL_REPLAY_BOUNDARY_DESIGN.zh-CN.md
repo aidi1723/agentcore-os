@@ -337,10 +337,15 @@ Replay sandbox catalog CI summary 也已完成：
 
 - `npm run replay:sandbox:fixtures`
 
+Replay sandbox failure diagnostics hardening 也已完成：
+
+- failed report items now classify `contract_build_failed`, `sandbox_artifact_failed`, and `guarantee_violation`.
+- compact failed JSON includes `failureKind` and `guaranteeErrors`.
+
 下一阶段允许进入：
 
-**Replay Sandbox Failure Diagnostics Hardening**
+**Replay Sandbox Failure Harness Expansion**
 
-该阶段只能新增 synthetic failure coverage 和 diagnostics hardening，用于固定 replay sandbox catalog failed output。仍不能进入真实 replay。
+该阶段只能为 synthetic contract / sandbox / guarantee failures 增加 direct harness modes，用于固定 replay sandbox failed process behavior。仍不能进入真实 replay。
 
 该阶段仍不能实现真实工具 replay，不能调用 route，不能读写 runtime store，不能写业务资产，不能恢复 raw governed artifact payload。

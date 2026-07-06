@@ -36,7 +36,7 @@
 **Files:**
 - Create: `docs/GOVERNED_TRACE_FIXTURE_CATALOG_COVERAGE.zh-CN.md`
 
-- [ ] **Step 1: Write purpose and boundaries**
+- [x] **Step 1: Write purpose and boundaries**
 
 Create the guide with:
 
@@ -69,7 +69,7 @@ Catalog coverage review is a maintenance decision layer only:
 - no promotion of synthetic failure fixtures into the committed catalog.
 ```
 
-- [ ] **Step 2: Add source-of-truth and coverage matrix**
+- [x] **Step 2: Add source-of-truth and coverage matrix**
 
 Add:
 
@@ -98,7 +98,7 @@ Current entries:
 | Edge-case drift | Version drift, missing metadata, missing source id, unredacted input/output, summary failure, and exit-code failure are covered synthetically. | `synthetic-failures.ts` and catalog tests | Keep edge cases synthetic unless they become durable product examples. |
 ```
 
-- [ ] **Step 3: Add expansion rules and next recommendation**
+- [x] **Step 3: Add expansion rules and next recommendation**
 
 Add:
 
@@ -137,7 +137,7 @@ The next recommended phase should move from fixture catalog maintenance to trace
 - Modify: `docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md`
 - Modify: `docs/DOCUMENTATION_INDEX.zh-CN.md`
 
-- [ ] **Step 1: Link from replay contract**
+- [x] **Step 1: Link from replay contract**
 
 In `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`, add a sentence near the purpose:
 
@@ -145,7 +145,7 @@ In `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`, add a sentence near t
 For catalog coverage and expansion decisions, see [Governed Trace Fixture Catalog Coverage](GOVERNED_TRACE_FIXTURE_CATALOG_COVERAGE.zh-CN.md).
 ```
 
-- [ ] **Step 2: Link from CI gate guide**
+- [x] **Step 2: Link from CI gate guide**
 
 In `docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md`, add the guide to the "Use this guide with" list:
 
@@ -153,7 +153,7 @@ In `docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md`, add the guide to the "Use th
 - [Governed Trace Fixture Catalog Coverage](GOVERNED_TRACE_FIXTURE_CATALOG_COVERAGE.zh-CN.md)
 ```
 
-- [ ] **Step 3: Link from documentation index**
+- [x] **Step 3: Link from documentation index**
 
 In `docs/DOCUMENTATION_INDEX.zh-CN.md`, add:
 
@@ -171,7 +171,7 @@ beside the other governed trace fixture docs.
 - Modify: `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Update changelog**
+- [x] **Step 1: Update changelog**
 
 Add under `## Unreleased`:
 
@@ -183,7 +183,7 @@ Add under `## Unreleased`:
 - Added expansion rules for future fixtures based on new playbooks, durable writeback target families, stable terminal-state contracts, or real contract gaps.
 ```
 
-- [ ] **Step 2: Update Next Steps**
+- [x] **Step 2: Update Next Steps**
 
 Add the coverage guide to the completed baseline and add a completed section:
 
@@ -212,7 +212,7 @@ Outcome:
 
 Set the recommended next scope to documentation/operations around governed trace artifact lifecycle and real replay boundaries.
 
-- [ ] **Step 3: Update development manual**
+- [x] **Step 3: Update development manual**
 
 Add Phase 10t progress:
 
@@ -226,7 +226,7 @@ Set the next phase to:
 Phase 10u. Trace Governance Operational Runbook
 ```
 
-- [ ] **Step 4: Update local memory**
+- [x] **Step 4: Update local memory**
 
 Append:
 
@@ -247,7 +247,7 @@ Do not stage `memory/2026-07-06.md`.
 - Verify docs and existing command gates.
 - Commit tracked documentation updates only.
 
-- [ ] **Step 1: Run fixture replay gates**
+- [x] **Step 1: Run fixture replay gates**
 
 Run:
 
@@ -263,7 +263,14 @@ trace:fixtures exits 0 with ok=true, total=2, passed=2, failed=0.
 trace:fixtures:summary exits 0 and prints Status: OK.
 ```
 
-- [ ] **Step 2: Run full regression gates**
+Observed:
+
+```text
+trace:fixtures exited 0 with ok=true, total=2, passed=2, failed=0.
+trace:fixtures:summary exited 0 with Status: OK.
+```
+
+- [x] **Step 2: Run full regression gates**
 
 Run:
 
@@ -281,7 +288,17 @@ Expected:
 All commands exit 0. Lint/build may still show the existing <img> warning in src/__tests__/components/ShellUI.test.tsx.
 ```
 
-- [ ] **Step 3: Commit docs completion**
+Observed:
+
+```text
+npm run test:controlled-runtime: 30 files, 166 tests passed.
+npm run test:core-workflows: all core workflow regressions passed.
+npm run lint: exit 0 with existing <img> warning in src/__tests__/components/ShellUI.test.tsx.
+npm run build: exit 0 with the same existing warning.
+git diff --check: exit 0.
+```
+
+- [x] **Step 3: Commit docs completion**
 
 Stage only:
 

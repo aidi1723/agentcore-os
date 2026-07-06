@@ -69,6 +69,7 @@ Completed in the current controlled runtime line:
 - Synthetic validation/replay failure fixtures, failure exit harness coverage, and a replay contract failure fixture matrix mapping failures to source factories/tests and maintainer actions.
 - Governed fixture refresh review checklist for candidate fixture replacement decisions.
 - Governed trace fixture CI gate guide for local, fixture-refresh, and CI-style command usage.
+- Governed trace fixture catalog coverage guide for committed fixture expansion decisions.
 
 Current verification baseline:
 
@@ -706,20 +707,32 @@ Outcome:
 - Report and summary tests now cover both validation failures and replay drift failures.
 - Maintainers can see validation-layer diagnostics in the same report/summary surfaces.
 
-## Recommended Next. Fixture Replay Catalog Expansion Review
+## Completed. Fixture Replay Catalog Expansion Review
 
 Why:
 
-- Sales and support currently have committed governed fixtures.
-- Before adding more replay machinery, the project should review whether additional controlled playbooks or edge-case governed traces deserve committed fixtures.
-- This should stay review/documentation-first unless a real missing fixture is identified.
+- The committed fixture catalog now covers sales and support, but maintainers needed a rule for when to add more fixture JSON.
+- More fixtures are useful only when they preserve durable contract coverage, not when they duplicate scenario variety.
+
+Delivered:
+
+- Added `docs/GOVERNED_TRACE_FIXTURE_CATALOG_COVERAGE.zh-CN.md`.
+- Reviewed coverage by playbook, terminal state, approval behavior, writeback target family, stable metadata, and edge-case traces.
+- Documented that no new committed fixture is needed in Phase 10t.
+- Defined future expansion triggers.
+
+Outcome:
+
+- The fixture catalog has a controlled maintenance path.
+- Future fixture additions require a durable contract reason.
+
+## Recommended Next. Trace Governance Operational Runbook
 
 Suggested scope:
 
-- Inventory current committed fixture catalog coverage.
-- Identify candidate fixture gaps by playbook, terminal state, approval behavior, and writeback target family.
-- Decide whether catalog expansion is needed now or should wait until more controlled playbooks exist.
-- Keep implementation unchanged unless review exposes a high-value missing fixture.
+- Document governed trace artifact lifecycle from export, fixture candidate generation, replay gates, retention, and operator handoff.
+- Clarify boundaries between metadata replay, real tool replay, and production execution.
+- Keep this phase documentation/operations-first unless the runbook exposes a missing command or unsafe gap.
 
 ## Completed. Support Runtime Console Record Focus
 

@@ -255,6 +255,12 @@
 - Clarified that automation should consume stable JSON from `trace:fixtures`, while summary output remains human-readable triage.
 - Documented local development, fixture refresh, and CI-style gate sequences without adding new CI automation.
 
+### Fixture Replay Catalog Expansion Review
+
+- Added a governed trace fixture catalog coverage guide documenting current sales/support fixture coverage.
+- Recorded the decision that no new committed fixture is needed while sales and support cover all registered playbooks and current writeback target families.
+- Added expansion rules for future fixtures based on new playbooks, durable writeback target families, stable terminal-state contracts, or real contract gaps.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

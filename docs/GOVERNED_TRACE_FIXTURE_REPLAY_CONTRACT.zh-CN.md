@@ -10,6 +10,8 @@ Last updated: 2026-07-06
 
 For local and CI-style command usage, see [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md).
 
+For catalog coverage and expansion decisions, see [Governed Trace Fixture Catalog Coverage](GOVERNED_TRACE_FIXTURE_CATALOG_COVERAGE.zh-CN.md).
+
 ## 2. Hard Boundaries
 
 Fixture replay 是纯 metadata 校验：

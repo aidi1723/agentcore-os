@@ -330,6 +330,7 @@ type ControlledPlaybookStep = {
 - [Fixture Replay Failure Documentation Matrix Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-failure-documentation-matrix.md)
 - [Fixture Replay Refresh Review Checklist Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-refresh-review-checklist.md)
 - [Fixture Replay CI Gate Documentation Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-ci-gate-documentation.md)
+- [Fixture Replay Catalog Expansion Review Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-catalog-expansion-review.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -369,17 +370,18 @@ type ControlledPlaybookStep = {
 - Phase 10q fixture replay failure documentation matrix：已在 replay contract guide 中新增 failure fixture matrix，把 validation failure、replay drift、summary diagnostics 和 process exit harness 对应到具体 factories、测试文件、诊断和维护动作。synthetic failures 明确保持 test-only，不进入 committed governed fixture catalog。
 - Phase 10r fixture replay refresh review checklist：已把 governed fixture refresh 的候选 fixture 审查拆成 source identity、redaction、playbook contract、approval、writeback identity、failure triage、sensitive search 和 replacement diff gates。失败分类链接到 replay contract failure fixture matrix。
 - Phase 10s fixture replay CI gate documentation：已新增 governed trace fixture CI gate guide，明确 `trace:fixtures` 是自动化 JSON contract，`trace:fixtures:summary` 是人读 triage，`trace:fixture:build` 只属于人工 refresh workflow。
+- Phase 10t fixture replay catalog expansion review：已新增 catalog coverage guide，确认当前 sales/support completed fixtures 覆盖所有注册 playbook、当前 writeback target family、approved approval path、redaction metadata 和 stable writeback identity；本阶段不新增 fixture JSON。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- 当前 committed fixture catalog 覆盖 sales/support 两条 playbook；还需要 review 是否存在高价值 edge-case fixture 或后续 playbook fixture gap。
+- Trace governance 还缺少面向维护者和 operator 的端到端运行手册，把 export、refresh、catalog gate、retention、real replay boundary 串成一条运营路径。
 
 因此下一阶段默认进入：
 
-**Phase 10t. Fixture Replay Catalog Expansion Review**
+**Phase 10u. Trace Governance Operational Runbook**
 
-目标是盘点当前 committed governed fixture catalog 覆盖范围，判断是否需要为更多 playbook、terminal state、approval behavior 或 writeback target family 增加 fixture。该阶段优先 review/documentation，除非审查发现明确高价值缺失 fixture。
+目标是把 governed trace artifact lifecycle、fixture refresh、catalog replay gate、retention policy 和未来 real replay boundary 写成维护者可执行的 operational runbook。该阶段优先 documentation/operations，除非 runbook 暴露缺失命令或不安全边界。
 
 ### Phase 0. 冻结方向
 

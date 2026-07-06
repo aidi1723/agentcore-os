@@ -26,7 +26,7 @@
 - Create: `src/lib/executor/runtime/trace-fixtures.ts`
 - Create: `src/__tests__/lib/executor/runtime/trace-fixtures.test.ts`
 
-- [ ] **Step 1: Write failing fixture builder tests**
+- [x] **Step 1: Write failing fixture builder tests**
 
 Create a governed artifact fixture with all `sales-pipeline-v1` step ids:
 
@@ -96,7 +96,7 @@ expect(JSON.stringify(fixture)).not.toContain("Nora");
 expect(JSON.stringify(fixture)).not.toContain("sk-fixture-secret");
 ```
 
-- [ ] **Step 2: Run fixture test to verify RED**
+- [x] **Step 2: Run fixture test to verify RED**
 
 Run:
 
@@ -106,7 +106,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts
 
 Expected: FAIL because `trace-fixtures.ts` does not exist.
 
-- [ ] **Step 3: Implement fixture builder and validator**
+- [x] **Step 3: Implement fixture builder and validator**
 
 Implement exported types and:
 
@@ -120,7 +120,7 @@ Rules:
 - Preserve only metadata and boolean redaction flags.
 - Compare known playbook step ids from `getControlledPlaybook(artifact.playbookId)`.
 
-- [ ] **Step 4: Run fixture test to verify GREEN**
+- [x] **Step 4: Run fixture test to verify GREEN**
 
 Run:
 
@@ -130,7 +130,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/executor/runtime/trace-fixtures.ts src/__tests__/lib/executor/runtime/trace-fixtures.test.ts

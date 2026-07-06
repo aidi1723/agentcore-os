@@ -55,6 +55,7 @@ Completed in the current controlled runtime line:
 - Runtime Console support asset landing summaries, search, and open action.
 - Governed trace artifact builder and local trace artifact route.
 - Runtime Console governed trace copy action and conservative terminal-run prune helper.
+- Governed trace fixture builder, validator, and committed sales pipeline trace fixture.
 
 Current verification baseline:
 
@@ -67,9 +68,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 23 test files.
-- 134 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, and retention prune safety.
+- 24 test files.
+- 137 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, and governed trace fixture validation.
 
 Known current lint/build note:
 
@@ -330,23 +331,45 @@ Outcome:
 - Operators can copy a governed trace artifact from Runtime Console without exposing raw step payloads.
 - Raw controlled run cleanup now has a tested conservative helper.
 
-## P0. Trace Fixture Generation And Replay
+## Completed. Trace Fixture Generation
+
+Delivered:
+
+- Added `src/lib/executor/runtime/trace-fixtures.ts`.
+- Added `buildControlledTraceFixture()` on top of governed `ControlledTraceArtifact`.
+- Added `validateControlledTraceFixture()` to check schema version, step order, redaction boundaries, tool output redaction, and known playbook order.
+- Added committed sample fixture `src/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json`.
+- Added fixture tests to `test:controlled-runtime`.
+
+Primary files:
+
+- `src/lib/executor/runtime/trace-fixtures.ts`
+- `src/__tests__/lib/executor/runtime/trace-fixtures.test.ts`
+- `src/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json`
+- `package.json`
+
+Outcome:
+
+- Governed trace artifacts can now become stable regression fixtures without raw customer payloads.
+- Fixture validation catches missing redaction boundaries before fixtures are reused.
+
+## P0. Trace Fixture Replay Runner
 
 Why:
 
-- Governed trace artifacts can now be copied from Runtime Console.
-- The next reliability gain is turning governed artifacts into replayable regression fixtures.
+- Governed trace artifacts can now become committed fixtures.
+- The next reliability gain is a minimal runner that validates fixtures against current playbook contracts over time.
 
 Scope:
 
-- `src/lib/executor/runtime/trace-governance.ts`
 - `src/lib/executor/runtime/trace-fixtures.ts`
-- `src/__tests__/fixtures/controlled-traces/`
+- `src/lib/executor/runtime/trace-replay.ts`
+- `src/__tests__/lib/executor/runtime/trace-replay.test.ts`
 - `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
 
 Expected outcome:
 
-- Selected governed trace artifacts can become stable regression fixtures without leaking raw customer payloads.
+- Committed trace fixtures can be replay-validated against current playbook step order, approval boundaries, and writeback expectations without calling real tools.
 
 ## Maintenance Rules
 

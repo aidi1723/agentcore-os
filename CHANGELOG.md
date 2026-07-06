@@ -141,6 +141,13 @@
 - Added a conservative `pruneControlledExecutionRuns()` helper that removes old terminal controlled runs while keeping running and approval-blocked runs.
 - Expanded controlled runtime coverage for console artifact copy, artifact export metadata, and retention prune safety.
 
+### Trace Fixture Generation
+
+- Added a governed trace fixture builder that converts `ControlledTraceArtifact` into stable replay-oriented metadata.
+- Added fixture validation for redaction boundaries, step order, known playbook matching, tool output redaction, approval state, schema flags, and writeback target metadata.
+- Added a committed sales pipeline governed trace fixture under `src/__tests__/fixtures/controlled-traces/`.
+- Expanded `test:controlled-runtime` to cover governed trace fixture generation and validation.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.
@@ -221,7 +228,8 @@
 - Verified `npm test -- src/__tests__/components/KnowledgeVaultAppWindow.test.tsx` — 2 tests passing.
 - Verified `npm test -- src/__tests__/lib/executor/runtime/trace-governance.test.ts src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts` — 2 files, 4 tests passing.
 - Verified `npm test -- src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx src/__tests__/lib/server/controlled-execution-store.test.ts` — 3 files, 14 tests passing.
-- Verified `npm run test:controlled-runtime` — 23 files, 134 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts` — 1 file, 3 tests passing.
+- Verified `npm run test:controlled-runtime` — 24 files, 137 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.
 - Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - Verified `npm run build` — exit 0 with the same existing `<img>` warning.

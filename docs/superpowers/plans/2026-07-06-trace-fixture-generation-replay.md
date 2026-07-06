@@ -209,7 +209,7 @@ git commit -m "test: include governed trace fixtures"
 - Modify: `docs/superpowers/plans/2026-07-06-trace-fixture-generation-replay.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run targeted verification**
+- [x] **Step 1: Run targeted verification**
 
 Run:
 
@@ -219,7 +219,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 2: Run full verification**
+- [x] **Step 2: Run full verification**
 
 Run:
 
@@ -233,7 +233,7 @@ git diff --check
 
 Expected: all commands exit 0. `lint` and `build` may show only the existing `<img>` warning.
 
-- [ ] **Step 3: Update docs and records**
+- [x] **Step 3: Update docs and records**
 
 Record:
 
@@ -243,7 +243,7 @@ Record:
 - this phase does not replay tools yet;
 - next recommended phase.
 
-- [ ] **Step 4: Re-run final verification after docs**
+- [x] **Step 4: Re-run final verification after docs**
 
 Run:
 
@@ -257,7 +257,7 @@ git diff --check
 
 Expected: all commands exit 0 with only the known existing `<img>` warning if present.
 
-- [ ] **Step 5: Commit docs**
+- [x] **Step 5: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-trace-fixture-generation-replay.md
@@ -271,3 +271,32 @@ git commit -m "docs: complete trace fixture generation"
 - Spec coverage: builder, validator, sample fixture, controlled-runtime coverage, docs, and verification are all covered.
 - Placeholder scan: no TBD/TODO/fill-in-later markers.
 - Type consistency: `ControlledTraceFixture`, `buildControlledTraceFixture`, and `validateControlledTraceFixture` are used consistently.
+
+## Completion Record
+
+Commits:
+
+- `04ec044` — `docs: spec trace fixture generation`
+- `739f850` — `feat: build governed trace fixtures`
+- `176fecd` — `test: include governed trace fixtures`
+
+Verification before final docs:
+
+- `npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts` — 1 file / 3 tests passed.
+- `npm run test:controlled-runtime` — 24 files / 137 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
+
+Final verification after docs:
+
+- `npm run test:controlled-runtime` — 24 files / 137 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
+
+Next phase:
+
+- `Trace Fixture Replay Runner`.

@@ -342,17 +342,18 @@ type ControlledPlaybookStep = {
 - Phase 9 support record focus：Runtime Console 的 support asset landing 已传递 `assetId` / `sourceKey` / `workflowRunId`；Support Copilot 会把 exact support asset prefill 当作 record-focus 请求，定位关联的现有 support ticket。prefill 早于 support asset / ticket store hydration 时会保留 pending focus 并在同步后重试；仍缺失时提示错误，不创建 synthetic support ticket。旧 broad support prefill 继续创建新工单。
 - Phase 10 trace governance artifact slice：已新增 governed trace artifact builder 和本地 `trace-artifact` route。它保留 run/playbook/step/approval/writeback/audit 的结构化元数据，同时脱敏 step input/output、tool output、approval feedback、audit message、run/step error、plan goal 和 step description。原始 controlled run store 和 Runtime Console 操作路径保持不变。
 - Phase 10b trace governance console export and retention：Runtime Console selected run 已有 `复制脱敏 Trace` 动作，会从 governed `trace-artifact` route 获取 `{ export, artifact }` 并复制 JSON；store 层已有 `pruneControlledExecutionRuns()`，只清理旧 terminal run，保留 `running` 和 `awaiting_approval` run。
+- Phase 10c trace fixture generation：已新增 `trace-fixtures.ts`，可把 governed trace artifact 转换成稳定 regression fixture；fixture validation 会检查 redaction boundary、step order、known playbook match、tool output redaction、approval/schema/writeback metadata，并已有 sales pipeline sample fixture。
 
 仍未完成：
 
-- Governed trace artifact 还没有转换成可复现 regression fixture。
 - Trace replay / fixture runner 还没有落地。
+- Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
 
 因此下一阶段默认进入：
 
-**Phase 10c. Trace Fixture Generation And Replay**
+**Phase 10d. Trace Fixture Replay Runner**
 
-目标是在已有 governed artifact 和 console export 的基础上，把脱敏 trace 转换为可复现、可回归的测试 fixture。
+目标是在已有 governed fixture 的基础上，增加最小 replay validation runner，用 fixture 持续校验当前 playbook 合约。
 
 ### Phase 0. 冻结方向
 
@@ -656,14 +657,14 @@ type ControlledPlaybookStep = {
 - Raw trace 清理不会影响 running / awaiting approval runs。已完成。
 - governed artifact 可作为未来回归 fixture 的输入。已完成 artifact 输入边界，fixture runner 待下一阶段实现。
 
-### Phase 10c. Trace Fixture Generation And Replay
+### Phase 10c. Trace Fixture Generation
 
 目标：
 
 - 把 governed trace artifact 转换为稳定 regression fixture。
 - 为 controlled runtime replay / fixture 验证建立最小可用入口。
 
-建议范围：
+已完成范围：
 
 - 新增 trace fixture builder，接收 governed artifact 并输出不含敏感 payload 的 fixture。
 - 建立 `src/__tests__/fixtures/controlled-traces/` fixture 样例。
@@ -672,9 +673,29 @@ type ControlledPlaybookStep = {
 
 完成标准：
 
-- 已导出的 governed artifact 可以进入 fixture builder。
-- fixture 中不包含 raw input/output/tool output。
-- fixture 能验证 playbook id、step order、approval/writeback metadata。
+- 已导出的 governed artifact 可以进入 fixture builder。已完成。
+- fixture 中不包含 raw input/output/tool output。已完成。
+- fixture 能验证 playbook id、step order、approval/writeback metadata。已完成。
+
+### Phase 10d. Trace Fixture Replay Runner
+
+目标：
+
+- 用 committed governed fixtures 持续验证当前 playbook 合约。
+- 在不调用真实工具的前提下，检测 playbook step order、approval boundary、writeback target 是否和 fixture 兼容。
+
+建议范围：
+
+- 新增 `trace-replay.ts`，读取 `ControlledTraceFixture` 并生成 replay validation report。
+- 校验 fixture 的 step order 是否仍匹配当前 controlled playbook。
+- 校验 fixture 中 approval/writeback metadata 是否符合当前 playbook 预期。
+- 增加 sales pipeline fixture replay 测试。
+
+完成标准：
+
+- sample fixture 可通过 replay validation。
+- 修改 playbook step order 时 replay validation 能失败。
+- 不调用 LLM、不调用工具、不写回资产。
 
 ## 9. 开发规范
 
@@ -779,12 +800,12 @@ npm run test:core-workflows
 
 `test:controlled-runtime` 是第一阶段的最小门禁，覆盖 sales playbook、plan validator、显式 controlled plan 执行和 workflow runner 请求收口。
 
-截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 23 个测试文件、134 个测试，包括：
+截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 24 个测试文件、137 个测试，包括：
 
 - sales/support playbook / validator / schema / step input。
 - controlled run store、approval store、controlled execution、step executor、workflow bridge。
 - durable resume、failed-step retry runtime、retry route、controlled run list / detail route。
-- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route、Runtime Console governed trace copy、retention prune safety 和 idempotency。
+- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route、Runtime Console governed trace copy、retention prune safety、governed trace fixture validation 和 idempotency。
 
 ### 10.3 手工验收场景
 

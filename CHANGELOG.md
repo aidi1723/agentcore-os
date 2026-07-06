@@ -231,6 +231,12 @@
 - Extracted the committed JSON report output shape into a shared helper used by both the committed command and the failure harness.
 - Added non-zero exit coverage for failed JSON and human-readable summary paths while keeping committed fixture commands green.
 
+### Fixture Replay Validation Failure Fixtures
+
+- Added reusable synthetic validation failure fixture factories for missing source run id, unredacted step input, and unredacted tool output cases.
+- Extended catalog report coverage to prove validation errors are preserved without adding failing fixtures to the committed catalog.
+- Added human-readable summary coverage for combined validation failure diagnostics.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

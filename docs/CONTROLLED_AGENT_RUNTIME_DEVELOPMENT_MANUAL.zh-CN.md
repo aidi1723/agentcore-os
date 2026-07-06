@@ -362,17 +362,18 @@ type ControlledPlaybookStep = {
 - Phase 10m fixture replay error summary CLI：已新增 `npm run trace:fixtures:summary`，从同一个 catalog report 输出 human-readable replay summary；原有 `npm run trace:fixtures` 继续保持 machine-readable JSON。该命令不发现 fixture、不刷新 fixture、不调用 route、不重放工具、不读写 store、不写资产。
 - Phase 10n fixture replay failure fixture tests：已新增 test-only reusable synthetic failure fixture factories，用于 report/summary drift 覆盖；committed governed fixture catalog 继续保持全绿，不新增 failing catalog JSON，不发现 fixture、不刷新 fixture、不调用 route、不重放工具、不读写 store、不写资产。
 - Phase 10o fixture replay failure exit-code harness：已新增 direct-invoked synthetic failure harness，用于验证 failed report/summary subprocess 非零退出；committed `trace:fixtures` 和 `trace:fixtures:summary` 继续只读取 committed catalog 并保持全绿。JSON report 输出 shape 已抽为共享 helper，避免 harness 与正式 JSON 命令漂移。
+- Phase 10p fixture replay validation failure fixtures：已新增 reusable synthetic validation failure factories，覆盖缺失 `sourceRunId`、未脱敏 step input、未脱敏 tool output，并在 report/summary 测试中验证 validation errors 会被保留和展示。committed governed fixture catalog 和 committed CLI commands 继续保持全绿。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- 当前 synthetic failure 主要覆盖 valid fixture 上的 replay drift；validation failure（例如缺失 required fields、schema malformed、redaction boundary unsafe）还缺少 reusable fixture 覆盖。
+- 失败 fixture 覆盖已经分散在 validation factories、replay drift factories 和 process exit harness 中；契约文档还缺一张维护者可读的 failure coverage matrix。
 
 因此下一阶段默认进入：
 
-**Phase 10p. Fixture Replay Validation Failure Fixtures**
+**Phase 10q. Fixture Replay Failure Documentation Matrix**
 
-目标是增加 reusable synthetic validation failure fixtures，让 report/summary diagnostics 同时覆盖 fixture validation 层失败。该阶段仍然保持 committed fixture commands 全绿，并避免自动发现 fixture、刷新 fixture、调用 route、重放工具、读写 store 或写资产。
+目标是在 replay contract guide 中补一张 failure fixture matrix，把 validation failure、replay drift、process exit harness 对应到具体 factories、测试文件和维护用途。该阶段优先文档对齐，除非矩阵审查暴露真实覆盖缺口。
 
 ### Phase 0. 冻结方向
 

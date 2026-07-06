@@ -592,7 +592,7 @@ Outcome:
 - Failed report and summary process behavior is covered without making committed fixture commands fail.
 - `npm run trace:fixtures` and `npm run trace:fixtures:summary` remain green against committed fixtures.
 
-## Recommended Next. Fixture Replay Validation Failure Fixtures
+## Completed. Fixture Replay Validation Failure Fixtures
 
 Why:
 
@@ -600,12 +600,38 @@ Why:
 - Report and summary diagnostics should also cover validation failures from malformed governed fixtures.
 - These validation failure fixtures should stay separate from committed governed catalog entries.
 
+Delivered:
+
+- Added reusable synthetic validation failure factories under the test fixture boundary.
+- Covered missing `sourceRunId`, unredacted step input, and unredacted tool output cases.
+- Extended catalog report tests to preserve validation errors and no-side-effect guarantees.
+- Added summary formatter coverage for combined validation failure diagnostics.
+- Kept committed governed fixtures and committed CLI commands green.
+
+Primary files:
+
+- `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts`
+- `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts`
+- `src/__tests__/scripts/trace-fixture-catalog-summary-script.test.ts`
+
+Outcome:
+
+- Report and summary tests now cover both validation failures and replay drift failures.
+- Maintainers can see validation-layer diagnostics in the same report/summary surfaces.
+
+## Recommended Next. Fixture Replay Failure Documentation Matrix
+
+Why:
+
+- The test suite now has reusable factories for replay drift failures, validation failures, and process exit behavior.
+- The replay contract guide should document which synthetic fixture covers which failure class.
+- This is primarily documentation alignment unless the matrix exposes a real coverage gap.
+
 Suggested scope:
 
-- Add reusable synthetic validation failure fixtures.
-- Cover malformed schema, missing required fixture fields, and unsafe redaction boundary cases in report/summary diagnostics.
-- Keep committed governed fixtures and committed CLI commands green.
-- Avoid route calls, tool replay, store mutation, asset writes, fixture refresh, and automatic fixture discovery.
+- Add a concise failure fixture matrix to `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`.
+- Link validation failures, replay drift failures, and process exit harness coverage to concrete test files/factories.
+- Keep implementation unchanged unless documentation review reveals a missing coverage case.
 
 ## Completed. Support Runtime Console Record Focus
 

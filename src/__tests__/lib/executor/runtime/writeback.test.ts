@@ -146,6 +146,7 @@ describe("writeControlledStepAssets", () => {
           target: "sales_asset",
           ok: true,
           assetId: "controlled-sales-asset:workflow-1",
+          sourceKey: "controlled-run:run-1:sales_asset",
           workflowRunId: "workflow-1",
         }),
         expect.objectContaining({

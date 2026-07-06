@@ -146,6 +146,7 @@ async function writeSalesAsset(input: WriteControlledStepAssetsInput, writtenAt:
     summary: `Wrote sales asset ${stored.id} for workflow ${stored.workflowRunId}`,
     writtenAt,
     assetId: stored.id,
+    sourceKey: `controlled-run:${input.run.id}:sales_asset`,
     workflowRunId: stored.workflowRunId,
   } satisfies ControlledWritebackReceipt;
 }

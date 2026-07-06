@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Governed Fixture To Replay Sandbox Contract Bridge
+
+- Added `buildReplaySandboxContractFromFixture()` to convert committed governed fixture metadata into `ReplaySandboxContract`.
+- Proved current sales/support fixtures can flow through `fixture -> contract -> no-side-effect replay artifact`.
+- Added structured rejection for broken fixture provenance and redaction boundaries.
+- Added bridge tests and included them in `test:controlled-runtime`.
+
 ### No-Side-Effect Replay Sandbox Prototype Implementation
 
 - Added `runNoSideEffectReplaySandbox()` as a pure contract-to-artifact prototype that validates replay sandbox contracts before all other work.

@@ -234,8 +234,8 @@ artifact 不得伪装成：
 
 下一阶段允许进入：
 
-**Governed Fixture To Replay Sandbox Contract Bridge**
+**Catalog-Level Replay Sandbox Report**
 
-该阶段可以新增纯 helper，把 committed governed fixture metadata 转成 `ReplaySandboxContract`，再交给 no-side-effect prototype。
+该阶段可以新增纯 report helper，把 committed fixture catalog 跑过 `fixture -> ReplaySandboxContract -> replay result artifact`。
 
 该阶段仍禁止 LLM replay、tool execution、route calls、runtime store reads/writes、business asset writes、fixture JSON changes 和 raw governed artifact payload recovery。

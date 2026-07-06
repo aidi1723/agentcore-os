@@ -117,17 +117,28 @@ The prototype:
 
 ### P4. Governed Fixture To Replay Sandbox Contract Bridge
 
-Next, build a pure bridge from committed governed fixture metadata into
-`ReplaySandboxContract`:
+Completed bridge reference:
 
-- no fixture JSON changes,
-- no raw governed artifact payload recovery,
-- no runtime store access,
-- no business asset writes,
-- no route calls,
-- output only replay sandbox contracts for the no-side-effect prototype.
+- `src/lib/executor/runtime/replay-sandbox-fixture-contract.ts`
+- `src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts`
 
-### P5. Governed Fixture And Playbook Expansion
+The bridge:
+
+- converts committed governed fixture metadata into `ReplaySandboxContract`,
+- rejects broken provenance and redaction boundaries,
+- proves sales/support fixtures can flow through `fixture -> contract -> artifact`,
+- performs no fixture JSON changes, raw artifact recovery, route calls, runtime store reads/writes, or asset writes.
+
+### P5. Catalog-Level Replay Sandbox Report
+
+Next, build a pure report over committed fixtures:
+
+- fixture -> replay sandbox contract -> no-side-effect replay result artifact,
+- aggregate contract errors and sandbox diagnostics,
+- preserve no-side-effect guarantees,
+- no real replay, route calls, store reads/writes, fixture JSON changes, or asset writes.
+
+### P6. Governed Fixture And Playbook Expansion
 
 Expand only when the current governed trace/replay gates stay stable:
 

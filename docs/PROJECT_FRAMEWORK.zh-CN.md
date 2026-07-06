@@ -125,7 +125,8 @@ User / Trigger
 - real replay 的 sandbox、credential isolation、approval simulation、store isolation、side-effect blocking 和 replay result ownership 已在 `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md` 文档化。
 - replay sandbox contract types 已在 `src/lib/executor/runtime/replay-sandbox-contracts.ts` 文档化为 TypeScript contract 和纯 validator。
 - no-side-effect replay sandbox prototype 已在 `src/lib/executor/runtime/replay-sandbox.ts` 实现为 contract -> replay result artifact 的纯函数。
-- 因此下一阶段只能实现 governed fixture -> replay sandbox contract bridge，不能直接写真实工具 replay。
+- governed fixture -> replay sandbox contract bridge 已在 `src/lib/executor/runtime/replay-sandbox-fixture-contract.ts` 实现为 fixture metadata -> contract 的纯 helper。
+- 因此下一阶段只能实现 catalog-level replay sandbox report，不能直接写真实工具 replay。
 
 ## 6. 文档体系
 
@@ -245,12 +246,21 @@ git diff --check
 
 目标：
 
-- 新增纯 helper，把 committed governed fixture metadata 转成 `ReplaySandboxContract`。
+- 已新增 `src/lib/executor/runtime/replay-sandbox-fixture-contract.ts`。
+- `buildReplaySandboxContractFromFixture()` 把 committed governed fixture metadata 转成 `ReplaySandboxContract`。
 - 只读取 fixture metadata，不恢复 raw governed artifact payload。
-- 继续拒绝 live credentials、production stores、business asset writes 和 raw controlled run input。
+- 继续拒绝 broken provenance、redaction boundary failure、live credentials、production stores、business asset writes 和 raw controlled run input。
 - 输出只能进入 no-side-effect replay sandbox prototype。
 
-### P5. Governed Fixture / Playbook Expansion
+### P5. Catalog-Level Replay Sandbox Report
+
+目标：
+
+- 新增纯 report helper，把 committed fixture catalog 跑过 `fixture -> contract -> replay artifact`。
+- 汇总 fixture id、playbook id、contract build result、sandbox artifact status、diagnostics 和 no-side-effect guarantees。
+- 仍不执行真实工具、不调用 route、不读写 runtime store、不改 fixture JSON、不写资产。
+
+### P6. Governed Fixture / Playbook Expansion
 
 目标：
 
@@ -258,7 +268,7 @@ git diff --check
 - 新 fixture 必须通过 redaction、approval、writeback metadata、stable identity 和 catalog coverage 审查。
 - 新 playbook 必须先进入 spec / plan / TDD / fixture replay 边界，而不是直接接真实工具。
 
-### P6. Operational Retention And Maintenance Hardening
+### P7. Operational Retention And Maintenance Hardening
 
 目标：
 
@@ -266,7 +276,7 @@ git diff --check
 - 继续收紧 raw trace retention、fixture refresh stop condition、summary/harness drift 处理。
 - 保持 `trace:fixtures` 作为机器可读自动化合同，`trace:fixtures:summary` 作为人读 triage。
 
-### P6. Runtime-Serving UI / App Polish
+### P8. Runtime-Serving UI / App Polish
 
 目标：
 

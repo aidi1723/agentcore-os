@@ -331,8 +331,8 @@ Prototype design and implementation 已完成：
 
 下一阶段允许进入：
 
-**Governed Fixture To Replay Sandbox Contract Bridge**
+**Catalog-Level Replay Sandbox Report**
 
-该阶段只能实现纯 fixture metadata -> `ReplaySandboxContract` helper，再交给 no-side-effect prototype 输出 replay result artifact。
+该阶段只能实现纯 report helper，把 committed fixture catalog 跑过 fixture metadata -> `ReplaySandboxContract` -> no-side-effect replay result artifact。
 
 该阶段仍不能实现真实工具 replay，不能调用 route，不能读写 runtime store，不能写业务资产，不能恢复 raw governed artifact payload。

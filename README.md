@@ -28,7 +28,7 @@ AgentCore OS 当前对外更适合这样理解：
 - approved output 写回 sales / support / knowledge / workflow / draft 资产
 - governed trace artifact、fixture replay、fixture catalog、CI-style replay gates
 - Runtime Console 作为查看、审批、恢复、脱敏 trace 导出和资产落点复盘的控制面
-- no-side-effect replay sandbox prototype 已完成；下一阶段只进入 governed fixture -> replay sandbox contract bridge，不直接写真实工具 replay
+- governed fixture -> replay sandbox contract bridge 已完成；下一阶段只进入 catalog-level replay sandbox report，不直接写真实工具 replay
 
 ## 当前稳定版本
 

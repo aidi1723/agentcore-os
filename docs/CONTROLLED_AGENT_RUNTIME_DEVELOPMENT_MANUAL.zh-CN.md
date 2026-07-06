@@ -377,18 +377,19 @@ type ControlledPlaybookStep = {
 - Phase 10w replay sandbox contract types：已新增 `src/lib/executor/runtime/replay-sandbox-contracts.ts`，用 TypeScript-only contract 和 `validateReplaySandboxContract()` 编码 replay input provenance、sandbox context、credential policy、approval simulation、store isolation、side-effect policy 和 replay result artifact。测试覆盖 safe contract、raw controlled run、live credential、live approval、production store access 和 business asset write rejection，并已纳入 `test:controlled-runtime`。
 - Phase 10x no-side-effect replay sandbox prototype design：已新增 `docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md`，定义未来 `replay-sandbox.ts` module boundary、`runNoSideEffectReplaySandbox()` API shape、preflight validation、failure artifact、replay-local state、cursor events、approval simulation、side-effect blocking、result artifact ownership 和 implementation stop conditions。该阶段未实现 prototype。
 - Phase 10y no-side-effect replay sandbox prototype implementation：已新增 `src/lib/executor/runtime/replay-sandbox.ts` 和 `runNoSideEffectReplaySandbox()`。Prototype 只消费 `ReplaySandboxContract`，先执行 `validateReplaySandboxContract()`；unsafe contract 返回 failed replay result artifact 且 cursor 只到 `preflight`；safe contract 返回 replay-local result artifact。该阶段仍不执行 LLM replay、tool execution、route calls、runtime store reads/writes 或 business asset writes。
+- Phase 10z governed fixture to replay sandbox contract bridge：已新增 `src/lib/executor/runtime/replay-sandbox-fixture-contract.ts` 和 `buildReplaySandboxContractFromFixture()`。Bridge 把 committed governed fixture metadata 转成 `ReplaySandboxContract`，拒绝 broken provenance / redaction boundary，并证明 sales/support fixtures 可进入 no-side-effect replay sandbox prototype。该阶段仍不恢复 raw governed artifact payload、不修改 fixture JSON、不执行真实工具、不调用 route、不读写 runtime store、不写资产。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- Governed fixture 还不能直接生成 replay sandbox contract。
-- 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design 和最小 prototype implementation，下一步只能实现 governed fixture -> replay sandbox contract bridge。
+- 尚未有 catalog-level replay sandbox report 汇总 fixture -> contract -> artifact 的全目录结果。
+- 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation 和 governed fixture -> replay sandbox contract bridge，下一步只能实现 catalog-level replay sandbox report。
 
 因此下一阶段默认进入：
 
-**Phase 10z. Governed Fixture To Replay Sandbox Contract Bridge**
+**Phase 10aa. Catalog-Level Replay Sandbox Report**
 
-目标是新增纯 helper，把 committed governed fixture metadata 转成 `ReplaySandboxContract`，再交给 no-side-effect replay sandbox prototype。该阶段仍不恢复 raw governed artifact payload、不修改 fixture JSON、不执行真实工具、不调用 route、不读写 runtime store、不写资产。
+目标是新增纯 report helper，把 committed fixture catalog 跑过 `fixture -> contract -> no-side-effect replay artifact`，汇总 contract build result、sandbox artifact status、diagnostics 和 no-side-effect guarantees。该阶段仍不恢复 raw governed artifact payload、不修改 fixture JSON、不执行真实工具、不调用 route、不读写 runtime store、不写资产。
 
 ### Phase 0. 冻结方向
 
@@ -976,12 +977,12 @@ npm run test:core-workflows
 
 `test:controlled-runtime` 是第一阶段的最小门禁，覆盖 sales playbook、plan validator、显式 controlled plan 执行和 workflow runner 请求收口。
 
-截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 32 个测试文件、173 个测试，包括：
+截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 33 个测试文件、176 个测试，包括：
 
 - sales/support playbook / validator / schema / step input。
 - controlled run store、approval store、controlled execution、step executor、workflow bridge。
 - durable resume、failed-step retry runtime、retry route、controlled run list / detail route。
-- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route、Runtime Console governed trace copy、retention prune safety、governed trace fixture validation、fixture replay/catalog/summary/failure harness、replay sandbox contracts、no-side-effect replay sandbox prototype 和 idempotency。
+- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route、Runtime Console governed trace copy、retention prune safety、governed trace fixture validation、fixture replay/catalog/summary/failure harness、replay sandbox contracts、no-side-effect replay sandbox prototype、fixture-to-contract bridge 和 idempotency。
 
 Fixture replay 失败时，先通过 [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md#6-failure-fixture-matrix) 的 failure fixture matrix 分类。只有确认失败属于 intentional playbook drift 或 stale committed fixture 后，才进入 fixture refresh；validation failure、redaction failure、missing stable writeback metadata 或 harness behavior failure 必须先修源头，不允许直接手工改 fixture JSON。
 

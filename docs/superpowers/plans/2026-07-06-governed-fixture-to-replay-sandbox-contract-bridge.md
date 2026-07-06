@@ -37,7 +37,7 @@
 **Files:**
 - Create: `src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts`:
 
@@ -144,7 +144,7 @@ describe("replay sandbox fixture contract bridge", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run:
 
@@ -154,7 +154,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.t
 
 Expected: FAIL because `@/lib/executor/runtime/replay-sandbox-fixture-contract` does not exist.
 
-- [ ] **Step 3: Commit failing tests**
+- [x] **Step 3: Commit failing tests**
 
 ```bash
 git add src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts
@@ -169,7 +169,7 @@ git commit -m "test: specify fixture replay sandbox contract bridge"
 **Files:**
 - Create: `src/lib/executor/runtime/replay-sandbox-fixture-contract.ts`
 
-- [ ] **Step 1: Add the pure bridge implementation**
+- [x] **Step 1: Add the pure bridge implementation**
 
 Create `src/lib/executor/runtime/replay-sandbox-fixture-contract.ts`:
 
@@ -286,7 +286,7 @@ export function buildReplaySandboxContractFromFixture(
 }
 ```
 
-- [ ] **Step 2: Run targeted tests and verify GREEN**
+- [x] **Step 2: Run targeted tests and verify GREEN**
 
 Run:
 
@@ -296,7 +296,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.t
 
 Expected: PASS, 3 files.
 
-- [ ] **Step 3: Commit implementation**
+- [x] **Step 3: Commit implementation**
 
 ```bash
 git add src/lib/executor/runtime/replay-sandbox-fixture-contract.ts
@@ -311,7 +311,7 @@ git commit -m "feat: bridge governed fixtures to replay sandbox contracts"
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add the bridge test to `test:controlled-runtime`**
+- [x] **Step 1: Add the bridge test to `test:controlled-runtime`**
 
 In `package.json`, add this path immediately after `src/__tests__/lib/executor/runtime/replay-sandbox.test.ts`:
 
@@ -319,7 +319,7 @@ In `package.json`, add this path immediately after `src/__tests__/lib/executor/r
 src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts
 ```
 
-- [ ] **Step 2: Run the controlled runtime gate**
+- [x] **Step 2: Run the controlled runtime gate**
 
 Run:
 
@@ -329,7 +329,7 @@ npm run test:controlled-runtime
 
 Expected: PASS with the new bridge test included.
 
-- [ ] **Step 3: Commit the gate update**
+- [x] **Step 3: Commit the gate update**
 
 ```bash
 git add package.json
@@ -353,7 +353,7 @@ git commit -m "test: include fixture contract bridge in controlled runtime"
 - Modify: `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md`
 - Modify: `docs/superpowers/plans/2026-07-06-governed-fixture-to-replay-sandbox-contract-bridge.md`
 
-- [ ] **Step 1: Update current docs**
+- [x] **Step 1: Update current docs**
 
 Record this phase as completed and set the next recommended phase to
 catalog-level replay sandbox report.
@@ -369,7 +369,7 @@ The docs must state:
 - The next phase should add a catalog-level sandbox report, still without real
   replay, route calls, store reads/writes, fixture JSON changes, or asset writes.
 
-- [ ] **Step 2: Run final verification**
+- [x] **Step 2: Run final verification**
 
 Run:
 
@@ -389,11 +389,11 @@ Expected:
 - controlled runtime tests pass;
 - core workflow regressions pass.
 
-- [ ] **Step 3: Mark this plan complete**
+- [x] **Step 3: Mark this plan complete**
 
 Update all checkboxes to `- [x]` and add completion notes with exact verification results.
 
-- [ ] **Step 4: Commit docs and plan record**
+- [x] **Step 4: Commit docs and plan record**
 
 ```bash
 git add README.md CHANGELOG.md docs/DOCUMENTATION_INDEX.zh-CN.md docs/NEXT_STEPS.md docs/PROJECT_FRAMEWORK.zh-CN.md docs/ROADMAP.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md docs/superpowers/plans/2026-07-06-governed-fixture-to-replay-sandbox-contract-bridge.md
@@ -408,3 +408,23 @@ git commit -m "docs: complete fixture replay sandbox contract bridge"
 - Spec coverage: safe fixture mapping, committed catalog compatibility, provenance rejection, redaction-boundary rejection, contract validation, sandbox prototype compatibility, docs, and verification are covered.
 - Scope boundary: no LLM replay, no tool execution, no route calls, no runtime store reads/writes, no business asset writes, no fixture JSON changes, no Runtime Console changes.
 - Placeholder scan: this plan contains no deferred placeholders.
+
+## Completion Notes
+
+- Completed on: 2026-07-06
+- Commits:
+  - `8183ae7` - `docs: spec fixture replay sandbox contract bridge`
+  - `4e6da0e` - `docs: plan fixture replay sandbox contract bridge`
+  - `14973ec` - `test: specify fixture replay sandbox contract bridge`
+  - `5234300` - `feat: bridge governed fixtures to replay sandbox contracts`
+  - `50ccc30` - `test: include fixture contract bridge in controlled runtime`
+- TDD evidence:
+  - RED: `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts` failed because `@/lib/executor/runtime/replay-sandbox-fixture-contract` did not exist.
+  - GREEN: `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts src/__tests__/lib/executor/runtime/replay-sandbox.test.ts src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts` passed with 3 files / 10 tests.
+- Final verification:
+  - `git diff --check` - exit 0
+  - `npm run trace:fixtures --silent` - ok true; 2 total / 2 passed / 0 failed
+  - `npm run trace:fixtures:summary --silent` - Status OK
+  - `npm run test:controlled-runtime` - 33 files / 176 tests passed
+  - `npm run test:core-workflows` - all core workflow regressions passed
+- Outcome: Phase 10z is complete. The next recommended phase is Catalog-Level Replay Sandbox Report.

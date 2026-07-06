@@ -85,9 +85,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 32 test files.
-- 173 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
+- 33 test files.
+- 176 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -861,14 +861,34 @@ Outcome:
 - The runtime now has a pure contract-to-artifact replay sandbox prototype.
 - It still performs no LLM replay, no tool execution, no route calls, no runtime store reads/writes, and no asset writes.
 
-## Recommended Next. Governed Fixture To Replay Sandbox Contract Bridge
+## Completed. Governed Fixture To Replay Sandbox Contract Bridge
+
+Why:
+
+- The no-side-effect replay sandbox prototype accepted only `ReplaySandboxContract`.
+- Committed governed fixtures needed a pure bridge into that contract shape before any catalog-level sandbox report.
+
+Delivered:
+
+- Added `src/lib/executor/runtime/replay-sandbox-fixture-contract.ts`.
+- Added `buildReplaySandboxContractFromFixture(fixture, options)`.
+- Converted committed fixture metadata into `ReplaySandboxContract` with `committed_fixture` provenance, fixture credentials, fixture-derived approval decisions, fixture-only store policy, and replay-result-only output policy.
+- Rejected broken provenance and redaction boundaries with structured errors.
+- Proved current sales/support committed fixtures flow through `fixture -> contract -> no-side-effect replay artifact`.
+- Included the bridge test in `npm run test:controlled-runtime`.
+
+Outcome:
+
+- The runtime can now bridge committed governed fixtures into the no-side-effect replay sandbox prototype without reading stores, calling routes, executing tools, modifying fixture JSON, or writing assets.
+
+## Recommended Next. Catalog-Level Replay Sandbox Report
 
 Suggested scope:
 
-- Add a pure helper that converts committed governed fixture metadata into `ReplaySandboxContract`.
-- Add tests proving current sales/support governed fixtures can produce safe contracts.
-- Reject missing provenance, missing redaction boundary, raw controlled run input, live credentials, production stores, and business asset writes.
-- Keep the bridge no-side-effect: no fixture JSON changes, no raw governed artifact payload recovery, no route calls, no runtime store reads/writes, and no asset writes.
+- Add a pure report helper that runs each committed fixture through `fixture -> replay sandbox contract -> no-side-effect replay result artifact`.
+- Aggregate contract build status, sandbox artifact status, diagnostics, and no-side-effect guarantees by fixture id and playbook id.
+- Add JSON/human-readable report tests only after the pure helper is stable.
+- Keep the report no-side-effect: no real replay, no route calls, no runtime store reads/writes, no fixture JSON changes, and no asset writes.
 
 ## Completed. Support Runtime Console Record Focus
 

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { controlledTraceFixtureCatalog } from "@/__tests__/fixtures/controlled-traces/catalog";
 import { buildControlledTraceFixtureCatalogReport } from "@/__tests__/fixtures/controlled-traces/catalog-report";
+import {
+  buildMissingStableMetadataCatalogEntry,
+  buildPlaybookVersionDriftCatalogEntry,
+} from "@/__tests__/fixtures/controlled-traces/synthetic-failures";
 import { validateControlledTraceFixture } from "@/lib/executor/runtime/trace-fixtures";
 import { replayControlledTraceFixture } from "@/lib/executor/runtime/trace-replay";
 
@@ -97,6 +101,46 @@ describe("controlled trace fixture catalog", () => {
     expect(report.guarantees).toEqual({
       toolCallsExecuted: false,
       assetsWritten: false,
+    });
+  });
+
+  it("builds failed aggregate reports from reusable synthetic failure entries", () => {
+    const report = buildControlledTraceFixtureCatalogReport([
+      buildPlaybookVersionDriftCatalogEntry(),
+      buildMissingStableMetadataCatalogEntry(),
+    ]);
+
+    expect(report.ok).toBe(false);
+    expect(report.total).toBe(2);
+    expect(report.passed).toBe(0);
+    expect(report.failed).toBe(2);
+    expect(report.fixtureIds).toEqual([
+      "sales-pipeline-version-drift",
+      "sales-pipeline-missing-stable-metadata",
+    ]);
+    expect(report.playbookIds).toEqual(["sales-pipeline-v1", "sales-pipeline-v1"]);
+    expect(report.guarantees).toEqual({
+      toolCallsExecuted: false,
+      assetsWritten: false,
+    });
+
+    expect(report.items[0].replay.errors).toContain(
+      "Fixture playbook version does not match current playbook sales-pipeline-v1",
+    );
+    expect(report.items[0].replay.diagnostics).toMatchObject({
+      expectedPlaybookVersion: "1.0.0",
+      fixturePlaybookVersion: "0.9.0",
+    });
+
+    expect(report.items[1].replay.errors).toContain(
+      "Step writeback writeback target sales_asset is missing stable metadata sourceKey",
+    );
+    expect(
+      report.items[1].replay.diagnostics.writebackTargetsMissingStableMetadata,
+    ).toContainEqual({
+      stepId: "writeback",
+      target: "sales_asset",
+      missingFields: ["sourceKey"],
     });
   });
 

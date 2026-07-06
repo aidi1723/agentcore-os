@@ -49,6 +49,12 @@ describe("DealDeskAppWindow record-level asset focus", () => {
       contactName: "Nora",
       requirementSummary: "Approved quote context",
     });
+    createDeal({
+      company: "Other Lead",
+      contact: "Ada",
+      workflowRunId: "workflow-other-1",
+      workflowScenarioId: "sales-pipeline",
+    });
 
     render(
       <DealDeskAppWindow
@@ -60,6 +66,10 @@ describe("DealDeskAppWindow record-level asset focus", () => {
         onClose={vi.fn()}
       />,
     );
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue("Other Lead")).toBeInTheDocument();
+    });
 
     act(() => {
       window.dispatchEvent(
@@ -76,6 +86,6 @@ describe("DealDeskAppWindow record-level asset focus", () => {
     await waitFor(() => {
       expect(screen.getByDisplayValue("Focused Facades")).toBeInTheDocument();
     });
-    expect(getDeals()).toHaveLength(1);
+    expect(getDeals()).toHaveLength(2);
   });
 });

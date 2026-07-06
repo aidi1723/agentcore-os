@@ -324,6 +324,7 @@ type ControlledPlaybookStep = {
 - [Trace Fixture Catalog And Support Coverage Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-catalog-support-coverage.md)
 - [Trace Fixture Drift Diagnostics Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-drift-diagnostics.md)
 - [Trace Fixture Catalog Report Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-catalog-report.md)
+- [Trace Fixture Catalog CI Summary Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-catalog-ci-summary.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -351,17 +352,18 @@ type ControlledPlaybookStep = {
 - Phase 10e trace fixture catalog and support coverage：已新增 explicit governed fixture catalog，并补齐 `support-resolution-v1` governed fixture。`test:controlled-runtime` 现在会通过 catalog replay 同时覆盖 sales/support committed fixtures。
 - Phase 10f trace fixture drift diagnostics：`replayControlledTraceFixture()` report 已增加结构化 `diagnostics`，包含 fixture id、playbook id、expected step order、fixture step order、missing approval step ids 和 missing writeback targets。现有 `errors` 字符串保持稳定，catalog replay 仍是纯校验。
 - Phase 10g trace fixture catalog report：已新增 `buildControlledTraceFixtureCatalogReport()`，可以把 explicit catalog 中每个 fixture 的 validation、replay、diagnostics 和 no-side-effect guarantees 聚合到一个 report object。synthetic drift 覆盖证明 report item 会保留 Phase 10f diagnostics。
+- Phase 10h trace fixture catalog CI summary：已新增 `npm run trace:fixtures`，输出 compact JSON catalog health summary，并在 report 不通过时以非零退出码失败。该命令已纳入 `test:controlled-runtime` 覆盖。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- Catalog report 目前还没有本地脚本入口，维护人员仍主要通过 Vitest 输出查看结果。
+- 从 governed trace artifact 刷新 fixture 仍然需要手工处理 JSON，还没有本地 builder 命令。
 
 因此下一阶段默认进入：
 
-**Phase 10h. Trace Fixture Catalog CI Summary**
+**Phase 10i. Governed Trace Fixture Builder CLI**
 
-目标是在不做真实工具回放的前提下，增加一个本地维护命令，输出 catalog report 并在 fixture drift 时以非零退出码失败。
+目标是在不做真实工具回放的前提下，增加一个本地命令，把 governed trace artifact JSON 转换为 fixture JSON，供维护人员审查后再提交。
 
 ### Phase 0. 冻结方向
 
@@ -785,7 +787,7 @@ type ControlledPlaybookStep = {
 - 让维护人员和 CI 可以直接输出 compact JSON report。
 - 保持纯 metadata 校验边界，不新增 API/UI。
 
-建议范围：
+已完成范围：
 
 - 新增本地脚本，调用 `buildControlledTraceFixtureCatalogReport()`。
 - 输出 `ok`、`total`、`passed`、`failed` 和失败 item 的 diagnostics。
@@ -794,8 +796,29 @@ type ControlledPlaybookStep = {
 
 完成标准：
 
-- 一个 focused command 可以检查 committed governed fixture catalog。
-- fixture drift 时命令能输出 stale fixture id 和 diagnostics。
+- 一个 focused command 可以检查 committed governed fixture catalog。已完成。
+- fixture drift 时命令能输出 stale fixture id 和 diagnostics。已完成。
+- 不调用 LLM、不调用工具、不读写 runtime stores、不写资产。已完成。
+
+### Phase 10i. Governed Trace Fixture Builder CLI
+
+目标：
+
+- 从已经导出的 governed trace artifact JSON 构建 fixture JSON。
+- 让 fixture refresh 工作变成本地显式命令，而不是手工复制字段。
+- 继续保持纯 metadata / file input-output 边界，不读取 runtime stores。
+
+建议范围：
+
+- 新增本地脚本，接收 artifact JSON 文件路径。
+- 调用 `buildControlledTraceFixture()` 和 `validateControlledTraceFixture()`。
+- 成功时把 fixture JSON 输出到 stdout。
+- 失败时把 validation errors 输出到 stderr，并以非零退出码结束。
+
+完成标准：
+
+- 维护人员可以从 governed artifact 文件生成 fixture JSON。
+- 命令不自动修改 committed fixture 文件，仍需人工审查。
 - 不调用 LLM、不调用工具、不读写 runtime stores、不写资产。
 
 ## 9. 开发规范

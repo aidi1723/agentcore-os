@@ -60,10 +60,12 @@ Completed in the current controlled runtime line:
 - Explicit governed trace fixture catalog with sales and support fixture replay coverage.
 - Structured trace fixture drift diagnostics in replay reports, including expected/fixture step order, missing approval step ids, and missing writeback targets.
 - Pure trace fixture catalog report helper that aggregates validation, replay, diagnostics, and no-side-effect guarantees for all committed fixtures.
+- `npm run trace:fixtures` local CI summary command for governed fixture catalog health.
 
 Current verification baseline:
 
 ```bash
+npm run trace:fixtures --silent
 npm run test:controlled-runtime
 npm run test:core-workflows
 npm run lint
@@ -72,9 +74,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 26 test files.
-- 147 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, catalog replay coverage for sales/support governed fixtures, and aggregate catalog report coverage.
+- 27 test files.
+- 148 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, and trace fixture catalog CI summary command coverage.
 - Trace fixture replay reports include structured drift diagnostics while preserving stable error messages.
 
 Known current lint/build note:
@@ -366,7 +368,7 @@ Outcome:
 - One report object can explain the health of the entire committed governed fixture catalog.
 - CI failures can point directly to the stale fixture and the exact drift diagnostics.
 
-## Recommended Next. Trace Fixture Catalog CI Summary
+## Completed. Trace Fixture Catalog CI Summary
 
 Why:
 
@@ -374,17 +376,46 @@ Why:
 - A small local script can print the aggregate report and exit non-zero on failed fixtures without adding runtime/API surface area.
 - This should remain a maintenance tool over committed fixtures, not a route or UI feature.
 
+Delivered:
+
+- Added `scripts/trace-fixtures/catalog-report.mjs`.
+- Added `npm run trace:fixtures`.
+- The command prints compact parseable JSON and exits non-zero when `report.ok` is false.
+- The output includes aggregate counts, fixture ids, playbook ids, failed item validation/replay diagnostics, and no-side-effect guarantees.
+- Added a subprocess test and included it in `test:controlled-runtime`.
+- Kept scope pure: no LLM calls, no tool calls, no route calls, no runtime store mutation, and no asset writes.
+
+Primary files:
+
+- `scripts/trace-fixtures/catalog-report.mjs`
+- `src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts`
+- `package.json`
+
+Outcome:
+
+- A maintainer can run one focused command to inspect governed fixture catalog health.
+- CI can surface the same aggregate report object when fixtures drift.
+
+## Recommended Next. Governed Trace Fixture Builder CLI
+
+Why:
+
+- The project can export governed trace artifacts and validate committed fixtures, but refreshing fixtures still requires manual JSON handling.
+- A local builder command can convert a governed artifact JSON file into a fixture JSON document on stdout.
+- This keeps fixture maintenance inside the governed artifact boundary without adding runtime write paths.
+
 Suggested scope:
 
-- Add a local script that imports the catalog report helper and prints compact JSON.
-- Add an npm script such as `test:trace-fixtures` or `trace:fixtures`.
-- Exit non-zero when `report.ok` is false.
+- Add a local script that reads a governed trace artifact JSON file path.
+- Use `buildControlledTraceFixture()` and `validateControlledTraceFixture()`.
+- Print fixture JSON to stdout and validation errors to stderr.
+- Exit non-zero when the artifact cannot become a valid governed fixture.
 - Keep scope pure: no LLM calls, no tool calls, no route calls, no runtime store mutation, and no asset writes.
 
 Completion target:
 
-- A maintainer can run one focused command to inspect governed fixture catalog health.
-- CI can surface the same aggregate report object when fixtures drift.
+- A maintainer can export a governed trace artifact, run one command, and inspect the resulting fixture JSON before committing it.
+- Fixture refresh remains explicit and reviewable.
 
 ## Completed. Support Runtime Console Record Focus
 

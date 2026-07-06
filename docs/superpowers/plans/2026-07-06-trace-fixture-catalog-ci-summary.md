@@ -24,7 +24,7 @@
 **Files:**
 - Create: `src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts`
 
-- [ ] **Step 1: Write failing subprocess test**
+- [x] **Step 1: Write failing subprocess test**
 
 Create `src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts` with:
 
@@ -75,7 +75,7 @@ describe("trace fixture catalog report script", () => {
 });
 ```
 
-- [ ] **Step 2: Run script test to verify RED**
+- [x] **Step 2: Run script test to verify RED**
 
 Run:
 
@@ -93,7 +93,7 @@ Expected: FAIL because `npm run trace:fixtures` is not defined.
 - Create: `scripts/trace-fixtures/catalog-report.mjs`
 - Modify: `package.json`
 
-- [ ] **Step 1: Add npm script**
+- [x] **Step 1: Add npm script**
 
 In `package.json`, add this script near the other test scripts:
 
@@ -101,7 +101,7 @@ In `package.json`, add this script near the other test scripts:
 "trace:fixtures": "node --import ./scripts/register-ts-alias-loader.mjs ./scripts/trace-fixtures/catalog-report.mjs",
 ```
 
-- [ ] **Step 2: Create summary script**
+- [x] **Step 2: Create summary script**
 
 Create `scripts/trace-fixtures/catalog-report.mjs` with:
 
@@ -137,7 +137,7 @@ if (!report.ok) {
 }
 ```
 
-- [ ] **Step 3: Run command manually**
+- [x] **Step 3: Run command manually**
 
 Run:
 
@@ -147,7 +147,7 @@ npm run trace:fixtures --silent
 
 Expected: exit 0 and stdout parseable JSON containing `"ok": true`, `"total": 2`, and `"failed": 0`.
 
-- [ ] **Step 4: Run script test to verify GREEN**
+- [x] **Step 4: Run script test to verify GREEN**
 
 Run:
 
@@ -157,7 +157,7 @@ npm test -- src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Run fixture/report focused tests**
+- [x] **Step 5: Run fixture/report focused tests**
 
 Run:
 
@@ -167,7 +167,7 @@ npm test -- src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts sr
 
 Expected: PASS.
 
-- [ ] **Step 6: Include script test in controlled runtime gate**
+- [x] **Step 6: Include script test in controlled runtime gate**
 
 Modify `package.json` `test:controlled-runtime` to include:
 
@@ -177,7 +177,7 @@ src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts
 
 Place it after `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` in the existing command.
 
-- [ ] **Step 7: Run controlled runtime gate**
+- [x] **Step 7: Run controlled runtime gate**
 
 Run:
 
@@ -187,7 +187,7 @@ npm run test:controlled-runtime
 
 Expected: PASS, with one additional test file and one additional test.
 
-- [ ] **Step 8: Commit command implementation**
+- [x] **Step 8: Commit command implementation**
 
 ```bash
 git add package.json scripts/trace-fixtures/catalog-report.mjs src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts
@@ -205,7 +205,7 @@ git commit -m "test: add trace fixture catalog ci summary"
 - Modify: `docs/superpowers/plans/2026-07-06-trace-fixture-catalog-ci-summary.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run full verification before docs**
+- [x] **Step 1: Run full verification before docs**
 
 Run:
 
@@ -220,7 +220,7 @@ git diff --check
 
 Expected: all commands exit 0. `lint` and `build` may show only the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 
-- [ ] **Step 2: Update docs and records**
+- [x] **Step 2: Update docs and records**
 
 Record:
 
@@ -231,7 +231,7 @@ Record:
 - continued pure metadata boundary;
 - next recommended phase.
 
-- [ ] **Step 3: Re-run final verification after docs**
+- [x] **Step 3: Re-run final verification after docs**
 
 Run:
 
@@ -246,7 +246,7 @@ git diff --check
 
 Expected: all commands exit 0 with only the known existing `<img>` warning if present.
 
-- [ ] **Step 4: Commit docs**
+- [x] **Step 4: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-trace-fixture-catalog-ci-summary.md
@@ -260,3 +260,26 @@ git commit -m "docs: complete trace fixture catalog ci summary"
 - Spec coverage: local command, JSON output, exit code, npm script, subprocess test, controlled runtime gate, docs, and verification are covered.
 - Placeholder scan: no placeholder markers remain.
 - Type consistency: `trace:fixtures`, `scripts/trace-fixtures/catalog-report.mjs`, and `TraceFixtureCatalogSummaryOutput` are used consistently.
+
+## Progress Record
+
+- RED verified: `npm test -- src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts` failed because `npm run trace:fixtures` exited 1 before the script existed.
+- Manual command verified: `npm run trace:fixtures --silent` printed parseable JSON with `ok: true`, `total: 2`, and `failed: 0`.
+- GREEN verified: `npm test -- src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts` — 1 file / 1 test passed.
+- Focused fixture/report tests verified: `npm test -- src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts src/__tests__/lib/executor/runtime/trace-fixtures.test.ts src/__tests__/lib/executor/runtime/trace-replay.test.ts src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` — 4 files / 14 tests passed.
+- Controlled runtime gate verified after inclusion: `npm run test:controlled-runtime` — 27 files / 148 tests passed.
+- Implementation commit: `50e4be5 test: add trace fixture catalog ci summary`.
+- Full verification before docs:
+  - `npm run trace:fixtures --silent` — exit 0, `ok: true`, `total: 2`, `failed: 0`.
+  - `npm run test:controlled-runtime` — 27 files / 148 tests passed.
+  - `npm run test:core-workflows` — all core workflow regressions passed.
+  - `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+  - `npm run build` — exit 0 with the same existing warning.
+  - `git diff --check` — exit 0.
+- Final verification after docs:
+  - `npm run trace:fixtures --silent` — exit 0, `ok: true`, `total: 2`, `failed: 0`.
+  - `npm run test:controlled-runtime` — 27 files / 148 tests passed.
+  - `npm run test:core-workflows` — all core workflow regressions passed.
+  - `npm run lint` — exit 0 with the existing `<img>` warning.
+  - `npm run build` — exit 0 with the same existing warning.
+  - `git diff --check` — exit 0.

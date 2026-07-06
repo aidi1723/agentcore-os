@@ -179,6 +179,14 @@
 - Added synthetic drift coverage proving aggregate report items preserve Phase 10f replay diagnostics.
 - Kept the helper in the test fixture boundary; no production route, CLI, filesystem discovery, runtime store mutation, tool execution, or asset writeback was added.
 
+### Trace Fixture Catalog CI Summary
+
+- Added `npm run trace:fixtures` as a focused local governed fixture catalog health command.
+- The command prints compact JSON with aggregate counts, fixture ids, playbook ids, failed item diagnostics, and no-side-effect guarantees.
+- The command exits non-zero when the aggregate catalog report is not ok.
+- Added a subprocess regression test for the command and included it in `test:controlled-runtime`.
+- Updated fixture JSON imports to use standard Node ESM JSON import attributes so the catalog report can run outside Vitest.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

@@ -130,7 +130,7 @@ User / Trigger
 - replay sandbox catalog CI summary 已通过 `npm run replay:sandbox:fixtures` 实现为 compact JSON 命令。
 - replay sandbox failure diagnostics taxonomy 已把 contract bridge failure、sandbox artifact failure 和 guarantee violation 固定为稳定 `failureKind` / `guaranteeErrors` 输出。
 - replay sandbox failure harness direct modes 已覆盖 contract、sandbox 和 guarantee failures。
-- Runtime UI Reframing、Runtime Console Delivery Readiness Audit 与 Delivery Demo Smoke Path 已完成；因此下一阶段应先做 Browser Evidence And Release Readiness Sweep，再考虑 governed fixture / playbook expansion review，仍不能直接写真实工具 replay。
+- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path 与 Browser Evidence And Release Readiness Sweep 已完成；因此下一阶段应先做 Governed Fixture / Playbook Expansion Review，仍不能直接写真实工具 replay。
 
 ## 6. 文档体系
 
@@ -330,9 +330,10 @@ git diff --check
 
 目标：
 
-- 在真实浏览器验证 Home cockpit -> Runtime Console -> `delivery-demo` -> asset landing -> governed trace copy。
-- 若 Playwright 可用，补可复查截图或自动化浏览器证据。
-- 只修交付路径阻塞问题，不在本阶段新增真实 replay 或新 playbook。
+- 已在真实浏览器验证 Home cockpit -> Runtime Console -> `delivery-demo` -> asset landing -> governed trace copy。
+- 已用 Playwright 保存可复查截图和 snapshot 证据。
+- 已确认浏览器 console 没有 error；只保留 dev/preload warnings。
+- 没有在本阶段新增真实 replay 或新 playbook。
 
 ### P14. Governed Fixture / Playbook Expansion
 

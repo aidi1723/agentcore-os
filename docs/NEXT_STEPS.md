@@ -75,6 +75,7 @@ Completed in the current controlled runtime line:
 - Runtime UI Reframing first slice: home screen now leads with controlled playbook cockpit state and Runtime Console inspection.
 - Runtime Console Delivery Readiness Audit: current branch can move to demo smoke path, but should not claim production release readiness yet.
 - Delivery Demo Smoke Path: local deterministic seed/check scripts now provide completed, awaiting approval, and retryable failed demo runs plus sales / knowledge / workflow / draft / support asset records for Runtime Console handoff.
+- Browser Evidence And Release Readiness Sweep: Playwright smoke verified Home -> Runtime Console -> `delivery-demo-run-completed` -> five asset landings -> governed trace copy with 0 browser console errors.
 
 Current verification baseline:
 
@@ -129,7 +130,30 @@ Outcome:
 
 - A maintainer can seed and check a deterministic Runtime Console demo with two commands.
 - The project now has a command-level delivery smoke gate before browser evidence.
-- Next recommended phase: Browser Evidence And Release Readiness Sweep.
+- Browser evidence has now been recorded in [Browser Evidence And Release Readiness Sweep](BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md).
+
+## Completed. Browser Evidence And Release Readiness Sweep
+
+Why:
+
+- Command-level smoke was necessary but not sufficient for direct local delivery.
+- The project needed browser evidence that Home, Runtime Console, seeded run detail, asset landings, and governed trace copy work together.
+
+Delivered:
+
+- Ran the local demo on `npm run dev -- -p 3001` because port 3000 was already occupied.
+- Verified Home controlled playbook cockpit opened Runtime Console.
+- Verified `delivery-demo-run-completed` displayed step trace, approval state, five writeback receipts, and five asset landings.
+- Clicked `复制脱敏 Trace`; the trace artifact route returned 200.
+- Captured local screenshot evidence at `output/playwright/delivery-demo-runtime-console.png`.
+- Recorded that browser console had 0 errors; warnings were dev/preload warnings only.
+- Added [Browser Evidence And Release Readiness Sweep](BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md).
+
+Outcome:
+
+- Current branch is ready for local delivery demo.
+- Production readiness is still not claimed.
+- Next recommended phase: Governed Fixture And Playbook Expansion Review.
 
 ## Completed. Runtime Console Failure Recovery
 
@@ -1040,19 +1064,17 @@ Delivered:
 
 Outcome:
 
-- Current branch has proceeded through the command-level delivery smoke path.
-- It should not yet be described as a production-ready release until browser evidence and release-readiness sweep are complete.
+- Current branch has proceeded through the command-level delivery smoke path and browser evidence sweep.
+- It can be described as local delivery demo ready, but not as a production-ready release.
 
-## Recommended Next. Browser Evidence And Release Readiness Sweep
+## Recommended Next. Governed Fixture And Playbook Expansion Review
 
 Suggested scope:
 
-- Run `npm run delivery:demo:seed` and `npm run delivery:demo:check`.
-- Start `npm run dev`.
-- Verify Home cockpit -> Runtime Console -> `delivery-demo` -> asset landing -> governed trace copy in a browser.
-- Capture Playwright or manual screenshot evidence if available.
-- Fix only delivery-blocking issues found by the smoke path.
-- Do not add real replay, new playbooks, or broad UI redesign in this phase.
+- Inspect current sales/support governed fixture coverage.
+- Decide whether the next phase should add fixture coverage, migrate a new controlled playbook, or harden operational retention.
+- Produce a focused spec before any new fixture JSON or playbook code is added.
+- Do not add real replay, route calls, store writes, or external system mutations in the review phase.
 
 ## Completed. Support Runtime Console Record Focus
 

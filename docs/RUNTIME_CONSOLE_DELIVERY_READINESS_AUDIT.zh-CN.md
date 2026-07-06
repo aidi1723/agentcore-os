@@ -6,7 +6,7 @@ Last updated: 2026-07-06
 
 ## 1. 当前结论
 
-当前分支已经完成命令级 **delivery demo smoke path**，但还不应宣称为完整生产发布。
+当前分支已经完成命令级 **delivery demo smoke path** 和一次浏览器 smoke evidence，但还不应宣称为完整生产发布。
 
 可以演示的主线是：
 
@@ -21,7 +21,8 @@ Last updated: 2026-07-06
 
 - **Ready:** Runtime Console 已具备受控运行检查、人工控制、恢复、资产落点和 governed trace copy 的交付主线。
 - **Ready:** 本地 seed/check 已提供固定 demo run、资产记录和 governed trace 脱敏验证。
-- **Remaining:** 还需要浏览器证据和 release readiness sweep，证明 Home -> Runtime Console -> asset landing -> governed trace copy 在真实 UI 中无阻塞。
+- **Ready:** 浏览器 smoke 已证明 Home -> Runtime Console -> asset landing -> governed trace copy 在真实 UI 中无阻塞。
+- **Remaining:** 发布说法仍应限制为 local delivery demo ready，不宣称 production ready。
 - **Deferred:** 真实 replay、新 playbook、更多 fixture expansion、UI 大改和通用 agent shell 扩展都应继续延期。
 
 ## 2. 可交付演示主线
@@ -60,13 +61,13 @@ Last updated: 2026-07-06
 | Runtime diagnostics | Partial | Runtime/sidecar/doctor panels exist but are still mixed with older runtime installation concerns | Keep visible, not the core demo story |
 | Fixture/replay visibility | Partial | Governed trace and docs explain fixture/replay gates; UI does not yet summarize fixture gate state | Explain through docs for now |
 | Demo repeatability | Ready | `npm run delivery:demo:seed` and `npm run delivery:demo:check` seed and verify deterministic demo state | Use as pre-browser smoke gate |
-| Browser evidence | Partial | Browser path is documented but not yet captured as repeatable evidence | Next phase required |
+| Browser evidence | Ready | Playwright smoke opened Home, Runtime Console, `delivery-demo-run-completed`, five asset landings, and governed trace copy with 0 console errors | Use as local delivery evidence |
 
 ## 4. 当前阻塞项
 
-### B1. 浏览器证据尚未收口
+### B1. 发布说法仍需保守
 
-需要一条可重复的本地演示路径，证明：
+当前已经有命令级 smoke 和浏览器 smoke 证据，可以证明：
 
 - 首页能打开 Runtime Console；
 - Runtime Console 能加载至少一个 completed controlled run；
@@ -74,7 +75,7 @@ Last updated: 2026-07-06
 - governed trace copy 不包含 raw customer / secret payload；
 - build gate 和 controlled-runtime gate 仍为 green。
 
-命令级 seed/check 已完成；下一阶段要在真实浏览器里捕捉这条路径的证据，并只修交付阻塞问题。
+但对外仍只能表述为 local delivery demo ready，不能宣称完整生产发布 ready。
 
 ### B2. 演示数据边界已经固定，仍需防止外溢
 
@@ -128,13 +129,13 @@ npm run dev
 # browser smoke: Home -> Runtime Console -> select controlled run -> asset landing -> governed trace copy
 ```
 
+已记录的浏览器证据见 [Browser Evidence And Release Readiness Sweep](BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md)。
+
 ## 7. 下一阶段建议
 
-下一阶段应做 **Browser Evidence And Release Readiness Sweep**：
+下一阶段应做 **Governed Fixture And Playbook Expansion Review**：
 
-- 用浏览器验证 Home cockpit 到 Runtime Console 的路径；
-- 使用 `delivery-demo` 数据验证 asset landing 和 governed trace copy；
-- 若 Playwright 可用，保存截图或可复查的浏览器证据；
-- 只修阻塞 demo 的小问题，不引入真实 replay 或新 playbook。
-
-完成该阶段后，才能再进入 governed fixture / playbook expansion review。
+- 先审查当前 sales/support governed fixture coverage 是否已覆盖所有注册 playbook；
+- 判断是否真的需要新 fixture、新 controlled playbook，或先强化 operational retention；
+- 输出 focused spec，不直接创建 fixture JSON 或 playbook code；
+- 继续禁止真实 replay 和外部系统写入。

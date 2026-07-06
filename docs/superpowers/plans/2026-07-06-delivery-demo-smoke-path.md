@@ -289,6 +289,13 @@ Final verification:
 - `npm run lint` — exit 0 with existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - `npm run build` — exit 0 with the same existing warning.
 
-Current next phase after final verification:
+Browser evidence follow-up:
 
-- Browser Evidence And Release Readiness Sweep.
+- `npm run dev -- -p 3001` launched the local app because port 3000 was already occupied.
+- Playwright smoke verified Home -> Runtime Console -> `delivery-demo-run-completed` -> five asset landings -> governed trace copy.
+- Browser console errors: 0.
+- Local screenshot: `output/playwright/delivery-demo-runtime-console.png`.
+
+Current next phase after browser evidence:
+
+- Governed Fixture And Playbook Expansion Review.

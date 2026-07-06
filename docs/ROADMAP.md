@@ -216,7 +216,7 @@ Result:
 
 - Runtime Console is ready to serve as the primary controlled runtime demo surface.
 - The follow-up command-level delivery demo smoke path is now complete.
-- Current blocker is browser evidence and release-readiness sweep.
+- Browser evidence and release-readiness sweep are now complete for local delivery demo claims.
 - Production readiness is not claimed yet.
 
 ### P12. Delivery Demo Smoke Path
@@ -236,18 +236,18 @@ The path now provides:
 
 ### P13. Browser Evidence And Release Readiness Sweep
 
-Next, prove the command-level smoke path in a browser and close release blockers:
+Completed local browser evidence:
 
 - Home cockpit -> Runtime Console,
 - search `delivery-demo`,
 - inspect step trace, approvals/recovery, asset landings, and governed trace copy,
-- capture browser evidence if Playwright is available,
-- fix only delivery-blocking issues found in the smoke path,
-- keep real replay and new playbooks out of this phase.
+- captured browser evidence with Playwright,
+- confirmed 0 browser console errors,
+- kept real replay and new playbooks out of this phase.
 
 ### P14. Governed Fixture And Playbook Expansion Review
 
-Review whether to expand fixtures or playbooks:
+Next, review whether to expand fixtures or playbooks:
 
 - inspect current sales/support governed fixture coverage,
 - decide whether the next phase should add fixture coverage, migrate a new controlled playbook, or harden operational retention,

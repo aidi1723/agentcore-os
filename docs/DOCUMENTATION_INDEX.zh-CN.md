@@ -2,7 +2,7 @@
 
 这是当前 `v1.3.0` 稳定版对外发布对应的中文入口页。
 
-> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-06，Runtime UI Reframing、Runtime Console Delivery Readiness Audit 和 Delivery Demo Smoke Path 已完成；当前下一阶段是 Browser Evidence And Release Readiness Sweep。后续开发请先阅读项目框架总纲、可控 Runtime 开发手册、Roadmap、Next Steps、Runtime Console 交付审计、交付演示路径、governed trace 运维文档和 real replay / sandbox 边界文档。
+> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-06，Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path 和 Browser Evidence And Release Readiness Sweep 已完成；当前下一阶段是 Governed Fixture And Playbook Expansion Review。后续开发请先阅读项目框架总纲、可控 Runtime 开发手册、Roadmap、Next Steps、Runtime Console 交付审计、交付演示路径、浏览器证据与发布就绪扫尾、governed trace 运维文档和 real replay / sandbox 边界文档。
 
 ## 建议阅读顺序
 
@@ -14,16 +14,17 @@
 6. [当前执行 backlog](NEXT_STEPS.md)
 7. [Runtime Console Delivery Readiness Audit](RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md)
 8. [Delivery Demo Smoke Path](DELIVERY_DEMO_SMOKE_PATH.zh-CN.md)
-9. [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
-10. [Real Replay Boundary Design](REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
-11. [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
-12. [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
-13. [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
-14. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
-15. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
-16. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
-17. [快速开始](GETTING_STARTED.md)
-18. [用户指南（中文）](USER_GUIDE.zh-CN.md)
+9. [Browser Evidence And Release Readiness Sweep](BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md)
+10. [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
+11. [Real Replay Boundary Design](REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
+12. [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
+13. [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
+14. [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
+15. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
+16. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
+17. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
+18. [快速开始](GETTING_STARTED.md)
+19. [用户指南（中文）](USER_GUIDE.zh-CN.md)
 
 ## 对外分发
 
@@ -53,6 +54,7 @@
 - [企业级执行层升级方案](AGENT_EXECUTION_ENTERPRISE_UPGRADE.zh-CN.md)
 - [Runtime Console Delivery Readiness Audit](RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md)
 - [Delivery Demo Smoke Path](DELIVERY_DEMO_SMOKE_PATH.zh-CN.md)
+- [Browser Evidence And Release Readiness Sweep](BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md)
 - [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
 - [Real Replay Boundary Design](REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
 - [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)

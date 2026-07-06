@@ -91,7 +91,23 @@ npm run dev
 - 选择 `delivery-demo-run-awaiting-approval` 展示 pending approval 控制面。
 - 选择 `delivery-demo-run-failed-retryable` 展示 retry eligibility 和失败恢复面板。
 
-## 4. 交付前建议门禁
+## 4. 已记录的浏览器证据
+
+2026-07-06 已使用 Playwright CLI 完成一次浏览器 smoke：
+
+- dev server: `npm run dev -- -p 3001`
+- browser path: Home -> Runtime Console -> `delivery-demo-run-completed`
+- verified:
+  - `受控运行 Trace` 可见；
+  - `复制脱敏 Trace` 可点击；
+  - sales / knowledge / workflow / draft / support 五类 asset landing 可见；
+  - trace artifact route 返回 200；
+  - browser console errors: `0`。
+- local screenshot: `output/playwright/delivery-demo-runtime-console.png`
+
+详细证据和发布就绪边界见 [Browser Evidence And Release Readiness Sweep](BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md)。
+
+## 5. 交付前建议门禁
 
 交付前推荐完整运行：
 
@@ -110,7 +126,7 @@ npm run build
 
 - `npm run lint` 和 `npm run build` 可能继续显示 `src/__tests__/components/ShellUI.test.tsx` 中既有的 `<img>` warning。
 
-## 5. 维护路径
+## 6. 维护路径
 
 如果 controlled runtime 字段变化导致 demo path 失败：
 

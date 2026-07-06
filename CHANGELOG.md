@@ -111,7 +111,9 @@
 - Added `npm run delivery:demo:check` to verify demo run states, writeback targets, related sales / knowledge / workflow / draft / support assets, retry/approval metadata, and governed trace redaction.
 - Added delivery demo script tests and included them in `test:controlled-runtime`.
 - Added `docs/DELIVERY_DEMO_SMOKE_PATH.zh-CN.md` as the operator guide for Home -> Runtime Console -> asset landing -> governed trace copy.
-- Set the next phase to Browser Evidence And Release Readiness Sweep.
+- Added `docs/BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md` with Playwright browser smoke evidence and release-readiness boundaries.
+- Verified the browser path Home -> Runtime Console -> `delivery-demo-run-completed` -> five asset landings -> governed trace copy with 0 console errors.
+- Set the next phase to Governed Fixture And Playbook Expansion Review.
 
 ### Runtime Console Delivery Readiness Audit
 

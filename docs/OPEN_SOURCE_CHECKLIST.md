@@ -11,12 +11,23 @@ Ensure these are not committed:
 - `.webhook-connector/`
 - `dist/`
 - `build/`
+- `.openclaw-data/`
 
 Useful check:
 
 ```bash
-git ls-files | egrep '^(node_modules/|\.next/|\.next-dev/|dist/|build/|\.webhook-connector/)'
+git ls-files | egrep '^(node_modules/|\.next/|\.next-dev/|dist/|build/|\.webhook-connector/|\.openclaw-data/)'
 ```
+
+Repeatable local gate:
+
+```bash
+npm run release:hygiene:check
+```
+
+This command checks tracked files for blocked artifact paths, required public
+governance docs, `GPL-3.0-or-later` package metadata, public release boundary
+wording, and warning-only secret pattern matches.
 
 ## 2) Scan for secrets and identifiers
 
@@ -71,6 +82,7 @@ Recommended:
 ## 6) Final local verification
 
 ```bash
+npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
 npm run test:core-workflows
@@ -81,6 +93,8 @@ git status
 
 Confirm:
 
+- `release:hygiene:check` reports `ok: true` and `productionReady: false`
+- secret pattern review results are warning-only and still require human review
 - public docs say local delivery demo ready, not production ready
 - `delivery:ready:check` reports `releaseClaim: "local_delivery_demo_ready"`
 - `delivery:ready:check` reports `productionReady: false`

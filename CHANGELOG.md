@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Open Source Hygiene Gate
+
+- Added `npm run release:hygiene:check`, a local read-only open-source hygiene gate for public handoff checks.
+- The gate verifies required public governance docs, `GPL-3.0-or-later` package metadata, tracked build/private artifact paths, and public release boundary wording.
+- Secret pattern review is warning-only and reports file-level match counts for human review without claiming the repository has no secrets.
+- Added release hygiene helper coverage and included it in `test:controlled-runtime`.
+
 ### Public Release Boundary Alignment
 
 - Aligned public release and open-source checklist docs with the current Controlled Skill / Playbook Runtime direction.

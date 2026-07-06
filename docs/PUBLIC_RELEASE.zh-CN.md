@@ -65,11 +65,39 @@ npm run delivery:ready:check
 
 这个门禁不替代完整 regression、lint、build 或人工浏览器 smoke。
 
+## 开源卫生门禁
+
+公开交付、仓库展示或发布前，再运行本地开源卫生门禁：
+
+```bash
+npm run release:hygiene:check
+```
+
+该命令检查：
+
+- 必备公开治理文档；
+- `package.json` 许可证元数据；
+- tracked build / private artifact 路径；
+- 公开发布文档是否提到 `delivery:ready:check`；
+- 公开发布文档是否避免正向 production ready 声明。
+
+该门禁里的 secret pattern review 只作为 warning。它只报告文件级命中数量供人工复查，不证明仓库完全没有密钥。
+
+成功输出必须包含：
+
+```json
+{
+  "ok": true,
+  "productionReady": false
+}
+```
+
 ## 完整发布前验证
 
 公开发布说明、外部演示或交付前，建议运行：
 
 ```bash
+npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
 npm run test:core-workflows

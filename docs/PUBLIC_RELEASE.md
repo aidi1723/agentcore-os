@@ -63,11 +63,41 @@ Successful output must include:
 
 This gate does not replace full regression, lint, build, or manual browser smoke.
 
+## Open Source Hygiene Gate
+
+Use the local open-source hygiene gate before public handoff or repository
+presentation checks:
+
+```bash
+npm run release:hygiene:check
+```
+
+This command checks:
+
+- required public governance docs;
+- `package.json` license metadata;
+- tracked build/private artifact paths;
+- public release docs mentioning `delivery:ready:check`;
+- public release docs avoiding positive production-ready claims.
+
+The secret pattern review in this gate is warning-only. It reports file-level
+match counts for human review and does not prove the repository has no secrets.
+
+Successful output must include:
+
+```json
+{
+  "ok": true,
+  "productionReady": false
+}
+```
+
 ## Full Verification
 
 Before a public release announcement or handoff, run:
 
 ```bash
+npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
 npm run test:core-workflows

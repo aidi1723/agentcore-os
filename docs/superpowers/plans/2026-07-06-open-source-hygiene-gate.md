@@ -24,9 +24,9 @@
 
 ## Task 1: Failing Release Hygiene Tests
 
-- [ ] Create `src/__tests__/scripts/release-hygiene-check-script.test.ts`.
+- [x] Create `src/__tests__/scripts/release-hygiene-check-script.test.ts`.
 
-- [ ] Import planned helpers from the not-yet-existing script:
+- [x] Import planned helpers from the not-yet-existing script:
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -36,7 +36,7 @@ import {
 } from "../../../scripts/release-hygiene/check-release-hygiene.mjs";
 ```
 
-- [ ] Define a complete passing repository fixture:
+- [x] Define a complete passing repository fixture:
 
 ```ts
 const requiredDocs = [
@@ -89,7 +89,7 @@ function buildRepo(overrides: {
 }
 ```
 
-- [ ] Add the success test:
+- [x] Add the success test:
 
 ```ts
 it("returns success when repository hygiene checks pass", () => {
@@ -112,7 +112,7 @@ it("returns success when repository hygiene checks pass", () => {
 });
 ```
 
-- [ ] Add hard-failure tests:
+- [x] Add hard-failure tests:
 
 ```ts
 it("fails when a required public document is missing", () => {
@@ -183,7 +183,7 @@ it("fails when public release docs omit delivery:ready:check", () => {
 });
 ```
 
-- [ ] Add production wording and warning tests:
+- [x] Add production wording and warning tests:
 
 ```ts
 it("allows negative production-ready boundary wording but rejects positive claims", () => {
@@ -235,7 +235,7 @@ it("reports secret pattern matches as warnings without failing the gate", () => 
 });
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 npm test -- src/__tests__/scripts/release-hygiene-check-script.test.ts
@@ -245,9 +245,9 @@ Expected: fail because `scripts/release-hygiene/check-release-hygiene.mjs` does 
 
 ## Task 2: Implement Release Hygiene Script
 
-- [ ] Create `scripts/release-hygiene/check-release-hygiene.mjs`.
+- [x] Create `scripts/release-hygiene/check-release-hygiene.mjs`.
 
-- [ ] Add constants:
+- [x] Add constants:
 
 ```js
 import { spawnSync } from "node:child_process";
@@ -293,7 +293,7 @@ export const SECRET_REVIEW_PATTERNS = [
 ];
 ```
 
-- [ ] Add real repository readers:
+- [x] Add real repository readers:
 
 ```js
 export function listTrackedFiles() {
@@ -325,7 +325,7 @@ export function buildRealRepositorySource() {
 }
 ```
 
-- [ ] Add check helpers:
+- [x] Add check helpers:
 
 ```js
 function readOptional(repo, path) {
@@ -380,7 +380,7 @@ function evaluateTrackedArtifacts(repo) {
 }
 ```
 
-- [ ] Add public wording helpers:
+- [x] Add public wording helpers:
 
 ```js
 function splitSentences(text) {
@@ -451,7 +451,7 @@ function evaluatePublicReleaseDocs(repo) {
 }
 ```
 
-- [ ] Add warning-only secret pattern review:
+- [x] Add warning-only secret pattern review:
 
 ```js
 function countSecretPatternMatches(text) {
@@ -491,7 +491,7 @@ function evaluateSecretPatternReview(repo) {
 }
 ```
 
-- [ ] Add report builder and CLI main:
+- [x] Add report builder and CLI main:
 
 ```js
 export function buildReleaseHygieneReport(repo = buildRealRepositorySource()) {
@@ -539,7 +539,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 }
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 npm test -- src/__tests__/scripts/release-hygiene-check-script.test.ts
@@ -549,19 +549,19 @@ Expected: pass.
 
 ## Task 3: Wire Package Script And Controlled Runtime Coverage
 
-- [ ] Modify `package.json` scripts:
+- [x] Modify `package.json` scripts:
 
 ```json
 "release:hygiene:check": "node scripts/release-hygiene/check-release-hygiene.mjs"
 ```
 
-- [ ] Add the new test file to `test:controlled-runtime` after `delivery-ready-check-script.test.ts`:
+- [x] Add the new test file to `test:controlled-runtime` after `delivery-ready-check-script.test.ts`:
 
 ```text
 src/__tests__/scripts/release-hygiene-check-script.test.ts
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 npm run release:hygiene:check
@@ -575,7 +575,7 @@ Expected:
 
 ## Task 4: Documentation And Maintenance Log
 
-- [ ] Update `docs/OPEN_SOURCE_CHECKLIST.md`.
+- [x] Update `docs/OPEN_SOURCE_CHECKLIST.md`.
 
 Add the command near the top or final verification section:
 
@@ -586,13 +586,13 @@ npm run release:hygiene:check
 Explain that it checks tracked artifacts, required docs, GPLv3+ package metadata,
 public release boundary wording, and warning-only secret pattern matches.
 
-- [ ] Update `docs/PUBLIC_RELEASE.md` and `docs/PUBLIC_RELEASE.zh-CN.md`.
+- [x] Update `docs/PUBLIC_RELEASE.md` and `docs/PUBLIC_RELEASE.zh-CN.md`.
 
 Add `npm run release:hygiene:check` as an open-source hygiene gate next to the
 existing `delivery:ready:check` guidance, while stating that production
 readiness is not claimed.
 
-- [ ] Update `docs/NEXT_STEPS.md`.
+- [x] Update `docs/NEXT_STEPS.md`.
 
 Add a completed section for Open Source Hygiene Gate with:
 
@@ -602,24 +602,24 @@ Add a completed section for Open Source Hygiene Gate with:
 - relationship to `delivery:ready:check`;
 - updated controlled-runtime test count after verification.
 
-- [ ] Update `CHANGELOG.md`.
+- [x] Update `CHANGELOG.md`.
 
 Add an Unreleased bullet for `release:hygiene:check`.
 
-- [ ] Update `memory/2026-07-06.md`.
+- [x] Update `memory/2026-07-06.md`.
 
 Record spec, plan, implementation, verification, and next recommended phase.
 
 ## Task 5: Final Verification And Commit
 
-- [ ] Run targeted verification:
+- [x] Run targeted verification:
 
 ```bash
 npm test -- src/__tests__/scripts/release-hygiene-check-script.test.ts
 npm run release:hygiene:check
 ```
 
-- [ ] Run release and regression verification:
+- [x] Run release and regression verification:
 
 ```bash
 npm run delivery:ready:check
@@ -638,7 +638,7 @@ Expected:
 - `release:hygiene:check` reports `"ok": true` and `"productionReady": false`;
 - secret-pattern hits, if any, remain warnings only.
 
-- [ ] Commit:
+- [x] Commit:
 
 ```bash
 git add scripts/release-hygiene/check-release-hygiene.mjs \

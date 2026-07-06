@@ -84,6 +84,7 @@ Completed in the current controlled runtime line:
 - Trace Retention Prune Guard: `npm run trace:retention:prune` now provides a guarded local prune command that refuses mutation unless `--confirm-prune` is present and `--expected-pruned-run-ids` exactly matches the fresh preview.
 - Delivery Release Gate Hardening: `npm run delivery:ready:check` now aggregates the fast local delivery demo, governed fixture, fixture summary, and retention preview gates into one JSON readiness report while keeping `productionReady: false`.
 - Public Release Boundary Alignment: public release and open-source docs now describe the current Controlled Skill / Playbook Runtime boundary, local delivery demo readiness, and the `delivery:ready:check` gate without claiming production readiness.
+- Open Source Hygiene Gate: `npm run release:hygiene:check` now provides a local read-only repository hygiene gate for required public docs, GPLv3+ package metadata, tracked artifact paths, public release boundary wording, and warning-only secret pattern review.
 
 Current verification baseline:
 
@@ -93,6 +94,7 @@ npm run delivery:demo:check
 npm run trace:fixtures --silent
 npm run trace:fixtures:summary --silent
 npm run trace:retention:preview -- --max-age-days 30 --min-terminal-runs 20
+npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
 npm run test:core-workflows
@@ -102,9 +104,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 41 test files.
-- 210 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, and delivery readiness gate helper coverage.
+- 42 test files.
+- 217 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, and release hygiene gate helper coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -163,6 +165,40 @@ Outcome:
 
 - Public-facing release docs now match the actual controlled runtime delivery state.
 - Remaining OpenClaw references are compatibility/history notes, not current public positioning.
+
+## Completed. Open Source Hygiene Gate
+
+Why:
+
+- The open-source checklist still depended on manual inspection for repository hygiene items.
+- Maintainers needed a repeatable local gate that checks public governance docs, GPLv3+ package metadata, tracked artifact paths, and public release boundary wording before public handoff.
+
+Delivered:
+
+- Added `scripts/release-hygiene/check-release-hygiene.mjs`.
+- Added `npm run release:hygiene:check`.
+- The command checks:
+  - required public docs;
+  - `package.json` license metadata;
+  - tracked build/private artifact paths including `.openclaw-data/`;
+  - public release docs mentioning `delivery:ready:check`;
+  - public release docs avoiding positive production-ready claims.
+- The command emits machine-readable JSON with `productionReady: false`.
+- Secret pattern review is warning-only and reports file-level match counts for human review.
+- Added helper coverage for success, missing docs, wrong license, tracked artifact paths, missing delivery gate references, production-ready wording boundaries, and warning-only secret pattern matches.
+- Added [Open Source Hygiene Gate spec](superpowers/specs/2026-07-06-open-source-hygiene-gate-design.md) and [implementation plan](superpowers/plans/2026-07-06-open-source-hygiene-gate.md).
+
+Outcome:
+
+- Public handoff now has a local repository hygiene command:
+
+```bash
+npm run release:hygiene:check
+```
+
+- This gate complements `delivery:ready:check`.
+- It does not replace full regression, lint, build, browser smoke, or human secret review.
+- It does not claim production readiness.
 
 ## Completed. Runtime UI Delivery Polish
 

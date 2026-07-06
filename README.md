@@ -223,6 +223,7 @@ npm run test:stability
 - `npm run release:handoff:snapshot`：运行完整 handoff gate，并把门禁结果与 git 上下文写入本地 `output/release-handoff/` JSON 证据；不发布、不上传、不打 tag，生成文件默认不提交
 - `npm run release:handoff:snapshot:check -- <snapshot.json>`：只读校验本地 handoff evidence 的 schema 和发布边界；不发布、不上传、不修改 evidence
 - `npm run release:handoff:snapshot:index -- --check --limit 5`：只读列出并可校验本地 handoff evidence 快照，便于交付复核最新证据；不创建、不修改、不发布 evidence
+- `npm run release:handoff:evidence:check`：只读确认最新本地 handoff evidence 已校验且 `snapshot.git.commit` 匹配当前 `HEAD`；过期时重新生成 snapshot，不自动修改 evidence
 - `npm run test:stability`：运行核心回归 + lint + build 的稳定性门禁
 - `npm run desktop:smoke-test-sidecar`：运行桌面 sidecar HTTP 主链路烟测
 - `npm run lint`：运行 lint

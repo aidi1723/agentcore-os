@@ -38,7 +38,7 @@
 **Files:**
 - Create: `src/__tests__/scripts/release-handoff-evidence-check-script.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/__tests__/scripts/release-handoff-evidence-check-script.test.ts`:
 
@@ -221,7 +221,7 @@ describe("release handoff evidence freshness script", () => {
 });
 ```
 
-- [ ] **Step 2: Run the target test and confirm RED**
+- [x] **Step 2: Run the target test and confirm RED**
 
 Run:
 
@@ -237,7 +237,7 @@ Expected: fail because
 **Files:**
 - Create: `scripts/release-handoff/check-release-handoff-evidence.mjs`
 
-- [ ] **Step 1: Add the implementation**
+- [x] **Step 1: Add the implementation**
 
 Create `scripts/release-handoff/check-release-handoff-evidence.mjs`:
 
@@ -465,7 +465,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 }
 ```
 
-- [ ] **Step 2: Run the target test and confirm GREEN**
+- [x] **Step 2: Run the target test and confirm GREEN**
 
 Run:
 
@@ -480,7 +480,7 @@ Expected: 5 tests pass.
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add package script**
+- [x] **Step 1: Add package script**
 
 Add near the other release handoff scripts:
 
@@ -488,7 +488,7 @@ Add near the other release handoff scripts:
 "release:handoff:evidence:check": "node scripts/release-handoff/check-release-handoff-evidence.mjs"
 ```
 
-- [ ] **Step 2: Add the test to `test:controlled-runtime`**
+- [x] **Step 2: Add the test to `test:controlled-runtime`**
 
 Add this file near the other release handoff script tests:
 
@@ -496,7 +496,7 @@ Add this file near the other release handoff script tests:
 src/__tests__/scripts/release-handoff-evidence-check-script.test.ts
 ```
 
-- [ ] **Step 3: Run controlled runtime suite**
+- [x] **Step 3: Run controlled runtime suite**
 
 Run:
 
@@ -518,7 +518,7 @@ compared with `47 files / 239 tests`.
 - Modify: `docs/PUBLIC_RELEASE.zh-CN.md`
 - Modify: `memory/2026-07-07.md`
 
-- [ ] **Step 1: Document the freshness command**
+- [x] **Step 1: Document the freshness command**
 
 Add concise wording that:
 
@@ -533,7 +533,7 @@ Add concise wording that:
   installers, create GitHub Releases, run browser smoke, or claim production
   readiness.
 
-- [ ] **Step 2: Update baseline counts**
+- [x] **Step 2: Update baseline counts**
 
 After verification, update `docs/NEXT_STEPS.md` and memory with exact
 `test:controlled-runtime` file/test counts.
@@ -543,13 +543,13 @@ After verification, update `docs/NEXT_STEPS.md` and memory with exact
 **Files:**
 - All files changed by Tasks 1-4.
 
-- [ ] **Step 1: Run target test**
+- [x] **Step 1: Run target test**
 
 ```bash
 npm test -- src/__tests__/scripts/release-handoff-evidence-check-script.test.ts
 ```
 
-- [ ] **Step 2: Run the real local freshness command**
+- [x] **Step 2: Run the real local freshness command**
 
 ```bash
 npm run release:handoff:evidence:check
@@ -565,14 +565,14 @@ npm run release:handoff:evidence:check
 
 Do not delete old evidence.
 
-- [ ] **Step 3: Run full regression checks**
+- [x] **Step 3: Run full regression checks**
 
 ```bash
 npm run test:controlled-runtime
 npm run test:core-workflows
 ```
 
-- [ ] **Step 4: Run quality checks**
+- [x] **Step 4: Run quality checks**
 
 ```bash
 npm run lint
@@ -584,7 +584,7 @@ Known acceptable warning:
 
 - existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 
-- [ ] **Step 5: Commit and push**
+- [x] **Step 5: Commit and push**
 
 Stage only source, tests, docs, and the plan:
 

@@ -165,6 +165,14 @@ npm run release:handoff:snapshot:index -- --check --limit 5
 
 该 index 命令是只读的。它会按新到旧列出本地 snapshot，并可校验列出的文件；它不会创建 evidence、修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
 
+如果需要确认最新本地证据对应当前源码提交，可以运行：
+
+```bash
+npm run release:handoff:evidence:check
+```
+
+该 freshness 命令是只读的。它会校验最新 snapshot，并比较 `snapshot.git.commit` 与当前 `HEAD`。如果失败原因是 evidence 过期，应重新运行 handoff gate 并生成新的 snapshot，不应直接修改 evidence 文件。
+
 ## 完整发布前验证
 
 公开发布说明、外部演示或交付前，建议运行：
@@ -174,6 +182,7 @@ npm run release:handoff:check
 npm run release:handoff:snapshot
 npm run release:handoff:snapshot:check -- <snapshot.json>
 npm run release:handoff:snapshot:index -- --check --limit 5
+npm run release:handoff:evidence:check
 ```
 
 如果聚合门禁失败，需要复现具体子命令时，再按 JSON 输出里的 failed check 单独运行对应命令。

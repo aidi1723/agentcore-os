@@ -177,6 +177,17 @@ validate the listed files; it does not create evidence, mutate evidence,
 publish, upload, tag, package installers, create GitHub Releases, run browser
 smoke, or claim production readiness.
 
+Check that the newest local evidence matches the current source commit with:
+
+```bash
+npm run release:handoff:evidence:check
+```
+
+This freshness command is read-only. It validates the newest snapshot and
+compares `snapshot.git.commit` with current `HEAD`. If it fails because the
+snapshot is stale, rerun the handoff gate and generate a new snapshot; do not
+edit evidence in place.
+
 ## Full Verification
 
 Before a public release announcement or handoff, run:
@@ -186,6 +197,7 @@ npm run release:handoff:check
 npm run release:handoff:snapshot
 npm run release:handoff:snapshot:check -- <snapshot.json>
 npm run release:handoff:snapshot:index -- --check --limit 5
+npm run release:handoff:evidence:check
 ```
 
 If the aggregate gate fails and the failed child command needs to be reproduced

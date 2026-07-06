@@ -89,6 +89,7 @@ Completed in the current controlled runtime line:
 - Release Handoff Evidence Snapshot: `npm run release:handoff:snapshot` now writes a local-only JSON evidence snapshot under `output/release-handoff/` with the handoff report and git context while keeping `productionReady: false`, `publishingPerformed: false`, and `evidenceOnly: true`.
 - Release Handoff Snapshot Validation: `npm run release:handoff:snapshot:check -- <snapshot.json>` now validates local handoff evidence schema and release-boundary fields without mutating evidence or publishing anything.
 - Release Handoff Snapshot Index: `npm run release:handoff:snapshot:index -- --check --limit 5` now lists local handoff evidence snapshots newest first and can validate the listed files without creating, mutating, or publishing evidence.
+- Release Handoff Evidence Freshness: `npm run release:handoff:evidence:check` now confirms the newest local evidence snapshot validates and matches current `HEAD` without creating, mutating, or publishing evidence.
 - Release Handoff Retry Stability: server-backed list state now honors explicit local/test retry timings below `100ms` while keeping production defaults unchanged, reducing flake risk in the core workflow child gate.
 
 Current verification baseline:
@@ -103,6 +104,7 @@ npm run release:handoff:check
 npm run release:handoff:snapshot
 npm run release:handoff:snapshot:check -- <snapshot.json>
 npm run release:handoff:snapshot:index -- --check --limit 5
+npm run release:handoff:evidence:check
 npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
@@ -113,9 +115,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 47 test files.
-- 239 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, and server-backed retry timing stability coverage.
+- 48 test files.
+- 244 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, and server-backed retry timing stability coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -337,6 +339,33 @@ npm run release:handoff:snapshot:index -- --check --limit 5
 ```
 
 - This command does not create evidence, mutate evidence, publish, tag, upload artifacts, package installers, create GitHub Releases, run browser smoke, or claim production readiness.
+
+## Completed. Release Handoff Evidence Freshness
+
+Why:
+
+- A snapshot can be structurally valid but stale if new commits land after it was generated.
+- Handoff review needed a read-only freshness gate that proves the newest local evidence matches current `HEAD`.
+
+Delivered:
+
+- Added `scripts/release-handoff/check-release-handoff-evidence.mjs`.
+- Added `npm run release:handoff:evidence:check`.
+- The command selects the newest local snapshot under `output/release-handoff/`.
+- The command validates the selected snapshot through the existing snapshot validator.
+- The command compares `snapshot.git.commit` with current `git rev-parse --short HEAD`.
+- Missing, invalid, failed, or stale evidence exits non-zero.
+- Added helper coverage for fresh evidence, stale evidence, missing snapshots, failed evidence, and CLI flag parsing.
+- Added [Release Handoff Evidence Freshness spec](superpowers/specs/2026-07-07-release-handoff-evidence-freshness-design.md) and [implementation plan](superpowers/plans/2026-07-07-release-handoff-evidence-freshness.md).
+
+Outcome:
+
+```bash
+npm run release:handoff:evidence:check
+```
+
+- This command does not create evidence, mutate evidence, publish, tag, upload artifacts, package installers, create GitHub Releases, run browser smoke, or claim production readiness.
+- If evidence is stale, rerun the handoff gate and generate a new snapshot instead of editing evidence in place.
 
 ## Completed. Runtime UI Delivery Polish
 

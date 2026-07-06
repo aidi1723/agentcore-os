@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Release Handoff Evidence Freshness
+
+- Added `npm run release:handoff:evidence:check`, a local read-only freshness gate for the newest handoff evidence snapshot.
+- The command validates the newest snapshot with the existing snapshot validator and compares `snapshot.git.commit` with current `HEAD`.
+- Stale, missing, invalid, or failed evidence exits non-zero without creating, mutating, publishing, tagging, uploading, packaging, creating GitHub Releases, running browser smoke, or claiming production readiness.
+- Added evidence freshness coverage and included it in `test:controlled-runtime`.
+
 ### Release Handoff Snapshot Index
 
 - Added `npm run release:handoff:snapshot:index`, a local read-only index for handoff evidence snapshots under `output/release-handoff/`.

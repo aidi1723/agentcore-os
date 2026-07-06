@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Catalog-Level Replay Sandbox Report
+
+- Added `buildReplaySandboxCatalogReport()` for committed governed fixture catalog entries.
+- The report runs each fixture through `fixture -> ReplaySandboxContract -> no-side-effect replay result artifact`.
+- Preserves per-fixture contract build results, sandbox artifacts, diagnostics, and no-side-effect guarantees.
+- Added catalog report tests and included them in `test:controlled-runtime`.
+
 ### Governed Fixture To Replay Sandbox Contract Bridge
 
 - Added `buildReplaySandboxContractFromFixture()` to convert committed governed fixture metadata into `ReplaySandboxContract`.

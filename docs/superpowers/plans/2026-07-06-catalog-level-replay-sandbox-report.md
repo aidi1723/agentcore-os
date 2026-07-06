@@ -38,7 +38,7 @@
 **Files:**
 - Create: `src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts`:
 
@@ -154,7 +154,7 @@ describe("replay sandbox catalog report", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run:
 
@@ -164,7 +164,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.tes
 
 Expected: FAIL because `@/__tests__/fixtures/controlled-traces/replay-sandbox-report` does not exist.
 
-- [ ] **Step 3: Commit failing tests**
+- [x] **Step 3: Commit failing tests**
 
 ```bash
 git add src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts
@@ -179,7 +179,7 @@ git commit -m "test: specify replay sandbox catalog report"
 **Files:**
 - Create: `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`
 
-- [ ] **Step 1: Add the report helper**
+- [x] **Step 1: Add the report helper**
 
 Create `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`:
 
@@ -288,7 +288,7 @@ export function buildReplaySandboxCatalogReport(
 }
 ```
 
-- [ ] **Step 2: Run targeted tests and verify GREEN**
+- [x] **Step 2: Run targeted tests and verify GREEN**
 
 Run:
 
@@ -298,7 +298,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.tes
 
 Expected: PASS.
 
-- [ ] **Step 3: Run adjacent replay sandbox tests**
+- [x] **Step 3: Run adjacent replay sandbox tests**
 
 Run:
 
@@ -308,7 +308,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.t
 
 Expected: PASS.
 
-- [ ] **Step 4: Commit implementation**
+- [x] **Step 4: Commit implementation**
 
 ```bash
 git add src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts
@@ -323,7 +323,7 @@ git commit -m "feat: add replay sandbox catalog report"
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add the test path to `test:controlled-runtime`**
+- [x] **Step 1: Add the test path to `test:controlled-runtime`**
 
 In `package.json`, insert:
 
@@ -337,7 +337,7 @@ after:
 src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts
 ```
 
-- [ ] **Step 2: Run controlled runtime gate**
+- [x] **Step 2: Run controlled runtime gate**
 
 Run:
 
@@ -345,9 +345,9 @@ Run:
 npm run test:controlled-runtime
 ```
 
-Expected: PASS with one more test file and three more tests than the previous 33 files / 176 tests baseline.
+Observed: PASS with 34 files / 179 tests.
 
-- [ ] **Step 3: Commit gate update**
+- [x] **Step 3: Commit gate update**
 
 ```bash
 git add package.json
@@ -372,12 +372,12 @@ git commit -m "test: include replay sandbox catalog report in controlled runtime
 - Modify: `docs/superpowers/plans/2026-07-06-catalog-level-replay-sandbox-report.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Mark this plan complete**
+- [x] **Step 1: Mark this plan complete**
 
 Update this plan's task checkboxes and add a short completion note with commits
 and verification evidence.
 
-- [ ] **Step 2: Update project docs**
+- [x] **Step 2: Update project docs**
 
 Record the new capability as:
 
@@ -385,8 +385,8 @@ Record the new capability as:
 Catalog-level replay sandbox report for committed governed fixtures.
 ```
 
-Also update the controlled runtime baseline from 33 files / 176 tests to the
-new count observed from `npm run test:controlled-runtime`.
+Also update the controlled runtime baseline to 34 files / 179 tests from
+`npm run test:controlled-runtime`.
 
 Set the next recommended phase to:
 
@@ -394,7 +394,7 @@ Set the next recommended phase to:
 Replay Sandbox Catalog CI Summary
 ```
 
-- [ ] **Step 3: Update daily memory**
+- [x] **Step 3: Update daily memory**
 
 Append a concise record to `memory/2026-07-06.md` with:
 
@@ -404,7 +404,7 @@ Append a concise record to `memory/2026-07-06.md` with:
 - verification commands and observed results;
 - next recommended phase.
 
-- [ ] **Step 4: Run final verification**
+- [x] **Step 4: Run final verification**
 
 Run:
 
@@ -418,7 +418,7 @@ npm run test:core-workflows
 
 Expected: all commands exit 0.
 
-- [ ] **Step 5: Commit docs and records**
+- [x] **Step 5: Commit docs and records**
 
 ```bash
 git add CHANGELOG.md README.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/DOCUMENTATION_INDEX.zh-CN.md docs/NEXT_STEPS.md docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md docs/PROJECT_FRAMEWORK.zh-CN.md docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md docs/ROADMAP.md docs/superpowers/plans/2026-07-06-catalog-level-replay-sandbox-report.md memory/2026-07-06.md
@@ -430,13 +430,34 @@ git commit -m "docs: complete replay sandbox catalog report"
 
 ## Final Verification Checklist
 
-- [ ] `git diff --check`
-- [ ] `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts`
-- [ ] `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts src/__tests__/lib/executor/runtime/replay-sandbox.test.ts src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts`
-- [ ] `npm run trace:fixtures --silent`
-- [ ] `npm run trace:fixtures:summary --silent`
-- [ ] `npm run test:controlled-runtime`
-- [ ] `npm run test:core-workflows`
+- [x] `git diff --check`
+- [x] `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts`
+- [x] `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts src/__tests__/lib/executor/runtime/replay-sandbox.test.ts src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts`
+- [x] `npm run trace:fixtures --silent`
+- [x] `npm run trace:fixtures:summary --silent`
+- [x] `npm run test:controlled-runtime`
+- [x] `npm run test:core-workflows`
+
+## Completion Notes
+
+- Completed on: 2026-07-06
+- Commits:
+  - `40e5a65` - `docs: spec replay sandbox catalog report`
+  - `dc720e7` - `docs: plan replay sandbox catalog report`
+  - `4598efd` - `test: specify replay sandbox catalog report`
+  - `8bb0b52` - `feat: add replay sandbox catalog report`
+  - `6498562` - `test: include replay sandbox catalog report in controlled runtime`
+- TDD evidence:
+  - RED: `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts` failed because `@/__tests__/fixtures/controlled-traces/replay-sandbox-report` did not exist.
+  - GREEN: `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts` passed with 1 file / 3 tests.
+  - Adjacent replay sandbox tests passed with 4 files / 13 tests.
+- Final verification:
+  - `git diff --check` - exit 0
+  - `npm run trace:fixtures --silent` - ok true; 2 total / 2 passed / 0 failed
+  - `npm run trace:fixtures:summary --silent` - Status OK
+  - `npm run test:controlled-runtime` - 34 files / 179 tests passed
+  - `npm run test:core-workflows` - all core workflow regressions passed
+- Outcome: Phase 10aa is complete. The next recommended phase is Replay Sandbox Catalog CI Summary.
 
 ## Expected Next Phase
 

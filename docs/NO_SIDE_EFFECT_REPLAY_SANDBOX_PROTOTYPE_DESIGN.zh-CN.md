@@ -232,10 +232,15 @@ artifact 不得伪装成：
   - `runtimeStoresMutated: false`
   - `productionCredentialsUsed: false`
 
+Catalog-level replay sandbox report 已完成：
+
+- `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`
+- `buildReplaySandboxCatalogReport()` 汇总 explicit fixture catalog 的 contract build result、sandbox artifact、diagnostics 和 guarantees。
+
 下一阶段允许进入：
 
-**Catalog-Level Replay Sandbox Report**
+**Replay Sandbox Catalog CI Summary**
 
-该阶段可以新增纯 report helper，把 committed fixture catalog 跑过 `fixture -> ReplaySandboxContract -> replay result artifact`。
+该阶段可以新增本地 compact JSON command，把 replay sandbox catalog report 输出为机器可读结果，并在 report 不通过时以非零退出。
 
 该阶段仍禁止 LLM replay、tool execution、route calls、runtime store reads/writes、business asset writes、fixture JSON changes 和 raw governed artifact payload recovery。

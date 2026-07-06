@@ -38,7 +38,7 @@ Completed in the current controlled runtime line:
 - Governed trace artifact builder and local trace artifact route.
 - Runtime Console governed trace copy action.
 - Conservative terminal-run prune helper.
-- Governed trace fixture builder, validator, committed sales/support fixtures, pure fixture replay runner, fixture catalog, catalog report, JSON summary command, human-readable summary command, failure harness, and fixture builder CLI.
+- Governed trace fixture builder, validator, committed sales/support fixtures, pure fixture replay runner, fixture catalog, catalog report, JSON summary command, human-readable summary command, failure harness, fixture builder CLI, replay sandbox fixture contract bridge, and replay sandbox catalog report.
 - Fixture refresh workflow, replay contract, failure fixture matrix, refresh review checklist, CI gate guide, catalog coverage guide, and governed trace operational runbook.
 
 Current fixture replay remains metadata-only. It does not call LLMs, execute tools, call API routes, mutate stores, or write assets.
@@ -131,14 +131,27 @@ The bridge:
 
 ### P5. Catalog-Level Replay Sandbox Report
 
-Next, build a pure report over committed fixtures:
+Completed report reference:
+
+- `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`
+- `src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts`
+
+The report runs a pure path over committed fixtures:
 
 - fixture -> replay sandbox contract -> no-side-effect replay result artifact,
 - aggregate contract errors and sandbox diagnostics,
 - preserve no-side-effect guarantees,
 - no real replay, route calls, store reads/writes, fixture JSON changes, or asset writes.
 
-### P6. Governed Fixture And Playbook Expansion
+### P6. Replay Sandbox Catalog CI Summary
+
+Next, add a local compact JSON command over the replay sandbox catalog report:
+
+- print aggregate fixture/contract/artifact health,
+- exit non-zero when a committed fixture cannot enter the no-side-effect sandbox path,
+- preserve the same no-route, no-store, no-tool, no-asset-write boundary.
+
+### P7. Governed Fixture And Playbook Expansion
 
 Expand only when the current governed trace/replay gates stay stable:
 
@@ -146,7 +159,7 @@ Expand only when the current governed trace/replay gates stay stable:
 - add new controlled playbooks only through spec -> plan -> tests -> fixture/replay gates,
 - do not use fixture expansion as a substitute for real replay boundary design.
 
-### P5. Trace Operations Hardening
+### P8. Trace Operations Hardening
 
 Turn the governed trace operational runbook into a tighter maintenance path:
 
@@ -156,7 +169,7 @@ Turn the governed trace operational runbook into a tighter maintenance path:
 - summary/harness drift checks,
 - clearer handoff records for fixture replacement.
 
-### P6. Runtime-Supporting UI And App Polish
+### P9. Runtime-Supporting UI And App Polish
 
 Polish UI only when it serves runtime operation:
 

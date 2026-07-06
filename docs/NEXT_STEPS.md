@@ -71,6 +71,7 @@ Completed in the current controlled runtime line:
 - Governed trace fixture CI gate guide for local, fixture-refresh, and CI-style command usage.
 - Governed trace fixture catalog coverage guide for committed fixture expansion decisions.
 - Governed trace operational runbook for artifact export, fixture refresh, replay gates, retention, and real replay boundaries.
+- Replay sandbox contract types, no-side-effect replay sandbox prototype, fixture-to-contract bridge, and catalog-level replay sandbox report for committed governed fixtures.
 
 Current verification baseline:
 
@@ -85,9 +86,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 33 test files.
-- 176 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
+- 34 test files.
+- 179 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -881,14 +882,35 @@ Outcome:
 
 - The runtime can now bridge committed governed fixtures into the no-side-effect replay sandbox prototype without reading stores, calling routes, executing tools, modifying fixture JSON, or writing assets.
 
-## Recommended Next. Catalog-Level Replay Sandbox Report
+## Completed. Catalog-Level Replay Sandbox Report
+
+Why:
+
+- The fixture-to-contract bridge proved a single committed fixture can enter the no-side-effect sandbox path.
+- Maintainers needed a catalog-level aggregate before adding a local CI-style command.
+
+Delivered:
+
+- Added `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`.
+- Added `buildReplaySandboxCatalogReport()` over explicit committed fixture catalog entries.
+- Each item preserves catalog id, fixture id, playbook id, contract build result, sandbox artifact, errors, and pass/fail status.
+- Aggregate report preserves total/passed/failed counts, fixture ids, playbook ids, and no-side-effect guarantees.
+- Added failed contract-build coverage and per-item artifact / simulated approval assertions.
+- Included the report test in `npm run test:controlled-runtime`.
+
+Outcome:
+
+- Committed sales/support governed fixtures now have a catalog-level report for `fixture -> contract -> no-side-effect replay artifact`.
+- The report remains no-side-effect: no real replay, no route calls, no runtime store reads/writes, no fixture JSON changes, and no asset writes.
+
+## Recommended Next. Replay Sandbox Catalog CI Summary
 
 Suggested scope:
 
-- Add a pure report helper that runs each committed fixture through `fixture -> replay sandbox contract -> no-side-effect replay result artifact`.
-- Aggregate contract build status, sandbox artifact status, diagnostics, and no-side-effect guarantees by fixture id and playbook id.
-- Add JSON/human-readable report tests only after the pure helper is stable.
-- Keep the report no-side-effect: no real replay, no route calls, no runtime store reads/writes, no fixture JSON changes, and no asset writes.
+- Add a local compact JSON command over `buildReplaySandboxCatalogReport()`.
+- Exit non-zero when a committed fixture cannot build a contract or sandbox preflight fails.
+- Include the command in `test:controlled-runtime`.
+- Keep the command no-side-effect: no real replay, no route calls, no runtime store reads/writes, no fixture JSON changes, and no asset writes.
 
 ## Completed. Support Runtime Console Record Focus
 

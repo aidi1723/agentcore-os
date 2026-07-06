@@ -126,7 +126,8 @@ User / Trigger
 - replay sandbox contract types 已在 `src/lib/executor/runtime/replay-sandbox-contracts.ts` 文档化为 TypeScript contract 和纯 validator。
 - no-side-effect replay sandbox prototype 已在 `src/lib/executor/runtime/replay-sandbox.ts` 实现为 contract -> replay result artifact 的纯函数。
 - governed fixture -> replay sandbox contract bridge 已在 `src/lib/executor/runtime/replay-sandbox-fixture-contract.ts` 实现为 fixture metadata -> contract 的纯 helper。
-- 因此下一阶段只能实现 catalog-level replay sandbox report，不能直接写真实工具 replay。
+- catalog-level replay sandbox report 已在 `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts` 实现为 explicit catalog -> contract -> artifact 的纯报告 helper。
+- 因此下一阶段只能实现 replay sandbox catalog CI summary，不能直接写真实工具 replay。
 
 ## 6. 文档体系
 
@@ -256,11 +257,20 @@ git diff --check
 
 目标：
 
-- 新增纯 report helper，把 committed fixture catalog 跑过 `fixture -> contract -> replay artifact`。
+- 已新增 `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`。
+- `buildReplaySandboxCatalogReport()` 把 committed fixture catalog 跑过 `fixture -> contract -> replay artifact`。
 - 汇总 fixture id、playbook id、contract build result、sandbox artifact status、diagnostics 和 no-side-effect guarantees。
 - 仍不执行真实工具、不调用 route、不读写 runtime store、不改 fixture JSON、不写资产。
 
-### P6. Governed Fixture / Playbook Expansion
+### P6. Replay Sandbox Catalog CI Summary
+
+目标：
+
+- 新增本地 compact JSON command，读取 `buildReplaySandboxCatalogReport()` 的结果。
+- 当 committed fixture 不能进入 no-side-effect sandbox path 时以非零退出。
+- 保持 no route、no store、no tool execution、no business asset write 边界。
+
+### P7. Governed Fixture / Playbook Expansion
 
 目标：
 
@@ -268,7 +278,7 @@ git diff --check
 - 新 fixture 必须通过 redaction、approval、writeback metadata、stable identity 和 catalog coverage 审查。
 - 新 playbook 必须先进入 spec / plan / TDD / fixture replay 边界，而不是直接接真实工具。
 
-### P7. Operational Retention And Maintenance Hardening
+### P8. Operational Retention And Maintenance Hardening
 
 目标：
 
@@ -276,7 +286,7 @@ git diff --check
 - 继续收紧 raw trace retention、fixture refresh stop condition、summary/harness drift 处理。
 - 保持 `trace:fixtures` 作为机器可读自动化合同，`trace:fixtures:summary` 作为人读 triage。
 
-### P8. Runtime-Serving UI / App Polish
+### P9. Runtime-Serving UI / App Polish
 
 目标：
 

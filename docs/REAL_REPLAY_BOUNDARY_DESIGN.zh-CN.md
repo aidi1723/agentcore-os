@@ -329,10 +329,14 @@ Prototype design and implementation 已完成：
 - [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
 - `src/lib/executor/runtime/replay-sandbox.ts`
 
+Catalog-level replay sandbox report 也已完成：
+
+- `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`
+
 下一阶段允许进入：
 
-**Catalog-Level Replay Sandbox Report**
+**Replay Sandbox Catalog CI Summary**
 
-该阶段只能实现纯 report helper，把 committed fixture catalog 跑过 fixture metadata -> `ReplaySandboxContract` -> no-side-effect replay result artifact。
+该阶段只能实现本地 compact JSON command，把 committed fixture catalog 的 fixture metadata -> `ReplaySandboxContract` -> no-side-effect replay result artifact 报告输出为机器可读结果。
 
 该阶段仍不能实现真实工具 replay，不能调用 route，不能读写 runtime store，不能写业务资产，不能恢复 raw governed artifact payload。

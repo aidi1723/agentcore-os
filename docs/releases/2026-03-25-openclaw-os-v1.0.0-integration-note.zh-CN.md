@@ -6,7 +6,7 @@
 
 ## 快照来源
 
-- 来源仓工作树：`/Users/aidi/openclaw-os`
+- 来源仓工作树：`<local-openclaw-os-checkout>`
 - 稳定提交：`3c029fe4dd808f434149615b64de6b2e36692b95`
 - 发布标签：`openclaw-os-v1.0.0`
 - 发布分支：`openclaw-os-v1.0.0`
@@ -54,9 +54,9 @@
 以下验证已在 `openclaw-os` 本地工作树通过：
 
 ```bash
-npm --prefix '/Users/aidi/openclaw-os' run test
-npm --prefix '/Users/aidi/openclaw-os' run lint
-npm --prefix '/Users/aidi/openclaw-os' run build
+npm --prefix '<local-openclaw-os-checkout>' run test
+npm --prefix '<local-openclaw-os-checkout>' run lint
+npm --prefix '<local-openclaw-os-checkout>' run build
 ```
 
 ## 融合建议

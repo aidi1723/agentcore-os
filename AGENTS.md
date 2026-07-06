@@ -1,13 +1,13 @@
 # Global UI Design Rule
 
-For any task involving UI design, visual redesign, component styling, landing pages, dashboards, admin panels, page polish, design-system alignment, or DESIGN.md-based implementation, use `$design-md-ui` from `/Users/aidi/.codex/skills/design-md-ui` as the default reference workflow across all projects.
+For any task involving UI design, visual redesign, component styling, landing pages, dashboards, admin panels, page polish, design-system alignment, or DESIGN.md-based implementation, use `$design-md-ui` from `$CODEX_HOME/skills/design-md-ui` as the default reference workflow across all projects.
 
 Apply these defaults unless the user explicitly asks for a different process:
 
 1. If the repository already has a `DESIGN.md`, read it first and use it as the visual source of truth.
 2. If the repository does not have a `DESIGN.md` and the task is design-oriented, create a concise DESIGN.md-style brief before implementing major UI changes.
-3. After loading `$design-md-ui`, consult `/Users/aidi/.codex/skills/design-md-ui/references/framework-combination-map.md` to choose the closest implementation base.
-4. When the task calls for extra polish or a more premium visual finish, also consult `/Users/aidi/.codex/skills/design-md-ui/references/premium-visual-reference-map.md`.
+3. After loading `$design-md-ui`, consult `$CODEX_HOME/skills/design-md-ui/references/framework-combination-map.md` to choose the closest implementation base.
+4. When the task calls for extra polish or a more premium visual finish, also consult `$CODEX_HOME/skills/design-md-ui/references/premium-visual-reference-map.md`.
 5. Prefer Refine for React data-heavy admin products, Soybean Admin for Vue admin products, Astro or AstroWind for marketing and GEO sites, shadcn/ui for source-owned React component systems, HeroUI for fast polished React styling, Magic UI or Aceternity UI for selective premium landing-page effects, Motion for React for animation polish, and Builder.io for controlled visual page composition.
 6. Use Vercel Templates, Cruip, Godly, Lapa Ninja, and Awwwards as reference sources for structure, typography, motion, and section patterns without cloning them literally.
 7. Preserve behavior, routing, information architecture, and business logic unless the user explicitly requests product-level redesign.

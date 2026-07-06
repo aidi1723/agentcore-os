@@ -237,6 +237,12 @@
 - Extended catalog report coverage to prove validation errors are preserved without adding failing fixtures to the committed catalog.
 - Added human-readable summary coverage for combined validation failure diagnostics.
 
+### Fixture Replay Failure Documentation Matrix
+
+- Added a failure fixture matrix to the governed trace replay contract, mapping validation failures, replay drift failures, summary diagnostics, and the process exit harness to their source factories/tests and maintainer actions.
+- Clarified that synthetic failures remain test-only fixtures and must not be added to the normal committed governed fixture catalog.
+- Aligned the controlled runtime manual and next-stage backlog around using the matrix as the first fixture failure triage entry.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

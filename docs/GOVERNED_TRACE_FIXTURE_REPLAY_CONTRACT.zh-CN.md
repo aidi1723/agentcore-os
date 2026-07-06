@@ -76,7 +76,22 @@ Replay 使用以下来源，顺序固定：
 | `nonApprovedApprovalStepIds` | Completed approval-gated step 不是 `approved` 的 step ids | 拒绝不一致 candidate 或检查源 run terminal state |
 | `writebackTargetsMissingStableMetadata` | Successful writeback receipt 缺少 `assetId` / `sourceKey` / `workflowRunId` 的 target 列表 | 修复 receipt source 或重新生成 fixture |
 
-## 6. Failure Triage
+## 6. Failure Fixture Matrix
+
+这些 synthetic failures 只存在于测试目录，用来证明 replay、summary 和 harness 的失败诊断稳定。它们不是 committed governed fixture，不能加入 `controlledTraceFixtureCatalog` 的正常 catalog。
+
+| Failure class | Synthetic source | Proven diagnostics | Regression owner | Maintainer action |
+| --- | --- | --- | --- | --- |
+| Validation: missing source run id | `buildMissingSourceRunIdCatalogEntry()` in `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts` | `Fixture sourceRunId is required` | `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` | Reject the candidate artifact source; regenerate from a governed trace with stable source identity. |
+| Validation: unredacted step input | `buildUnredactedInputCatalogEntry()` in `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts` | `Step intake input is not redacted` | `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` | Reject the candidate; fix governed artifact redaction before fixture refresh. |
+| Validation: unredacted tool output | `buildUnredactedToolOutputCatalogEntry()` in `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts` | `Step intake tool llm_generate output is not redacted` | `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` | Reject the candidate; do not hand-edit raw output out of a fixture. |
+| Validation summary bundle | `buildCombinedValidationFailureCatalogEntry()` in `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts` | Summary line contains all validation errors | `src/__tests__/scripts/trace-fixture-catalog-summary-script.test.ts` | Use summary output for local triage, then inspect `failedItems[].validationErrors` if machine-readable detail is needed. |
+| Replay drift: playbook version | `buildPlaybookVersionDriftCatalogEntry()` in `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts` | `Fixture playbook version does not match current playbook sales-pipeline-v1`; diagnostics include expected/fixture versions | `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` | Confirm whether playbook migration is intentional; refresh fixture only after playbook tests prove the new contract. |
+| Replay drift: missing stable writeback metadata | `buildMissingStableMetadataCatalogEntry()` in `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts` | `Step writeback writeback target sales_asset is missing stable metadata sourceKey`; diagnostics include `writebackTargetsMissingStableMetadata` | `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` | Fix receipt source or re-export from a run with stable `assetId`, `sourceKey`, and `workflowRunId`. |
+| Combined summary drift | `buildCombinedSummaryFailureCatalogEntry()` in `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts` | Human summary renders version drift plus missing stable metadata diagnostics | `src/__tests__/scripts/trace-fixture-catalog-summary-script.test.ts` | Start from `npm run trace:fixtures:summary --silent`; switch to JSON report for CI/debug tooling. |
+| Process exit harness | `scripts/trace-fixtures/catalog-failure-harness.mjs --format json\|summary` | Synthetic failed catalogs exit `1`; committed catalog commands remain green | `src/__tests__/scripts/trace-fixture-catalog-failure-harness-script.test.ts` | Use only for regression tests and local harness checks; do not wire synthetic failures into the normal committed catalog command. |
+
+## 7. Failure Triage
 
 ### Playbook Drift
 
@@ -139,7 +154,7 @@ Action:
 2. Do not edit raw payloads out by hand.
 3. Fix the governed artifact redaction/writeback source and regenerate.
 
-## 7. Maintainer Command Sequence
+## 8. Maintainer Command Sequence
 
 Check current committed fixture catalog:
 
@@ -183,7 +198,7 @@ npm run build
 git diff --check
 ```
 
-## 8. What This Does Not Prove
+## 9. What This Does Not Prove
 
 Green replay does not prove:
 

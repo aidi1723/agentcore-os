@@ -65,11 +65,14 @@ Completed in the current controlled runtime line:
 - Governed trace fixture refresh workflow guide for manual fixture replacement and review.
 - Deeper fixture replay golden invariants for playbook version, scenario, plan metadata, completed attempts, approval terminal state, and stable writeback identity metadata.
 - Governed trace fixture replay contract guide for replay invariant interpretation, diagnostics reference, and maintainer failure triage.
+- Human-readable governed trace fixture replay summary command.
+- Synthetic validation/replay failure fixtures, failure exit harness coverage, and a replay contract failure fixture matrix mapping failures to source factories/tests and maintainer actions.
 
 Current verification baseline:
 
 ```bash
 npm run trace:fixtures --silent
+npm run trace:fixtures:summary --silent
 npm run test:controlled-runtime
 npm run test:core-workflows
 npm run lint
@@ -78,10 +81,10 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 28 test files.
-- 156 tests.
+- 30 test files.
+- 166 tests.
 - Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
-- Trace fixture replay reports include structured drift diagnostics and deeper golden invariant diagnostics while preserving stable error messages.
+- Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
 
@@ -400,6 +403,34 @@ Outcome:
 - A maintainer can run one focused command to inspect governed fixture catalog health.
 - CI can surface the same aggregate report object when fixtures drift.
 
+## Completed. Fixture Replay Failure Documentation Matrix
+
+Why:
+
+- Validation failures, replay drift failures, and failure harness coverage were implemented across several test files.
+- Maintainers needed one contract-level matrix that maps each failure class to the synthetic factory, diagnostic, regression owner, and action.
+- The matrix should keep synthetic failures clearly outside the committed governed fixture catalog.
+
+Delivered:
+
+- Added `Failure Fixture Matrix` to the governed trace fixture replay contract guide.
+- Mapped missing `sourceRunId`, unredacted step input, unredacted tool output, playbook version drift, missing stable writeback metadata, combined summary failures, and the process exit harness to concrete files.
+- Clarified that synthetic failures are test-only sources for proving diagnostics and exit behavior.
+
+Primary files:
+
+- `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`
+- `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts`
+- `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts`
+- `src/__tests__/scripts/trace-fixture-catalog-summary-script.test.ts`
+- `src/__tests__/scripts/trace-fixture-catalog-failure-harness-script.test.ts`
+- `scripts/trace-fixtures/catalog-failure-harness.mjs`
+
+Outcome:
+
+- Fixture replay failure triage can start from the contract guide instead of test-source archaeology.
+- Maintainers can decide whether to reject a candidate, fix governed artifact redaction, confirm playbook drift, or inspect harness behavior before refreshing fixtures.
+
 ## Completed. Governed Trace Fixture Builder CLI
 
 Why:
@@ -619,19 +650,20 @@ Outcome:
 - Report and summary tests now cover both validation failures and replay drift failures.
 - Maintainers can see validation-layer diagnostics in the same report/summary surfaces.
 
-## Recommended Next. Fixture Replay Failure Documentation Matrix
+## Recommended Next. Fixture Replay Refresh Review Checklist
 
 Why:
 
-- The test suite now has reusable factories for replay drift failures, validation failures, and process exit behavior.
-- The replay contract guide should document which synthetic fixture covers which failure class.
-- This is primarily documentation alignment unless the matrix exposes a real coverage gap.
+- Fixture refresh now has a builder command, replay contract, failure matrix, and committed catalog health checks.
+- The remaining maintainer risk is reviewing candidate fixture JSON inconsistently before replacing committed fixtures.
+- A short checklist should turn the current guide into a repeatable candidate review gate.
 
 Suggested scope:
 
-- Add a concise failure fixture matrix to `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`.
-- Link validation failures, replay drift failures, and process exit harness coverage to concrete test files/factories.
-- Keep implementation unchanged unless documentation review reveals a missing coverage case.
+- Add a concise candidate review checklist to `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`.
+- Cross-link the checklist to the replay contract failure fixture matrix.
+- Include redaction, source identity, playbook metadata, approval state, writeback identity, and no-side-effect command gates.
+- Keep implementation unchanged unless checklist review exposes a real refresh safety gap.
 
 ## Completed. Support Runtime Console Record Focus
 

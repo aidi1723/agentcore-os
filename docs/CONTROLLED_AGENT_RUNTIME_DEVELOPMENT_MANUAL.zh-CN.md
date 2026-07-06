@@ -327,6 +327,7 @@ type ControlledPlaybookStep = {
 - [Trace Fixture Catalog CI Summary Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-catalog-ci-summary.md)
 - [Governed Trace Fixture Builder CLI Implementation Plan](superpowers/plans/2026-07-06-governed-trace-fixture-builder-cli.md)
 - [Governed Trace Fixture Refresh Workflow](GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md)
+- [Fixture Replay Failure Documentation Matrix Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-failure-documentation-matrix.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -363,17 +364,18 @@ type ControlledPlaybookStep = {
 - Phase 10n fixture replay failure fixture tests：已新增 test-only reusable synthetic failure fixture factories，用于 report/summary drift 覆盖；committed governed fixture catalog 继续保持全绿，不新增 failing catalog JSON，不发现 fixture、不刷新 fixture、不调用 route、不重放工具、不读写 store、不写资产。
 - Phase 10o fixture replay failure exit-code harness：已新增 direct-invoked synthetic failure harness，用于验证 failed report/summary subprocess 非零退出；committed `trace:fixtures` 和 `trace:fixtures:summary` 继续只读取 committed catalog 并保持全绿。JSON report 输出 shape 已抽为共享 helper，避免 harness 与正式 JSON 命令漂移。
 - Phase 10p fixture replay validation failure fixtures：已新增 reusable synthetic validation failure factories，覆盖缺失 `sourceRunId`、未脱敏 step input、未脱敏 tool output，并在 report/summary 测试中验证 validation errors 会被保留和展示。committed governed fixture catalog 和 committed CLI commands 继续保持全绿。
+- Phase 10q fixture replay failure documentation matrix：已在 replay contract guide 中新增 failure fixture matrix，把 validation failure、replay drift、summary diagnostics 和 process exit harness 对应到具体 factories、测试文件、诊断和维护动作。synthetic failures 明确保持 test-only，不进入 committed governed fixture catalog。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- 失败 fixture 覆盖已经分散在 validation factories、replay drift factories 和 process exit harness 中；契约文档还缺一张维护者可读的 failure coverage matrix。
+- Candidate fixture refresh 仍依赖人工审查；需要把 refresh guide 中的候选 fixture 审查动作进一步收束成可复用 checklist。
 
 因此下一阶段默认进入：
 
-**Phase 10q. Fixture Replay Failure Documentation Matrix**
+**Phase 10r. Fixture Replay Refresh Review Checklist**
 
-目标是在 replay contract guide 中补一张 failure fixture matrix，把 validation failure、replay drift、process exit harness 对应到具体 factories、测试文件和维护用途。该阶段优先文档对齐，除非矩阵审查暴露真实覆盖缺口。
+目标是在 fixture refresh guide 中补一张候选 fixture review checklist，把 redaction、source identity、playbook metadata、approval state、writeback identity、replay gates 和 failure matrix triage 串成固定人工审查路径。该阶段优先文档对齐，除非 checklist 审查暴露真实刷新安全缺口。
 
 ### Phase 0. 冻结方向
 
@@ -961,12 +963,14 @@ npm run test:core-workflows
 
 `test:controlled-runtime` 是第一阶段的最小门禁，覆盖 sales playbook、plan validator、显式 controlled plan 执行和 workflow runner 请求收口。
 
-截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 24 个测试文件、137 个测试，包括：
+截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 30 个测试文件、166 个测试，包括：
 
 - sales/support playbook / validator / schema / step input。
 - controlled run store、approval store、controlled execution、step executor、workflow bridge。
 - durable resume、failed-step retry runtime、retry route、controlled run list / detail route。
-- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route、Runtime Console governed trace copy、retention prune safety、governed trace fixture validation 和 idempotency。
+- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route、Runtime Console governed trace copy、retention prune safety、governed trace fixture validation、fixture replay/catalog/summary/failure harness 和 idempotency。
+
+Fixture replay 失败时，先通过 [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md#6-failure-fixture-matrix) 的 failure fixture matrix 分类。只有确认失败属于 intentional playbook drift 或 stale committed fixture 后，才进入 fixture refresh；validation failure、redaction failure、missing stable writeback metadata 或 harness behavior failure 必须先修源头，不允许直接手工改 fixture JSON。
 
 ### 10.3 手工验收场景
 

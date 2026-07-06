@@ -29,7 +29,7 @@
 **Files:**
 - Modify: `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`
 
-- [ ] **Step 1: Insert a new `Failure Fixture Matrix` section**
+- [x] **Step 1: Insert a new `Failure Fixture Matrix` section**
 
 Add a section after `## 5. Diagnostics Reference` and before `## 6. Failure Triage`.
 
@@ -41,7 +41,7 @@ The section must state:
 这些 synthetic failures 只存在于测试目录，用来证明 replay/summary/harness 的失败诊断稳定。它们不是 committed governed fixture，不能加入 `controlledTraceFixtureCatalog` 的正常 catalog。
 ```
 
-- [ ] **Step 2: Add the validation failure rows**
+- [x] **Step 2: Add the validation failure rows**
 
 Add rows for:
 
@@ -52,7 +52,7 @@ Add rows for:
 | Validation summary bundle | `buildCombinedValidationFailureCatalogEntry()` in `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts` | Summary line contains all validation errors | `src/__tests__/scripts/trace-fixture-catalog-summary-script.test.ts` | Use summary output for local triage, then inspect `failedItems[].validationErrors` if machine-readable detail is needed. |
 ```
 
-- [ ] **Step 3: Add the replay drift and harness rows**
+- [x] **Step 3: Add the replay drift and harness rows**
 
 Add rows for:
 
@@ -63,7 +63,7 @@ Add rows for:
 | Process exit harness | `scripts/trace-fixtures/catalog-failure-harness.mjs --format json|summary` | Synthetic failed catalogs exit `1`; committed catalog commands remain green | `src/__tests__/scripts/trace-fixture-catalog-failure-harness-script.test.ts` | Use only for regression tests and local harness checks; do not wire synthetic failures into the normal committed catalog command. |
 ```
 
-- [ ] **Step 4: Renumber following headings**
+- [x] **Step 4: Renumber following headings**
 
 Because the new section is inserted before triage, update later headings from:
 
@@ -89,7 +89,7 @@ to:
 - Modify: `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Update changelog**
+- [x] **Step 1: Update changelog**
 
 Add an entry describing:
 
@@ -97,7 +97,7 @@ Add an entry describing:
 - Added Phase 10q failure fixture matrix to the governed trace replay contract, mapping validation failures, replay drift failures, summary diagnostics, and the process exit harness to their source factories/tests and maintainer actions.
 ```
 
-- [ ] **Step 2: Update next steps**
+- [x] **Step 2: Update next steps**
 
 Mark Phase 10q complete and set the next recommended phase to the next trace governance hardening slice. Use this wording:
 
@@ -105,7 +105,7 @@ Mark Phase 10q complete and set the next recommended phase to the next trace gov
 Next recommended phase: Fixture Replay Refresh Review Checklist.
 ```
 
-- [ ] **Step 3: Update development manual**
+- [x] **Step 3: Update development manual**
 
 Add the maintenance rule:
 
@@ -113,7 +113,7 @@ Add the maintenance rule:
 When fixture replay fails, first classify the failure through `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md#6-failure-fixture-matrix`; only refresh fixtures after confirming whether the failure is validation, replay drift, summary rendering, or harness exit behavior.
 ```
 
-- [ ] **Step 4: Update local memory**
+- [x] **Step 4: Update local memory**
 
 Append a local record to `memory/2026-07-06.md` with:
 
@@ -134,7 +134,7 @@ Do not stage `memory/2026-07-06.md` unless project policy changes.
 - Verify docs and test commands only.
 - Commit tracked documentation updates.
 
-- [ ] **Step 1: Run replay commands**
+- [x] **Step 1: Run replay commands**
 
 Run:
 
@@ -150,7 +150,7 @@ trace:fixtures reports ok=true, total=2, passed=2, failed=0.
 trace:fixtures:summary prints Status: OK.
 ```
 
-- [ ] **Step 2: Run regression commands**
+- [x] **Step 2: Run regression commands**
 
 Run:
 
@@ -168,7 +168,7 @@ Expected:
 All commands exit 0. Lint/build may still show the existing <img> warning in src/__tests__/components/ShellUI.test.tsx.
 ```
 
-- [ ] **Step 3: Commit docs completion**
+- [x] **Step 3: Commit docs completion**
 
 Stage only:
 

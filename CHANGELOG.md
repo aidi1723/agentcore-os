@@ -104,6 +104,11 @@
 
 ## Unreleased
 
+### Project Introduction Alignment
+
+- Updated the README project introduction to distinguish AgentCore OS from ordinary skills and generic AI OS shells.
+- Added framework-level language explaining the current Controlled Skill / Playbook Runtime position: skills/playbooks describe the workflow, while Runtime enforces deterministic execution, approval, trace, recovery, and asset writeback.
+
 ### Runtime UI Delivery Polish
 
 - Added `buildControlledRunDeliverySummary()` to summarize recent controlled runs for delivery handoff.

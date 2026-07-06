@@ -16,9 +16,29 @@ AgentCore OS 是一个**本地优先、面向真实工作的 AI 工作底座**�
 
 AgentCore OS 当前对外更适合这样理解：
 
-- 一个本地优先的 AI 工作平台
-- 一个聚焦企业高频业务流程的执行工作台
-- 一个可以持续沉淀企业数字员工 / Agent 工作流资产的基础设施
+- 一个本地优先的 AI 工作平台。
+- 一个聚焦企业高频业务流程的受控执行工作台。
+- 一个可以持续沉淀企业数字员工 / Agent 工作流资产的基础设施。
+- 一个让 skill / playbook 按确定步骤执行的 runtime，而不是普通 skill 集合或 AI OS 外壳。
+
+### 我们和普通 Skill / AI OS 壳的区别
+
+传统 skill 更像“操作说明书”：它告诉模型某类任务应该怎么做，通常包含提示词、步骤建议、工具说明或输出格式。它的价值在于把经验写成可复用的方法，但它本身不一定保证执行过程可控，也不一定负责 durable state、人工审批、失败恢复、trace 复盘和资产写回。
+
+传统 AI OS 壳更像“使用入口”：它提供桌面、窗口、应用入口、聊天界面和多工具导航。它的价值在于组织交互和展示工作区，但壳本身不等于受控执行系统。只有界面而没有 runtime，agent 仍可能临场决定步骤、跳过审批、错误写回，或者在刷新、断流、失败后丢失上下文。
+
+AgentCore OS 当前要做的是第三种：
+
+**Controlled Skill / Playbook Runtime。**
+
+也就是：skill / playbook 负责描述业务流程，Runtime 负责让流程按规则执行。它会读取固定 playbook，校验步骤和 schema，限制工具边界，暂停到人工审批点，保存 durable trace，支持 resume / retry，并且只把 approved output 写回业务资产层。
+
+因此，本项目的核心差异是：
+
+- **不是只写 skill**：我们不只沉淀提示词或 SOP，而是让 SOP 进入可执行状态机。
+- **不是只做壳**：UI、App、桌面窗口只是操作面，真正的控制权在 Runtime。
+- **不是开放式 agent 发散执行**：LLM 可以生成内容和建议，但不能默认决定流程顺序、审批边界和写回目标。
+- **是可审计的业务流程执行系统**：每次运行都能追踪 playbook、步骤、审批、失败、恢复和资产落点。
 
 当前 `main` 工程主线聚焦：
 
@@ -28,7 +48,13 @@ AgentCore OS 当前对外更适合这样理解：
 - approved output 写回 sales / support / knowledge / workflow / draft 资产
 - governed trace artifact、fixture replay、fixture catalog、CI-style replay gates
 - Runtime Console 作为查看、审批、恢复、脱敏 trace 导出和资产落点复盘的控制面
-- 首页已开始转向 controlled playbook cockpit；下一阶段只进入 Runtime Console delivery readiness audit，不直接写真实工具 replay
+- 首页已转向 controlled playbook cockpit；Runtime Console 已有 delivery handoff 摘要和截图验证
+
+当前项目状态：
+
+- **已达到 local delivery demo ready**：可以通过本地 seed/check 和浏览器路径演示 Home -> Runtime Console -> controlled run -> asset landing -> governed trace copy。
+- **尚未宣称 production ready**：真实 replay、长期 retention / cleanup、生产级运维边界仍需继续硬化。
+- **下一阶段默认是 Trace Operations Hardening**：继续强化 trace、fixture、replay sandbox、retention 和维护路径，不继续扩大 UI 壳或新增普通 skill。
 
 ## 当前稳定版本
 

@@ -22,6 +22,25 @@ AgentCore OS 的主线已经从“做一个 AI OS 壳 / 多 App 工作台”调�
 
 **UI 是操作面，App 是业务面，Runtime 才是项目核心。**
 
+### 1.1 和传统 Skill / AI OS 壳的区别
+
+传统 skill 解决的是“怎么做”的问题，通常表现为提示词、步骤建议、工具说明、输出格式或 SOP。它可以沉淀经验，但不天然负责 durable runtime state、审批阻断、失败恢复、trace governance 和资产写回。
+
+传统 AI OS 壳解决的是“从哪里用”的问题，通常表现为桌面、窗口、应用入口、聊天界面和多工具导航。它可以改善交互，但如果没有受控 runtime，agent 仍可能临场决定流程顺序、跳过审批、越过工具边界或把未批准结果写入高信任资产。
+
+AgentCore OS 当前解决的是“如何可靠执行”的问题：
+
+- skill / playbook 描述业务流程；
+- Runtime 读取并校验流程；
+- Step Runner 按固定步骤执行；
+- Tool Gateway 限制工具边界；
+- Approval Gate 把人工复核变成状态机节点；
+- Trace Store 保留可审计执行证据；
+- Asset Writeback 只沉淀 approved output；
+- Runtime Console 提供运行、审批、恢复、复盘和交付 handoff。
+
+因此，本项目不是普通 skill 集合，也不是继续扩展 AI OS 外壳，而是一个让 skill / playbook 进入可控执行状态机的 runtime。
+
 ## 2. 项目目标
 
 AgentCore OS 要解决的问题不是“模型能不能回答”，而是：
@@ -117,6 +136,14 @@ User / Trigger
 - governed trace artifact、local trace artifact route、Runtime Console 脱敏 trace copy。
 - governed trace fixture builder、fixture replay runner、fixture catalog、catalog report、JSON summary、人读 summary、failure harness 和 builder CLI。
 - fixture refresh workflow、replay contract、CI gate guide、catalog coverage guide、operational runbook。
+- Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
+- Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
+
+当前状态：
+
+- 已达到 **local delivery demo ready**。
+- 尚未宣称 production ready。
+- 下一阶段默认进入 **Trace Operations Hardening**。
 
 仍未完成：
 

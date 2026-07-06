@@ -8,6 +8,7 @@ import {
   buildUnredactedInputCatalogEntry,
   buildUnredactedToolOutputCatalogEntry,
 } from "@/__tests__/fixtures/controlled-traces/synthetic-failures";
+import { listControlledPlaybooks } from "@/lib/executor/playbooks/catalog";
 import { validateControlledTraceFixture } from "@/lib/executor/runtime/trace-fixtures";
 import { replayControlledTraceFixture } from "@/lib/executor/runtime/trace-replay";
 
@@ -17,6 +18,14 @@ describe("controlled trace fixture catalog", () => {
       "sales-pipeline-governed",
       "support-resolution-governed",
     ]);
+  });
+
+  it("covers every registered controlled playbook with one committed governed fixture", () => {
+    const registeredPlaybookIds = listControlledPlaybooks().map((playbook) => playbook.id);
+    const fixturePlaybookIds = controlledTraceFixtureCatalog.map((entry) => entry.playbookId);
+
+    expect(fixturePlaybookIds).toEqual(registeredPlaybookIds);
+    expect(new Set(fixturePlaybookIds).size).toBe(fixturePlaybookIds.length);
   });
 
   it("validates and replays every committed governed fixture", () => {

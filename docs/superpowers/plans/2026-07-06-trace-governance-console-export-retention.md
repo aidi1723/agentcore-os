@@ -28,7 +28,7 @@
 - Modify: `src/app/api/runtime/executor/controlled-runs/[runId]/trace-artifact/route.ts`
 - Modify: `src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts`
 
-- [ ] **Step 1: Write failing route metadata test**
+- [x] **Step 1: Write failing route metadata test**
 
 Extend the successful route test with:
 
@@ -42,7 +42,7 @@ expect(typeof data.data.export.generatedAt).toBe("number");
 expect(data.data.artifact.id).toBe("exec-artifact-1");
 ```
 
-- [ ] **Step 2: Run route test to verify RED**
+- [x] **Step 2: Run route test to verify RED**
 
 Run:
 
@@ -52,7 +52,7 @@ npm test -- src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts
 
 Expected: FAIL because `data.data.export` does not exist yet.
 
-- [ ] **Step 3: Implement export metadata**
+- [x] **Step 3: Implement export metadata**
 
 In the route, compute:
 
@@ -78,7 +78,7 @@ return Response.json({
 });
 ```
 
-- [ ] **Step 4: Run route test to verify GREEN**
+- [x] **Step 4: Run route test to verify GREEN**
 
 Run:
 
@@ -88,7 +88,7 @@ npm test -- src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/api/runtime/executor/controlled-runs/[runId]/trace-artifact/route.ts src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts

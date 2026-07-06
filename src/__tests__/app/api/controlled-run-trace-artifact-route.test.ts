@@ -114,6 +114,14 @@ describe("controlled run trace artifact route", () => {
     expect(data.data.artifact.id).toBe("exec-artifact-1");
     expect(data.data.artifact.playbookId).toBe("sales-pipeline-v1");
     expect(data.data.artifact.steps[0].stepId).toBe("intake");
+    expect(data.data.export).toMatchObject({
+      contentType: "application/json",
+      governanceMode: "fixture",
+    });
+    expect(data.data.export.filename).toMatch(
+      /^controlled-trace-exec-artifact-1-\d+\.json$/,
+    );
+    expect(typeof data.data.export.generatedAt).toBe("number");
     expect(data.data.artifact.steps[0].input).toMatchObject({
       redacted: true,
       reason: "trace_governance",

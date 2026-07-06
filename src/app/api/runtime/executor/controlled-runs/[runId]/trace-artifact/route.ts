@@ -19,10 +19,18 @@ export async function GET(
     return NextResponse.json({ ok: false, error: "Controlled run not found" }, { status: 404 });
   }
 
+  const generatedAt = Date.now();
+
   return NextResponse.json({
     ok: true,
     data: {
       artifact: buildControlledTraceArtifact(run),
+      export: {
+        filename: `controlled-trace-${run.id}-${generatedAt}.json`,
+        generatedAt,
+        contentType: "application/json",
+        governanceMode: "fixture",
+      },
     },
   });
 }

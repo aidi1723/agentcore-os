@@ -536,4 +536,97 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
     expect(prefill).not.toHaveProperty("sourceKey");
     expect(prefill).not.toHaveProperty("workflowRunId");
   });
+
+  it("copies governed trace artifacts from the selected controlled run", async () => {
+    const clipboardWrite = vi.fn(async () => undefined);
+    vi.stubGlobal("navigator", {
+      clipboard: {
+        writeText: clipboardWrite,
+      },
+    });
+
+    const run = buildCompletedRunWithAssetLandings();
+    run.steps[0].input = {
+      customer: "Nora",
+      secret: "sk-console-secret",
+    };
+    run.steps[0].output = {
+      draft: "Email Nora at nora@example.com",
+    };
+
+    const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
+      const href = String(url);
+      if (href.endsWith("/api/runtime/executor/controlled-runs")) {
+        return Response.json({
+          ok: true,
+          data: { runs: [run] },
+        });
+      }
+      if (
+        href.endsWith(
+          "/api/runtime/executor/controlled-runs/run-assets-1/trace-artifact",
+        )
+      ) {
+        return Response.json({
+          ok: true,
+          data: {
+            export: {
+              filename: "controlled-trace-run-assets-1-123.json",
+              generatedAt: 123,
+              contentType: "application/json",
+              governanceMode: "fixture",
+            },
+            artifact: {
+              id: "run-assets-1",
+              playbookId: "sales-pipeline-v1",
+              steps: [
+                {
+                  stepId: "writeback",
+                  input: { redacted: true, reason: "trace_governance" },
+                  output: { redacted: true, reason: "trace_governance" },
+                },
+              ],
+            },
+          },
+        });
+      }
+      if (href.endsWith("/api/runtime/executor/sessions")) {
+        return Response.json({ ok: true, data: { sessions: [] } });
+      }
+      return Response.json({ ok: true, data: {} });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ClawRuntimeConsoleAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Asset landing run").length).toBeGreaterThan(0);
+    });
+
+    fireEvent.click(await screen.findByRole("button", { name: "复制脱敏 Trace" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/runtime/executor/controlled-runs/run-assets-1/trace-artifact",
+        { method: "GET", cache: "no-store" },
+      );
+      expect(clipboardWrite).toHaveBeenCalled();
+    });
+
+    const copiedText = clipboardWrite.mock.calls[0]?.[0] as string;
+    expect(copiedText).toContain('"artifact"');
+    expect(copiedText).toContain("run-assets-1");
+    expect(copiedText).not.toContain("Nora");
+    expect(copiedText).not.toContain("sk-console-secret");
+    expect(copiedText).not.toContain("nora@example.com");
+  });
 });

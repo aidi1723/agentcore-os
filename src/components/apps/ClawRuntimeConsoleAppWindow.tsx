@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   Boxes,
   CheckCircle2,
+  Copy,
   ExternalLink,
   RefreshCw,
   Shield,
@@ -479,6 +480,49 @@ export function ClawRuntimeConsoleAppWindow({
       await refreshControlledRuns();
     } catch (error) {
       showToast(error instanceof Error ? error.message : "重试失败步骤请求异常", "error");
+    } finally {
+      setControlledRunActionLoading(null);
+    }
+  };
+
+  const handleCopyControlledTraceArtifact = async (runId: string) => {
+    const actionId = `${runId}:trace-artifact`;
+    setControlledRunActionLoading(actionId);
+    try {
+      const res = await fetch(
+        buildAgentCoreApiUrl(
+          `/api/runtime/executor/controlled-runs/${encodeURIComponent(runId)}/trace-artifact`,
+        ),
+        {
+          method: "GET",
+          cache: "no-store",
+        },
+      );
+      const data = (await res.json().catch(() => null)) as null | {
+        ok?: boolean;
+        data?: {
+          artifact?: unknown;
+          export?: unknown;
+        };
+        error?: string;
+      };
+      if (!res.ok || !data?.ok || !data.data?.artifact) {
+        showToast(data?.error || "脱敏 Trace 获取失败", "error");
+        return;
+      }
+      await navigator.clipboard.writeText(
+        JSON.stringify(
+          {
+            export: data.data.export,
+            artifact: data.data.artifact,
+          },
+          null,
+          2,
+        ),
+      );
+      showToast("已复制脱敏 Trace", "ok");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "脱敏 Trace 复制失败", "error");
     } finally {
       setControlledRunActionLoading(null);
     }
@@ -1079,6 +1123,29 @@ export function ClawRuntimeConsoleAppWindow({
                       </div>
                     </div>
                   ) : null}
+
+                  <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="text-xs font-semibold text-gray-900">Governed trace</div>
+                      <div className="mt-1 text-[11px] leading-5 text-gray-500">
+                        Copies redacted trace JSON for audit or fixture use.
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void handleCopyControlledTraceArtifact(selectedControlledRunSummary.id)
+                      }
+                      disabled={controlledRunActionLoading !== null}
+                      className="inline-flex shrink-0 items-center justify-center gap-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-800 transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                      {controlledRunActionLoading ===
+                      `${selectedControlledRunSummary.id}:trace-artifact`
+                        ? "复制中..."
+                        : "复制脱敏 Trace"}
+                    </button>
+                  </div>
 
                   {selectedControlledRunSummary.canApprove ||
                   selectedControlledRunSummary.canResume ||

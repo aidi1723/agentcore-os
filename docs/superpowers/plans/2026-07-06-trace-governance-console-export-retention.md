@@ -103,7 +103,7 @@ git commit -m "feat: add trace artifact export metadata"
 - Modify: `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
 - Modify: `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
 
-- [ ] **Step 1: Write failing console export test**
+- [x] **Step 1: Write failing console export test**
 
 Add a test that:
 
@@ -115,7 +115,7 @@ Add a test that:
 - asserts clipboard text contains `"artifact"` and `"run-assets-1"`;
 - asserts clipboard text does not contain a seeded raw secret such as `sk-console-secret`.
 
-- [ ] **Step 2: Run console test to verify RED**
+- [x] **Step 2: Run console test to verify RED**
 
 Run:
 
@@ -125,7 +125,7 @@ npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx
 
 Expected: FAIL because the export button does not exist.
 
-- [ ] **Step 3: Implement console copy action**
+- [x] **Step 3: Implement console copy action**
 
 Add:
 
@@ -163,7 +163,7 @@ const handleCopyControlledTraceArtifact = async (runId: string) => {
 
 Render a compact governed trace control under selected run metadata.
 
-- [ ] **Step 4: Run console test to verify GREEN**
+- [x] **Step 4: Run console test to verify GREEN**
 
 Run:
 
@@ -173,7 +173,7 @@ npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/apps/ClawRuntimeConsoleAppWindow.tsx src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx

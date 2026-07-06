@@ -28,7 +28,7 @@
 **Files:**
 - Create: `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md`
 
-- [ ] **Step 1: Write the guide**
+- [x] **Step 1: Write the guide**
 
 Create the guide with these sections:
 
@@ -244,7 +244,7 @@ That phase may define TypeScript-only contracts for replay inputs, sandbox conte
 It still must not replay LLM output, execute tools, call API routes, mutate stores, or write assets.
 ```
 
-- [ ] **Step 2: Review the guide for scope drift**
+- [x] **Step 2: Review the guide for scope drift**
 
 Run:
 
@@ -254,7 +254,7 @@ rg -n "execute tools|call API routes|write assets|production credentials|Stop if
 
 Expected: matches are boundary/stop-condition language, not implementation instructions.
 
-- [ ] **Step 3: Commit the guide**
+- [x] **Step 3: Commit the guide**
 
 ```bash
 git add docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md
@@ -275,11 +275,11 @@ git commit -m "docs: define real replay boundary"
 - Modify: `docs/GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md`
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Add documentation index links**
+- [x] **Step 1: Add documentation index links**
 
 Add `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md` to the suggested reading order after the governed trace operational runbook and to the internal engineering section.
 
-- [ ] **Step 2: Update Next Steps**
+- [x] **Step 2: Update Next Steps**
 
 In `docs/NEXT_STEPS.md`, replace the recommended Phase 10v section with:
 
@@ -311,15 +311,15 @@ Suggested scope:
 - Add tests proving the contracts reject live credentials, production store access, and business asset write targets.
 ```
 
-- [ ] **Step 3: Update framework and roadmap**
+- [x] **Step 3: Update framework and roadmap**
 
 Change "real replay boundary not designed" wording to "boundary documented in `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md`" while preserving the rule that implementation has not started.
 
-- [ ] **Step 4: Update manual and runbook**
+- [x] **Step 4: Update manual and runbook**
 
 Add Phase 10v to the controlled runtime progress snapshot and link the runbook real replay boundary section to the new guide.
 
-- [ ] **Step 5: Update changelog**
+- [x] **Step 5: Update changelog**
 
 Add an Unreleased bullet:
 
@@ -327,7 +327,7 @@ Add an Unreleased bullet:
 - Added a real replay boundary guide covering replay input provenance, sandbox ownership, credential isolation, approval simulation, store isolation, side-effect blocking, replay result ownership, and stop conditions before any real replay implementation.
 ```
 
-- [ ] **Step 6: Commit aligned docs**
+- [x] **Step 6: Commit aligned docs**
 
 ```bash
 git add docs/DOCUMENTATION_INDEX.zh-CN.md docs/NEXT_STEPS.md docs/PROJECT_FRAMEWORK.zh-CN.md docs/ROADMAP.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md CHANGELOG.md
@@ -343,7 +343,7 @@ git commit -m "docs: align real replay boundary docs"
 - Modify: `docs/superpowers/plans/2026-07-06-real-replay-boundary-design.md`
 - Modify: `memory/2026-07-06.md` only if local memory tracking is desired; do not commit local memory unless explicitly requested.
 
-- [ ] **Step 1: Run required verification**
+- [x] **Step 1: Run required verification**
 
 ```bash
 git diff --check
@@ -357,7 +357,7 @@ Expected:
 - `trace:fixtures` exits `0` and reports `ok: true`;
 - `trace:fixtures:summary` exits `0` and reports `Status: OK`.
 
-- [ ] **Step 2: Run preferred controlled runtime gate**
+- [x] **Step 2: Run preferred controlled runtime gate**
 
 ```bash
 npm run test:controlled-runtime
@@ -365,11 +365,11 @@ npm run test:controlled-runtime
 
 Expected: existing controlled runtime tests pass. Current known baseline is 30 files / 166 tests.
 
-- [ ] **Step 3: Mark plan checkboxes**
+- [x] **Step 3: Mark plan checkboxes**
 
 Update this plan file so completed steps use `- [x]`.
 
-- [ ] **Step 4: Commit the completed plan record**
+- [x] **Step 4: Commit the completed plan record**
 
 ```bash
 git add docs/superpowers/plans/2026-07-06-real-replay-boundary-design.md
@@ -385,3 +385,14 @@ git commit -m "docs: complete real replay boundary plan"
 - Scope boundary: no runtime code, package scripts, fixture JSON, store behavior, API route, or Runtime Console UI changes.
 - Placeholder scan: this plan contains no `TBD`, `TODO`, or deferred content placeholders.
 - Next phase: Replay Sandbox Contract Types is named explicitly and remains no-side-effect.
+
+## Completion Notes
+
+- Added and committed `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md`.
+- Aligned README, documentation index, project framework, roadmap, controlled runtime manual, governed trace operational runbook, Next Steps, and changelog.
+- Next recommended phase is Phase 10w Replay Sandbox Contract Types.
+- Verification:
+  - `git diff --check` — exit 0.
+  - `npm run trace:fixtures --silent` — `ok: true`, 2 total, 2 passed, 0 failed, `toolCallsExecuted=false`, `assetsWritten=false`.
+  - `npm run trace:fixtures:summary --silent` — `Status: OK`, 2 total, 2 passed, 0 failed.
+  - `npm run test:controlled-runtime` — 30 files, 166 tests passed.

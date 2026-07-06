@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Release Handoff Evidence Snapshot
+
+- Added `npm run release:handoff:snapshot`, a local-only evidence command that runs the full handoff gate and writes a JSON snapshot under `output/release-handoff/`.
+- Snapshot files include the parsed `release:handoff:check` report plus git branch, commit, dirty status, tracked-change status, and untracked-file status.
+- The command preserves `productionReady: false`, `publishingPerformed: false`, and `evidenceOnly: true`; it performs no publishing, tagging, artifact upload, installer packaging, or GitHub Release creation.
+- Added snapshot helper coverage and included it in `test:controlled-runtime`.
+
 ### Local Release Handoff Gate
 
 - Added `npm run release:handoff:check`, a full local handoff gate that aggregates open-source hygiene, delivery readiness, controlled runtime tests, core workflow regressions, lint, build, and `git diff --check`.

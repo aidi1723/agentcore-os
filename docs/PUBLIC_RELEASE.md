@@ -124,12 +124,43 @@ Successful output must include:
 This gate performs no publishing, tagging, uploading, installer packaging, or
 GitHub Release creation.
 
+## Local Handoff Evidence Snapshot
+
+After the full local handoff gate passes, preserve a local evidence file with:
+
+```bash
+npm run release:handoff:snapshot
+```
+
+This command runs `release:handoff:check`, parses its JSON report, captures git
+branch / commit / short status context, and writes a timestamped JSON snapshot
+under:
+
+```text
+output/release-handoff/
+```
+
+Successful snapshot output includes:
+
+```json
+{
+  "releaseClaim": "local_release_handoff_ready",
+  "productionReady": false,
+  "publishingPerformed": false,
+  "evidenceOnly": true
+}
+```
+
+Snapshots are local handoff evidence only. They are not published release
+artifacts and should not be committed by default.
+
 ## Full Verification
 
 Before a public release announcement or handoff, run:
 
 ```bash
 npm run release:handoff:check
+npm run release:handoff:snapshot
 ```
 
 If the aggregate gate fails and the failed child command needs to be reproduced

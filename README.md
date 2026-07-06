@@ -220,6 +220,7 @@ npm run test:stability
 - `npm run delivery:ready:check`：快速本地交付门禁，聚合 demo check、governed fixture、fixture summary 和 retention preview，只声明 `local_delivery_demo_ready`
 - `npm run release:hygiene:check`：本地开源卫生门禁，检查必备治理文档、GPLv3+ 元数据、tracked artifact 路径和公开发布边界，不声明 production ready
 - `npm run release:handoff:check`：完整本地交付前门禁，聚合 hygiene、delivery readiness、controlled runtime 测试、core workflow、lint、build 和 `git diff --check`；不发布、不打 tag、不打包安装器，只声明 `local_release_handoff_ready`
+- `npm run release:handoff:snapshot`：运行完整 handoff gate，并把门禁结果与 git 上下文写入本地 `output/release-handoff/` JSON 证据；不发布、不上传、不打 tag，生成文件默认不提交
 - `npm run test:stability`：运行核心回归 + lint + build 的稳定性门禁
 - `npm run desktop:smoke-test-sidecar`：运行桌面 sidecar HTTP 主链路烟测
 - `npm run lint`：运行 lint

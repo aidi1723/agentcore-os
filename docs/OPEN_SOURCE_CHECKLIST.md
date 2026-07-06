@@ -83,6 +83,7 @@ Recommended:
 
 ```bash
 npm run release:handoff:check
+npm run release:handoff:snapshot
 git status
 ```
 
@@ -91,6 +92,8 @@ Confirm:
 - `release:handoff:check` reports `releaseClaim: "local_release_handoff_ready"`
 - `release:handoff:check` reports `productionReady: false`
 - `release:handoff:check` reports `publishingPerformed: false`
+- `release:handoff:snapshot` writes local evidence under `output/release-handoff/`
+- `release:handoff:snapshot` reports `evidenceOnly: true`
 - `release:hygiene:check` reports `ok: true` and `productionReady: false`
 - secret pattern review results are warning-only and still require human review
 - public docs say local delivery demo ready, not production ready
@@ -106,6 +109,10 @@ Confirm:
 - `npm run lint`
 - `npm run build`
 - `git diff --check`
+
+`release:handoff:snapshot` preserves the handoff JSON and git context for local
+review only. Snapshot files under `output/release-handoff/` are not published
+release artifacts and should not be committed by default.
 
 ## 6.1) Command-line release sanity
 

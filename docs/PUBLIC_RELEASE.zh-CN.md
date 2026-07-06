@@ -122,12 +122,40 @@ npm run release:handoff:check
 
 这个门禁不会发布、打 tag、上传 artifact、打包安装器或创建 GitHub Release。
 
+## 本地交付证据快照
+
+完整本地 handoff gate 通过后，可以用下面命令保存一份本地证据文件：
+
+```bash
+npm run release:handoff:snapshot
+```
+
+该命令会运行 `release:handoff:check`，解析它的 JSON 报告，记录 git branch、commit 和 short status 上下文，并把带时间戳的 JSON 快照写入：
+
+```text
+output/release-handoff/
+```
+
+成功输出包含：
+
+```json
+{
+  "releaseClaim": "local_release_handoff_ready",
+  "productionReady": false,
+  "publishingPerformed": false,
+  "evidenceOnly": true
+}
+```
+
+这些 snapshot 只是本地 handoff evidence，不是已发布 release artifact，默认不应提交到源码仓库。
+
 ## 完整发布前验证
 
 公开发布说明、外部演示或交付前，建议运行：
 
 ```bash
 npm run release:handoff:check
+npm run release:handoff:snapshot
 ```
 
 如果聚合门禁失败，需要复现具体子命令时，再按 JSON 输出里的 failed check 单独运行对应命令。

@@ -209,7 +209,7 @@ Expected: fail because `scripts/release-handoff/write-release-handoff-snapshot.m
 **Files:**
 - Create: `scripts/release-handoff/write-release-handoff-snapshot.mjs`
 
-- [ ] **Step 1: Add the minimal implementation**
+- [x] **Step 1: Add the minimal implementation**
 
 Create `scripts/release-handoff/write-release-handoff-snapshot.mjs` with:
 
@@ -268,7 +268,7 @@ export function buildReleaseHandoffEvidenceSnapshot({
 Then add helpers for running commands, parsing JSON, sanitizing timestamps,
 collecting git context, writing files, and CLI `main()`.
 
-- [ ] **Step 2: Run the target test and confirm GREEN**
+- [x] **Step 2: Run the target test and confirm GREEN**
 
 Run:
 
@@ -283,7 +283,7 @@ Expected: all tests in the file pass.
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add package script**
+- [x] **Step 1: Add package script**
 
 Add:
 
@@ -293,7 +293,7 @@ Add:
 
 near the existing release handoff scripts.
 
-- [ ] **Step 2: Add the new test file to `test:controlled-runtime`**
+- [x] **Step 2: Add the new test file to `test:controlled-runtime`**
 
 Append:
 
@@ -303,7 +303,7 @@ src/__tests__/scripts/release-handoff-snapshot-script.test.ts
 
 after `src/__tests__/scripts/release-handoff-check-script.test.ts`.
 
-- [ ] **Step 3: Verify target and suite inclusion**
+- [x] **Step 3: Verify target and suite inclusion**
 
 Run:
 
@@ -325,7 +325,7 @@ Expected: target test passes; controlled runtime suite includes the new test.
 - Modify: `docs/PUBLIC_RELEASE.zh-CN.md`
 - Modify: `memory/2026-07-07.md`
 
-- [ ] **Step 1: Document the new command**
+- [x] **Step 1: Document the new command**
 
 Add concise wording that:
 
@@ -336,7 +336,7 @@ Add concise wording that:
   and `evidenceOnly: true`;
 - it does not publish, tag, upload, package installers, or create releases.
 
-- [ ] **Step 2: Update current baseline counts after verification**
+- [x] **Step 2: Update current baseline counts after verification**
 
 If `test:controlled-runtime` reports a changed file/test count, update
 `docs/NEXT_STEPS.md` and `memory/2026-07-07.md` with the exact values from the
@@ -347,13 +347,13 @@ fresh run.
 **Files:**
 - All files changed by Tasks 1-4.
 
-- [ ] **Step 1: Run target verification**
+- [x] **Step 1: Run target verification**
 
 ```bash
 npm test -- src/__tests__/scripts/release-handoff-snapshot-script.test.ts
 ```
 
-- [ ] **Step 2: Run the real snapshot command**
+- [x] **Step 2: Run the real snapshot command**
 
 ```bash
 npm run release:handoff:snapshot
@@ -366,7 +366,7 @@ Expected:
 - writes one file under `output/release-handoff/`;
 - generated output remains unstaged.
 
-- [ ] **Step 3: Run the full local handoff gate**
+- [x] **Step 3: Run the full local handoff gate**
 
 ```bash
 npm run release:handoff:check
@@ -375,7 +375,7 @@ npm run release:handoff:check
 Expected: exits `0` and reports `local_release_handoff_ready`,
 `productionReady: false`, and `publishingPerformed: false`.
 
-- [ ] **Step 4: Run regression and quality commands**
+- [x] **Step 4: Run regression and quality commands**
 
 ```bash
 npm run test:controlled-runtime
@@ -392,7 +392,7 @@ Expected:
   `src/__tests__/components/ShellUI.test.tsx`;
 - `git diff --check` exits `0`.
 
-- [ ] **Step 5: Review diff and avoid staging local evidence**
+- [x] **Step 5: Review diff and avoid staging local evidence**
 
 Run:
 
@@ -404,7 +404,7 @@ git diff --stat
 Stage only source/docs/test files for this phase. Do not stage
 `output/release-handoff/`.
 
-- [ ] **Step 6: Commit and push**
+- [x] **Step 6: Commit and push**
 
 ```bash
 git add scripts/release-handoff/write-release-handoff-snapshot.mjs \

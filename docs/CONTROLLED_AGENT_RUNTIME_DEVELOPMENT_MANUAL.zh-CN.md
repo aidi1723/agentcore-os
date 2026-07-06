@@ -328,6 +328,7 @@ type ControlledPlaybookStep = {
 - [Governed Trace Fixture Builder CLI Implementation Plan](superpowers/plans/2026-07-06-governed-trace-fixture-builder-cli.md)
 - [Governed Trace Fixture Refresh Workflow](GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md)
 - [Fixture Replay Failure Documentation Matrix Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-failure-documentation-matrix.md)
+- [Fixture Replay Refresh Review Checklist Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-refresh-review-checklist.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -365,17 +366,18 @@ type ControlledPlaybookStep = {
 - Phase 10o fixture replay failure exit-code harness：已新增 direct-invoked synthetic failure harness，用于验证 failed report/summary subprocess 非零退出；committed `trace:fixtures` 和 `trace:fixtures:summary` 继续只读取 committed catalog 并保持全绿。JSON report 输出 shape 已抽为共享 helper，避免 harness 与正式 JSON 命令漂移。
 - Phase 10p fixture replay validation failure fixtures：已新增 reusable synthetic validation failure factories，覆盖缺失 `sourceRunId`、未脱敏 step input、未脱敏 tool output，并在 report/summary 测试中验证 validation errors 会被保留和展示。committed governed fixture catalog 和 committed CLI commands 继续保持全绿。
 - Phase 10q fixture replay failure documentation matrix：已在 replay contract guide 中新增 failure fixture matrix，把 validation failure、replay drift、summary diagnostics 和 process exit harness 对应到具体 factories、测试文件、诊断和维护动作。synthetic failures 明确保持 test-only，不进入 committed governed fixture catalog。
+- Phase 10r fixture replay refresh review checklist：已把 governed fixture refresh 的候选 fixture 审查拆成 source identity、redaction、playbook contract、approval、writeback identity、failure triage、sensitive search 和 replacement diff gates。失败分类链接到 replay contract failure fixture matrix。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- Candidate fixture refresh 仍依赖人工审查；需要把 refresh guide 中的候选 fixture 审查动作进一步收束成可复用 checklist。
+- Fixture replay health commands 已存在，但还缺一份 local / CI-style gate 使用说明，明确 JSON command 和 human summary command 的使用边界。
 
 因此下一阶段默认进入：
 
-**Phase 10r. Fixture Replay Refresh Review Checklist**
+**Phase 10s. Fixture Replay CI Gate Documentation**
 
-目标是在 fixture refresh guide 中补一张候选 fixture review checklist，把 redaction、source identity、playbook metadata、approval state、writeback identity、replay gates 和 failure matrix triage 串成固定人工审查路径。该阶段优先文档对齐，除非 checklist 审查暴露真实刷新安全缺口。
+目标是文档化 `npm run trace:fixtures --silent` 和 `npm run trace:fixtures:summary --silent` 在本地、fixture refresh 和 CI-style gate 中的使用边界。该阶段优先文档对齐，除非审查暴露真实缺失的 package command 或脚本 gate。
 
 ### Phase 0. 冻结方向
 

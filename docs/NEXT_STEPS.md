@@ -431,6 +431,32 @@ Outcome:
 - Fixture replay failure triage can start from the contract guide instead of test-source archaeology.
 - Maintainers can decide whether to reject a candidate, fix governed artifact redaction, confirm playbook drift, or inspect harness behavior before refreshing fixtures.
 
+## Completed. Fixture Replay Refresh Review Checklist
+
+Why:
+
+- Fixture refresh had a builder command, replay contract, failure matrix, and committed catalog health checks.
+- The remaining maintainer risk was inconsistent candidate fixture review before replacing committed fixture JSON.
+- The refresh workflow needed a repeatable pass/fail gate without adding automatic fixture writes.
+
+Delivered:
+
+- Added candidate fixture review gates to the governed trace fixture refresh workflow.
+- Split review into source identity, redaction, playbook contract, approval and terminal state, writeback identity, failure triage, sensitive search, and replacement diff checks.
+- Cross-linked failure triage to the replay contract failure fixture matrix.
+- Kept replacement manual and reviewable: no auto-write command, no runtime/API/UI changes, no fixture discovery, no tool replay, no store mutation, and no asset writes.
+
+Primary files:
+
+- `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`
+- `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`
+- `docs/superpowers/plans/2026-07-06-fixture-replay-refresh-review-checklist.md`
+
+Outcome:
+
+- Maintainers now have a single checklist from candidate fixture generation to replacement decision.
+- Unsafe candidates are rejected at the source instead of being hand-edited into committed fixture JSON.
+
 ## Completed. Governed Trace Fixture Builder CLI
 
 Why:
@@ -650,20 +676,20 @@ Outcome:
 - Report and summary tests now cover both validation failures and replay drift failures.
 - Maintainers can see validation-layer diagnostics in the same report/summary surfaces.
 
-## Recommended Next. Fixture Replay Refresh Review Checklist
+## Recommended Next. Fixture Replay CI Gate Documentation
 
 Why:
 
-- Fixture refresh now has a builder command, replay contract, failure matrix, and committed catalog health checks.
-- The remaining maintainer risk is reviewing candidate fixture JSON inconsistently before replacing committed fixtures.
-- A short checklist should turn the current guide into a repeatable candidate review gate.
+- Fixture replay now has JSON and human-readable health commands plus a manual refresh checklist.
+- The next gap is documenting how those commands should be used as local and CI-style gates.
+- This should stay documentation-first unless the review exposes a missing script or package command.
 
 Suggested scope:
 
-- Add a concise candidate review checklist to `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`.
-- Cross-link the checklist to the replay contract failure fixture matrix.
-- Include redaction, source identity, playbook metadata, approval state, writeback identity, and no-side-effect command gates.
-- Keep implementation unchanged unless checklist review exposes a real refresh safety gap.
+- Document when to run `npm run trace:fixtures --silent` versus `npm run trace:fixtures:summary --silent`.
+- Define local pre-commit, CI-style, and fixture-refresh gate expectations.
+- Clarify which command output is stable for automation and which output is for human triage.
+- Keep implementation unchanged unless the documentation review exposes a real missing gate.
 
 ## Completed. Support Runtime Console Record Focus
 

@@ -243,6 +243,12 @@
 - Clarified that synthetic failures remain test-only fixtures and must not be added to the normal committed governed fixture catalog.
 - Aligned the controlled runtime manual and next-stage backlog around using the matrix as the first fixture failure triage entry.
 
+### Fixture Replay Refresh Review Checklist
+
+- Added a pass/fail candidate fixture review checklist to the governed trace fixture refresh workflow.
+- Split refresh review into source identity, redaction, playbook contract, approval state, writeback identity, failure triage, sensitive search, and replacement diff gates.
+- Cross-linked candidate failure triage to the replay contract failure fixture matrix.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

@@ -57,31 +57,119 @@ If the command exits non-zero, do not replace any committed fixture. Fix the art
 
 ## 5. Review Candidate Fixture
 
-Before replacing a committed fixture file, inspect `/tmp/governed-trace-fixture.json`.
+Before replacing a committed fixture file, inspect `/tmp/governed-trace-fixture.json` with the checklist below.
 
-Use the replay contract matrix as the interpretation layer for every failed `failedItems[].diagnostics` field.
+Every check is a gate. If a candidate fails a gate, reject the candidate and fix the governed artifact source or playbook contract. Do not hand-edit generated fixture JSON to hide a failure.
 
-Required checks:
+Use [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md#6-failure-fixture-matrix) to classify validation failures, replay drift, summary diagnostics, and harness behavior.
+
+### 5.1 Source Identity Gate
+
+Pass:
 
 - `schemaVersion` is `controlled-trace-fixture/v1`;
-- `playbookId` is the intended controlled playbook;
-- `playbookVersion` is the intended playbook version;
-- `assertions.stepOrder` matches the current playbook step order;
-- each approval-gated step has `approvalState`;
-- each playbook writeback target appears on the same fixture step;
+- `sourceRunId` is present and stable;
+- `fixtureId` names the intended maintained fixture;
+- `playbookId` and `scenarioId` match the intended controlled playbook.
+
+Reject:
+
+- `sourceRunId` is missing;
+- the candidate points at the wrong playbook or scenario;
+- the source run identity is ambiguous.
+
+### 5.2 Redaction Gate
+
+Pass:
+
 - each step has `hasRedactedInput: true`;
 - each step has `hasRedactedOutput: true`;
 - each tool call has `outputRedacted: true`;
-- writeback metadata has stable `target`, `assetId`, `sourceKey`, and `workflowRunId` where applicable;
-- serialized fixture JSON does not contain raw customer names, emails, secrets, API keys, prompt text, or tool output payloads.
+- serialized fixture JSON contains no raw customer names, emails, secrets, API keys, prompt text, or tool output payloads.
 
-Also review the generated file with:
+Reject:
+
+- any redaction flag is false or missing;
+- known raw payload markers appear in the candidate;
+- the maintainer would need to manually remove raw content from generated JSON.
+
+### 5.3 Playbook Contract Gate
+
+Pass:
+
+- `playbookVersion` is the intended current version;
+- `assertions.stepOrder` matches the current playbook step order;
+- `plan.id`, `plan.totalSteps`, `plan.requiresApproval`, and `plan.stepOrder` match the current playbook.
+
+Reject:
+
+- the candidate reflects an unreviewed playbook migration;
+- the candidate step order differs from the current playbook;
+- plan metadata drift is unexplained.
+
+### 5.4 Approval And Terminal-State Gate
+
+Pass:
+
+- each approval-gated step has `approvalState`;
+- completed approval-gated steps have `approvalState: "approved"`;
+- completed steps have `attempts >= 1`.
+
+Reject:
+
+- approval metadata is missing;
+- a completed approval-gated step is not approved;
+- a completed step has no recorded attempt.
+
+### 5.5 Writeback Identity Gate
+
+Pass:
+
+- each playbook writeback target appears on the same fixture step;
+- successful writeback targets include stable `target`, `assetId`, `sourceKey`, and `workflowRunId` where applicable;
+- skipped or failed writeback targets preserve their explicit status instead of being rewritten as success.
+
+Reject:
+
+- successful writeback metadata cannot identify the retained asset;
+- writeback targets are missing after an intentional playbook contract change;
+- a candidate needs manual receipt edits to look stable.
+
+### 5.6 Failure Triage Gate
+
+Before replacement, run the catalog commands against the committed catalog and classify failures:
+
+```bash
+npm run trace:fixtures:summary --silent
+npm run trace:fixtures --silent
+```
+
+If either command fails, use the replay contract failure fixture matrix before replacing anything:
+
+- validation failure means reject the candidate or fix governed artifact redaction/source identity;
+- replay drift means confirm the playbook contract before refreshing;
+- missing stable writeback metadata means fix receipt source or re-export;
+- harness behavior failures belong in tests, not committed catalog fixtures.
+
+### 5.7 Sensitive String Search Gate
+
+Run:
 
 ```bash
 rg "sk-|api[_-]?key|secret|password|token|@|Nora|raw" /tmp/governed-trace-fixture.json
 ```
 
-Adjust the search terms for the actual sensitive strings known in the source run.
+Adjust the terms for known sensitive strings in the source run. Any match must be explained as safe metadata or the candidate is rejected.
+
+### 5.8 Replacement Diff Gate
+
+After manual replacement and before commit, inspect:
+
+```bash
+git diff -- src/__tests__/fixtures/controlled-traces/
+```
+
+Pass only when the diff changes governed fixture metadata for the intended fixture and introduces no raw payloads, unrelated fixture edits, temporary files, or synthetic failure entries.
 
 ## 6. Replace Fixture Manually
 

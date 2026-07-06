@@ -29,7 +29,7 @@
 **Files:**
 - Modify: `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`
 
-- [ ] **Step 1: Replace the loose review section with a checklist introduction**
+- [x] **Step 1: Replace the loose review section with a checklist introduction**
 
 Replace the current `## 5. Review Candidate Fixture` body with:
 
@@ -41,7 +41,7 @@ Every check is a gate. If a candidate fails a gate, reject the candidate and fix
 Use [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md#6-failure-fixture-matrix) to classify validation failures, replay drift, summary diagnostics, and harness behavior.
 ```
 
-- [ ] **Step 2: Add source identity and redaction gates**
+- [x] **Step 2: Add source identity and redaction gates**
 
 Add:
 
@@ -77,7 +77,7 @@ Reject:
 - the maintainer would need to manually remove raw content from generated JSON.
 ```
 
-- [ ] **Step 3: Add playbook, approval, and writeback gates**
+- [x] **Step 3: Add playbook, approval, and writeback gates**
 
 Add:
 
@@ -125,7 +125,7 @@ Reject:
 - a candidate needs manual receipt edits to look stable.
 ```
 
-- [ ] **Step 4: Add command, diff, and sensitive search gates**
+- [x] **Step 4: Add command, diff, and sensitive search gates**
 
 Add:
 
@@ -175,7 +175,7 @@ Pass only when the diff changes governed fixture metadata for the intended fixtu
 - Modify: `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Update changelog**
+- [x] **Step 1: Update changelog**
 
 Add:
 
@@ -187,7 +187,7 @@ Add:
 - Cross-linked candidate failure triage to the replay contract failure fixture matrix.
 ```
 
-- [ ] **Step 2: Update next steps**
+- [x] **Step 2: Update next steps**
 
 Mark the checklist phase complete and set:
 
@@ -202,7 +202,7 @@ with scope:
 - Keep CI gate work documentation-first unless a missing script or package command is discovered.
 ```
 
-- [ ] **Step 3: Update development manual**
+- [x] **Step 3: Update development manual**
 
 Add Phase 10r progress:
 
@@ -216,7 +216,7 @@ Set next phase to:
 Phase 10s. Fixture Replay CI Gate Documentation
 ```
 
-- [ ] **Step 4: Update local memory**
+- [x] **Step 4: Update local memory**
 
 Append:
 
@@ -237,7 +237,7 @@ Do not stage `memory/2026-07-06.md`.
 - Verify docs and existing command gates.
 - Commit tracked documentation updates only.
 
-- [ ] **Step 1: Run fixture replay checks**
+- [x] **Step 1: Run fixture replay checks**
 
 Run:
 
@@ -253,7 +253,7 @@ trace:fixtures reports ok=true, total=2, passed=2, failed=0.
 trace:fixtures:summary prints Status: OK.
 ```
 
-- [ ] **Step 2: Run full regression gates**
+- [x] **Step 2: Run full regression gates**
 
 Run:
 
@@ -271,7 +271,7 @@ Expected:
 All commands exit 0. Lint/build may still show the existing <img> warning in src/__tests__/components/ShellUI.test.tsx.
 ```
 
-- [ ] **Step 3: Commit docs completion**
+- [x] **Step 3: Commit docs completion**
 
 Stage only:
 

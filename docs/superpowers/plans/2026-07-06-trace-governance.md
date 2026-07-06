@@ -1,6 +1,6 @@
 # Trace Governance Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Add a governed controlled-run trace artifact path that redacts sensitive free-form trace payloads while preserving audit and fixture metadata.
 
@@ -27,7 +27,7 @@
 - Create: `src/lib/executor/runtime/trace-governance.ts`
 - Create: `src/__tests__/lib/executor/runtime/trace-governance.test.ts`
 
-- [ ] **Step 1: Write the failing helper tests**
+- [x] **Step 1: Write the failing helper tests**
 
 Create `src/__tests__/lib/executor/runtime/trace-governance.test.ts` with tests that import `buildControlledTraceArtifact` from `@/lib/executor/runtime/trace-governance`.
 
@@ -70,7 +70,7 @@ expect(run.steps[0].input).toEqual({
 });
 ```
 
-- [ ] **Step 2: Run helper test to verify RED**
+- [x] **Step 2: Run helper test to verify RED**
 
 Run:
 
@@ -80,7 +80,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-governance.test.ts
 
 Expected: FAIL because `trace-governance.ts` does not exist.
 
-- [ ] **Step 3: Implement the helper**
+- [x] **Step 3: Implement the helper**
 
 Implement:
 
@@ -111,7 +111,7 @@ Rules:
 - Redact approval feedback, run error, step error, and audit event message through `redactSensitiveText` and clipping.
 - Return new objects only.
 
-- [ ] **Step 4: Run helper test to verify GREEN**
+- [x] **Step 4: Run helper test to verify GREEN**
 
 Run:
 
@@ -121,7 +121,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-governance.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/executor/runtime/trace-governance.ts src/__tests__/lib/executor/runtime/trace-governance.test.ts
@@ -136,7 +136,7 @@ git commit -m "feat: add governed trace artifact"
 - Create: `src/app/api/runtime/executor/controlled-runs/[runId]/trace-artifact/route.ts`
 - Create: `src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts`
 
-- [ ] **Step 1: Write the failing route tests**
+- [x] **Step 1: Write the failing route tests**
 
 Create a route test modeled after `src/__tests__/app/api/controlled-run-route.test.ts`.
 
@@ -147,7 +147,7 @@ Assertions:
 - artifact does not contain raw customer text or secrets from step input/output.
 - artifact keeps `id`, `playbookId`, `steps[0].stepId`, and writeback `assetId`.
 
-- [ ] **Step 2: Run route test to verify RED**
+- [x] **Step 2: Run route test to verify RED**
 
 Run:
 
@@ -157,7 +157,7 @@ npm test -- src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts
 
 Expected: FAIL because the route does not exist.
 
-- [ ] **Step 3: Implement the route**
+- [x] **Step 3: Implement the route**
 
 Create a GET handler that:
 
@@ -166,7 +166,7 @@ Create a GET handler that:
 - returns 404 if missing;
 - returns `buildControlledTraceArtifact(run)`.
 
-- [ ] **Step 4: Run route test to verify GREEN**
+- [x] **Step 4: Run route test to verify GREEN**
 
 Run:
 
@@ -176,7 +176,7 @@ npm test -- src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/api/runtime/executor/controlled-runs/[runId]/trace-artifact/route.ts src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts
@@ -195,7 +195,7 @@ git commit -m "feat: expose governed trace artifact"
 - Modify: `docs/superpowers/plans/2026-07-06-trace-governance.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Add tests to `test:controlled-runtime`**
+- [x] **Step 1: Add tests to `test:controlled-runtime`**
 
 Add:
 
@@ -206,7 +206,7 @@ src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts
 
 to the explicit `test:controlled-runtime` script.
 
-- [ ] **Step 2: Run targeted and full verification**
+- [x] **Step 2: Run targeted and full verification**
 
 Run:
 
@@ -221,7 +221,7 @@ git diff --check
 
 Expected: all commands exit 0. `lint` and `build` may still show the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 
-- [ ] **Step 3: Update docs and records**
+- [x] **Step 3: Update docs and records**
 
 Update docs to record:
 
@@ -230,7 +230,7 @@ Update docs to record:
 - raw controlled run store remains unchanged;
 - next Trace Governance work should add Runtime Console export action and retention policy.
 
-- [ ] **Step 4: Re-run final verification after docs**
+- [x] **Step 4: Re-run final verification after docs**
 
 Run:
 
@@ -244,7 +244,7 @@ git diff --check
 
 Expected: all commands exit 0 with only the known existing `<img>` warning if present.
 
-- [ ] **Step 5: Commit docs**
+- [x] **Step 5: Commit docs**
 
 ```bash
 git add package.json CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-trace-governance.md
@@ -258,3 +258,33 @@ git commit -m "docs: complete trace governance artifact slice"
 - Spec coverage: governed artifact, redaction policy, route boundary, tests, and docs all have tasks.
 - Placeholder scan: the plan contains no unresolved markers or vague implementation placeholders.
 - Type consistency: `ControlledTraceArtifact`, `buildControlledTraceArtifact`, `redactTraceValue`, and `trace-artifact` are used consistently.
+
+## Completion Record
+
+Commits:
+
+- `18db93f` — `docs: spec trace governance`
+- `5d0f085` — `docs: plan trace governance`
+- `dde6419` — `feat: add governed trace artifact`
+- `b081aec` — `feat: expose governed trace artifact`
+- `c0598be` — `test: include trace governance in controlled runtime`
+
+Verification before final docs:
+
+- `npm test -- src/__tests__/lib/executor/runtime/trace-governance.test.ts src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts` — 2 files / 4 tests passed.
+- `npm run test:controlled-runtime` — 23 files / 132 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+
+Final verification after docs:
+
+- `npm run test:controlled-runtime` — 23 files / 132 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
+
+Next phase:
+
+- `Trace Governance Console Export And Retention`.

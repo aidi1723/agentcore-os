@@ -340,16 +340,18 @@ type ControlledPlaybookStep = {
 - Phase 7e workflow/draft deep links：Runtime Console 的 landing panel 已覆盖 `workflow_run` 和 `draft` receipt。workflow run landing 会打开 Industry Hub 并定位对应 workflow run / scenario；draft landing 会打开 Publisher 并带入 `draftId`、`workflowRunId`、scenario 和下一步处理上下文。
 - Phase 8 support playbook migration：`support-resolution-v1` 已成为第二条 controlled playbook。它复用现有 resolver / validator / approval gate / writeback / Runtime Console summary，固定执行 intake、classify、draft_reply、human_review、writeback，并能写回 support asset、draft、workflow run 和 support FAQ knowledge asset。
 - Phase 9 support record focus：Runtime Console 的 support asset landing 已传递 `assetId` / `sourceKey` / `workflowRunId`；Support Copilot 会把 exact support asset prefill 当作 record-focus 请求，定位关联的现有 support ticket。prefill 早于 support asset / ticket store hydration 时会保留 pending focus 并在同步后重试；仍缺失时提示错误，不创建 synthetic support ticket。旧 broad support prefill 继续创建新工单。
+- Phase 10 trace governance artifact slice：已新增 governed trace artifact builder 和本地 `trace-artifact` route。它保留 run/playbook/step/approval/writeback/audit 的结构化元数据，同时脱敏 step input/output、tool output、approval feedback、audit message、run/step error、plan goal 和 step description。原始 controlled run store 和 Runtime Console 操作路径保持不变。
 
 仍未完成：
 
-- Trace governance 还没有明确 retention、redaction、export 和 replay 规则。
+- Runtime Console 还没有 governed trace artifact 的导出 / 复制入口。
+- Raw controlled run trace retention 和清理策略还没有落地。
 
 因此下一阶段默认进入：
 
-**Phase 10. Trace Governance**
+**Phase 10b. Trace Governance Console Export And Retention**
 
-目标是把 controlled run trace 从“可查看的调试历史”升级为“可治理的产品资产”，明确 retention、redaction、export、replay 和 fixture 生成规则。
+目标是在已经有安全 artifact 边界的基础上，把 governed trace artifact 暴露给 Runtime Console 操作，并补齐 raw trace retention / cleanup 规则。
 
 ### Phase 0. 冻结方向
 
@@ -610,20 +612,48 @@ type ControlledPlaybookStep = {
 - 明确 controlled run trace 的保留、脱敏、导出、回放和 fixture 生成规则。
 - 把 Runtime Console 中已经可见的 trace 升级为可审计、可分享、可测试复现的产品能力。
 
-建议范围：
+已完成范围：
 
-- 定义 step input/output、approval decision、writeback receipt、audit event 的敏感字段分类。
-- 增加 trace redaction helper，并在导出 / fixture 生成入口使用。
+- 定义并实现 governed trace artifact helper：`src/lib/executor/runtime/trace-governance.ts`。
+- 新增本地安全 route：`GET /api/runtime/executor/controlled-runs/[runId]/trace-artifact`。
+- 默认脱敏 step input/output、tool output、approval feedback、audit message、run/step error、plan goal 和 step description。
+- 保留结构化审计字段：run id、playbook id、scenario/workflow id、step state/timing、approval state/timing、schema status、writeback asset/source/workflow metadata、audit event actor/type/timing。
+- 把 governance helper 和 route 测试加入 `test:controlled-runtime`。
+- 保持原始 controlled run store 和 Runtime Console 操作路径不变。
+
+仍待完成：
+
+- Runtime Console 中展示 trace governance 状态或导出入口。
 - 定义 trace retention 策略和手动清理路径。
 - 支持从 selected controlled run 生成脱敏测试 fixture。
-- 在 Runtime Console 中展示 trace governance 状态或导出入口。
 
 完成标准：
 
-- Trace redaction 有单元测试覆盖。
-- Runtime Console 不会导出未脱敏敏感字段。
-- 关键 controlled run 可以生成可复现 fixture。
-- 手册中明确哪些 trace 字段允许长期保留，哪些必须脱敏或清理。
+- Trace redaction 有单元测试覆盖。已完成。
+- Local trace artifact route 不导出未脱敏 step payload。已完成。
+- Runtime Console 不会导出未脱敏敏感字段。待导出入口实现。
+- 关键 controlled run 可以生成可复现 fixture。待 fixture 生成入口实现。
+- 手册中明确哪些 trace 字段允许长期保留，哪些必须脱敏或清理。待 retention 规则实现。
+
+### Phase 10b. Trace Governance Console Export And Retention
+
+目标：
+
+- 让 Runtime Console 可以获取 governed trace artifact。
+- 明确 raw controlled run trace 的 retention / cleanup 规则。
+
+建议范围：
+
+- Runtime Console selected run 增加 governed artifact preview/copy/download。
+- Trace artifact route 支持 fixture-oriented filename / metadata。
+- Store 层增加 retention policy 文档和手动 prune helper。
+- 增加 retention / prune 测试，确保不会删除 non-terminal runs。
+
+完成标准：
+
+- 操作者可以从 Runtime Console 获取 governed trace artifact。
+- Raw trace 清理不会影响 running / awaiting approval runs。
+- governed artifact 可作为未来回归 fixture 的输入。
 
 ## 9. 开发规范
 
@@ -728,12 +758,12 @@ npm run test:core-workflows
 
 `test:controlled-runtime` 是第一阶段的最小门禁，覆盖 sales playbook、plan validator、显式 controlled plan 执行和 workflow runner 请求收口。
 
-截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 21 个测试文件、127 个测试，包括：
+截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 23 个测试文件、132 个测试，包括：
 
 - sales/support playbook / validator / schema / step input。
 - controlled run store、approval store、controlled execution、step executor、workflow bridge。
 - durable resume、failed-step retry runtime、retry route、controlled run list / detail route。
-- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback 和 idempotency。
+- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route 和 idempotency。
 
 ### 10.3 手工验收场景
 

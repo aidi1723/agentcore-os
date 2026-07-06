@@ -53,6 +53,7 @@ Completed in the current controlled runtime line:
 - `support-resolution-v1` fixed playbook for `support-ops`.
 - Server-backed support asset writeback and support FAQ knowledge writeback.
 - Runtime Console support asset landing summaries, search, and open action.
+- Governed trace artifact builder and local trace artifact route.
 
 Current verification baseline:
 
@@ -65,9 +66,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 21 test files.
-- 127 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, and support asset writeback coverage.
+- 23 test files.
+- 132 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, and the local trace artifact route.
 
 Known current lint/build note:
 
@@ -277,31 +278,55 @@ Outcome:
 - A support controlled run's support asset landing now opens Support Copilot on the retained support asset's existing ticket.
 - Missing exact support records fail visibly instead of duplicating local support records.
 
-## P0. Trace Governance
+## Completed. Trace Governance Artifact Slice
 
-Why:
+Delivered:
 
-- Trace is now a product capability, not a debug log.
-- As more workflows enter controlled runtime, trace retention, redaction, export, and replay need explicit rules.
-
-Scope:
-
-- Define trace redaction rules.
-- Define retention and export boundaries.
-- Add trace-to-test fixture generation for selected runs.
-- Add sensitive field classification for step input/output.
+- Added `src/lib/executor/runtime/trace-governance.ts`.
+- Added a governed controlled-run trace artifact shape for fixture/export use.
+- Redacted raw step input, step output, tool outputs, run errors, step errors, approval feedback, audit messages, plan goal, and step descriptions.
+- Preserved operational metadata: run ids, playbook ids, scenario/workflow ids, step ids/states/timings, schema status, approval state/timing, writeback target metadata, and audit event type/actor/timing.
+- Added local-only `GET /api/runtime/executor/controlled-runs/[runId]/trace-artifact`.
+- Left the existing durable controlled run store and Runtime Console list route unchanged.
+- Added governance helper and route tests to `test:controlled-runtime`.
 
 Primary files:
 
-- `src/lib/executor/runtime/types.ts`
-- `src/lib/server/controlled-execution-store.ts`
-- `src/lib/executor/runtime/trace-redaction.ts`
+- `src/lib/executor/runtime/trace-governance.ts`
+- `src/app/api/runtime/executor/controlled-runs/[runId]/trace-artifact/route.ts`
+- `src/__tests__/lib/executor/runtime/trace-governance.test.ts`
+- `src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts`
+- `package.json`
+
+Outcome:
+
+- Controlled run trace now has a safe artifact boundary for future export and fixture generation.
+- Runtime Console operations continue to use the full local run record without losing resume/retry behavior.
+
+## P0. Trace Governance Console Export And Retention
+
+Why:
+
+- The safe artifact boundary exists, but operators still need a Runtime Console action to inspect/export it.
+- Retention and cleanup rules are still not codified.
+
+Scope:
+
+- Add a Runtime Console action for governed trace artifact preview/copy/download.
+- Define retention policy for raw controlled run records.
+- Add cleanup / pruning path for old traces.
+- Add trace-to-test fixture generation from governed artifacts.
+
+Primary files:
+
+- `src/lib/executor/runtime/trace-governance.ts`
 - `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
+- `src/lib/server/controlled-execution-store.ts`
 - `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
 
 Expected outcome:
 
-- Trace can support audit, debugging, and regression testing without leaking unnecessary sensitive data.
+- Operators can export governed trace artifacts and the runtime has explicit raw trace retention rules.
 
 ## Maintenance Rules
 

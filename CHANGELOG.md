@@ -127,6 +127,13 @@
 - Added pending hydration retry for support asset focus and a visible missing-record error that does not create synthetic support tickets.
 - Added unit and resume integration coverage for approved writeback, unapproved skips, workflow/draft writes, idempotency, and final resume-driven asset creation.
 
+### Trace Governance
+
+- Added a governed controlled-run trace artifact builder that preserves audit metadata while redacting run errors, step input/output, tool outputs, approval feedback, audit messages, and free-form plan text.
+- Added `GET /api/runtime/executor/controlled-runs/[runId]/trace-artifact` as a local-only route for export-safe trace artifacts.
+- Kept the existing durable controlled run store and Runtime Console operational route unchanged.
+- Expanded controlled runtime coverage to include trace governance redaction and the trace artifact route.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.
@@ -205,10 +212,12 @@
 - Verified `npm test -- src/__tests__/components/IndustryHubAppWindow.test.tsx` — 1 test passing.
 - Verified `npm test -- src/__tests__/components/DealDeskAppWindow.test.tsx` — 2 tests passing.
 - Verified `npm test -- src/__tests__/components/KnowledgeVaultAppWindow.test.tsx` — 2 tests passing.
-- Verified `npm run test:controlled-runtime` — 21 files, 127 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/runtime/trace-governance.test.ts src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts` — 2 files, 4 tests passing.
+- Verified `npm run test:controlled-runtime` — 23 files, 132 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.
 - Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - Verified `npm run build` — exit 0 with the same existing `<img>` warning.
+- Verified `git diff --check` — exit 0.
 
 ### Security And Executor Hardening
 

@@ -78,7 +78,7 @@ Short scalar values used as ids remain visible when they are already in typed sa
 Always keep:
 
 - run: `id`, `requestId`, `sessionId`, `workflowRunId`, `scenarioId`, `playbookId`, `playbookVersion`, `planId`, `state`, `currentStepId`, `createdAt`, `updatedAt`, `finishedAt`.
-- plan: `id`, `goal`, `totalSteps`, `requiresApproval`, step `id`, `title`, `description`, `dependsOn`, `mode`, `writesTo`, `onFailure`.
+- plan: `id`, `totalSteps`, `requiresApproval`, step `id`, `title`, `dependsOn`, `mode`, `writesTo`, `onFailure`; `goal` and step `description` are redacted because they are free-form text and may contain customer context.
 - step: `stepId`, `state`, `startedAt`, `finishedAt`, `attempts`.
 - approval: `executionId`, `stepId`, `state`, `requestedAt`, `resolvedAt`, `approver`.
 - schema validation: `valid`, `errors`, `checkedAt`, with error text passed through text redaction and clipping.

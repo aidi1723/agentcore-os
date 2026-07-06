@@ -107,11 +107,13 @@ Do not add the temporary artifact file to git.
 Run:
 
 ```bash
+npm run trace:fixtures:summary --silent
 npm run trace:fixtures --silent
 ```
 
 Expected:
 
+- summary status is `OK`;
 - `ok: true`;
 - `failed: 0`;
 - `guarantees.toolCallsExecuted: false`;

@@ -147,6 +147,14 @@ Check current committed fixture catalog:
 npm run trace:fixtures --silent
 ```
 
+For local human triage, use the readable summary first:
+
+```bash
+npm run trace:fixtures:summary --silent
+```
+
+`trace:fixtures` remains the machine-readable JSON command for CI and scripted checks. `trace:fixtures:summary` is only a local interpretation layer over the same catalog report.
+
 When it fails, inspect:
 
 - `failedItems[].validationErrors`;

@@ -214,6 +214,11 @@
 - Added `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md` as the Governed Trace Fixture Replay Contract guide covering invariant checks, diagnostics, failure triage, and maintainer commands for fixture refresh review.
 - Linked the contract guide from the governed fixture refresh workflow and documentation index.
 
+### Fixture Replay Error Summary CLI
+
+- Added `npm run trace:fixtures:summary` as a human-readable governed fixture replay summary command while keeping `npm run trace:fixtures` as stable JSON.
+- Added synthetic failure coverage for summary diagnostics without making committed governed fixtures fail.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

@@ -511,7 +511,7 @@ Outcome:
 - Maintainers can interpret `failedItems[].replayErrors` and `failedItems[].diagnostics` without reading replay source.
 - The fixture refresh workflow now has a clear decision point before replacing committed fixtures.
 
-## Recommended Next. Fixture Replay Error Summary CLI
+## Completed. Fixture Replay Error Summary CLI
 
 Why:
 
@@ -519,11 +519,38 @@ Why:
 - Maintainers now have the contract guide, but a concise human-readable local failure summary would reduce triage friction.
 - This should stay separate from the JSON command so CI integrations remain stable.
 
+Delivered:
+
+- Added `npm run trace:fixtures:summary` as a human-readable governed fixture replay summary command.
+- Kept `npm run trace:fixtures` as the stable machine-readable JSON command.
+- Added a formatter for aggregate counts, catalog ids, playbook ids, no-side-effect guarantees, replay errors, validation errors, and high-signal diagnostics.
+- Added synthetic failure coverage so summary diagnostics render without making committed fixtures fail.
+- Included the summary command coverage in `test:controlled-runtime`.
+
+Primary files:
+
+- `scripts/trace-fixtures/catalog-summary.mjs`
+- `src/__tests__/fixtures/controlled-traces/catalog-summary.ts`
+- `src/__tests__/scripts/trace-fixture-catalog-summary-script.test.ts`
+
+Outcome:
+
+- Maintainers can run one local command to see replay health in readable text.
+- CI and automation can continue consuming the original JSON summary.
+
+## Recommended Next. Fixture Replay Failure Fixture Tests
+
+Why:
+
+- The summary formatter now has one synthetic failure test.
+- More reusable synthetic failure fixtures would make future report/summary tests easier to extend.
+- These fixtures should remain separate from committed governed fixtures so catalog health stays green.
+
 Suggested scope:
 
-- Keep `trace:fixtures` as the machine-readable JSON command.
-- Add a separate local command that prints a human-readable failure summary from the same catalog report.
-- Do not discover fixtures automatically, refresh fixtures, call routes, replay tools, mutate stores, or write assets.
+- Add reusable synthetic failure fixtures for summary/report tests.
+- Keep committed governed fixtures green.
+- Avoid automatic fixture discovery, refresh, route calls, tool replay, store mutation, and asset writes.
 
 ## Completed. Support Runtime Console Record Focus
 

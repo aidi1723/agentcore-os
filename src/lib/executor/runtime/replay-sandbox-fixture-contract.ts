@@ -22,7 +22,13 @@ type BuildReplaySandboxContractFromFixtureOptions = {
   sandboxId?: string;
 };
 
-function deriveApprovalDecisions(fixture: ControlledTraceFixture) {
+type ReplayApprovalDecision = NonNullable<
+  ReplaySandboxContract["approvalPolicy"]["simulatedDecisions"]
+>[number];
+
+function deriveApprovalDecisions(
+  fixture: ControlledTraceFixture,
+): ReplayApprovalDecision[] {
   return fixture.steps.flatMap((step) => {
     if (step.approvalState === "approved" || step.approvalState === "rejected") {
       return [
@@ -47,7 +53,7 @@ function validateFixtureContractInput(fixture: ControlledTraceFixture) {
   if (typeof fixture.generatedAt !== "number") {
     errors.push("Fixture generatedAt must be a number");
   }
-  if (fixture.governance.mode !== "fixture" && fixture.governance.mode !== "audit") {
+  if (fixture.governance.mode !== "fixture" && fixture.governance.mode !== "export") {
     errors.push(`Fixture governance mode ${fixture.governance.mode} is not allowed`);
   }
   if (fixture.assertions.redactionBoundary !== "required") {

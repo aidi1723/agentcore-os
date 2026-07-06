@@ -1,3 +1,5 @@
+import type { ControlledTraceGovernanceMode } from "@/lib/executor/runtime/trace-governance";
+
 export type ReplayInputKind =
   | "governed_artifact"
   | "committed_fixture"
@@ -66,7 +68,7 @@ export type ReplaySandboxContract = {
     playbookVersion: string;
     scenarioId: string;
     generatedAt: number;
-    governanceMode: "fixture" | "audit";
+    governanceMode: ControlledTraceGovernanceMode;
     redactionBoundary: "required";
   };
   credentialPolicy: {

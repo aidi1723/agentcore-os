@@ -83,6 +83,17 @@ describe("replay sandbox fixture contract bridge", () => {
     }
   });
 
+  it("preserves export governance mode when bridging a governed fixture", () => {
+    const fixture = structuredClone(controlledTraceFixtureCatalog[0].fixture);
+    fixture.governance.mode = "export";
+
+    const result = buildReplaySandboxContractFromFixture(fixture);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.errors.join("; "));
+    expect(result.contract.input.governanceMode).toBe("export");
+  });
+
   it("rejects broken fixture provenance and redaction boundaries", () => {
     const fixture = structuredClone(controlledTraceFixtureCatalog[0].fixture);
     fixture.sourceRunId = "";

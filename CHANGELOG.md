@@ -104,6 +104,12 @@
 
 ## Unreleased
 
+### Project Direction Documentation Alignment
+
+- Aligned README, project framework, roadmap, architecture, documentation index, and next-stage backlog around the current Controlled Skill / Playbook Runtime branch.
+- Recorded the completed baseline through governed trace operational runbook work and kept Phase 10v Real Replay Boundary Design as the next default task.
+- Re-stated direction guardrails against generic OS shell expansion, generic skill marketplace work, and open-ended agent orchestration before controlled replay boundaries are designed.
+
 ### Controlled Playbook Runtime
 
 - Added the `sales-pipeline-v1` controlled playbook path with fixed step order, playbook validation, durable controlled run records, persistent approval records, and resume routing.

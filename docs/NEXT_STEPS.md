@@ -745,6 +745,24 @@ Outcome:
 - Governed trace operations now have one entry point.
 - Future real replay work is clearly separated from current no-side-effect metadata replay.
 
+## Completed. Project Direction Documentation Alignment
+
+Why:
+
+- Main entry docs still mixed early controlled-runtime gaps with the current governed trace baseline.
+- Future sessions needed one consistent direction guardrail before starting real replay design.
+
+Delivered:
+
+- README, Project Framework, Roadmap, Architecture, Documentation Index, Next Steps, and Changelog now point to the same controlled runtime branch.
+- Completed baseline is stated through Phase 10u.
+- Next default phase remains Phase 10v Real Replay Boundary Design.
+- Generic OS shell expansion, generic skill marketplace work, and open-ended agent orchestration remain deprioritized until replay boundaries are designed.
+
+Outcome:
+
+- Maintainers can start from any major entry doc without drifting away from the controlled Playbook Runtime path.
+
 ## Recommended Next. Real Replay Boundary Design
 
 Suggested scope:

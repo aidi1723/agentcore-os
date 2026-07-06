@@ -33,6 +33,8 @@ AgentCore OS 后续不再优先朝“完整 AI OS 大壳”扩展，也不再投
 
 如果答案是否定的，默认不做。
 
+Runtime UI 的优化也遵守同一条规则。当前阶段只优化 Home / Runtime Console 的交付可读性、审批可见性、恢复状态和 governed trace / asset landing 表达；不做全量换皮，不重启桌面壳方向。
+
 ### 2.2 Playbook 是权威步骤来源
 
 LLM 可以生成建议、草稿和结构化内容，但不能成为默认流程主控。
@@ -382,18 +384,20 @@ type ControlledPlaybookStep = {
 - Phase 10ab replay sandbox catalog CI summary：已新增 `npm run replay:sandbox:fixtures`、`scripts/trace-fixtures/replay-sandbox-catalog-report.mjs` 和 test-only failure harness。命令输出 compact JSON，并在 report 不通过时以非零退出。该阶段仍不执行 LLM replay、tool execution、route calls、runtime store reads/writes、fixture JSON mutation 或 business asset writes。
 - Phase 10ac replay sandbox failure diagnostics hardening：已为 replay sandbox catalog report 增加 `contract_build_failed`、`sandbox_artifact_failed` 和 `guarantee_violation` taxonomy，并在 compact failed JSON 中输出 `failureKind` 和 `guaranteeErrors`。该阶段通过 synthetic/test-only failures 覆盖 contract build、sandbox artifact 和 no-side-effect guarantee violation，committed fixture catalog 继续保持全绿。
 - Phase 10ad replay sandbox failure harness expansion：已为 `scripts/trace-fixtures/replay-sandbox-failure-harness.mjs` 增加 `contract`、`sandbox` 和 `guarantee` direct modes。每个 supported mode 都输出 parseable compact JSON 并以 `1` 退出；unknown mode 以 `2` fail closed 且不输出 report JSON。committed `replay:sandbox:fixtures` 继续保持全绿。
+- Runtime UI Delivery Polish：已新增 Runtime Console 交付 handoff 摘要，可一眼查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。该阶段只改善交付可读性，没有改变 runtime 行为、app shell 架构、审批语义、写回语义或 trace governance。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- 尚未做 governed fixture / playbook expansion review 来判断是否应该新增 fixture JSON、迁移新 playbook，或先强化 retention / maintenance。
-- 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes，下一步只能做 governed fixture / playbook expansion review。
+- governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
+- 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
+- Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
 
 因此下一阶段默认进入：
 
-**Phase 10ae. Governed Fixture And Playbook Expansion Review**
+**Trace Operations Hardening**
 
-目标是审查当前 sales/support governed fixtures 是否足够，判断下一步应该新增 fixture coverage、迁移新 controlled playbook，还是继续强化 operational retention / maintenance。该阶段仍不恢复 raw governed artifact payload、不直接修改 committed fixture JSON、不执行真实工具、不调用 route、不读写 runtime store、不写资产。
+目标是继续强化 governed trace / fixture / retention 的维护路径。该阶段仍不恢复 raw governed artifact payload、不直接修改 committed fixture JSON、不执行真实工具、不调用 route、不读写 runtime store、不写资产。
 
 ### Phase 0. 冻结方向
 

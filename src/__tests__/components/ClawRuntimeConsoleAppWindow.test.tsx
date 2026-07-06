@@ -290,6 +290,42 @@ function buildCompletedRunWithLegacySalesLanding(): ControlledExecutionRunRecord
 }
 
 describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
+  it("renders a delivery handoff summary for recent controlled runs", async () => {
+    const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
+      const href = String(url);
+      if (href.endsWith("/api/runtime/executor/controlled-runs")) {
+        return Response.json({
+          ok: true,
+          data: {
+            runs: [buildCompletedRunWithAssetLandings(), buildRetryableFailedRun()],
+          },
+        });
+      }
+      if (href.endsWith("/api/runtime/executor/sessions")) {
+        return Response.json({ ok: true, data: { sessions: [] } });
+      }
+      return Response.json({ ok: true, data: {} });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ClawRuntimeConsoleAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText("Delivery handoff")).toBeInTheDocument();
+    expect(screen.getByText("Action required")).toBeInTheDocument();
+    expect(screen.getByText("Retryable failures")).toBeInTheDocument();
+    expect(screen.getAllByText("Asset landings").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Governed trace").length).toBeGreaterThan(0);
+  });
+
   it("posts retry requests for eligible failed controlled runs", async () => {
     const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
       const href = String(url);

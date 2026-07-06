@@ -26,6 +26,7 @@ import {
   getRuntimeBridgeConfig,
 } from "@/lib/desktop-runtime";
 import {
+  buildControlledRunDeliverySummary,
   buildControlledRunConsoleSummary,
   filterControlledRunConsoleSummaries,
   type ControlledRunAssetLandingSummary,
@@ -103,6 +104,13 @@ function runStateClassName(state: string) {
 function runStateLabel(state: string) {
   if (state === "awaiting_approval") return "Awaiting";
   return state.replace(/_/g, " ");
+}
+
+function deliveryStatusClassName(tone: "neutral" | "success" | "warning" | "danger") {
+  if (tone === "success") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (tone === "danger") return "border-rose-200 bg-rose-50 text-rose-700";
+  if (tone === "warning") return "border-amber-200 bg-amber-50 text-amber-700";
+  return "border-gray-200 bg-gray-50 text-gray-700";
 }
 
 function safeUrl(base: string, path: string) {
@@ -605,6 +613,10 @@ export function ClawRuntimeConsoleAppWindow({
     () => controlledRuns.map(buildControlledRunConsoleSummary),
     [controlledRuns],
   );
+  const controlledRunDeliverySummary = useMemo(
+    () => buildControlledRunDeliverySummary(controlledRunSummaries),
+    [controlledRunSummaries],
+  );
   const filteredControlledRunSummaries = useMemo(
     () =>
       filterControlledRunConsoleSummaries(controlledRunSummaries, {
@@ -974,6 +986,65 @@ export function ClawRuntimeConsoleAppWindow({
               {controlledRunsError}
             </div>
           ) : null}
+
+          <div className="mt-4 rounded-2xl border border-gray-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-4 py-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                  Delivery handoff
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <div
+                    className={[
+                      "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold",
+                      deliveryStatusClassName(controlledRunDeliverySummary.statusTone),
+                    ].join(" ")}
+                  >
+                    {controlledRunDeliverySummary.statusLabel}
+                  </div>
+                  <div className="text-xs leading-5 text-gray-500">
+                    {controlledRunDeliverySummary.detail}
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 lg:min-w-[520px]">
+                {[
+                  {
+                    label: "Recent runs",
+                    value: controlledRunDeliverySummary.totalRuns,
+                  },
+                  {
+                    label: "Pending approvals",
+                    value: controlledRunDeliverySummary.pendingApprovalRuns,
+                  },
+                  {
+                    label: "Retryable failures",
+                    value: controlledRunDeliverySummary.retryableFailedRuns,
+                  },
+                  {
+                    label: "Asset landings",
+                    value: controlledRunDeliverySummary.successfulAssetLandings,
+                  },
+                  {
+                    label: "Governed trace",
+                    value: controlledRunDeliverySummary.governedTraceCandidates,
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-xl border border-gray-200 bg-white px-3 py-2"
+                  >
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                      {item.label}
+                    </div>
+                    <div className="mt-1 text-base font-semibold text-gray-900">
+                      {item.value}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap gap-2">

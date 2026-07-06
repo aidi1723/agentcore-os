@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildControlledRunDeliverySummary,
   buildControlledRunConsoleSummary,
   filterControlledRunConsoleSummaries,
 } from "@/lib/executor/runtime/console-summary";
@@ -398,5 +399,56 @@ describe("buildControlledRunConsoleSummary", () => {
         query: "Support asset",
       }).map((summary) => summary.id),
     ).toEqual(["run-console-1"]);
+  });
+
+  it("summarizes delivery handoff state across recent controlled runs", () => {
+    const completed = buildControlledRunConsoleSummary(makeRun());
+
+    const awaitingRun = makeRun();
+    awaitingRun.id = "run-awaiting-delivery";
+    awaitingRun.state = "awaiting_approval";
+    awaitingRun.currentStepId = "human_review";
+    awaitingRun.steps[1] = {
+      ...awaitingRun.steps[1],
+      state: "awaiting_approval",
+      approval: {
+        executionId: "run-awaiting-delivery",
+        stepId: "human_review",
+        state: "pending",
+        requestedAt: 220,
+      },
+    };
+    const awaiting = buildControlledRunConsoleSummary(awaitingRun);
+
+    const retryableRun = makeRun();
+    retryableRun.id = "run-retryable-delivery";
+    retryableRun.state = "failed";
+    retryableRun.currentStepId = "intake";
+    retryableRun.plan.steps[0] = {
+      ...retryableRun.plan.steps[0],
+      onFailure: { action: "retry", maxRetries: 1 },
+    };
+    retryableRun.steps[0] = {
+      ...retryableRun.steps[0],
+      state: "failed",
+      error: "temporary failure",
+    };
+    const retryable = buildControlledRunConsoleSummary(retryableRun);
+
+    const delivery = buildControlledRunDeliverySummary([
+      completed,
+      awaiting,
+      retryable,
+    ]);
+
+    expect(delivery.totalRuns).toBe(3);
+    expect(delivery.completedRuns).toBe(1);
+    expect(delivery.pendingApprovalRuns).toBe(1);
+    expect(delivery.retryableFailedRuns).toBe(1);
+    expect(delivery.successfulAssetLandings).toBe(15);
+    expect(delivery.governedTraceCandidates).toBe(1);
+    expect(delivery.statusLabel).toBe("Action required");
+    expect(delivery.detail).toContain("approval");
+    expect(delivery.detail).toContain("retry");
   });
 });

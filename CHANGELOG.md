@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Runtime UI Delivery Polish
+
+- Added `buildControlledRunDeliverySummary()` to summarize recent controlled runs for delivery handoff.
+- Runtime Console now shows a compact `Delivery handoff` band above controlled run filters with recent run count, pending approvals, retryable failures, asset landings, governed trace candidates, and an action/evidence status label.
+- Kept the slice scoped to Runtime Console delivery readability; no broad desktop shell redesign, app routing change, runtime behavior change, approval semantic change, writeback change, or trace governance change.
+- Added helper and component regression coverage for the new handoff summary.
+
 ### Delivery Demo Smoke Path
 
 - Added deterministic local delivery demo data for completed, awaiting approval, and retryable failed controlled runs.

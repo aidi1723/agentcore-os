@@ -77,6 +77,7 @@ Completed in the current controlled runtime line:
 - Delivery Demo Smoke Path: local deterministic seed/check scripts now provide completed, awaiting approval, and retryable failed demo runs plus sales / knowledge / workflow / draft / support asset records for Runtime Console handoff.
 - Browser Evidence And Release Readiness Sweep: Playwright smoke verified Home -> Runtime Console -> `delivery-demo-run-completed` -> five asset landings -> governed trace copy with 0 browser console errors.
 - Post-Delivery Fixture And Playbook Expansion Review: every registered controlled playbook now has a committed governed fixture coverage assertion; no new fixture JSON or playbook migration is needed immediately after delivery smoke.
+- Runtime UI Delivery Polish: Runtime Console now has a compact delivery handoff summary for recent runs, pending approvals, retryable failures, asset landings, and governed trace candidates without changing runtime behavior.
 
 Current verification baseline:
 
@@ -101,6 +102,26 @@ Current `test:controlled-runtime` coverage:
 Known current lint/build note:
 
 - existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+
+## Completed. Runtime UI Delivery Polish
+
+Why:
+
+- The project should not restart a broad UI redesign, but Runtime Console needed a clearer delivery handoff surface after the local demo path became ready.
+- Operators should be able to understand whether recent controlled runs are ready for handoff, blocked on approval, retryable, or backed by asset/governed trace evidence before inspecting each selected run.
+
+Delivered:
+
+- Added `buildControlledRunDeliverySummary()` in `src/lib/executor/runtime/console-summary.ts`.
+- Added Runtime Console `Delivery handoff` summary band above controlled run filters.
+- Summary covers recent runs, pending approvals, retryable failures, successful asset landings, and completed runs that can produce governed trace artifacts.
+- Preserved all existing run list, search, state filters, approval, resume, retry, asset landing, and governed trace copy behavior.
+- Added helper and component tests.
+
+Outcome:
+
+- UI work is now aligned with the controlled runtime delivery path instead of restarting app-shell redesign.
+- The next default phase remains Trace Operations Hardening unless browser evidence finds a UI blocker.
 
 ## Completed. Delivery Demo Smoke Path
 

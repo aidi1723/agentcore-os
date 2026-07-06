@@ -66,6 +66,18 @@ export type ControlledRunConsoleFilters = {
   query: string;
 };
 
+export type ControlledRunDeliverySummary = {
+  totalRuns: number;
+  completedRuns: number;
+  pendingApprovalRuns: number;
+  retryableFailedRuns: number;
+  successfulAssetLandings: number;
+  governedTraceCandidates: number;
+  statusLabel: string;
+  statusTone: "neutral" | "success" | "warning" | "danger";
+  detail: string;
+};
+
 const LANDING_LABELS: Record<string, string> = {
   workflow_run: "Workflow run",
   draft: "Draft",
@@ -239,4 +251,88 @@ export function filterControlledRunConsoleSummaries(
       .filter((value): value is string => typeof value === "string")
       .some((value) => value.toLowerCase().includes(query));
   });
+}
+
+export function buildControlledRunDeliverySummary(
+  summaries: ControlledRunConsoleSummary[],
+): ControlledRunDeliverySummary {
+  const totalRuns = summaries.length;
+  const completedRuns = summaries.filter((summary) => summary.state === "completed").length;
+  const pendingApprovalRuns = summaries.filter((summary) => summary.canApprove).length;
+  const retryableFailedRuns = summaries.filter((summary) => summary.canRetry).length;
+  const successfulAssetLandings = summaries.reduce(
+    (count, summary) => count + summary.assetLandings.filter((asset) => asset.ok).length,
+    0,
+  );
+  const governedTraceCandidates = summaries.filter(
+    (summary) => summary.state === "completed",
+  ).length;
+
+  if (totalRuns === 0) {
+    return {
+      totalRuns,
+      completedRuns,
+      pendingApprovalRuns,
+      retryableFailedRuns,
+      successfulAssetLandings,
+      governedTraceCandidates,
+      statusLabel: "No runs",
+      statusTone: "neutral",
+      detail: "No recent controlled runs are available for delivery handoff.",
+    };
+  }
+
+  if (pendingApprovalRuns > 0 || retryableFailedRuns > 0) {
+    return {
+      totalRuns,
+      completedRuns,
+      pendingApprovalRuns,
+      retryableFailedRuns,
+      successfulAssetLandings,
+      governedTraceCandidates,
+      statusLabel: "Action required",
+      statusTone: retryableFailedRuns > 0 ? "danger" : "warning",
+      detail: `${pendingApprovalRuns} approval run(s), ${retryableFailedRuns} retryable failure(s), ${successfulAssetLandings} successful asset landing(s).`,
+    };
+  }
+
+  if (completedRuns > 0 && successfulAssetLandings > 0) {
+    return {
+      totalRuns,
+      completedRuns,
+      pendingApprovalRuns,
+      retryableFailedRuns,
+      successfulAssetLandings,
+      governedTraceCandidates,
+      statusLabel: "Delivery evidence ready",
+      statusTone: "success",
+      detail: `${completedRuns} completed run(s) with ${successfulAssetLandings} successful asset landing(s) and governed trace copy available.`,
+    };
+  }
+
+  if (completedRuns > 0) {
+    return {
+      totalRuns,
+      completedRuns,
+      pendingApprovalRuns,
+      retryableFailedRuns,
+      successfulAssetLandings,
+      governedTraceCandidates,
+      statusLabel: "Trace ready",
+      statusTone: "success",
+      detail: `${completedRuns} completed run(s) can produce governed trace artifacts, but no asset landing evidence is present.`,
+    };
+  }
+
+  return {
+    totalRuns,
+    completedRuns,
+    pendingApprovalRuns,
+    retryableFailedRuns,
+    successfulAssetLandings,
+    governedTraceCandidates,
+    statusLabel: "In progress",
+    statusTone: "warning",
+    detail: "Recent controlled runs are present, but no completed delivery evidence is ready yet.",
+  };
 }

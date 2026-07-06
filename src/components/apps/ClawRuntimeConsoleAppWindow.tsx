@@ -38,7 +38,9 @@ import { addRuntimeEventListener, RuntimeEventNames } from "@/lib/runtime-events
 import { loadSettings, type AppSettings, type InterfaceLanguage } from "@/lib/settings";
 import {
   requestOpenDealDesk,
+  requestOpenIndustryHub,
   requestOpenKnowledgeVault,
+  requestOpenPublisher,
   requestOpenSettings,
 } from "@/lib/ui-events";
 
@@ -507,6 +509,32 @@ export function ClawRuntimeConsoleAppWindow({
         query: asset.assetId ?? asset.sourceKey ?? asset.detail,
       });
       showToast("已打开 Knowledge Vault", "ok");
+      return;
+    }
+
+    if (asset.appId === "industry_hub") {
+      requestOpenIndustryHub({
+        workflowRunId: asset.workflowRunId ?? selectedControlledRunSummary?.workflowRunId,
+        scenarioId: selectedControlledRunSummary?.scenarioId,
+      });
+      showToast("已打开 Industry Hub", "ok");
+      return;
+    }
+
+    if (asset.appId === "publisher") {
+      if (!asset.assetId) {
+        showToast("草稿记录缺少 draftId", "error");
+        return;
+      }
+      requestOpenPublisher({
+        draftId: asset.assetId,
+        workflowRunId: asset.workflowRunId ?? selectedControlledRunSummary?.workflowRunId,
+        workflowScenarioId: selectedControlledRunSummary?.scenarioId,
+        workflowSource: `Runtime Console asset ${asset.assetId ?? asset.target}`,
+        workflowNextStep:
+          "Review the controlled run draft and decide whether to publish or revise.",
+      });
+      showToast("已打开 Publisher", "ok");
     }
   };
 

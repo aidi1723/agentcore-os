@@ -14,6 +14,11 @@ import type { WorkflowContextMeta } from "@/lib/workflow-context";
 
 export type SettingsTargetTab = "llm" | "engine" | "matrix" | "personalization";
 
+export type IndustryHubPrefill = {
+  workflowRunId?: string;
+  scenarioId?: string;
+};
+
 export type DealDeskPrefill = {
   assetId?: string;
   sourceKey?: string;
@@ -130,6 +135,7 @@ type OpenAppDetail = {
   appId: AppId;
   settingsTab?: SettingsTargetTab;
   providerId?: LlmProviderId;
+  industryHubPrefill?: IndustryHubPrefill;
   dealPrefill?: DealDeskPrefill;
   emailDraft?: EmailAssistantPrefill;
   crmPrefill?: PersonalCrmPrefill;
@@ -157,6 +163,10 @@ export function requestOpenApp(
 
 export function requestOpenSettings(settingsTab: SettingsTargetTab) {
   requestOpenApp("settings", { settingsTab });
+}
+
+export function requestOpenIndustryHub(prefill?: IndustryHubPrefill) {
+  requestOpenApp("industry_hub", { industryHubPrefill: prefill });
 }
 
 export function requestOpenDealDesk(prefill?: DealDeskPrefill) {
@@ -224,6 +234,10 @@ export function dispatchOpenAppPrefill(appId: AppId, detail: Partial<OpenAppDeta
     }, 80);
   };
 
+  dispatchPrefill(
+    "openclaw:industry-hub-prefill",
+    appId === "industry_hub" ? detail.industryHubPrefill : undefined,
+  );
   dispatchPrefill(
     "openclaw:deal-desk-prefill",
     appId === "deal_desk" ? detail.dealPrefill : undefined,

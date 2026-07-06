@@ -2,7 +2,12 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ClawRuntimeConsoleAppWindow } from "@/components/apps/ClawRuntimeConsoleAppWindow";
 import type { ControlledExecutionRunRecord } from "@/lib/executor/runtime/types";
-import { requestOpenDealDesk, requestOpenKnowledgeVault } from "@/lib/ui-events";
+import {
+  requestOpenDealDesk,
+  requestOpenIndustryHub,
+  requestOpenKnowledgeVault,
+  requestOpenPublisher,
+} from "@/lib/ui-events";
 
 vi.mock("@/components/windows/AppWindowShell", () => ({
   AppWindowShell: ({ children }: { children: React.ReactNode }) => (
@@ -78,7 +83,9 @@ vi.mock("@/lib/asset-jumps", () => ({
 
 vi.mock("@/lib/ui-events", () => ({
   requestOpenDealDesk: vi.fn(),
+  requestOpenIndustryHub: vi.fn(),
   requestOpenKnowledgeVault: vi.fn(),
+  requestOpenPublisher: vi.fn(),
   requestOpenSettings: vi.fn(),
 }));
 
@@ -191,6 +198,23 @@ function buildCompletedRunWithAssetLandings(): ControlledExecutionRunRecord {
             writtenAt: 2,
             assetId: "knowledge-asset-1",
             sourceKey: "controlled-run:run-assets-1:knowledge_asset",
+            workflowRunId: "workflow-assets-1",
+          },
+          {
+            target: "workflow_run",
+            ok: true,
+            summary: "Wrote workflow run workflow-assets-1 as completed",
+            writtenAt: 2,
+            sourceKey: "controlled-run:run-assets-1:workflow_run",
+            workflowRunId: "workflow-assets-1",
+          },
+          {
+            target: "draft",
+            ok: true,
+            summary: "Wrote draft controlled-draft:workflow-assets-1",
+            writtenAt: 2,
+            assetId: "controlled-draft:workflow-assets-1",
+            sourceKey: "controlled-run:run-assets-1:draft",
             workflowRunId: "workflow-assets-1",
           },
         ],
@@ -337,7 +361,7 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
     });
 
     const openButtons = await screen.findAllByRole("button", { name: "打开" });
-    expect(openButtons).toHaveLength(2);
+    expect(openButtons).toHaveLength(4);
     fireEvent.click(openButtons[0]);
     fireEvent.click(openButtons[1]);
 
@@ -355,6 +379,58 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
         sourceKey: "controlled-run:run-assets-1:knowledge_asset",
         workflowRunId: "workflow-assets-1",
         query: "knowledge-asset-1",
+      }),
+    );
+  });
+
+  it("opens workflow run and draft landings with focused prefill", async () => {
+    const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
+      const href = String(url);
+      if (href.endsWith("/api/runtime/executor/controlled-runs")) {
+        return Response.json({
+          ok: true,
+          data: { runs: [buildCompletedRunWithAssetLandings()] },
+        });
+      }
+      if (href.endsWith("/api/runtime/executor/sessions")) {
+        return Response.json({ ok: true, data: { sessions: [] } });
+      }
+      return Response.json({ ok: true, data: {} });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ClawRuntimeConsoleAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Asset landing run").length).toBeGreaterThan(0);
+    });
+
+    const openButtons = await screen.findAllByRole("button", { name: "打开" });
+    expect(openButtons).toHaveLength(4);
+    fireEvent.click(openButtons[2]);
+    fireEvent.click(openButtons[3]);
+
+    expect(requestOpenIndustryHub).toHaveBeenCalledWith({
+      workflowRunId: "workflow-assets-1",
+      scenarioId: "sales-pipeline",
+    });
+    expect(requestOpenPublisher).toHaveBeenCalledWith(
+      expect.objectContaining({
+        draftId: "controlled-draft:workflow-assets-1",
+        workflowRunId: "workflow-assets-1",
+        workflowScenarioId: "sales-pipeline",
+        workflowSource: "Runtime Console asset controlled-draft:workflow-assets-1",
+        workflowNextStep:
+          "Review the controlled run draft and decide whether to publish or revise.",
       }),
     );
   });

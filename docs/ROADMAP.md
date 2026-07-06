@@ -70,7 +70,12 @@ Expected outcome:
 
 ### P1. Replay Sandbox Contract Types
 
-Before building a prototype, define TypeScript-only contracts for:
+Completed contract reference:
+
+- `src/lib/executor/runtime/replay-sandbox-contracts.ts`
+- `src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts`
+
+Before building a prototype, the project now has TypeScript-only contracts for:
 
 - replay input provenance,
 - sandbox context,
@@ -83,9 +88,18 @@ Before building a prototype, define TypeScript-only contracts for:
 This phase must still avoid LLM replay, tool execution, route calls, store
 reads/writes, and asset writes.
 
-### P2. No-Side-Effect Replay Sandbox Prototype
+### P2. No-Side-Effect Replay Sandbox Prototype Design
 
-Only after P0 and P1 are accepted, build the smallest no-side-effect prototype:
+Before implementation, design the smallest prototype that:
+
+- accepts only a validated replay sandbox contract,
+- fails before execution for unsafe contracts,
+- emits only a replay result artifact,
+- keeps runtime stores and business assets out of scope.
+
+### P3. No-Side-Effect Replay Sandbox Prototype
+
+Only after P0, P1, and P2 are accepted, build the smallest no-side-effect prototype:
 
 - no production credentials,
 - no store writes,
@@ -94,7 +108,7 @@ Only after P0 and P1 are accepted, build the smallest no-side-effect prototype:
 - approval simulation only,
 - replay results written to replay artifacts, not business assets.
 
-### P3. Governed Fixture And Playbook Expansion
+### P4. Governed Fixture And Playbook Expansion
 
 Expand only when the current governed trace/replay gates stay stable:
 
@@ -102,7 +116,7 @@ Expand only when the current governed trace/replay gates stay stable:
 - add new controlled playbooks only through spec -> plan -> tests -> fixture/replay gates,
 - do not use fixture expansion as a substitute for real replay boundary design.
 
-### P4. Trace Operations Hardening
+### P5. Trace Operations Hardening
 
 Turn the governed trace operational runbook into a tighter maintenance path:
 
@@ -112,7 +126,7 @@ Turn the governed trace operational runbook into a tighter maintenance path:
 - summary/harness drift checks,
 - clearer handoff records for fixture replacement.
 
-### P5. Runtime-Supporting UI And App Polish
+### P6. Runtime-Supporting UI And App Polish
 
 Polish UI only when it serves runtime operation:
 

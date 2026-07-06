@@ -104,6 +104,11 @@
 
 ## Unreleased
 
+### Replay Sandbox Contract Types
+
+- Added TypeScript-only replay sandbox contract types and validation for replay input provenance, credentials, approval simulation, store isolation, side-effect policy, and replay result artifacts.
+- Added no-side-effect contract tests and included them in `test:controlled-runtime`.
+
 ### Real Replay Boundary Design
 
 - Added a real replay boundary guide covering replay input provenance, sandbox ownership, credential isolation, approval simulation, store isolation, side-effect blocking, replay result ownership, and stop conditions before any real replay implementation.

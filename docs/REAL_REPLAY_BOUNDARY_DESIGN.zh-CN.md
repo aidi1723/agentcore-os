@@ -295,13 +295,16 @@ npm run test:controlled-runtime
 - replay 可以写业务资产；
 - real replay 可以上线。
 
-## 13. Next Phase
+## 13. Contract Types Status
 
-下一阶段允许进入：
+已完成：
 
-**Replay Sandbox Contract Types**
+- `src/lib/executor/runtime/replay-sandbox-contracts.ts`
+- `validateReplaySandboxContract()`
+- `buildNoSideEffectReplayResultArtifact()`
+- `src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts`
 
-该阶段可以新增 TypeScript-only contracts，用来描述：
+这些 TypeScript-only contracts 已覆盖：
 
 - replay input；
 - sandbox context；
@@ -311,7 +314,7 @@ npm run test:controlled-runtime
 - side-effect policy；
 - replay result artifact。
 
-该阶段仍然禁止：
+它们仍然禁止：
 
 - LLM replay；
 - tool execution；
@@ -319,4 +322,12 @@ npm run test:controlled-runtime
 - runtime store reads / writes；
 - business asset writes。
 
-只有 contract types 和拒绝危险输入的测试稳定后，才允许讨论 no-side-effect replay sandbox prototype。
+## 14. Next Phase
+
+下一阶段允许进入：
+
+**No-Side-Effect Replay Sandbox Prototype Design**
+
+该阶段只能设计一个最小 prototype：消费 validated replay sandbox contract，输出 replay result artifact。
+
+该阶段仍不能实现真实工具 replay，不能调用 route，不能读写 runtime store，不能写业务资产。只有 unsafe contract 在 prototype 启动前失败的测试设计清楚后，才允许进入 prototype implementation。

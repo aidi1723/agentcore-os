@@ -374,17 +374,18 @@ type ControlledPlaybookStep = {
 - Phase 10t fixture replay catalog expansion review：已新增 catalog coverage guide，确认当前 sales/support completed fixtures 覆盖所有注册 playbook、当前 writeback target family、approved approval path、redaction metadata 和 stable writeback identity；本阶段不新增 fixture JSON。
 - Phase 10u trace governance operational runbook：已新增 governed trace operational runbook，把 artifact export、intent classification、fixture candidate build、refresh review、catalog gates、retention cleanup、failure escalation 和 real replay boundary 串成维护者执行路径。
 - Phase 10v real replay boundary design：已新增 `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md`，明确 future real replay 的 input provenance、sandbox ownership、credential isolation、approval simulation、store isolation、side-effect blocking、replay result artifact ownership 和 stop conditions。该阶段仍不实现 LLM replay、tool execution、route calls、store 读写或资产写回。
+- Phase 10w replay sandbox contract types：已新增 `src/lib/executor/runtime/replay-sandbox-contracts.ts`，用 TypeScript-only contract 和 `validateReplaySandboxContract()` 编码 replay input provenance、sandbox context、credential policy、approval simulation、store isolation、side-effect policy 和 replay result artifact。测试覆盖 safe contract、raw controlled run、live credential、live approval、production store access 和 business asset write rejection，并已纳入 `test:controlled-runtime`。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- 真实 replay 执行仍未实现；已完成边界设计，下一步应先进入 Replay Sandbox Contract Types。
+- 真实 replay 执行仍未实现；已完成边界设计和 TypeScript contract 校验，下一步应先设计 no-side-effect replay sandbox prototype。
 
 因此下一阶段默认进入：
 
-**Phase 10w. Replay Sandbox Contract Types**
+**Phase 10x. No-Side-Effect Replay Sandbox Prototype Design**
 
-目标是在写任何 real replay prototype 前，先定义 TypeScript-only replay input、sandbox context、credential policy、approval simulation、store isolation、side-effect policy 和 replay result artifact contracts。该阶段仍不执行真实工具、不调用 route、不读写 store、不写资产。
+目标是在写 prototype 代码前，先设计一个只消费 validated replay sandbox contract、只输出 replay result artifact 的最小 no-side-effect prototype。该阶段仍不执行真实工具、不调用 route、不读写 runtime store、不写资产。
 
 ### Phase 0. 冻结方向
 

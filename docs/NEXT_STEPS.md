@@ -800,13 +800,32 @@ Outcome:
 
 - Future work can move to replay sandbox contract types without implementing real replay prematurely.
 
-## Recommended Next. Replay Sandbox Contract Types
+## Completed. Replay Sandbox Contract Types
+
+Why:
+
+- Phase 10v documented the real replay boundary, but the runtime layer needed executable TypeScript contracts before any prototype work.
+- Future replay work needed a pure validator that rejects live credentials, production store access, business asset writes, and raw controlled run inputs.
+
+Delivered:
+
+- Added `src/lib/executor/runtime/replay-sandbox-contracts.ts`.
+- Added `validateReplaySandboxContract()` with stable no-side-effect guarantees.
+- Added replay result artifact shape helper for no-side-effect replay outputs.
+- Added contract tests covering safe contracts, raw controlled run rejection, live credential rejection, live approval rejection, production store rejection, and business asset write rejection.
+- Included the new test in `npm run test:controlled-runtime`.
+
+Outcome:
+
+- Future work can design a no-side-effect replay sandbox prototype against explicit contracts without touching production stores or business assets.
+
+## Recommended Next. No-Side-Effect Replay Sandbox Prototype Design
 
 Suggested scope:
 
-- Add TypeScript-only contracts for replay input, sandbox context, credential policy, approval simulation, store isolation, side-effect policy, and replay result artifacts.
-- Keep the phase no-side-effect: no LLM replay, no tool execution, no route calls, no store reads/writes, and no asset writes.
-- Add tests proving the contracts reject live credentials, production store access, and business asset write targets.
+- Design the smallest prototype that consumes a validated replay sandbox contract and emits only a replay result artifact.
+- Keep the prototype no-side-effect: no LLM replay, no tool execution, no route calls, no runtime store reads/writes, and no asset writes.
+- Add tests proving unsafe contracts fail before prototype execution starts.
 
 ## Completed. Support Runtime Console Record Focus
 

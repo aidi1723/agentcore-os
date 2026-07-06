@@ -2,7 +2,7 @@
 
 这是当前 `v1.3.0` 稳定版对外发布对应的中文入口页。
 
-> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-06，Phase 10v Real Replay Boundary Design 已完成；当前下一阶段是 Phase 10w Replay Sandbox Contract Types。后续开发请先阅读项目框架总纲、可控 Runtime 开发手册、Roadmap、Next Steps、governed trace 运维文档和 real replay 边界文档。
+> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-06，Phase 10v Real Replay Boundary Design 与 Phase 10w Replay Sandbox Contract Types 已完成；当前下一阶段是 Phase 10x No-Side-Effect Replay Sandbox Prototype Design。后续开发请先阅读项目框架总纲、可控 Runtime 开发手册、Roadmap、Next Steps、governed trace 运维文档和 real replay 边界文档。
 
 ## 建议阅读顺序
 

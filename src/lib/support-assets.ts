@@ -13,6 +13,7 @@ export type SupportAssetStatus =
 export type SupportAssetRecord = {
   id: string;
   workflowRunId: string;
+  sourceKey?: string;
   scenarioId: string;
   inboxItemId?: string;
   ticketId?: string;
@@ -32,6 +33,11 @@ export type SupportAssetRecord = {
 type Listener = () => void;
 type SupportAssetTombstone = SyncTombstoneRecord & {
   workflowRunId?: string;
+};
+export type SupportAssetFocusInput = {
+  assetId?: string | null;
+  sourceKey?: string | null;
+  workflowRunId?: string | null;
 };
 
 const SUPPORT_ASSETS_KEY = "openclaw.support-assets.v1";
@@ -152,6 +158,24 @@ export function getSupportAssetByWorkflowRunId(workflowRunId?: string | null) {
   return getSupportAssets().find((asset) => asset.workflowRunId === workflowRunId) ?? null;
 }
 
+export function getSupportAssetById(assetId?: string | null) {
+  if (!assetId) return null;
+  return getSupportAssets().find((asset) => asset.id === assetId) ?? null;
+}
+
+export function getSupportAssetBySourceKey(sourceKey?: string | null) {
+  if (!sourceKey) return null;
+  return getSupportAssets().find((asset) => asset.sourceKey === sourceKey) ?? null;
+}
+
+export function getSupportAssetForFocus(input: SupportAssetFocusInput) {
+  return (
+    getSupportAssetById(input.assetId) ??
+    getSupportAssetBySourceKey(input.sourceKey) ??
+    getSupportAssetByWorkflowRunId(input.workflowRunId)
+  );
+}
+
 export function upsertSupportAsset(
   workflowRunId: string,
   patch: Partial<Omit<SupportAssetRecord, "id" | "workflowRunId" | "createdAt" | "updatedAt">>,
@@ -170,6 +194,7 @@ export function upsertSupportAsset(
     : {
         id: `${now}-${Math.random().toString(16).slice(2)}`,
         workflowRunId,
+        sourceKey: patch.sourceKey,
         scenarioId: patch.scenarioId ?? "support-ops",
         inboxItemId: patch.inboxItemId,
         ticketId: patch.ticketId,

@@ -9,6 +9,12 @@ import {
   getKnowledgeAssetBySourceKey,
   upsertKnowledgeAsset,
 } from "@/lib/knowledge-assets";
+import {
+  getSupportAssetById,
+  getSupportAssetBySourceKey,
+  getSupportAssetForFocus,
+  upsertSupportAsset,
+} from "@/lib/support-assets";
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -54,5 +60,34 @@ describe("record-level asset lookup helpers", () => {
     );
     expect(getKnowledgeAssetById("missing")).toBeNull();
     expect(getKnowledgeAssetBySourceKey("missing")).toBeNull();
+  });
+
+  it("finds a support asset by id, source key, and workflow fallback", () => {
+    const asset = upsertSupportAsset("workflow-support-1", {
+      sourceKey: "controlled-run:run-1:support_asset",
+      scenarioId: "support-ops",
+      ticketId: "ticket-1",
+      customer: "Nora",
+      channel: "email",
+      issueSummary: "Warranty question",
+    });
+
+    expect(getSupportAssetById(asset.id)?.workflowRunId).toBe("workflow-support-1");
+    expect(getSupportAssetBySourceKey("controlled-run:run-1:support_asset")?.id).toBe(
+      asset.id,
+    );
+    expect(getSupportAssetForFocus({ assetId: asset.id })?.id).toBe(asset.id);
+    expect(
+      getSupportAssetForFocus({
+        sourceKey: "controlled-run:run-1:support_asset",
+        workflowRunId: "workflow-support-1",
+      })?.id,
+    ).toBe(asset.id);
+    expect(getSupportAssetForFocus({ workflowRunId: "workflow-support-1" })?.id).toBe(
+      asset.id,
+    );
+    expect(getSupportAssetById("missing")).toBeNull();
+    expect(getSupportAssetBySourceKey("missing")).toBeNull();
+    expect(getSupportAssetForFocus({ assetId: "missing" })).toBeNull();
   });
 });

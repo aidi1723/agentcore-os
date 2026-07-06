@@ -763,6 +763,25 @@ Outcome:
 
 - Maintainers can start from any major entry doc without drifting away from the controlled Playbook Runtime path.
 
+## Completed. GPLv3 License Migration
+
+Why:
+
+- The project direction changed substantially and the source license needed to match the new governance posture.
+- Maintainers needed one explicit migration boundary instead of scattered license wording.
+
+Delivered:
+
+- Current repository source license metadata now uses `GPL-3.0-or-later`.
+- `LICENSE` contains the canonical GNU GPLv3 text.
+- `package.json` and the root package entry in `package-lock.json` now declare `GPL-3.0-or-later`.
+- README, NOTICE, documentation index, open-source checklist, changelog, and `docs/LICENSE_CHANGE_NOTICE.md` now point to the new license.
+- Historical Apache-2.0 releases remain explicitly preserved under their previous license boundary.
+
+Outcome:
+
+- The repository now has a consistent GPLv3+ license posture for current source while avoiding ambiguity about older Apache-2.0 releases and third-party dependency licenses.
+
 ## Recommended Next. Real Replay Boundary Design
 
 Suggested scope:

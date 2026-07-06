@@ -15,10 +15,11 @@
 7. [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
 8. [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
 9. [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
-10. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
-11. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
-12. [快速开始](GETTING_STARTED.md)
-13. [用户指南（中文）](USER_GUIDE.zh-CN.md)
+10. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
+11. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
+12. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
+13. [快速开始](GETTING_STARTED.md)
+14. [用户指南（中文）](USER_GUIDE.zh-CN.md)
 
 ## 对外分发
 
@@ -28,6 +29,7 @@
 - [桌面壳等价收口更新](releases/2026-03-25-desktop-parity-update.zh-CN.md)
 - [OpenClaw OS v1.0.0 融合说明](releases/2026-03-25-openclaw-os-v1.0.0-integration-note.zh-CN.md)
 - [GitHub / CNB 发布正文（中文）](releases/v1.2.0-github-release.zh-CN.md)
+- [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
 
 ## 其他核心文档
 
@@ -50,6 +52,7 @@
 - [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
 - [Governed Trace Fixture Catalog Coverage](GOVERNED_TRACE_FIXTURE_CATALOG_COVERAGE.zh-CN.md)
 - [Governed Trace Fixture Refresh Workflow](GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md)
+- [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
 - [团队 Memo：如何看待 build-your-own-x](TEAM_MEMO_BUILD_YOUR_OWN_X.zh-CN.md)
 - [工程学习地图](ENGINEERING_LEARNING_MAP.zh-CN.md)
 - [技术学习优先级表](TECH_LEARNING_PRIORITY_TABLE.zh-CN.md)

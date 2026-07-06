@@ -36,7 +36,7 @@
 **Files:**
 - Create: `docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md`
 
-- [ ] **Step 1: Write the guide**
+- [x] **Step 1: Write the guide**
 
 Create `docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md`:
 
@@ -224,7 +224,7 @@ That phase may add `replay-sandbox.ts` and tests proving:
 - guarantees remain false for tool calls, asset writes, store mutation, and production credentials.
 ```
 
-- [ ] **Step 2: Review guide scope**
+- [x] **Step 2: Review guide scope**
 
 Run:
 
@@ -234,7 +234,7 @@ rg -n "execute tools|route calls|runtime store|business asset|Stop implementatio
 
 Expected: matches are design boundaries, not implementation claims.
 
-- [ ] **Step 3: Commit the guide**
+- [x] **Step 3: Commit the guide**
 
 ```bash
 git add docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md
@@ -256,11 +256,11 @@ git commit -m "docs: design no-side-effect replay sandbox"
 - Modify: `CHANGELOG.md`
 - Modify: `README.md`
 
-- [ ] **Step 1: Update documentation index and README**
+- [x] **Step 1: Update documentation index and README**
 
 Add `docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md` to the documentation index and update current-next wording to implementation.
 
-- [ ] **Step 2: Update `docs/NEXT_STEPS.md`**
+- [x] **Step 2: Update `docs/NEXT_STEPS.md`**
 
 Replace `Recommended Next. No-Side-Effect Replay Sandbox Prototype Design` with:
 
@@ -295,11 +295,11 @@ Suggested scope:
 - Keep implementation no-side-effect: no LLM replay, no tool execution, no route calls, no runtime store reads/writes, and no asset writes.
 ```
 
-- [ ] **Step 3: Update framework, roadmap, manual, and boundary guide**
+- [x] **Step 3: Update framework, roadmap, manual, and boundary guide**
 
 Mark Phase 10x complete and set the next phase to prototype implementation.
 
-- [ ] **Step 4: Update changelog**
+- [x] **Step 4: Update changelog**
 
 Add:
 
@@ -309,7 +309,7 @@ Add:
 - Added a no-side-effect replay sandbox prototype design guide covering future module boundaries, preflight validation, replay-local state, cursor events, approval simulation, side-effect blocking, result artifacts, and stop conditions.
 ```
 
-- [ ] **Step 5: Commit aligned docs**
+- [x] **Step 5: Commit aligned docs**
 
 ```bash
 git add README.md CHANGELOG.md docs/DOCUMENTATION_INDEX.zh-CN.md docs/NEXT_STEPS.md docs/PROJECT_FRAMEWORK.zh-CN.md docs/ROADMAP.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md
@@ -325,7 +325,7 @@ git commit -m "docs: align no-side-effect replay sandbox design"
 - Modify: `docs/superpowers/plans/2026-07-06-no-side-effect-replay-sandbox-prototype-design.md`
 - Optional local-only: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run verification**
+- [x] **Step 1: Run verification**
 
 Run:
 
@@ -343,11 +343,11 @@ Expected:
 - fixture summary reports `Status: OK`;
 - controlled runtime tests pass.
 
-- [ ] **Step 2: Mark plan complete**
+- [x] **Step 2: Mark plan complete**
 
 Update checkboxes to `- [x]` and add completion notes with exact verification results.
 
-- [ ] **Step 3: Commit plan record**
+- [x] **Step 3: Commit plan record**
 
 ```bash
 git add docs/superpowers/plans/2026-07-06-no-side-effect-replay-sandbox-prototype-design.md
@@ -362,3 +362,17 @@ git commit -m "docs: complete no-side-effect replay sandbox design plan"
 - Spec coverage: source inventory, future module boundary, input contract, preflight, replay-local state, cursor events, approval simulation, side-effect blocking, result artifact, stop conditions, docs, and verification are covered.
 - Scope boundary: no runtime code, no tool execution, no route calls, no store reads/writes, no asset writes, no fixture JSON, no UI changes.
 - Placeholder scan: this plan contains no deferred placeholders.
+
+## Completion Notes
+
+- Completed on: 2026-07-06
+- Commits:
+  - `0d28282` - `docs: design no-side-effect replay sandbox`
+  - `716d5e3` - `docs: align no-side-effect replay sandbox design`
+- Verification:
+  - `git diff --check` - exit 0
+  - `npm run trace:fixtures --silent` - ok true; 2 total / 2 passed / 0 failed
+  - `npm run trace:fixtures:summary --silent` - Status OK
+  - `npm run test:controlled-runtime` - 31 files / 170 tests passed
+  - `npm run test:core-workflows` - all core workflow regressions passed
+- Outcome: Phase 10x is complete. The next allowed phase is Phase 10y No-Side-Effect Replay Sandbox Prototype Implementation.

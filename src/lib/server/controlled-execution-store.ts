@@ -17,6 +17,31 @@ export type ControlledRunRetentionPolicy = {
   minTerminalRunsToKeep: number;
 };
 
+export type ControlledRunRetentionDecision = {
+  runId: string;
+  state: ControlledExecutionRunRecord["state"];
+  updatedAt: number;
+  action: "keep" | "prune";
+  reason:
+    | "active_run"
+    | "approval_blocked"
+    | "minimum_terminal_retention"
+    | "within_retention_window"
+    | "expired_terminal_run";
+};
+
+export type ControlledRunRetentionPreview = {
+  policy: {
+    now: number;
+    maxAgeMs: number;
+    minTerminalRunsToKeep: number;
+    cutoff: number;
+  };
+  decisions: ControlledRunRetentionDecision[];
+  keptRunIds: string[];
+  prunedRunIds: string[];
+};
+
 function now() {
   return Date.now();
 }
@@ -33,6 +58,89 @@ function hasOwn(object: object, key: string) {
 
 function isTerminalControlledRun(run: ControlledExecutionRunRecord) {
   return run.state === "completed" || run.state === "failed" || run.state === "cancelled";
+}
+
+function normalizeRetentionPolicy(policy: ControlledRunRetentionPolicy) {
+  const referenceTime = Number.isFinite(policy.now) ? policy.now! : now();
+  const maxAgeMs = Math.max(0, policy.maxAgeMs);
+  const minTerminalRunsToKeep = Math.max(0, Math.floor(policy.minTerminalRunsToKeep));
+  return {
+    now: referenceTime,
+    maxAgeMs,
+    minTerminalRunsToKeep,
+    cutoff: referenceTime - maxAgeMs,
+  };
+}
+
+function buildControlledRunRetentionPreview(
+  runs: ControlledExecutionRunRecord[],
+  policy: ControlledRunRetentionPolicy,
+): ControlledRunRetentionPreview {
+  const normalizedPolicy = normalizeRetentionPolicy(policy);
+  const terminalRuns = runs
+    .filter(isTerminalControlledRun)
+    .sort((left, right) => right.updatedAt - left.updatedAt);
+  const protectedTerminalIds = new Set(
+    terminalRuns
+      .slice(0, normalizedPolicy.minTerminalRunsToKeep)
+      .map((run) => run.id),
+  );
+  const decisions = runs.map((run): ControlledRunRetentionDecision => {
+    if (run.state === "running") {
+      return {
+        runId: run.id,
+        state: run.state,
+        updatedAt: run.updatedAt,
+        action: "keep",
+        reason: "active_run",
+      };
+    }
+    if (run.state === "awaiting_approval") {
+      return {
+        runId: run.id,
+        state: run.state,
+        updatedAt: run.updatedAt,
+        action: "keep",
+        reason: "approval_blocked",
+      };
+    }
+    if (protectedTerminalIds.has(run.id)) {
+      return {
+        runId: run.id,
+        state: run.state,
+        updatedAt: run.updatedAt,
+        action: "keep",
+        reason: "minimum_terminal_retention",
+      };
+    }
+    if (run.updatedAt >= normalizedPolicy.cutoff) {
+      return {
+        runId: run.id,
+        state: run.state,
+        updatedAt: run.updatedAt,
+        action: "keep",
+        reason: "within_retention_window",
+      };
+    }
+    return {
+      runId: run.id,
+      state: run.state,
+      updatedAt: run.updatedAt,
+      action: "prune",
+      reason: "expired_terminal_run",
+    };
+  });
+
+  return {
+    policy: normalizedPolicy,
+    decisions,
+    keptRunIds: decisions
+      .filter((decision) => decision.action === "keep")
+      .map((decision) => decision.runId),
+    prunedRunIds: decisions
+      .filter((decision) => decision.action === "prune")
+      .map((decision) => decision.runId),
+  };
 }
 
 function normalizeStep(input: ControlledExecutionStepRecord): ControlledExecutionStepRecord {
@@ -182,10 +290,11 @@ export async function listControlledExecutionRuns(filter?: {
   });
 }
 
+export async function previewControlledExecutionRunRetention(policy: ControlledRunRetentionPolicy) {
+  return buildControlledRunRetentionPreview(await readRuns(), policy);
+}
+
 export async function pruneControlledExecutionRuns(policy: ControlledRunRetentionPolicy) {
-  const referenceTime = Number.isFinite(policy.now) ? policy.now! : now();
-  const cutoff = referenceTime - Math.max(0, policy.maxAgeMs);
-  const minTerminalRunsToKeep = Math.max(0, Math.floor(policy.minTerminalRunsToKeep));
   let prunedRunIds: string[] = [];
   let keptRunIds: string[] = [];
 
@@ -193,20 +302,11 @@ export async function pruneControlledExecutionRuns(policy: ControlledRunRetentio
     const runs = current
       .map(normalizeRun)
       .filter((item): item is ControlledExecutionRunRecord => Boolean(item));
-    const terminalRuns = runs
-      .filter(isTerminalControlledRun)
-      .sort((left, right) => right.updatedAt - left.updatedAt);
-    const protectedTerminalIds = new Set(
-      terminalRuns.slice(0, minTerminalRunsToKeep).map((run) => run.id),
-    );
-    const kept = runs.filter((run) => {
-      if (!isTerminalControlledRun(run)) return true;
-      if (protectedTerminalIds.has(run.id)) return true;
-      return run.updatedAt >= cutoff;
-    });
-    const keptIds = new Set(kept.map((run) => run.id));
-    prunedRunIds = runs.filter((run) => !keptIds.has(run.id)).map((run) => run.id);
-    keptRunIds = kept.map((run) => run.id);
+    const preview = buildControlledRunRetentionPreview(runs, policy);
+    const keptIds = new Set(preview.keptRunIds);
+    const kept = runs.filter((run) => keptIds.has(run.id));
+    prunedRunIds = preview.prunedRunIds;
+    keptRunIds = preview.keptRunIds;
     return kept.sort((left, right) => right.updatedAt - left.updatedAt).slice(0, MAX_RUNS);
   });
 

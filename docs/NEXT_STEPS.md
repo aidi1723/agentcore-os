@@ -79,6 +79,7 @@ Completed in the current controlled runtime line:
 - Post-Delivery Fixture And Playbook Expansion Review: every registered controlled playbook now has a committed governed fixture coverage assertion; no new fixture JSON or playbook migration is needed immediately after delivery smoke.
 - Runtime UI Delivery Polish: Runtime Console now has a compact delivery handoff summary for recent runs, pending approvals, retryable failures, asset landings, and governed trace candidates without changing runtime behavior.
 - Runtime UI Delivery Polish Closeout: Playwright screenshot evidence confirms the new `Delivery handoff` band renders in Runtime Console with 0 browser console errors; the stage is closed and should not expand into full UI redesign.
+- Trace Operations Retention Preview: controlled execution cleanup now has a dry-run preview report that shows policy cutoff, kept/pruned run ids, and per-run retention reasons before mutating storage.
 
 Current verification baseline:
 
@@ -96,8 +97,8 @@ npm run build
 Current `test:controlled-runtime` coverage:
 
 - 38 test files.
-- 198 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, and delivery demo seed/check helper coverage.
+- 199 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, and delivery demo seed/check helper coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -130,6 +131,27 @@ Browser evidence:
 - `output/playwright/runtime-ui-delivery-handoff.png`
 - Browser console errors: `0`
 - Browser console warnings: `9` dev/browser warnings.
+
+## Completed. Trace Operations Retention Preview
+
+Why:
+
+- The store already had a conservative prune helper, but cleanup decisions were only visible after mutation.
+- The governed trace operational runbook requires maintainers to confirm artifact/export and fixture-review ownership before cleanup.
+
+Delivered:
+
+- Added `previewControlledExecutionRunRetention()` in `src/lib/server/controlled-execution-store.ts`.
+- Preview returns normalized policy values, cutoff, kept/pruned run ids, and per-run reasons.
+- `pruneControlledExecutionRuns()` now reuses the same retention decision helper as preview.
+- Retention reasons are explicit: `active_run`, `approval_blocked`, `minimum_terminal_retention`, `within_retention_window`, and `expired_terminal_run`.
+- Added store coverage proving preview does not mutate storage and prune remains consistent with the preview decision model.
+- Added [Trace Operations Retention Preview spec](superpowers/specs/2026-07-06-trace-operations-retention-preview-design.md) and [implementation plan](superpowers/plans/2026-07-06-trace-operations-retention-preview.md).
+
+Outcome:
+
+- Operators can inspect raw controlled-run cleanup decisions before deleting terminal trace history.
+- The next Trace Operations Hardening slice should add an operator command or route around this preview model, not a real replay implementation.
 
 ## Completed. Delivery Demo Smoke Path
 

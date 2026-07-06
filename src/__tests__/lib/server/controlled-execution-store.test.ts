@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type { ExecutionPlan } from "@/lib/executor/contracts";
@@ -259,5 +259,144 @@ describe("controlled-execution-store", () => {
     expect(await getControlledExecutionRun("old-running")).not.toBeNull();
     expect(await getControlledExecutionRun("old-awaiting-approval")).not.toBeNull();
     expect(await getControlledExecutionRun("newest-terminal")).not.toBeNull();
+  });
+
+  it("previews retention decisions without mutating controlled runs", async () => {
+    const {
+      createControlledExecutionRun,
+      getControlledExecutionRun,
+      previewControlledExecutionRunRetention,
+      pruneControlledExecutionRuns,
+      requestControlledApproval,
+      updateControlledExecutionRun,
+    } = await import("@/lib/server/controlled-execution-store");
+
+    await createControlledExecutionRun({
+      id: "preview-old-completed",
+      requestId: "req-preview-old-completed",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan,
+    });
+    await createControlledExecutionRun({
+      id: "preview-running",
+      requestId: "req-preview-running",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan,
+    });
+    await createControlledExecutionRun({
+      id: "preview-awaiting-approval",
+      requestId: "req-preview-awaiting-approval",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan,
+    });
+    await createControlledExecutionRun({
+      id: "preview-newest-terminal",
+      requestId: "req-preview-newest-terminal",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan,
+    });
+    await createControlledExecutionRun({
+      id: "preview-recent-terminal",
+      requestId: "req-preview-recent-terminal",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan,
+    });
+
+    await updateControlledExecutionRun("preview-old-completed", { state: "completed" });
+    await requestControlledApproval("preview-awaiting-approval", "human_review");
+    await updateControlledExecutionRun("preview-newest-terminal", { state: "failed" });
+    await updateControlledExecutionRun("preview-recent-terminal", { state: "cancelled" });
+
+    const storeFile = path.join(tmpDir, ".openclaw-data", "controlled-execution-runs.json");
+    const rawRuns = JSON.parse(await readFile(storeFile, "utf8")) as Array<{
+      id: string;
+      updatedAt: number;
+      finishedAt?: number;
+    }>;
+    const adjustedRuns = rawRuns.map((run) => {
+      if (run.id === "preview-old-completed") {
+        return { ...run, updatedAt: 1_000, finishedAt: 1_000 };
+      }
+      if (run.id === "preview-recent-terminal") {
+        return { ...run, updatedAt: 9_999, finishedAt: 9_999 };
+      }
+      if (run.id === "preview-newest-terminal") {
+        return { ...run, updatedAt: 10_000, finishedAt: 10_000 };
+      }
+      return run;
+    });
+    await writeFile(storeFile, `${JSON.stringify(adjustedRuns, null, 2)}\n`);
+
+    const preview = await previewControlledExecutionRunRetention({
+      now: 10_000,
+      maxAgeMs: 1_000,
+      minTerminalRunsToKeep: 1,
+    });
+
+    expect(preview.policy).toEqual({
+      now: 10_000,
+      maxAgeMs: 1_000,
+      minTerminalRunsToKeep: 1,
+      cutoff: 9_000,
+    });
+    expect(preview.prunedRunIds).toEqual(["preview-old-completed"]);
+    expect(preview.keptRunIds).toEqual(
+      expect.arrayContaining([
+        "preview-running",
+        "preview-awaiting-approval",
+        "preview-newest-terminal",
+        "preview-recent-terminal",
+      ]),
+    );
+    expect(preview.decisions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          runId: "preview-old-completed",
+          action: "prune",
+          reason: "expired_terminal_run",
+        }),
+        expect.objectContaining({
+          runId: "preview-running",
+          action: "keep",
+          reason: "active_run",
+        }),
+        expect.objectContaining({
+          runId: "preview-awaiting-approval",
+          action: "keep",
+          reason: "approval_blocked",
+        }),
+        expect.objectContaining({
+          runId: "preview-newest-terminal",
+          action: "keep",
+          reason: "minimum_terminal_retention",
+        }),
+        expect.objectContaining({
+          runId: "preview-recent-terminal",
+          action: "keep",
+          reason: "within_retention_window",
+        }),
+      ]),
+    );
+    expect(await getControlledExecutionRun("preview-old-completed")).not.toBeNull();
+
+    const prune = await pruneControlledExecutionRuns({
+      now: 10_000,
+      maxAgeMs: 1_000,
+      minTerminalRunsToKeep: 1,
+    });
+
+    expect(prune.prunedRunIds).toEqual(preview.prunedRunIds);
+    expect([...prune.keptRunIds].sort()).toEqual([...preview.keptRunIds].sort());
+    expect(await getControlledExecutionRun("preview-old-completed")).toBeNull();
   });
 });

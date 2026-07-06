@@ -157,7 +157,9 @@ Start failure classification from [Governed Trace Fixture Replay Contract](GOVER
 
 ## 10. Retention And Cleanup
 
-`pruneControlledExecutionRuns()` is the current retention helper. It prunes old terminal runs while preserving active and approval-blocked runs according to policy.
+`previewControlledExecutionRunRetention()` is the dry-run retention helper. Run it before cleanup to inspect the normalized policy, cutoff, kept/pruned run ids, and per-run retention reasons.
+
+`pruneControlledExecutionRuns()` is the mutating retention helper. It uses the same decision model as preview, then prunes old terminal runs while preserving active and approval-blocked runs according to policy.
 
 Before pruning, confirm:
 
@@ -165,6 +167,11 @@ Before pruning, confirm:
 - governed artifact export is complete if the run is needed for audit;
 - `running` and `awaiting_approval` runs are not targeted for cleanup;
 - minimum terminal-run retention is acceptable for the current review window.
+- preview reasons are understood:
+  - `active_run` and `approval_blocked` must stay;
+  - `minimum_terminal_retention` protects newest terminal runs;
+  - `within_retention_window` stays because it is newer than the cutoff;
+  - `expired_terminal_run` is the only cleanup candidate.
 
 Retention is not a substitute for fixture refresh. If a run is needed as fixture source, export and review it before cleanup.
 

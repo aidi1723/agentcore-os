@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Trace Operations Retention Preview
+
+- Added a dry-run retention preview for controlled execution runs.
+- `previewControlledExecutionRunRetention()` now reports kept/pruned run ids, policy cutoff, and per-run retention reasons without mutating storage.
+- Refactored `pruneControlledExecutionRuns()` to reuse the same decision logic as preview, so cleanup behavior and preview output cannot drift.
+- Added retention preview regression coverage for active runs, approval-blocked runs, newest terminal retention, terminal runs inside the retention window, and expired terminal pruning.
+
 ### Project Introduction Alignment
 
 - Updated the README project introduction to distinguish AgentCore OS from ordinary skills and generic AI OS shells.

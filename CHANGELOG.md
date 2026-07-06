@@ -147,6 +147,16 @@
 - Added Runtime Console failed-run recovery details and a `重试失败步骤` action for eligible failed runs.
 - Expanded `test:controlled-runtime` so it covers console summary recovery metadata, retry route behavior, and Runtime Console retry UI wiring.
 
+### Runtime Console Record-Level Asset Focus
+
+- Added record-level lookup helpers for sales assets and knowledge assets.
+- Extended Deal Desk and Knowledge Vault prefill contracts with optional `assetId`, `sourceKey`, and workflow metadata.
+- Added stable sales asset `sourceKey` metadata to successful controlled writeback receipts.
+- Runtime Console now forwards record focus metadata when opening successful sales and knowledge asset landings.
+- Deal Desk now focuses an existing deal from sales asset prefill metadata instead of creating a duplicate lead.
+- Knowledge Vault now focuses and highlights the exact knowledge asset from `assetId` / `sourceKey` prefill metadata.
+- Expanded `test:controlled-runtime` to include record-level asset lookup, Deal Desk focus, and Knowledge Vault focus coverage.
+
 ### Framework Alignment
 
 - Added project-level `AGENTS.md` workflow rules and `DESIGN.md` design contract as the default collaboration and UI implementation framework for future work.
@@ -159,8 +169,10 @@
 - Verified `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` — 4 tests passing.
 - Verified `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts` — 6 tests passing.
 - Verified `npm test -- src/__tests__/lib/executor/runtime/resume.test.ts` — 10 tests passing.
-- Verified `npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` — 1 test passing.
-- Verified `npm run test:controlled-runtime` — 17 files, 110 tests passing.
+- Verified `npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` — 2 tests passing.
+- Verified `npm test -- src/__tests__/components/DealDeskAppWindow.test.tsx` — 1 test passing.
+- Verified `npm test -- src/__tests__/components/KnowledgeVaultAppWindow.test.tsx` — 1 test passing.
+- Verified `npm run test:controlled-runtime` — 20 files, 115 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.
 - Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - Verified `npm run build` — exit 0 with the same existing `<img>` warning.

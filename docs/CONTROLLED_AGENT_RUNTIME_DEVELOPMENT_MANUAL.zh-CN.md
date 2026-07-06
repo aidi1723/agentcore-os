@@ -1,6 +1,6 @@
 # 可控 Agent Runtime 开发手册
 
-Last updated: 2026-07-05
+Last updated: 2026-07-06
 
 ## 1. 项目新定位
 
@@ -317,8 +317,9 @@ type ControlledPlaybookStep = {
 - [Runtime Console Operations Implementation Plan](superpowers/plans/2026-07-05-runtime-console-operations.md)
 - [Runtime Console Asset Deep Links Implementation Plan](superpowers/plans/2026-07-05-runtime-console-asset-deep-links.md)
 - [Runtime Console Failure Recovery Implementation Plan](superpowers/plans/2026-07-05-runtime-console-failure-recovery.md)
+- [Runtime Console Record-Level Asset Focus Implementation Plan](superpowers/plans/2026-07-06-runtime-console-record-level-asset-focus.md)
 
-### 8.1 当前进度快照（2026-07-05）
+### 8.1 当前进度快照（2026-07-06）
 
 已完成：
 
@@ -332,17 +333,17 @@ type ControlledPlaybookStep = {
 - Phase 6 Runtime Console operations：控制台已经支持 state filter、文本搜索、pending approval approve/reject、non-terminal run resume，并在操作后刷新 durable controlled run summary。
 - Phase 7 第一批 asset deep links：writeback receipt 已记录结构化 `assetId` / `sourceKey` / `workflowRunId`，Runtime Console 可按资产字段搜索，并能从成功 landing 打开 Deal Desk / Knowledge Vault。
 - Phase 7b failure recovery：controlled run 已有 durable audit events；summary 可展示 `failedStepId`、`canRetry`、`retryReason` 和 `auditEventCount`；Runtime Console 可对符合 playbook retry policy 的 failed step 执行 `重试失败步骤`；retry route 会从第一个失败 step 继续执行，不重放已完成前置步骤。
+- Phase 7c record-level asset focus：Runtime Console 的 sales / knowledge asset landing 现在会传递 `assetId` / `sourceKey` / `workflowRunId`；Deal Desk 会定位到已写回 sales asset 关联的现有 deal；Knowledge Vault 会定位并高亮 exact knowledge asset。
 
 仍未完成：
 
 - `workflow_run` 和 `draft` writeback 仍是显式 skipped receipt，后续需要接入对应 server store。
-- Deal Desk / Knowledge Vault 目前接收的是 workflow / query prefill，还不是 record-level selected asset focus。
 
 因此下一阶段默认进入：
 
-**Phase 7c. Record-Level Asset Focus**
+**Phase 7d. Complete Skipped Writeback Targets**
 
-目标是在 Runtime Console 已能打开 Deal Desk / Knowledge Vault 的基础上，进一步把跳转定位到具体写回的 sales asset / knowledge asset 记录，而不是只带 workflow/query 上下文。
+目标是把当前仍为 skipped receipt 的 `workflow_run` 和 `draft` writeback target 接入真实 server-backed 写回，让 controlled run 的 final writeback 闭环更完整。
 
 ### Phase 0. 冻结方向
 
@@ -513,14 +514,16 @@ type ControlledPlaybookStep = {
 
 建议拆分：
 
-- record-level focus：Deal Desk / Knowledge Vault 根据 prefill 直接选中 sales asset / knowledge asset。
+- record-level focus：Deal Desk / Knowledge Vault 根据 prefill 直接选中 sales asset / knowledge asset。已完成于 Phase 7c。
 - 操作审计增强：把 console-initiated approve / reject / resume 也明确记录到 trace metadata，目前 retry 已有 audit event。
+- skipped writeback targets：把 `workflow_run` / `draft` 从 skipped receipt 升级为真实写回。
 
 完成标准：
 
 - 用户能从一次 controlled run 直接跳到它写回的业务资产所在业务面板。
 - 用户能筛出某个 workflowRunId、playbookId 或 asset id 的 controlled runs。
 - failed run 不再只显示错误文本，而能展示下一步可执行恢复动作。
+- `workflow_run` / `draft` target 不再只记录 skipped receipt，而能写入对应业务状态。
 
 ## 9. 开发规范
 
@@ -625,12 +628,12 @@ npm run test:core-workflows
 
 `test:controlled-runtime` 是第一阶段的最小门禁，覆盖 sales playbook、plan validator、显式 controlled plan 执行和 workflow runner 请求收口。
 
-截至 2026-07-05，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 17 个测试文件、110 个测试，包括：
+截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 20 个测试文件、115 个测试，包括：
 
 - sales playbook / validator / schema / step input。
 - controlled run store、approval store、controlled execution、step executor、workflow bridge。
 - durable resume、failed-step retry runtime、retry route、controlled run list / detail route。
-- client stream recovery 和 Runtime Console retry UI wiring。
+- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus 和 Knowledge Vault focus。
 
 ### 10.3 手工验收场景
 

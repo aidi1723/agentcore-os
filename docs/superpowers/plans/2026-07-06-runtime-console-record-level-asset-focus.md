@@ -920,3 +920,14 @@ git commit -m "docs: track record-level asset focus"
   - Verification: `npm test -- src/__tests__/components/KnowledgeVaultAppWindow.test.tsx` passed.
   - Spec review: approved after the hidden-by-filter case was fixed.
   - Code quality review: approved with non-blocking notes about future focus clearing and JSX readability.
+- Task 5 completed in `581cb75` (`test: cover record-level asset focus in controlled runtime`).
+  - `test:controlled-runtime` now includes asset lookup, Deal Desk focus, and Knowledge Vault focus coverage.
+  - Verification: `npm run test:controlled-runtime` passed with 20 files and 115 tests.
+- Task 6 completed in final documentation pass.
+  - Updated changelog, next steps, controlled runtime manual, this plan, and local daily memory.
+  - Final verification:
+    - `npm run test:controlled-runtime` passed: 20 files, 115 tests.
+    - `npm run test:core-workflows` passed.
+    - `npm run lint` passed with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+    - `npm run build` passed with the same existing `<img>` warning.
+  - Next phase: Complete Skipped Writeback Targets for `workflow_run` and `draft`.

@@ -1,6 +1,6 @@
 # Next Steps
 
-Last updated: 2026-07-05
+Last updated: 2026-07-06
 
 This document is the execution backlog for the current `main` branch. It is narrower than the public roadmap and should be treated as the default work queue for engineering sessions.
 
@@ -47,6 +47,7 @@ Completed in the current controlled runtime line:
 - Runtime Console failed run recovery panel and `重试失败步骤` action.
 - Durable audit events for console-initiated retry.
 - Retry route for eligible failed controlled steps.
+- Runtime Console record-level asset focus for Deal Desk and Knowledge Vault.
 
 Current verification baseline:
 
@@ -59,9 +60,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 17 test files.
-- 110 tests.
-- Includes playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, and Runtime Console retry UI wiring.
+- 20 test files.
+- 115 tests.
+- Includes playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, and record-level asset focus coverage.
 
 Known current lint/build note:
 
@@ -105,19 +106,22 @@ Outcome:
 - Retry actions are persisted and auditable.
 - Non-retryable failures stay blocked instead of being replayed unsafely.
 
-## P0. Record-Level Asset Focus
+## Completed. Record-Level Asset Focus
 
 Why:
 
 - Runtime Console now opens Deal Desk / Knowledge Vault from asset landings.
-- The current open action passes workflow/query context, but does not yet focus the exact written record.
+- The previous open action passed workflow/query context, but did not focus the exact written record.
 - Operators should be able to jump from trace to the exact business asset produced by the run.
 
-Scope:
+Delivered:
 
-- Extend cross-app prefill contracts with optional `assetId`.
-- Make Deal Desk select the written sales asset or related workflow record when opened from Runtime Console.
-- Make Knowledge Vault search/select the written knowledge asset when opened from Runtime Console.
+- Cross-app prefill contracts now accept optional `assetId`, `sourceKey`, and workflow metadata.
+- Sales and knowledge asset lookup helpers resolve exact retained records.
+- Successful sales writeback receipts now include a stable `sourceKey`.
+- Runtime Console forwards record focus metadata in successful asset landing open actions.
+- Deal Desk selects the written sales asset's related existing deal instead of creating a duplicate lead.
+- Knowledge Vault focuses and highlights the exact knowledge asset, including when the previous status filter would hide it.
 - Preserve fallback behavior for old receipts without structured metadata.
 
 Primary files:
@@ -128,13 +132,17 @@ Primary files:
 - `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
 - `src/lib/sales-assets.ts`
 - `src/lib/knowledge-assets.ts`
+- `src/lib/executor/runtime/writeback.ts`
+- `src/__tests__/lib/asset-record-focus.test.ts`
+- `src/__tests__/components/DealDeskAppWindow.test.tsx`
+- `src/__tests__/components/KnowledgeVaultAppWindow.test.tsx`
 
-Expected outcome:
+Outcome:
 
 - A controlled run's asset landing opens the exact retained asset, not only the destination app.
 - Operators can inspect what was written without manual search.
 
-## P1. Complete Skipped Writeback Targets
+## P0. Complete Skipped Writeback Targets
 
 Why:
 
@@ -163,7 +171,7 @@ Expected outcome:
 - Controlled runs can update workflow and draft state with real receipts.
 - Unsupported writeback target count is reduced.
 
-## P2. Support Playbook Migration
+## P1. Support Playbook Migration
 
 Why:
 
@@ -194,7 +202,7 @@ Expected outcome:
 - Support workflow becomes the second controlled playbook.
 - Runtime Console can compare multiple playbook families.
 
-## P3. Trace Governance
+## P2. Trace Governance
 
 Why:
 

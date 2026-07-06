@@ -157,6 +157,14 @@ npm run release:handoff:snapshot:check -- <snapshot.json>
 
 该 validator 会检查 snapshot schema、内嵌 `release:handoff:check` 报告结构，以及 `productionReady: false`、`publishingPerformed: false`、`evidenceOnly: true` 等发布边界字段。它不会发布、上传、打 tag、打包或修改 evidence 文件。
 
+如果需要复核最近的本地证据，而不是手工查找带时间戳的文件，可以运行：
+
+```bash
+npm run release:handoff:snapshot:index -- --check --limit 5
+```
+
+该 index 命令是只读的。它会按新到旧列出本地 snapshot，并可校验列出的文件；它不会创建 evidence、修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
+
 ## 完整发布前验证
 
 公开发布说明、外部演示或交付前，建议运行：
@@ -165,6 +173,7 @@ npm run release:handoff:snapshot:check -- <snapshot.json>
 npm run release:handoff:check
 npm run release:handoff:snapshot
 npm run release:handoff:snapshot:check -- <snapshot.json>
+npm run release:handoff:snapshot:index -- --check --limit 5
 ```
 
 如果聚合门禁失败，需要复现具体子命令时，再按 JSON 输出里的 failed check 单独运行对应命令。

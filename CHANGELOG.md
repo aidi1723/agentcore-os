@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Release Handoff Snapshot Index
+
+- Added `npm run release:handoff:snapshot:index`, a local read-only index for handoff evidence snapshots under `output/release-handoff/`.
+- The index lists snapshots newest first, supports `--limit <n>`, and can validate listed snapshots with `--check` by reusing the snapshot validator.
+- The command performs no evidence creation, mutation, publishing, tagging, artifact upload, installer packaging, GitHub Release creation, browser smoke, or production-readiness claim.
+- Added snapshot index coverage and included it in `test:controlled-runtime`.
+
 ### Release Handoff Snapshot Validation
 
 - Added `npm run release:handoff:snapshot:check -- <snapshot.json>`, a local read-only validator for handoff evidence snapshot schema and release-boundary fields.

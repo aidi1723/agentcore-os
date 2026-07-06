@@ -165,6 +165,18 @@ The validator is read-only. It checks the snapshot schema, embedded
 `productionReady: false`, `publishingPerformed: false`, and
 `evidenceOnly: true`.
 
+To review recent local evidence without manually locating timestamped files,
+run:
+
+```bash
+npm run release:handoff:snapshot:index -- --check --limit 5
+```
+
+The index command is read-only. It lists local snapshots newest first and can
+validate the listed files; it does not create evidence, mutate evidence,
+publish, upload, tag, package installers, create GitHub Releases, run browser
+smoke, or claim production readiness.
+
 ## Full Verification
 
 Before a public release announcement or handoff, run:
@@ -173,6 +185,7 @@ Before a public release announcement or handoff, run:
 npm run release:handoff:check
 npm run release:handoff:snapshot
 npm run release:handoff:snapshot:check -- <snapshot.json>
+npm run release:handoff:snapshot:index -- --check --limit 5
 ```
 
 If the aggregate gate fails and the failed child command needs to be reproduced

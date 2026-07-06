@@ -84,6 +84,7 @@ Recommended:
 ```bash
 npm run release:handoff:check
 npm run release:handoff:snapshot
+npm run release:handoff:snapshot:index -- --check --limit 5
 git status
 ```
 
@@ -95,6 +96,7 @@ Confirm:
 - `release:handoff:snapshot` writes local evidence under `output/release-handoff/`
 - `release:handoff:snapshot` reports `evidenceOnly: true`
 - `release:handoff:snapshot:check -- <snapshot.json>` validates the local evidence schema and release boundary
+- `release:handoff:snapshot:index -- --check --limit 5` lists and validates recent local evidence without creating, mutating, or publishing evidence
 - `release:hygiene:check` reports `ok: true` and `productionReady: false`
 - secret pattern review results are warning-only and still require human review
 - public docs say local delivery demo ready, not production ready
@@ -117,6 +119,11 @@ release artifacts and should not be committed by default.
 
 `release:handoff:snapshot:check` is read-only. It validates one local snapshot
 file and does not publish, upload, tag, package, or modify evidence.
+
+`release:handoff:snapshot:index` is read-only. It lists local snapshot files
+newest first and can validate the listed files with `--check`; it does not
+create evidence, mutate evidence, publish, upload, tag, package, or claim
+production readiness.
 
 ## 6.1) Command-line release sanity
 

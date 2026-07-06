@@ -48,6 +48,7 @@ Completed in the current controlled runtime line:
 - Durable audit events for console-initiated retry.
 - Retry route for eligible failed controlled steps.
 - Runtime Console record-level asset focus for Deal Desk and Knowledge Vault.
+- Real server-backed `workflow_run` and `draft` controlled writeback targets.
 
 Current verification baseline:
 
@@ -61,7 +62,7 @@ npm run build
 Current `test:controlled-runtime` coverage:
 
 - 20 test files.
-- 118 tests.
+- 119 tests.
 - Includes playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, and record-level asset focus coverage.
 
 Known current lint/build note:
@@ -143,19 +144,21 @@ Outcome:
 - A controlled run's asset landing opens the exact retained asset, not only the destination app.
 - Operators can inspect what was written without manual search.
 
-## P0. Complete Skipped Writeback Targets
+## Completed. Complete Skipped Writeback Targets
 
 Why:
 
-- `workflow_run` and `draft` writeback targets are currently explicit skipped receipts.
-- This is acceptable for trace honesty, but the business loop is incomplete.
+- `workflow_run` and `draft` writeback targets were explicit skipped receipts.
+- Trace honesty was preserved, but the business loop was incomplete without real workflow/draft records.
 
-Scope:
+Delivered:
 
-- Implement real writeback for `workflow_run`.
-- Implement real writeback for `draft`.
-- Keep writeback idempotent by controlled run id / workflow run id / source key.
-- Keep unapproved output out of durable business assets.
+- `workflow_run` writeback now upserts into the workflow run store through a stable `workflowRunId`.
+- `draft` writeback now upserts into the draft store through `controlled-draft:{workflowRunId}`.
+- Receipts include stable `sourceKey`, `workflowRunId`, and `assetId` for drafts.
+- Final approved writeback now also updates workflow run state to `completed`.
+- Approval-gated writeback remains blocked until approval.
+- Repeat writeback / resume paths update existing workflow and draft records instead of creating duplicates.
 
 Primary files:
 
@@ -166,11 +169,41 @@ Primary files:
 - `src/lib/server/draft-store.ts`
 - `src/__tests__/lib/executor/runtime/writeback.test.ts`
 - `src/__tests__/lib/executor/runtime/resume.test.ts`
+- `src/__tests__/lib/executor/controlled-runtime.test.ts`
+
+Outcome:
+
+- Controlled runs can update workflow and draft state with real receipts.
+- The sales controlled runtime no longer reports unsupported skipped receipts for `workflow_run` or `draft`.
+- `test:controlled-runtime` covers the workflow/draft stores and final writeback receipt shape.
+
+## P0. Runtime Console Workflow And Draft Deep Links
+
+Why:
+
+- The controlled runtime now writes workflow and draft records, but Runtime Console asset landings still focus on sales/knowledge assets.
+- Operators should be able to inspect the workflow run and draft records that were written by the controlled trace without manual search.
+
+Scope:
+
+- Add workflow/draft landing metadata to controlled run summaries where receipt metadata exists.
+- Add Runtime Console open actions for workflow run and draft records using existing cross-app event patterns.
+- Keep this as navigation/focus only; do not add new workflow or draft editing behavior.
+
+Primary files:
+
+- `src/lib/executor/runtime/console-summary.ts`
+- `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
+- `src/lib/ui-events.ts`
+- `src/components/apps/WorkflowRunnerAppWindow.tsx`
+- `src/components/apps/ContentStudioAppWindow.tsx`
+- `src/__tests__/lib/executor/runtime/console-summary.test.ts`
+- `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
 
 Expected outcome:
 
-- Controlled runs can update workflow and draft state with real receipts.
-- Unsupported writeback target count is reduced.
+- Runtime Console can open sales, knowledge, workflow, and draft writeback records from one trace.
+- Operators no longer need to copy ids out of receipt text to find workflow/draft state.
 
 ## P1. Support Playbook Migration
 

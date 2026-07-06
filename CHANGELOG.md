@@ -115,8 +115,10 @@
 
 - Added server-backed controlled writeback for approved `sales-pipeline-v1` outputs into sales assets and knowledge assets.
 - Made controlled writeback idempotent by `workflowRunId` / controlled run source key, and recorded concrete writeback receipts in durable controlled step trace records.
-- Kept unsupported `workflow_run` and `draft` writeback targets explicit as skipped receipts until their stores are wired in a later slice.
-- Added unit and resume integration coverage for approved writeback, unapproved skips, unsupported targets, idempotency, and final resume-driven asset creation.
+- Added server-backed controlled writeback for `workflow_run` and `draft` targets.
+- Made workflow run writeback idempotent by stable `workflowRunId` and draft writeback idempotent by `controlled-draft:{workflowRunId}`.
+- Final approved writeback now records `sales_asset`, `knowledge_asset`, and `workflow_run` receipts, while draft writeback is produced from the `draft_outreach` step.
+- Added unit and resume integration coverage for approved writeback, unapproved skips, workflow/draft writes, idempotency, and final resume-driven asset creation.
 
 ### Runtime Console Trace Landing
 
@@ -174,7 +176,7 @@
 - Verified `npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` — 3 tests passing.
 - Verified `npm test -- src/__tests__/components/DealDeskAppWindow.test.tsx` — 2 tests passing.
 - Verified `npm test -- src/__tests__/components/KnowledgeVaultAppWindow.test.tsx` — 2 tests passing.
-- Verified `npm run test:controlled-runtime` — 20 files, 118 tests passing.
+- Verified `npm run test:controlled-runtime` — 20 files, 119 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.
 - Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - Verified `npm run build` — exit 0 with the same existing `<img>` warning.

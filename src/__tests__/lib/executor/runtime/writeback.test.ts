@@ -254,6 +254,7 @@ describe("writeControlledStepAssets", () => {
     );
     expect((await listSalesAssetStoreSnapshot()).salesAssets).toHaveLength(0);
     expect((await listKnowledgeAssetStoreSnapshot()).knowledgeAssets).toHaveLength(0);
+    expect((await listWorkflowRunStoreSnapshot()).workflowRuns).toHaveLength(0);
   });
 
   it("is idempotent for the same controlled run", async () => {
@@ -276,6 +277,7 @@ describe("writeControlledStepAssets", () => {
 
     expect((await listSalesAssetStoreSnapshot()).salesAssets).toHaveLength(1);
     expect((await listKnowledgeAssetStoreSnapshot()).knowledgeAssets).toHaveLength(1);
+    expect((await listWorkflowRunStoreSnapshot()).workflowRuns).toHaveLength(1);
   });
 
   it("is idempotent for workflow run and draft targets", async () => {

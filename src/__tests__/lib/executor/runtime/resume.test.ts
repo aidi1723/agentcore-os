@@ -197,8 +197,18 @@ describe("resumeControlledExecutionRun", () => {
     expect(writebackStep?.writebackReceipts.map((receipt) => receipt.target)).toEqual([
       "sales_asset",
       "knowledge_asset",
+      "workflow_run",
     ]);
     expect(writebackStep?.writebackReceipts.every((receipt) => receipt.ok)).toBe(true);
+    expect(writebackStep?.writebackReceipts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          target: "workflow_run",
+          workflowRunId: "workflow-1",
+          sourceKey: "controlled-run:resume-run-1:workflow_run",
+        }),
+      ]),
+    );
 
     const salesSnapshot = await listSalesAssetStoreSnapshot();
     expect(salesSnapshot.salesAssets).toHaveLength(1);

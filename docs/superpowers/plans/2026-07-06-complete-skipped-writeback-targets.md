@@ -51,7 +51,7 @@ Modify:
 - Modify: `src/__tests__/lib/executor/runtime/writeback.test.ts`
 - Modify: `src/lib/executor/runtime/writeback.ts`
 
-- [ ] **Step 1: Write failing workflow run store test**
+- [x] **Step 1: Write failing workflow run store test**
 
 In `src/__tests__/lib/executor/runtime/writeback.test.ts`, import:
 
@@ -102,7 +102,7 @@ it("writes workflow run target to the workflow run store", async () => {
 });
 ```
 
-- [ ] **Step 2: Verify test fails**
+- [x] **Step 2: Verify test fails**
 
 Run:
 
@@ -112,7 +112,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts
 
 Expected: FAIL because `workflow_run` still returns `Skipped unsupported writeback target workflow_run`.
 
-- [ ] **Step 3: Implement workflow run writer**
+- [x] **Step 3: Implement workflow run writer**
 
 In `src/lib/executor/runtime/writeback.ts`, import:
 
@@ -196,7 +196,7 @@ Wire it in the target switch before unsupported fallback:
 }
 ```
 
-- [ ] **Step 4: Verify workflow run test passes**
+- [x] **Step 4: Verify workflow run test passes**
 
 Run:
 
@@ -206,7 +206,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts
 
 Expected: PASS for workflow run behavior; draft may still be skipped.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/executor/runtime/writeback.ts src/__tests__/lib/executor/runtime/writeback.test.ts
@@ -220,7 +220,7 @@ git commit -m "feat: write controlled workflow runs"
 - Modify: `src/__tests__/lib/executor/runtime/writeback.test.ts`
 - Modify: `src/lib/executor/runtime/writeback.ts`
 
-- [ ] **Step 1: Write failing draft store test**
+- [x] **Step 1: Write failing draft store test**
 
 In `src/__tests__/lib/executor/runtime/writeback.test.ts`, import:
 
@@ -268,7 +268,7 @@ it("writes draft target to the draft store", async () => {
 });
 ```
 
-- [ ] **Step 2: Verify test fails**
+- [x] **Step 2: Verify test fails**
 
 Run:
 
@@ -278,7 +278,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts
 
 Expected: FAIL because `draft` still returns `Skipped unsupported writeback target draft`.
 
-- [ ] **Step 3: Implement draft writer**
+- [x] **Step 3: Implement draft writer**
 
 In `src/lib/executor/runtime/writeback.ts`, import:
 
@@ -361,7 +361,7 @@ Wire it:
 }
 ```
 
-- [ ] **Step 4: Verify draft test passes**
+- [x] **Step 4: Verify draft test passes**
 
 Run:
 
@@ -371,7 +371,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/executor/runtime/writeback.ts src/__tests__/lib/executor/runtime/writeback.test.ts
@@ -385,7 +385,7 @@ git commit -m "feat: write controlled drafts"
 - Modify: `src/__tests__/lib/executor/runtime/writeback.test.ts`
 - Modify: `src/__tests__/lib/executor/controlled-runtime.test.ts`
 
-- [ ] **Step 1: Add idempotency test for new targets**
+- [x] **Step 1: Add idempotency test for new targets**
 
 Add to `writeback.test.ts`:
 
@@ -428,7 +428,7 @@ it("is idempotent for workflow run and draft targets", async () => {
 });
 ```
 
-- [ ] **Step 2: Update controlled runtime skipped assertions**
+- [x] **Step 2: Update controlled runtime skipped assertions**
 
 In `src/__tests__/lib/executor/controlled-runtime.test.ts`, update assertions that expect:
 
@@ -455,7 +455,7 @@ sourceKey: "controlled-run:controlled-runtime-test:draft",
 workflowRunId: "controlled-runtime-test",
 ```
 
-- [ ] **Step 3: Verify targeted tests pass**
+- [x] **Step 3: Verify targeted tests pass**
 
 Run:
 
@@ -465,7 +465,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts src/__tests__/l
 
 Expected: PASS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/__tests__/lib/executor/runtime/writeback.test.ts src/__tests__/lib/executor/controlled-runtime.test.ts
@@ -482,7 +482,7 @@ git commit -m "test: cover workflow and draft writeback"
 - Modify: `docs/superpowers/plans/2026-07-06-complete-skipped-writeback-targets.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Update docs**
+- [x] **Step 1: Update docs**
 
 Document:
 
@@ -491,7 +491,15 @@ Document:
 - Runtime Console deep links for workflow/draft remain a future slice.
 - Current `test:controlled-runtime` count after verification.
 
-- [ ] **Step 2: Run final gates**
+Progress:
+
+- Implemented in commits `a5b8a0f` and `d44aa6f`, with one follow-up resume regression assertion included in the final documentation commit.
+- `workflow_run` writeback uses stable `workflowRunId`.
+- `draft` writeback uses stable `controlled-draft:{workflowRunId}`.
+- Final approved writeback includes `sales_asset`, `knowledge_asset`, and `workflow_run` receipts.
+- Current verified `test:controlled-runtime` count after the resume assertion update: 20 files / 119 tests.
+
+- [x] **Step 2: Run final gates**
 
 Run:
 
@@ -510,7 +518,15 @@ Expected:
 - lint/build exit 0 with only the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`,
 - `git diff --check` exits 0.
 
-- [ ] **Step 3: Commit docs**
+Verified:
+
+- `npm run test:controlled-runtime` — 20 files / 119 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing `<img>` warning.
+- `git diff --check` — exit 0.
+
+- [x] **Step 3: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-complete-skipped-writeback-targets.md

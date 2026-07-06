@@ -893,3 +893,18 @@ git commit -m "docs: track record-level asset focus"
 - Spec coverage: prefill contracts, lookup helpers, Runtime Console metadata forwarding, Deal Desk focus, Knowledge Vault focus, fallbacks, tests, and docs are covered.
 - Placeholder scan: no incomplete placeholder markers.
 - Type consistency: `assetId`, `sourceKey`, and `workflowRunId` are used consistently across spec, plan, UI prefill types, and tests.
+
+## Execution Record
+
+- Task 1 completed in `ecdaed4` (`feat: add record-level asset lookup helpers`).
+  - Verification: `npm test -- src/__tests__/lib/asset-record-focus.test.ts` passed.
+  - Spec review: approved.
+  - Code quality review: approved, with unrelated existing `tsc --noEmit` failures noted outside this task.
+- Task 2 completed across `c953b8d`, `0470756`, and `fb0e9f9`.
+  - `c953b8d`: extended prefill contracts and Runtime Console record metadata forwarding.
+  - `0470756`: added sales `sourceKey` assertion to Runtime Console component coverage.
+  - `fb0e9f9`: added production sales asset receipt `sourceKey` and lower-level writeback coverage.
+  - Verification: `npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` passed.
+  - Verification: `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` passed.
+  - Spec review: approved after the sales `sourceKey` assertion was added.
+  - Code quality review: approved after production sales receipt `sourceKey` generation was added.

@@ -342,10 +342,15 @@ Replay sandbox failure diagnostics hardening 也已完成：
 - failed report items now classify `contract_build_failed`, `sandbox_artifact_failed`, and `guarantee_violation`.
 - compact failed JSON includes `failureKind` and `guaranteeErrors`.
 
+Replay sandbox failure harness expansion 也已完成：
+
+- direct harness modes now cover contract, sandbox, and guarantee failures.
+- supported modes emit parseable failed compact JSON and exit non-zero.
+
 下一阶段允许进入：
 
-**Replay Sandbox Failure Harness Expansion**
+**Governed Fixture And Playbook Expansion Review**
 
-该阶段只能为 synthetic contract / sandbox / guarantee failures 增加 direct harness modes，用于固定 replay sandbox failed process behavior。仍不能进入真实 replay。
+该阶段只能审查 governed fixture / playbook expansion 方向，用于决定是否新增 fixture coverage、迁移新 controlled playbook，或先强化 operational maintenance。仍不能进入真实 replay。
 
 该阶段仍不能实现真实工具 replay，不能调用 route，不能读写 runtime store，不能写业务资产，不能恢复 raw governed artifact payload。

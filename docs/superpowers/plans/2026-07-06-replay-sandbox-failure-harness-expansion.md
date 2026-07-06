@@ -33,7 +33,7 @@
 **Files:**
 - Modify: `src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
 
-- [ ] **Step 1: Extend the subprocess helper**
+- [x] **Step 1: Extend the subprocess helper**
 
 Change `runFailureHarness()` to accept an optional mode:
 
@@ -56,7 +56,7 @@ function runFailureHarness(mode?: string) {
 }
 ```
 
-- [ ] **Step 2: Keep the default contract failure assertion**
+- [x] **Step 2: Keep the default contract failure assertion**
 
 Keep the existing no-argument harness test and rename it to:
 
@@ -73,7 +73,7 @@ artifactStatus: null,
 guaranteeErrors: [],
 ```
 
-- [ ] **Step 3: Add explicit contract mode coverage**
+- [x] **Step 3: Add explicit contract mode coverage**
 
 Add a test:
 
@@ -94,7 +94,7 @@ Add a test:
   });
 ```
 
-- [ ] **Step 4: Add sandbox artifact failure mode coverage**
+- [x] **Step 4: Add sandbox artifact failure mode coverage**
 
 Add a test:
 
@@ -128,7 +128,7 @@ Add a test:
   });
 ```
 
-- [ ] **Step 5: Add guarantee violation failure mode coverage**
+- [x] **Step 5: Add guarantee violation failure mode coverage**
 
 Add a test:
 
@@ -154,7 +154,7 @@ Add a test:
   });
 ```
 
-- [ ] **Step 6: Add unknown mode guard coverage**
+- [x] **Step 6: Add unknown mode guard coverage**
 
 Add a test:
 
@@ -170,7 +170,7 @@ Add a test:
   });
 ```
 
-- [ ] **Step 7: Run tests and verify RED**
+- [x] **Step 7: Run tests and verify RED**
 
 Run:
 
@@ -180,7 +180,7 @@ npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts
 
 Expected: FAIL because `sandbox`, `guarantee`, and unknown mode behavior are not implemented.
 
-- [ ] **Step 8: Commit failing tests**
+- [x] **Step 8: Commit failing tests**
 
 ```bash
 git add src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts
@@ -195,7 +195,7 @@ git commit -m "test: specify replay sandbox failure harness modes"
 **Files:**
 - Modify: `scripts/trace-fixtures/replay-sandbox-failure-harness.mjs`
 
-- [ ] **Step 1: Add artifact builder import**
+- [x] **Step 1: Add artifact builder import**
 
 Add:
 
@@ -203,7 +203,7 @@ Add:
 import { buildNoSideEffectReplayResultArtifact } from "@/lib/executor/runtime/replay-sandbox-contracts";
 ```
 
-- [ ] **Step 2: Add mode parsing and guard**
+- [x] **Step 2: Add mode parsing and guard**
 
 Add near the top after imports:
 
@@ -219,7 +219,7 @@ if (!supportedModes.includes(mode)) {
 }
 ```
 
-- [ ] **Step 3: Extract contract failure report builder**
+- [x] **Step 3: Extract contract failure report builder**
 
 Replace the current top-level fixture mutation/report creation with:
 
@@ -240,7 +240,7 @@ function buildContractFailureReport() {
 }
 ```
 
-- [ ] **Step 4: Add sandbox artifact failure report builder**
+- [x] **Step 4: Add sandbox artifact failure report builder**
 
 Add:
 
@@ -257,7 +257,7 @@ function buildSandboxArtifactFailureReport() {
 }
 ```
 
-- [ ] **Step 5: Add guarantee violation report builder**
+- [x] **Step 5: Add guarantee violation report builder**
 
 Add:
 
@@ -280,7 +280,7 @@ function buildGuaranteeViolationReport() {
 }
 ```
 
-- [ ] **Step 6: Dispatch by mode and print output**
+- [x] **Step 6: Dispatch by mode and print output**
 
 Add:
 
@@ -300,7 +300,7 @@ if (!report.ok) {
 }
 ```
 
-- [ ] **Step 7: Run targeted tests and verify GREEN**
+- [x] **Step 7: Run targeted tests and verify GREEN**
 
 Run:
 
@@ -310,7 +310,7 @@ npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 8: Verify committed fixture command remains green**
+- [x] **Step 8: Verify committed fixture command remains green**
 
 Run:
 
@@ -320,7 +320,7 @@ npm run replay:sandbox:fixtures --silent
 
 Expected: exit 0, `ok: true`, `failedItems: []`.
 
-- [ ] **Step 9: Commit implementation**
+- [x] **Step 9: Commit implementation**
 
 ```bash
 git add scripts/trace-fixtures/replay-sandbox-failure-harness.mjs
@@ -335,7 +335,7 @@ git commit -m "feat: expand replay sandbox failure harness modes"
 **Files:**
 - No source file changes expected unless the test command list changes.
 
-- [ ] **Step 1: Run controlled runtime gate**
+- [x] **Step 1: Run controlled runtime gate**
 
 Run:
 
@@ -345,7 +345,7 @@ npm run test:controlled-runtime
 
 Expected: PASS with the previous 35 files plus the additional harness mode tests.
 
-- [ ] **Step 2: Commit package changes if needed**
+- [x] **Step 2: Commit package changes if needed**
 
 No commit is expected unless `package.json` changes.
 
@@ -363,11 +363,11 @@ No commit is expected unless `package.json` changes.
 - Modify: `docs/superpowers/plans/2026-07-06-replay-sandbox-failure-harness-expansion.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Mark this plan complete**
+- [x] **Step 1: Mark this plan complete**
 
 Update checkboxes and add completion notes with commits and verification evidence.
 
-- [ ] **Step 2: Update project docs**
+- [x] **Step 2: Update project docs**
 
 Record the new capability as:
 
@@ -381,11 +381,11 @@ Set the next recommended phase to:
 Governed Fixture And Playbook Expansion Review
 ```
 
-- [ ] **Step 3: Update daily memory**
+- [x] **Step 3: Update daily memory**
 
 Append a concise record to `memory/2026-07-06.md` with phase name, files changed, commits, verification, and next phase.
 
-- [ ] **Step 4: Run final verification**
+- [x] **Step 4: Run final verification**
 
 Run:
 
@@ -401,7 +401,7 @@ npm run test:core-workflows
 
 Expected: all commands exit 0.
 
-- [ ] **Step 5: Commit docs and records**
+- [x] **Step 5: Commit docs and records**
 
 ```bash
 git add CHANGELOG.md README.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/NEXT_STEPS.md docs/PROJECT_FRAMEWORK.zh-CN.md docs/ROADMAP.md docs/superpowers/plans/2026-07-06-replay-sandbox-failure-harness-expansion.md
@@ -413,13 +413,46 @@ git commit -m "docs: complete replay sandbox failure harness expansion"
 
 ## Final Verification Checklist
 
-- [ ] `git diff --check`
-- [ ] `npm run replay:sandbox:fixtures --silent`
-- [ ] `npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
-- [ ] `npm run trace:fixtures --silent`
-- [ ] `npm run trace:fixtures:summary --silent`
-- [ ] `npm run test:controlled-runtime`
-- [ ] `npm run test:core-workflows`
+- [x] `git diff --check`
+- [x] `npm run replay:sandbox:fixtures --silent`
+- [x] `npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
+- [x] `npm run trace:fixtures --silent`
+- [x] `npm run trace:fixtures:summary --silent`
+- [x] `npm run test:controlled-runtime`
+- [x] `npm run test:core-workflows`
+
+## Completion Notes
+
+Completed on 2026-07-06.
+
+Commits:
+
+- `999232e` — `docs: spec replay sandbox failure harness expansion`
+- `ad43ab7` — `docs: plan replay sandbox failure harness expansion`
+- `0738151` — `test: specify replay sandbox failure harness modes`
+- `7e23a87` — `feat: expand replay sandbox failure harness modes`
+
+TDD evidence:
+
+- RED: `npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts` failed because `sandbox`, `guarantee`, and unknown mode behavior still used the old contract-only harness path.
+- GREEN: the same targeted command passed after adding the mode dispatcher and synthetic report builders.
+
+Delivered capability:
+
+- Replay sandbox failure harness direct modes for contract, sandbox, and guarantee failures.
+- No-argument harness behavior remains contract failure.
+- Unknown mode exits `2` with stderr and no report JSON.
+- Committed `npm run replay:sandbox:fixtures --silent` remains green.
+
+Final verification evidence:
+
+- `git diff --check` — passed.
+- `npm run replay:sandbox:fixtures --silent` — passed, 2 total / 2 passed / 0 failed.
+- `npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts` — passed, 1 file / 6 tests.
+- `npm run trace:fixtures --silent` — passed, 2 total / 2 passed / 0 failed.
+- `npm run trace:fixtures:summary --silent` — passed, Status OK.
+- `npm run test:controlled-runtime` — passed, 35 files / 188 tests.
+- `npm run test:core-workflows` — passed, all core workflow regressions passed.
 
 ## Expected Next Phase
 

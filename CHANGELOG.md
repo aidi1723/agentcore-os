@@ -104,13 +104,20 @@
 
 ## Unreleased
 
+### Replay Sandbox Failure Harness Expansion
+
+- Added direct replay sandbox failure harness modes for `contract`, `sandbox`, and `guarantee` failures.
+- Kept the no-argument harness mode backward-compatible with contract failure output.
+- Added unknown-mode fail-closed behavior with exit `2` and no report JSON.
+- Preserved committed `npm run replay:sandbox:fixtures` as an all-green no-side-effect command.
+- Expanded `test:controlled-runtime` to 35 files / 188 tests.
+
 ### Replay Sandbox Failure Diagnostics Hardening
 
 - Added replay sandbox failure diagnostics taxonomy for contract, sandbox, and guarantee failures.
 - Classified replay sandbox catalog failures as `contract_build_failed`, `sandbox_artifact_failed`, or `guarantee_violation`.
 - Added `failureKind` and `guaranteeErrors` to compact failed replay sandbox catalog JSON output.
 - Added synthetic/test-only failure coverage without adding failing committed fixture JSON or changing the no-side-effect replay boundary.
-- Expanded `test:controlled-runtime` to 35 files / 184 tests.
 
 ### Replay Sandbox Catalog CI Summary
 

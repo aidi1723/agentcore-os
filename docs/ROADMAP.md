@@ -38,7 +38,7 @@ Completed in the current controlled runtime line:
 - Governed trace artifact builder and local trace artifact route.
 - Runtime Console governed trace copy action.
 - Conservative terminal-run prune helper.
-- Governed trace fixture builder, validator, committed sales/support fixtures, pure fixture replay runner, fixture catalog, catalog report, JSON summary command, human-readable summary command, failure harness, fixture builder CLI, replay sandbox fixture contract bridge, replay sandbox catalog report, replay sandbox catalog CI summary command, and replay sandbox failure diagnostics taxonomy.
+- Governed trace fixture builder, validator, committed sales/support fixtures, pure fixture replay runner, fixture catalog, catalog report, JSON summary command, human-readable summary command, failure harness, fixture builder CLI, replay sandbox fixture contract bridge, replay sandbox catalog report, replay sandbox catalog CI summary command, replay sandbox failure diagnostics taxonomy, and direct replay sandbox failure harness modes.
 - Fixture refresh workflow, replay contract, failure fixture matrix, refresh review checklist, CI gate guide, catalog coverage guide, and governed trace operational runbook.
 
 Current fixture replay remains metadata-only. It does not call LLMs, execute tools, call API routes, mutate stores, or write assets.
@@ -175,14 +175,27 @@ The report now:
 
 ### P8. Replay Sandbox Failure Harness Expansion
 
-Next, expand the direct replay sandbox failure harness:
+Completed harness reference:
 
-- add explicit contract, sandbox, and guarantee failure modes,
-- prove each mode exits non-zero with parseable compact JSON,
-- keep committed `replay:sandbox:fixtures` green,
-- reuse the Phase 10ac taxonomy without changing fixture JSON.
+- `scripts/trace-fixtures/replay-sandbox-failure-harness.mjs`
+- `src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
 
-### P9. Governed Fixture And Playbook Expansion
+The harness now:
+
+- supports explicit contract, sandbox, and guarantee failure modes,
+- proves each mode exits non-zero with parseable compact JSON,
+- keeps committed `replay:sandbox:fixtures` green,
+- reuses the Phase 10ac taxonomy without changing fixture JSON.
+
+### P9. Governed Fixture And Playbook Expansion Review
+
+Next, review whether to expand fixtures or playbooks:
+
+- inspect current sales/support governed fixture coverage,
+- decide whether the next phase should add fixture coverage, migrate a new controlled playbook, or harden operational retention,
+- produce a focused spec before any new fixture JSON or playbook code is added.
+
+### P10. Governed Fixture And Playbook Expansion
 
 Expand only when the current governed trace/replay gates stay stable:
 
@@ -190,7 +203,7 @@ Expand only when the current governed trace/replay gates stay stable:
 - add new controlled playbooks only through spec -> plan -> tests -> fixture/replay gates,
 - do not use fixture expansion as a substitute for real replay boundary design.
 
-### P10. Trace Operations Hardening
+### P11. Trace Operations Hardening
 
 Turn the governed trace operational runbook into a tighter maintenance path:
 
@@ -200,7 +213,7 @@ Turn the governed trace operational runbook into a tighter maintenance path:
 - summary/harness drift checks,
 - clearer handoff records for fixture replacement.
 
-### P11. Runtime-Supporting UI And App Polish
+### P12. Runtime-Supporting UI And App Polish
 
 Polish UI only when it serves runtime operation:
 

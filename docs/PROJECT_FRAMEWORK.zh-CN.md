@@ -129,7 +129,8 @@ User / Trigger
 - catalog-level replay sandbox report 已在 `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts` 实现为 explicit catalog -> contract -> artifact 的纯报告 helper。
 - replay sandbox catalog CI summary 已通过 `npm run replay:sandbox:fixtures` 实现为 compact JSON 命令。
 - replay sandbox failure diagnostics taxonomy 已把 contract bridge failure、sandbox artifact failure 和 guarantee violation 固定为稳定 `failureKind` / `guaranteeErrors` 输出。
-- 因此下一阶段只能扩展 replay sandbox failure harness，不能直接写真实工具 replay。
+- replay sandbox failure harness direct modes 已覆盖 contract、sandbox 和 guarantee failures。
+- 因此下一阶段只能做 governed fixture / playbook expansion review，不能直接写真实工具 replay。
 
 ## 6. 文档体系
 
@@ -286,12 +287,20 @@ git diff --check
 
 目标：
 
-- 为 replay sandbox failure harness 增加 direct modes：contract、sandbox、guarantee。
-- 证明每类失败都输出 parseable compact JSON 并以非零退出。
+- 已为 replay sandbox failure harness 增加 direct modes：contract、sandbox、guarantee。
+- 已证明每类失败都输出 parseable compact JSON 并以非零退出。
 - committed `replay:sandbox:fixtures` 继续保持全绿。
 - 不新增 failing committed fixture JSON，不进入真实工具 replay。
 
-### P9. Governed Fixture / Playbook Expansion
+### P9. Governed Fixture / Playbook Expansion Review
+
+目标：
+
+- 审查当前 sales/support governed fixtures 是否足够。
+- 判断下一步应该新增 fixture coverage、迁移新 controlled playbook，还是先强化 operational retention / maintenance。
+- 输出下一阶段 spec 范围，不能直接创建新 fixture JSON 或新 playbook。
+
+### P10. Governed Fixture / Playbook Expansion
 
 目标：
 
@@ -299,7 +308,7 @@ git diff --check
 - 新 fixture 必须通过 redaction、approval、writeback metadata、stable identity 和 catalog coverage 审查。
 - 新 playbook 必须先进入 spec / plan / TDD / fixture replay 边界，而不是直接接真实工具。
 
-### P10. Operational Retention And Maintenance Hardening
+### P11. Operational Retention And Maintenance Hardening
 
 目标：
 
@@ -307,7 +316,7 @@ git diff --check
 - 继续收紧 raw trace retention、fixture refresh stop condition、summary/harness drift 处理。
 - 保持 `trace:fixtures` 作为机器可读自动化合同，`trace:fixtures:summary` 作为人读 triage。
 
-### P11. Runtime-Serving UI / App Polish
+### P12. Runtime-Serving UI / App Polish
 
 目标：
 

@@ -38,6 +38,10 @@ describe("replay sandbox fixture contract bridge", () => {
               stepId: "human_review",
               decision: "approved",
             },
+            {
+              stepId: "writeback",
+              decision: "approved",
+            },
           ],
         },
         storePolicy: {
@@ -93,6 +97,7 @@ describe("replay sandbox fixture contract bridge", () => {
         "Fixture sourceRunId is required",
         "Fixture playbookVersion is required",
         "Fixture redaction boundary is required",
+        "Replay input playbookVersion is required",
         "Replay input redaction boundary is required",
       ],
     });

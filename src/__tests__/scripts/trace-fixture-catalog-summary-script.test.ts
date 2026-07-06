@@ -1,7 +1,10 @@
 import { spawnSync } from "node:child_process";
 import { buildControlledTraceFixtureCatalogReport } from "@/__tests__/fixtures/controlled-traces/catalog-report";
 import { formatControlledTraceFixtureCatalogSummary } from "@/__tests__/fixtures/controlled-traces/catalog-summary";
-import { buildCombinedSummaryFailureCatalogEntry } from "@/__tests__/fixtures/controlled-traces/synthetic-failures";
+import {
+  buildCombinedSummaryFailureCatalogEntry,
+  buildCombinedValidationFailureCatalogEntry,
+} from "@/__tests__/fixtures/controlled-traces/synthetic-failures";
 import { describe, expect, it } from "vitest";
 
 describe("trace fixture catalog summary script", () => {
@@ -59,6 +62,21 @@ describe("trace fixture catalog summary script", () => {
     expect(summary).toContain("fixturePlaybookVersion: 0.9.0");
     expect(summary).toContain(
       "writebackTargetsMissingStableMetadata: writeback:sales_asset missing sourceKey",
+    );
+  });
+
+  it("renders validation failure diagnostics from reusable fixtures", () => {
+    const report = buildControlledTraceFixtureCatalogReport([
+      buildCombinedValidationFailureCatalogEntry(),
+    ]);
+
+    const summary = formatControlledTraceFixtureCatalogSummary(report);
+
+    expect(summary).toContain("Status: FAILED");
+    expect(summary).toContain("Fixtures: 1 total, 0 passed, 1 failed");
+    expect(summary).toContain("Failed fixture: sales-pipeline-validation-failure");
+    expect(summary).toContain(
+      "validationErrors: Fixture sourceRunId is required, Step intake input is not redacted, Step intake tool llm_generate output is not redacted",
     );
   });
 });

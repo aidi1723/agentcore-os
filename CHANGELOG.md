@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Release Handoff Evidence Doctor
+
+- Added `npm run release:handoff:evidence:doctor`, a local read-only diagnostic helper for the newest handoff evidence snapshot.
+- The command reports whether evidence is missing, invalid, failed, stale, unavailable because git cannot be read, or fresh for current `HEAD`.
+- The doctor emits `nextCommand` and `nextAction` guidance without running that command and without creating, mutating, publishing, tagging, uploading, packaging, creating GitHub Releases, running browser smoke, or claiming production readiness.
+- Added evidence doctor coverage and included it in `test:controlled-runtime`.
+
 ### Release Handoff Evidence Freshness
 
 - Added `npm run release:handoff:evidence:check`, a local read-only freshness gate for the newest handoff evidence snapshot.

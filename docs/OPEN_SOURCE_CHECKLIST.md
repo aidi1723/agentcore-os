@@ -86,6 +86,7 @@ npm run release:handoff:check
 npm run release:handoff:snapshot
 npm run release:handoff:snapshot:index -- --check --limit 5
 npm run release:handoff:evidence:check
+npm run release:handoff:evidence:doctor
 git status
 ```
 
@@ -99,6 +100,7 @@ Confirm:
 - `release:handoff:snapshot:check -- <snapshot.json>` validates the local evidence schema and release boundary
 - `release:handoff:snapshot:index -- --check --limit 5` lists and validates recent local evidence without creating, mutating, or publishing evidence
 - `release:handoff:evidence:check` confirms the newest local evidence snapshot validates and matches current `HEAD`
+- `release:handoff:evidence:doctor` diagnoses missing, invalid, failed, stale, git-unavailable, or fresh evidence and suggests the next local command without running it
 - `release:hygiene:check` reports `ok: true` and `productionReady: false`
 - secret pattern review results are warning-only and still require human review
 - public docs say local delivery demo ready, not production ready
@@ -131,6 +133,11 @@ production readiness.
 snapshot and compares `snapshot.git.commit` with current `HEAD`; if it reports
 stale evidence, rerun the handoff gate and generate a new snapshot rather than
 editing evidence in place.
+
+`release:handoff:evidence:doctor` is read-only. It diagnoses the newest local
+snapshot state and returns `status`, `severity`, `nextCommand`, and
+`nextAction`; it does not run the suggested command, create evidence, mutate
+evidence, publish, upload, tag, package, or claim production readiness.
 
 ## 6.1) Command-line release sanity
 

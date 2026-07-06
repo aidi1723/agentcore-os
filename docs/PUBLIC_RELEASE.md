@@ -188,6 +188,19 @@ compares `snapshot.git.commit` with current `HEAD`. If it fails because the
 snapshot is stale, rerun the handoff gate and generate a new snapshot; do not
 edit evidence in place.
 
+To diagnose the newest evidence state and get the next local command without
+running it, use:
+
+```bash
+npm run release:handoff:evidence:doctor
+```
+
+The doctor command is read-only. It reports whether evidence is missing,
+invalid, failed, stale, blocked by git access, or fresh, then returns
+`nextCommand` and `nextAction` guidance. It does not create evidence, mutate
+evidence, publish, upload, tag, package installers, create GitHub Releases, run
+browser smoke, or claim production readiness.
+
 ## Full Verification
 
 Before a public release announcement or handoff, run:
@@ -198,6 +211,7 @@ npm run release:handoff:snapshot
 npm run release:handoff:snapshot:check -- <snapshot.json>
 npm run release:handoff:snapshot:index -- --check --limit 5
 npm run release:handoff:evidence:check
+npm run release:handoff:evidence:doctor
 ```
 
 If the aggregate gate fails and the failed child command needs to be reproduced

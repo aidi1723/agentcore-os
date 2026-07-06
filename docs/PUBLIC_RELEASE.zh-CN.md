@@ -173,6 +173,14 @@ npm run release:handoff:evidence:check
 
 该 freshness 命令是只读的。它会校验最新 snapshot，并比较 `snapshot.git.commit` 与当前 `HEAD`。如果失败原因是 evidence 过期，应重新运行 handoff gate 并生成新的 snapshot，不应直接修改 evidence 文件。
 
+如果需要诊断最新 evidence 状态，并获得下一条本地命令建议，可以运行：
+
+```bash
+npm run release:handoff:evidence:doctor
+```
+
+该 doctor 命令是只读的。它会判断 evidence 是缺失、无效、失败、过期、git 不可读，还是已经匹配当前 `HEAD`，并返回 `nextCommand` 和 `nextAction`。它不会执行建议命令，不会创建 evidence、修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
+
 ## 完整发布前验证
 
 公开发布说明、外部演示或交付前，建议运行：
@@ -183,6 +191,7 @@ npm run release:handoff:snapshot
 npm run release:handoff:snapshot:check -- <snapshot.json>
 npm run release:handoff:snapshot:index -- --check --limit 5
 npm run release:handoff:evidence:check
+npm run release:handoff:evidence:doctor
 ```
 
 如果聚合门禁失败，需要复现具体子命令时，再按 JSON 输出里的 failed check 单独运行对应命令。

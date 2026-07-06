@@ -819,13 +819,34 @@ Outcome:
 
 - Future work can design a no-side-effect replay sandbox prototype against explicit contracts without touching production stores or business assets.
 
-## Recommended Next. No-Side-Effect Replay Sandbox Prototype Design
+## Completed. No-Side-Effect Replay Sandbox Prototype Design
+
+Why:
+
+- Replay sandbox contracts are now executable, but prototype implementation needed one more design boundary.
+- The prototype must stay separate from metadata fixture replay and must output only replay result artifacts.
+
+Delivered:
+
+- Added `docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md`.
+- Defined future `replay-sandbox.ts` module boundary and `runNoSideEffectReplaySandbox()` API shape.
+- Required `validateReplaySandboxContract()` as preflight.
+- Defined failure artifact behavior for unsafe contracts.
+- Defined replay-local state, cursor events, approval simulation, side-effect blocking, and result artifact ownership.
+- Preserved stop conditions against LLM replay, tool execution, route calls, runtime store access, and asset writes.
+
+Outcome:
+
+- Future implementation can build the smallest no-side-effect prototype without touching production stores or business assets.
+
+## Recommended Next. No-Side-Effect Replay Sandbox Prototype Implementation
 
 Suggested scope:
 
-- Design the smallest prototype that consumes a validated replay sandbox contract and emits only a replay result artifact.
-- Keep the prototype no-side-effect: no LLM replay, no tool execution, no route calls, no runtime store reads/writes, and no asset writes.
-- Add tests proving unsafe contracts fail before prototype execution starts.
+- Add `src/lib/executor/runtime/replay-sandbox.ts`.
+- Add tests proving unsafe contracts return failure artifacts before execution.
+- Add tests proving safe contracts emit replay result artifacts only.
+- Keep implementation no-side-effect: no LLM replay, no tool execution, no route calls, no runtime store reads/writes, and no asset writes.
 
 ## Completed. Support Runtime Console Record Focus
 

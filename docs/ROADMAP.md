@@ -90,18 +90,27 @@ reads/writes, and asset writes.
 
 ### P2. No-Side-Effect Replay Sandbox Prototype Design
 
-Before implementation, design the smallest prototype that:
+Completed design reference:
+
+- [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
+
+The design defines the smallest prototype that:
 
 - accepts only a validated replay sandbox contract,
 - fails before execution for unsafe contracts,
 - emits only a replay result artifact,
 - keeps runtime stores and business assets out of scope.
 
-### P3. No-Side-Effect Replay Sandbox Prototype
+### P3. No-Side-Effect Replay Sandbox Prototype Implementation
 
 Only after P0, P1, and P2 are accepted, build the smallest no-side-effect prototype:
 
+- independent `replay-sandbox.ts` module,
 - no production credentials,
+- no LLM replay,
+- no tool execution,
+- no route calls,
+- no runtime store reads,
 - no store writes,
 - no asset writes,
 - no hidden API side effects,

@@ -104,6 +104,10 @@
 
 ## Unreleased
 
+### No-Side-Effect Replay Sandbox Prototype Design
+
+- Added a no-side-effect replay sandbox prototype design guide covering future module boundaries, preflight validation, replay-local state, cursor events, approval simulation, side-effect blocking, result artifacts, and stop conditions.
+
 ### Replay Sandbox Contract Types
 
 - Added TypeScript-only replay sandbox contract types and validation for replay input provenance, credentials, approval simulation, store isolation, side-effect policy, and replay result artifacts.

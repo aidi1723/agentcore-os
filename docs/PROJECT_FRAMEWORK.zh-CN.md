@@ -124,7 +124,8 @@ User / Trigger
 - 真实 LLM / tool replay 还没有实现。
 - real replay 的 sandbox、credential isolation、approval simulation、store isolation、side-effect blocking 和 replay result ownership 已在 `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md` 文档化。
 - replay sandbox contract types 已在 `src/lib/executor/runtime/replay-sandbox-contracts.ts` 文档化为 TypeScript contract 和纯 validator。
-- 因此下一阶段只能先做 No-Side-Effect Replay Sandbox Prototype Design，不能直接写真实 replay 执行代码。
+- no-side-effect replay sandbox prototype design 已在 `docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md` 文档化。
+- 因此下一阶段只能实现最小 No-Side-Effect Replay Sandbox Prototype，不能直接写真实工具 replay。
 
 ## 6. 文档体系
 
@@ -138,6 +139,7 @@ User / Trigger
 - 路线图：`docs/ROADMAP.md`
 - 当前执行 backlog：`docs/NEXT_STEPS.md`
 - Real Replay 边界：`docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md`
+- No-Side-Effect Replay Sandbox Prototype Design：`docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md`
 - 设计规范：`DESIGN.md`
 - 变更记录：`CHANGELOG.md`
 - 具体实施计划：`docs/superpowers/plans/*`
@@ -225,15 +227,16 @@ git diff --check
 
 目标：
 
-- 在写 prototype implementation 前，先设计最小 no-side-effect sandbox prototype。
+- 已在 `docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md` 设计最小 no-side-effect sandbox prototype。
 - Prototype design 必须以 validated replay sandbox contract 为唯一入口。
 - Prototype design 的唯一输出应是 replay result artifact。
 
-### P3. No-Side-Effect Replay Sandbox Prototype
+### P3. No-Side-Effect Replay Sandbox Prototype Implementation
 
 目标：
 
 - 只有在 P0/P1 边界与 P2 prototype design 通过后，才允许实现最小 no-side-effect sandbox prototype。
+- Implementation 只能新增独立的 replay sandbox module 和测试，不接 executor、route、Runtime Console 或 store。
 - Prototype 不允许调用生产凭据、不允许写 store、不允许写资产、不允许绕过 approval simulation。
 - 输出必须落在 replay result artifact，而不是业务资产层。
 

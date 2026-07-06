@@ -112,9 +112,11 @@ describe("replay sandbox contracts", () => {
       replayId: "replay-1",
       sandboxId: "sandbox-1",
       mode: "contract_validation",
+      status: "succeeded",
       source: contract.input,
       simulatedApprovals: [],
       blockedSideEffects: [],
+      cursorEvents: [],
       diagnostics: ["contract accepted"],
       generatedAt: 200,
       guarantees: {

@@ -46,6 +46,15 @@ export type ReplaySideEffect =
   | "business_asset_write"
   | "file_write_outside_replay_artifact";
 
+export type ReplaySandboxCursorEvent =
+  | "preflight"
+  | "load_source_metadata"
+  | "simulate_approvals"
+  | "block_side_effects"
+  | "emit_result_artifact";
+
+export type ReplayResultArtifactStatus = "succeeded" | "failed";
+
 export type ReplaySandboxContract = {
   replayId: string;
   sandboxId: string;
@@ -99,11 +108,13 @@ export type ReplayResultArtifact = {
   replayId: string;
   sandboxId: string;
   mode: ReplaySandboxContract["mode"];
+  status: ReplayResultArtifactStatus;
   source: ReplaySandboxContract["input"];
   simulatedApprovals: NonNullable<
     ReplaySandboxContract["approvalPolicy"]["simulatedDecisions"]
   >;
   blockedSideEffects: ReplaySideEffect[];
+  cursorEvents: ReplaySandboxCursorEvent[];
   diagnostics: string[];
   generatedAt: number;
   guarantees: ReplaySandboxGuarantees;
@@ -198,6 +209,8 @@ export function buildNoSideEffectReplayResultArtifact(
   contract: ReplaySandboxContract,
   options: {
     generatedAt?: number;
+    status?: ReplayResultArtifactStatus;
+    cursorEvents?: ReplaySandboxCursorEvent[];
     diagnostics?: string[];
   } = {},
 ): ReplayResultArtifact {
@@ -206,9 +219,11 @@ export function buildNoSideEffectReplayResultArtifact(
     replayId: contract.replayId,
     sandboxId: contract.sandboxId,
     mode: contract.mode,
+    status: options.status ?? "succeeded",
     source: contract.input,
     simulatedApprovals: contract.approvalPolicy.simulatedDecisions ?? [],
     blockedSideEffects: contract.sideEffectPolicy.blocked,
+    cursorEvents: options.cursorEvents ?? [],
     diagnostics: options.diagnostics ?? [],
     generatedAt: options.generatedAt ?? Date.now(),
     guarantees: replaySandboxGuarantees,

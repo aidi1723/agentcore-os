@@ -171,6 +171,14 @@
 - Added replay tests for success diagnostics, step-order drift, missing approval state, missing writeback targets, and unregistered playbooks.
 - Kept replay pure: no LLM calls, no tool execution, no API route calls, no runtime store reads/writes, and no asset writes.
 
+### Trace Fixture Catalog Report
+
+- Added a pure governed trace fixture catalog report helper for committed fixture health.
+- Catalog reports now aggregate total, passed, failed, fixture ids, playbook ids, per-fixture validation results, per-fixture replay reports, and no-side-effect guarantees.
+- Added all-green catalog report coverage for the committed sales and support governed fixtures.
+- Added synthetic drift coverage proving aggregate report items preserve Phase 10f replay diagnostics.
+- Kept the helper in the test fixture boundary; no production route, CLI, filesystem discovery, runtime store mutation, tool execution, or asset writeback was added.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

@@ -47,7 +47,11 @@ Current fixture replay remains metadata-only. It does not call LLMs, execute too
 
 ### P0. Real Replay Boundary Design
 
-Define the boundary before writing any real replay code:
+Completed boundary reference:
+
+- [Real Replay Boundary Design](REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
+
+The guide defines the boundary before any real replay code:
 
 - replay sandbox ownership,
 - credential isolation,
@@ -64,9 +68,24 @@ Expected outcome:
 - explicit stop conditions for unsafe replay inputs,
 - no LLM/tool replay implementation yet.
 
-### P1. No-Side-Effect Replay Sandbox Prototype
+### P1. Replay Sandbox Contract Types
 
-Only after P0 is accepted, build the smallest no-side-effect prototype:
+Before building a prototype, define TypeScript-only contracts for:
+
+- replay input provenance,
+- sandbox context,
+- credential policy,
+- approval simulation,
+- store isolation,
+- side-effect policy,
+- replay result artifacts.
+
+This phase must still avoid LLM replay, tool execution, route calls, store
+reads/writes, and asset writes.
+
+### P2. No-Side-Effect Replay Sandbox Prototype
+
+Only after P0 and P1 are accepted, build the smallest no-side-effect prototype:
 
 - no production credentials,
 - no store writes,
@@ -75,7 +94,7 @@ Only after P0 is accepted, build the smallest no-side-effect prototype:
 - approval simulation only,
 - replay results written to replay artifacts, not business assets.
 
-### P2. Governed Fixture And Playbook Expansion
+### P3. Governed Fixture And Playbook Expansion
 
 Expand only when the current governed trace/replay gates stay stable:
 
@@ -83,7 +102,7 @@ Expand only when the current governed trace/replay gates stay stable:
 - add new controlled playbooks only through spec -> plan -> tests -> fixture/replay gates,
 - do not use fixture expansion as a substitute for real replay boundary design.
 
-### P3. Trace Operations Hardening
+### P4. Trace Operations Hardening
 
 Turn the governed trace operational runbook into a tighter maintenance path:
 
@@ -93,7 +112,7 @@ Turn the governed trace operational runbook into a tighter maintenance path:
 - summary/harness drift checks,
 - clearer handoff records for fixture replacement.
 
-### P4. Runtime-Supporting UI And App Polish
+### P5. Runtime-Supporting UI And App Polish
 
 Polish UI only when it serves runtime operation:
 

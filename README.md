@@ -28,7 +28,7 @@ AgentCore OS 当前对外更适合这样理解：
 - approved output 写回 sales / support / knowledge / workflow / draft 资产
 - governed trace artifact、fixture replay、fixture catalog、CI-style replay gates
 - Runtime Console 作为查看、审批、恢复、脱敏 trace 导出和资产落点复盘的控制面
-- 下一阶段只进入 Real Replay Boundary Design，不直接写真实工具 replay
+- 下一阶段只进入 Replay Sandbox Contract Types，不直接写真实工具 replay
 
 ## 当前稳定版本
 
@@ -52,6 +52,7 @@ AgentCore OS 当前对外更适合这样理解：
 - [可控 Agent Runtime 开发手册](docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
 - [当前执行 backlog](docs/NEXT_STEPS.md)
 - [Governed Trace Operational Runbook](docs/GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
+- [Real Replay Boundary Design](docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
 - [Governed Trace Fixture CI Gates](docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
 
 获取源码、版本信息与公开发布说明，请以仓库与 GitHub Releases 页面为准：

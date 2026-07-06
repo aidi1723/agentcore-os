@@ -104,6 +104,11 @@
 
 ## Unreleased
 
+### Real Replay Boundary Design
+
+- Added a real replay boundary guide covering replay input provenance, sandbox ownership, credential isolation, approval simulation, store isolation, side-effect blocking, replay result ownership, and stop conditions before any real replay implementation.
+- Aligned the project framework, roadmap, documentation index, governed trace runbook, controlled runtime manual, and next-stage backlog around Replay Sandbox Contract Types as the next no-side-effect phase.
+
 ### License Migration
 
 - Changed current repository source license metadata from Apache-2.0 to GPL-3.0-or-later.
@@ -113,7 +118,7 @@
 ### Project Direction Documentation Alignment
 
 - Aligned README, project framework, roadmap, architecture, documentation index, and next-stage backlog around the current Controlled Skill / Playbook Runtime branch.
-- Recorded the completed baseline through governed trace operational runbook work and kept Phase 10v Real Replay Boundary Design as the next default task.
+- Recorded the completed baseline through governed trace operational runbook work; the later real replay boundary guide now moves the next default task to Replay Sandbox Contract Types.
 - Re-stated direction guardrails against generic OS shell expansion, generic skill marketplace work, and open-ended agent orchestration before controlled replay boundaries are designed.
 
 ### Controlled Playbook Runtime

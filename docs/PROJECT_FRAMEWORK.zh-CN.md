@@ -121,8 +121,9 @@ User / Trigger
 仍未完成：
 
 - Fixture replay 目前仍是 metadata-only 合约校验。
-- 真实 LLM / tool replay 的 sandbox、credential isolation、approval simulation、store isolation、side-effect blocking 和 replay result ownership 还没有设计。
-- 因此下一阶段必须先做 Phase 10v Real Replay Boundary Design，不能直接写真实 replay 代码。
+- 真实 LLM / tool replay 还没有实现。
+- real replay 的 sandbox、credential isolation、approval simulation、store isolation、side-effect blocking 和 replay result ownership 已在 `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md` 文档化。
+- 因此下一阶段只能先做 Replay Sandbox Contract Types，不能直接写真实 replay 执行代码。
 
 ## 6. 文档体系
 
@@ -135,6 +136,7 @@ User / Trigger
 - 状态盘点：`docs/STATE_INVENTORY.zh-CN.md`
 - 路线图：`docs/ROADMAP.md`
 - 当前执行 backlog：`docs/NEXT_STEPS.md`
+- Real Replay 边界：`docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md`
 - 设计规范：`DESIGN.md`
 - 变更记录：`CHANGELOG.md`
 - 具体实施计划：`docs/superpowers/plans/*`
@@ -206,11 +208,19 @@ git diff --check
 
 目标：
 
-- 在写真实 replay 代码前，定义 replay sandbox、credential isolation、approval simulation、store isolation、side-effect blocking 和 replay result ownership。
+- 已在 `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md` 定义 replay sandbox、credential isolation、approval simulation、store isolation、side-effect blocking 和 replay result ownership。
 - 明确哪些 replay 输入来自 governed artifact / fixture，哪些字段必须继续脱敏。
 - 明确 real replay 的失败输出、人工审批模拟、资产写回禁止规则和审计归属。
 
-### P1. No-Side-Effect Replay Sandbox Prototype
+### P1. Replay Sandbox Contract Types
+
+目标：
+
+- 在写 no-side-effect prototype 前，先新增 TypeScript-only replay contract types。
+- Contract types 覆盖 replay input、sandbox context、credential policy、approval simulation、store isolation、side-effect policy 和 replay result artifact。
+- 该阶段仍不允许 LLM replay、不允许 tool execution、不允许 route calls、不允许 store 读写、不允许资产写回。
+
+### P2. No-Side-Effect Replay Sandbox Prototype
 
 目标：
 
@@ -218,7 +228,7 @@ git diff --check
 - Prototype 不允许调用生产凭据、不允许写 store、不允许写资产、不允许绕过 approval simulation。
 - 输出必须落在 replay result artifact，而不是业务资产层。
 
-### P2. Governed Fixture / Playbook Expansion
+### P3. Governed Fixture / Playbook Expansion
 
 目标：
 
@@ -226,7 +236,7 @@ git diff --check
 - 新 fixture 必须通过 redaction、approval、writeback metadata、stable identity 和 catalog coverage 审查。
 - 新 playbook 必须先进入 spec / plan / TDD / fixture replay 边界，而不是直接接真实工具。
 
-### P3. Operational Retention And Maintenance Hardening
+### P4. Operational Retention And Maintenance Hardening
 
 目标：
 
@@ -234,7 +244,7 @@ git diff --check
 - 继续收紧 raw trace retention、fixture refresh stop condition、summary/harness drift 处理。
 - 保持 `trace:fixtures` 作为机器可读自动化合同，`trace:fixtures:summary` 作为人读 triage。
 
-### P4. Runtime-Serving UI / App Polish
+### P5. Runtime-Serving UI / App Polish
 
 目标：
 

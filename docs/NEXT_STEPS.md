@@ -756,7 +756,7 @@ Delivered:
 
 - README, Project Framework, Roadmap, Architecture, Documentation Index, Next Steps, and Changelog now point to the same controlled runtime branch.
 - Completed baseline is stated through Phase 10u.
-- Next default phase remains Phase 10v Real Replay Boundary Design.
+- This alignment originally kept Phase 10v Real Replay Boundary Design as the next default task; Phase 10v is now complete and the current next phase is Replay Sandbox Contract Types.
 - Generic OS shell expansion, generic skill marketplace work, and open-ended agent orchestration remain deprioritized until replay boundaries are designed.
 
 Outcome:
@@ -782,13 +782,31 @@ Outcome:
 
 - The repository now has a consistent GPLv3+ license posture for current source while avoiding ambiguity about older Apache-2.0 releases and third-party dependency licenses.
 
-## Recommended Next. Real Replay Boundary Design
+## Completed. Real Replay Boundary Design
+
+Why:
+
+- Current governed fixture replay is metadata-only and must remain no-side-effect.
+- Future real replay needed an explicit sandbox, credential, approval, store, side-effect, provenance, and result ownership boundary before code starts.
+
+Delivered:
+
+- Added `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md`.
+- Defined allowed replay inputs and required provenance.
+- Defined replay sandbox ownership, credential isolation, approval simulation, store isolation, side-effect blocking, and replay result artifact ownership.
+- Added stop conditions for unsafe replay input, live credentials, production store access, business asset writes, unblocked side effects, and output that could be confused with real controlled runs.
+
+Outcome:
+
+- Future work can move to replay sandbox contract types without implementing real replay prematurely.
+
+## Recommended Next. Replay Sandbox Contract Types
 
 Suggested scope:
 
-- Design the boundary for any future real replay before adding code.
-- Define sandboxing, credential isolation, approval simulation, store isolation, side-effect blocking, and replay result ownership.
-- Keep this phase design-first; do not execute tools or mutate stores in replay until the boundary is explicit.
+- Add TypeScript-only contracts for replay input, sandbox context, credential policy, approval simulation, store isolation, side-effect policy, and replay result artifacts.
+- Keep the phase no-side-effect: no LLM replay, no tool execution, no route calls, no store reads/writes, and no asset writes.
+- Add tests proving the contracts reject live credentials, production store access, and business asset write targets.
 
 ## Completed. Support Runtime Console Record Focus
 

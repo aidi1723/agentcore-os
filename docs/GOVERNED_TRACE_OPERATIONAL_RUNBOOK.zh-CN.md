@@ -181,4 +181,6 @@ Current replay does not:
 - write business assets;
 - prove business correctness of original outputs.
 
-Future real replay requires a separate design covering tool sandboxing, credential isolation, approval simulation, store isolation, side-effect blocking, and replay result ownership.
+Future real replay boundaries are defined in [Real Replay Boundary Design](REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md).
+
+The next allowed phase is Replay Sandbox Contract Types. It may define TypeScript-only contracts for replay input provenance, sandbox context, credential policy, approval simulation, store isolation, side-effect policy, and replay result artifacts. It must still avoid LLM replay, tool execution, route calls, runtime store reads/writes, and business asset writes.

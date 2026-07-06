@@ -289,6 +289,7 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
     expect(requestOpenDealDesk).toHaveBeenCalledWith(
       expect.objectContaining({
         assetId: "sales-asset-1",
+        sourceKey: "controlled-run:run-assets-1:sales_asset",
         workflowRunId: "workflow-assets-1",
         workflowScenarioId: "sales-pipeline",
       }),

@@ -1,6 +1,6 @@
 # AgentCore OS 项目框架总纲
 
-Last updated: 2026-07-05
+Last updated: 2026-07-06
 
 ## 1. 本次大改的结论
 
@@ -67,7 +67,7 @@ User / Trigger
 
 ### 4.1 Playbook Resolver
 
-根据 trigger、scenario、workflow、role 选择受控 playbook。第一条主链路是 `sales-pipeline-v1`。
+根据 trigger、scenario、workflow、role 选择受控 playbook。当前已落地的主链路是 `sales-pipeline-v1` 和 `support-resolution-v1`。
 
 ### 4.2 Plan Validator
 
@@ -91,35 +91,38 @@ User / Trigger
 
 ### 4.7 Asset Writeback
 
-只把 approved output 写入高信任业务资产。目前 `sales_asset` 和 `knowledge_asset` 已接入 server-backed store。
+只把 approved output 写入高信任业务资产。目前 `sales_asset`、`support_asset`、`knowledge_asset`、`workflow_run` 和 `draft` 已接入 server-backed store。
 
 ### 4.8 Runtime Console
 
-展示 recent controlled runs、trace、approval、resume、asset landing，并逐步承接 retry / recovery 操作。
+展示 recent controlled runs、trace、approval、resume、retry、asset landing、governed trace copy，并承接 fixture/replay 维护入口的人工操作路径。
 
 ## 5. 当前实现状态
 
 已完成：
 
 - `sales-pipeline-v1` 固定 playbook。
+- `support-resolution-v1` 固定 playbook。
 - playbook resolver / validator / schema validation 基线。
 - controlled execution run durable store。
 - durable approval record。
 - controlled run resume route。
 - client stream loss / approval in-flight recovery。
-- approved final writeback 到 sales asset / knowledge asset。
+- failed step retry / restart policy 和 console-initiated recovery audit metadata。
+- approved final writeback 到 sales / support / knowledge / workflow / draft 资产。
 - Runtime Console trace landing。
-- Runtime Console approve / reject / resume。
-- Runtime Console asset id/source key 搜索与 Deal Desk / Knowledge Vault 打开动作。
+- Runtime Console approve / reject / resume / retry。
+- Runtime Console asset id/source key 搜索与 Deal Desk / Support Copilot / Knowledge Vault / Industry Hub / Publisher 打开动作。
+- Deal Desk、Support Copilot、Knowledge Vault record-level asset focus。
+- governed trace artifact、local trace artifact route、Runtime Console 脱敏 trace copy。
+- governed trace fixture builder、fixture replay runner、fixture catalog、catalog report、JSON summary、人读 summary、failure harness 和 builder CLI。
+- fixture refresh workflow、replay contract、CI gate guide、catalog coverage guide、operational runbook。
 
 仍未完成：
 
-- failed step retry / restart policy。
-- console-initiated recovery audit metadata。
-- `workflow_run` / `draft` writeback 的真实 store 接入。
-- Deal Desk / Knowledge Vault record-level selected asset focus。
-- support / creator playbook 的 controlled runtime 迁移。
-- 更严格的 trace redaction、retention 和导出。
+- Fixture replay 目前仍是 metadata-only 合约校验。
+- 真实 LLM / tool replay 的 sandbox、credential isolation、approval simulation、store isolation、side-effect blocking 和 replay result ownership 还没有设计。
+- 因此下一阶段必须先做 Phase 10v Real Replay Boundary Design，不能直接写真实 replay 代码。
 
 ## 6. 文档体系
 
@@ -199,41 +202,45 @@ git diff --check
 
 ## 8. 下一步开发方向
 
-### P0. Runtime Console Failure Recovery
+### P0. Real Replay Boundary Design
 
 目标：
 
-- 展示 failed step、失败类型、retry eligibility。
-- 支持从 Runtime Console 对可恢复 step 发起 retry / restart。
-- 把 console recovery 操作写入 trace metadata。
+- 在写真实 replay 代码前，定义 replay sandbox、credential isolation、approval simulation、store isolation、side-effect blocking 和 replay result ownership。
+- 明确哪些 replay 输入来自 governed artifact / fixture，哪些字段必须继续脱敏。
+- 明确 real replay 的失败输出、人工审批模拟、资产写回禁止规则和审计归属。
 
-### P1. Record-Level Asset Focus
-
-目标：
-
-- 从 Runtime Console 打开 Deal Desk / Knowledge Vault 后直接定位到具体资产。
-- 让 sales asset / knowledge asset 成为复盘入口，而不只是查询关键词。
-
-### P2. `workflow_run` / `draft` Writeback
+### P1. No-Side-Effect Replay Sandbox Prototype
 
 目标：
 
-- 将目前 skipped 的 `workflow_run` / `draft` writeback target 接入真实 server store。
-- 让 controlled run 对 workflow state 和 draft state 的影响也可审计。
+- 只有在 P0 边界审查通过后，才允许实现最小 no-side-effect sandbox prototype。
+- Prototype 不允许调用生产凭据、不允许写 store、不允许写资产、不允许绕过 approval simulation。
+- 输出必须落在 replay result artifact，而不是业务资产层。
 
-### P3. Support Playbook Migration
-
-目标：
-
-- 迁移 support workflow 到 controlled playbook。
-- 固定客服场景的 intake、classify、draft reply、human review、writeback。
-
-### P4. Trace Governance
+### P2. Governed Fixture / Playbook Expansion
 
 目标：
 
-- 增加 trace redaction、retention、export 和 replay support。
-- 让 trace 成为测试、复盘、审计和资产沉淀的共同底座。
+- 只有当 sales/support fixture gate 稳定后，才扩展新 fixture 或新 playbook。
+- 新 fixture 必须通过 redaction、approval、writeback metadata、stable identity 和 catalog coverage 审查。
+- 新 playbook 必须先进入 spec / plan / TDD / fixture replay 边界，而不是直接接真实工具。
+
+### P3. Operational Retention And Maintenance Hardening
+
+目标：
+
+- 将 governed trace operational runbook 转成更稳定的维护节奏。
+- 继续收紧 raw trace retention、fixture refresh stop condition、summary/harness drift 处理。
+- 保持 `trace:fixtures` 作为机器可读自动化合同，`trace:fixtures:summary` 作为人读 triage。
+
+### P4. Runtime-Serving UI / App Polish
+
+目标：
+
+- 只做服务 runtime operation 的 UI / app polish。
+- 不为了“OS 感”新增窗口、装饰层或无关业务面。
+- 任何 UI 改动必须帮助操作者理解 run state、approval、failure、trace、fixture/replay 或 asset landing。
 
 ## 9. 判断项目是否跑偏
 

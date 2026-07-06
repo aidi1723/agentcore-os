@@ -20,13 +20,15 @@ AgentCore OS 当前对外更适合这样理解：
 - 一个聚焦企业高频业务流程的执行工作台
 - 一个可以持续沉淀企业数字员工 / Agent 工作流资产的基础设施
 
-当前稳定主线聚焦：
+当前 `main` 工程主线聚焦：
 
 - 可控 Playbook Runtime
-- 销售与商务推进的 `sales-pipeline-v1` 受控执行链
-- 人工审批、durable trace、resume / recovery
-- approved output 写回 sales asset / knowledge asset
-- Runtime Console 作为查看、审批、恢复和资产落点复盘的控制面
+- 销售与客服两条受控执行链：`sales-pipeline-v1`、`support-resolution-v1`
+- 人工审批、durable trace、resume / retry / recovery
+- approved output 写回 sales / support / knowledge / workflow / draft 资产
+- governed trace artifact、fixture replay、fixture catalog、CI-style replay gates
+- Runtime Console 作为查看、审批、恢复、脱敏 trace 导出和资产落点复盘的控制面
+- 下一阶段只进入 Real Replay Boundary Design，不直接写真实工具 replay
 
 ## 当前稳定版本
 
@@ -39,6 +41,18 @@ AgentCore OS 当前对外更适合这样理解：
 - 浏览器壳 + 桌面壳双入口
 - 销售、客服、研究、创作四类工作流共享推荐结构与下一步路由
 - Knowledge Vault、连接器、发布链路与应用间状态流转构成当前稳定闭环
+
+## 当前工程主线
+
+对外稳定线仍以 `v1.3.0` 发布资料为准；当前 `main` 分支的工程主线已经进入 **Controlled Skill / Playbook Runtime**。
+
+维护者优先阅读：
+
+- [项目框架总纲（中文）](docs/PROJECT_FRAMEWORK.zh-CN.md)
+- [可控 Agent Runtime 开发手册](docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
+- [当前执行 backlog](docs/NEXT_STEPS.md)
+- [Governed Trace Operational Runbook](docs/GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
+- [Governed Trace Fixture CI Gates](docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
 
 获取源码、版本信息与公开发布说明，请以仓库与 GitHub Releases 页面为准：
 
@@ -132,6 +146,8 @@ npm run test:stability
 
 - [项目框架总纲（中文）](docs/PROJECT_FRAMEWORK.zh-CN.md)
 - [可控 Agent Runtime 开发手册](docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
+- [当前执行 backlog](docs/NEXT_STEPS.md)
+- [Governed Trace Operational Runbook](docs/GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
 - [文档总入口](docs/DOCUMENTATION_INDEX.zh-CN.md)
 - [用户指南（中文）](docs/USER_GUIDE.zh-CN.md)
 - 当前版本发布说明：[English](docs/releases/v1.3.0.md) / [中文](docs/releases/v1.3.0.zh-CN.md)

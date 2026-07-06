@@ -1,5 +1,5 @@
-import salesPipelineFixture from "@/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json";
-import supportResolutionFixture from "@/__tests__/fixtures/controlled-traces/support-resolution-governed.fixture.json";
+import salesPipelineFixture from "@/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json" with { type: "json" };
+import supportResolutionFixture from "@/__tests__/fixtures/controlled-traces/support-resolution-governed.fixture.json" with { type: "json" };
 import type { ControlledTraceFixture } from "@/lib/executor/runtime/trace-fixtures";
 
 export type ControlledTraceFixtureCatalogEntry = {

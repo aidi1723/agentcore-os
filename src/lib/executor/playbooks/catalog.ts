@@ -1,7 +1,11 @@
 import { salesPipelinePlaybook } from "@/lib/executor/playbooks/sales-pipeline";
+import { supportResolutionPlaybook } from "@/lib/executor/playbooks/support-resolution";
 import type { ControlledPlaybook } from "@/lib/executor/playbooks/types";
 
-const controlledPlaybooks: ControlledPlaybook[] = [salesPipelinePlaybook];
+const controlledPlaybooks: ControlledPlaybook[] = [
+  salesPipelinePlaybook,
+  supportResolutionPlaybook,
+];
 
 export function listControlledPlaybooks() {
   return controlledPlaybooks;

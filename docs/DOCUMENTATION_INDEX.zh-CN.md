@@ -2,7 +2,7 @@
 
 这是当前 `v1.3.0` 稳定版对外发布对应的中文入口页。
 
-> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-06，Phase 10v Real Replay Boundary Design、Phase 10w Replay Sandbox Contract Types、Phase 10x No-Side-Effect Replay Sandbox Prototype Design、Phase 10y No-Side-Effect Replay Sandbox Prototype Implementation、Phase 10z Governed Fixture To Replay Sandbox Contract Bridge、Phase 10aa Catalog-Level Replay Sandbox Report、Phase 10ab Replay Sandbox Catalog CI Summary、Phase 10ac Replay Sandbox Failure Diagnostics Hardening 与 Phase 10ad Replay Sandbox Failure Harness Expansion 已完成；当前下一阶段是 governed fixture / playbook expansion review。后续开发请先阅读项目框架总纲、可控 Runtime 开发手册、Roadmap、Next Steps、governed trace 运维文档和 real replay / sandbox 边界文档。
+> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-06，Runtime UI Reframing 和 Runtime Console Delivery Readiness Audit 已完成；当前下一阶段是 Delivery Demo Smoke Path。后续开发请先阅读项目框架总纲、可控 Runtime 开发手册、Roadmap、Next Steps、Runtime Console 交付审计、governed trace 运维文档和 real replay / sandbox 边界文档。
 
 ## 建议阅读顺序
 
@@ -12,16 +12,17 @@
 4. [架构说明](ARCHITECTURE.md)
 5. [路线图](ROADMAP.md)
 6. [当前执行 backlog](NEXT_STEPS.md)
-7. [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
-8. [Real Replay Boundary Design](REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
-9. [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
-10. [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
-11. [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
-12. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
-13. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
-14. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
-15. [快速开始](GETTING_STARTED.md)
-16. [用户指南（中文）](USER_GUIDE.zh-CN.md)
+7. [Runtime Console Delivery Readiness Audit](RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md)
+8. [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
+9. [Real Replay Boundary Design](REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
+10. [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
+11. [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
+12. [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
+13. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
+14. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
+15. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
+16. [快速开始](GETTING_STARTED.md)
+17. [用户指南（中文）](USER_GUIDE.zh-CN.md)
 
 ## 对外分发
 
@@ -49,6 +50,7 @@
 ## 内部工程与学习
 
 - [企业级执行层升级方案](AGENT_EXECUTION_ENTERPRISE_UPGRADE.zh-CN.md)
+- [Runtime Console Delivery Readiness Audit](RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md)
 - [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
 - [Real Replay Boundary Design](REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
 - [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)

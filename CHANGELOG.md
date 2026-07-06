@@ -104,6 +104,12 @@
 
 ## Unreleased
 
+### Runtime Console Delivery Readiness Audit
+
+- Added `docs/RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md`.
+- Documented the current deliverable demo story from Home cockpit to Runtime Console, asset landing, and governed trace copy.
+- Identified the next blocker as a fixed browser-level Delivery Demo Smoke Path before production-readiness claims.
+
 ### Runtime UI Reframing
 
 - Added a runtime cockpit summary model for the home command center.

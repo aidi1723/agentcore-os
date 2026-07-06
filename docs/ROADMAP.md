@@ -204,7 +204,7 @@ Completed first slice:
 
 ### P11. Runtime Console Delivery Readiness Audit
 
-Next, audit the Runtime Console as the primary deliverable surface:
+Completed delivery-readiness checkpoint:
 
 - approval and recovery clarity,
 - governed trace export clarity,
@@ -212,7 +212,23 @@ Next, audit the Runtime Console as the primary deliverable surface:
 - fixture/replay gate visibility,
 - demo-readiness blockers.
 
-### P12. Governed Fixture And Playbook Expansion Review
+Result:
+
+- Runtime Console is ready to serve as the primary controlled runtime demo surface.
+- Current blocker is a fixed browser-level delivery demo smoke path.
+- Production readiness is not claimed yet.
+
+### P12. Delivery Demo Smoke Path
+
+Next, prove a repeatable browser demo:
+
+- Home cockpit -> Runtime Console,
+- select or seed a controlled run,
+- inspect step trace, approvals/recovery, asset landings, and governed trace copy,
+- fix only delivery-blocking issues,
+- keep real replay and new playbooks out of this phase.
+
+### P13. Governed Fixture And Playbook Expansion Review
 
 Review whether to expand fixtures or playbooks:
 
@@ -220,7 +236,7 @@ Review whether to expand fixtures or playbooks:
 - decide whether the next phase should add fixture coverage, migrate a new controlled playbook, or harden operational retention,
 - produce a focused spec before any new fixture JSON or playbook code is added.
 
-### P13. Governed Fixture And Playbook Expansion
+### P14. Governed Fixture And Playbook Expansion
 
 Expand only when the current governed trace/replay gates stay stable:
 
@@ -228,7 +244,7 @@ Expand only when the current governed trace/replay gates stay stable:
 - add new controlled playbooks only through spec -> plan -> tests -> fixture/replay gates,
 - do not use fixture expansion as a substitute for real replay boundary design.
 
-### P14. Trace Operations Hardening
+### P15. Trace Operations Hardening
 
 Turn the governed trace operational runbook into a tighter maintenance path:
 
@@ -238,7 +254,7 @@ Turn the governed trace operational runbook into a tighter maintenance path:
 - summary/harness drift checks,
 - clearer handoff records for fixture replacement.
 
-### P15. Runtime-Supporting UI And App Polish
+### P16. Runtime-Supporting UI And App Polish
 
 Polish UI only when it serves runtime operation:
 

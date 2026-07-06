@@ -73,6 +73,7 @@ Completed in the current controlled runtime line:
 - Governed trace operational runbook for artifact export, fixture refresh, replay gates, retention, and real replay boundaries.
 - Replay sandbox contract types, no-side-effect replay sandbox prototype, fixture-to-contract bridge, catalog-level replay sandbox report, replay sandbox catalog CI summary, failure diagnostics taxonomy, and direct failure harness modes for committed governed fixtures.
 - Runtime UI Reframing first slice: home screen now leads with controlled playbook cockpit state and Runtime Console inspection.
+- Runtime Console Delivery Readiness Audit: current branch can move to demo smoke path, but should not claim production release readiness yet.
 
 Current verification baseline:
 
@@ -758,7 +759,7 @@ Delivered:
 
 - README, Project Framework, Roadmap, Architecture, Documentation Index, Next Steps, and Changelog now point to the same controlled runtime branch.
 - Completed baseline is stated through Phase 10u.
-- This alignment originally kept Phase 10v Real Replay Boundary Design as the next default task; Phase 10v is now complete and the current next phase is Replay Sandbox Contract Types.
+- This alignment originally kept Phase 10v Real Replay Boundary Design as the next default task; Phase 10v and the replay sandbox follow-up chain are now complete.
 - Generic OS shell expansion, generic skill marketplace work, and open-ended agent orchestration remain deprioritized until replay boundaries are designed.
 
 Outcome:
@@ -988,14 +989,35 @@ Outcome:
 - Existing app windows and workflow launch behavior remain intact.
 - The branch now keeps `npm run build` green after the runtime UI reframing slice.
 
-## Recommended Next. Runtime Console Delivery Readiness Audit
+## Completed. Runtime Console Delivery Readiness Audit
+
+Why:
+
+- The Home surface now enters a controlled playbook cockpit, so Runtime Console had to be checked as the main delivery surface.
+- The project needed a ready/blocker/deferred decision before adding more fixtures, playbooks, or replay behavior.
+
+Delivered:
+
+- Added [Runtime Console Delivery Readiness Audit](RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md).
+- Defined the deliverable demo story: Home cockpit -> Runtime Console -> controlled run detail -> approval/recovery -> asset landing -> governed trace copy.
+- Marked Runtime Console run inspection, approval/reject, resume/retry, asset landings, and governed trace copy as ready for demo use.
+- Recorded the current blocker: no fixed browser-level delivery demo smoke path yet.
+- Deferred real replay, new playbooks, broad UI redesign, and generic shell/skill expansion.
+
+Outcome:
+
+- Current branch can proceed to a delivery smoke path.
+- It should not yet be described as a production-ready release.
+
+## Recommended Next. Delivery Demo Smoke Path
 
 Suggested scope:
 
-- Audit Runtime Console as the primary controlled runtime inspection surface.
-- Check whether approval, retry/resume, governed trace copy, asset landing, and fixture/replay gate affordances are clear enough for a deliverable demo.
-- Identify remaining blockers before calling this branch presentable as a controlled playbook product.
-- Do not add new backend replay behavior during this audit.
+- Write a specific smoke path for Home cockpit -> Runtime Console -> selected controlled run -> asset landing -> governed trace copy.
+- Decide whether the demo run source is seeded local data, an existing controlled run, or a fixture-backed local walkthrough.
+- Verify the path in a browser.
+- Fix only delivery-blocking issues found by the smoke path.
+- Do not add real replay, new playbooks, or broad UI redesign in this phase.
 
 ## Completed. Support Runtime Console Record Focus
 

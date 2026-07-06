@@ -50,6 +50,9 @@ Completed in the current controlled runtime line:
 - Runtime Console record-level asset focus for Deal Desk and Knowledge Vault.
 - Real server-backed `workflow_run` and `draft` controlled writeback targets.
 - Runtime Console workflow run and draft deep links.
+- `support-resolution-v1` fixed playbook for `support-ops`.
+- Server-backed support asset writeback and support FAQ knowledge writeback.
+- Runtime Console support asset landing summaries, search, and open action.
 
 Current verification baseline:
 
@@ -62,9 +65,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 20 test files.
-- 120 tests.
-- Includes playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, and workflow/draft deep link coverage.
+- 21 test files.
+- 127 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, and support asset writeback coverage.
 
 Known current lint/build note:
 
@@ -209,36 +212,73 @@ Outcome:
 - Operators no longer need to copy ids out of receipt text to find workflow/draft state.
 - The trace landing panel remains one consistent surface for all current writeback targets.
 
-## P0. Support Playbook Migration
+## Completed. Support Playbook Migration
 
 Why:
 
 - Sales proves the controlled runtime path.
 - Support is the next best scenario because it has clear intake, classification, draft, review, and assetization boundaries.
 
-Scope:
+Delivered:
 
-- Add `support-resolution-v1` playbook.
-- Add resolver / validator support.
-- Define step schemas for intake, classify, draft reply, human review, writeback.
-- Wire support asset / knowledge asset writeback.
-- Add Runtime Console trace display support without special UI branches.
+- Added `support-resolution-v1` playbook for `support-ops`.
+- Defined fixed support steps: intake, classify, draft reply, human review, writeback.
+- Added support step schemas, tool allowlists, approval gates, acceptance criteria, and writeback targets.
+- Registered support playbook lookup by id and scenario.
+- Added server-backed `support_asset` writeback, idempotent by `controlled-support-asset:{workflowRunId}`.
+- Extended support knowledge writeback to produce `support_faq` assets.
+- Reused workflow and draft writeback for support runs with support-specific stage/source metadata.
+- Added Runtime Console support asset landing summaries, support asset search, and open action to Support Copilot.
 
 Primary files:
 
 - `src/lib/executor/playbooks/support-resolution.ts`
 - `src/lib/executor/playbooks/catalog.ts`
-- `src/lib/executor/playbooks/resolver.ts`
 - `src/lib/executor/runtime/writeback.ts`
-- `src/components/apps/SupportCopilotAppWindow.tsx`
-- `src/lib/support-assets.ts`
+- `src/lib/executor/runtime/console-summary.ts`
+- `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
 - `src/__tests__/lib/executor/playbooks/support-resolution.test.ts`
+- `src/__tests__/lib/executor/runtime/writeback.test.ts`
 - `src/__tests__/lib/executor/controlled-runtime.test.ts`
+- `src/__tests__/lib/executor/runtime/console-summary.test.ts`
+- `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
 
-Expected outcome:
+Outcome:
 
 - Support workflow becomes the second controlled playbook.
 - Runtime Console can compare multiple playbook families.
+- Approved support runs write support assets, FAQ knowledge assets, drafts, and completed workflow runs.
+- Support writeback is covered by `test:controlled-runtime`.
+
+## P0. Support Runtime Console Record Focus
+
+Why:
+
+- Runtime Console can now expose and open support asset landings.
+- The current open action passes workflow context to Support Copilot, but it does not yet focus the exact written support asset or related support ticket.
+- This is the support equivalent of the Deal Desk / Knowledge Vault record-focus work.
+
+Scope:
+
+- Extend `SupportCopilotPrefill` with optional `assetId`, `sourceKey`, and focused workflow metadata if needed.
+- Add support asset lookup helpers by `assetId`, `sourceKey`, and `workflowRunId`.
+- Make Support Copilot focus the retained support asset when opened from Runtime Console.
+- Preserve broad fallback behavior for legacy support receipts without structured metadata.
+- Add hydration-race handling if the open event arrives before support assets hydrate from the server.
+
+Primary files:
+
+- `src/lib/support-assets.ts`
+- `src/lib/ui-events.ts`
+- `src/components/apps/SupportCopilotAppWindow.tsx`
+- `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
+- `src/__tests__/components/SupportCopilotAppWindow.test.tsx`
+- `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
+
+Expected outcome:
+
+- A support controlled run's support asset landing opens the exact retained support asset, not only Support Copilot with workflow context.
+- Missing exact support records fail visibly instead of creating duplicate local support records.
 
 ## P1. Trace Governance
 

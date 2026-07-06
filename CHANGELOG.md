@@ -170,6 +170,16 @@
 - Preserved the existing Runtime Console asset landing panel and sales/knowledge open actions while expanding the same trace landing flow to workflow and draft records.
 - Expanded controlled runtime coverage for workflow/draft landing summaries, Runtime Console open actions, and Industry Hub workflow focus.
 
+### Support Playbook Migration
+
+- Added `support-resolution-v1` as the second controlled playbook for the existing `support-ops` scenario.
+- Defined fixed support steps for intake, classify, draft reply, human review, and writeback with schemas, tool allowlists, approval gates, and writeback targets.
+- Registered support playbook lookup by id and scenario in the controlled playbook catalog.
+- Added server-backed support asset writeback through `support-assets.json`, idempotent by `controlled-support-asset:{workflowRunId}`.
+- Extended controlled knowledge and draft writeback so support runs produce support-specific FAQ assets and reply drafts without breaking sales behavior.
+- Added Runtime Console support asset landing summaries, search coverage, and `打开` action through the existing Support Copilot open event.
+- Expanded controlled runtime coverage for support playbook resolution, support writeback, support execution, and support asset landings.
+
 ### Framework Alignment
 
 - Added project-level `AGENTS.md` workflow rules and `DESIGN.md` design contract as the default collaboration and UI implementation framework for future work.
@@ -179,14 +189,16 @@
 
 ### Verification
 
-- Verified `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` — 4 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/playbooks/support-resolution.test.ts` — 5 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` — 8 tests passing.
 - Verified `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts` — 6 tests passing.
 - Verified `npm test -- src/__tests__/lib/executor/runtime/resume.test.ts` — 10 tests passing.
-- Verified `npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` — 4 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/controlled-runtime.test.ts` — 7 tests passing.
+- Verified `npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` — 5 tests passing.
 - Verified `npm test -- src/__tests__/components/IndustryHubAppWindow.test.tsx` — 1 test passing.
 - Verified `npm test -- src/__tests__/components/DealDeskAppWindow.test.tsx` — 2 tests passing.
 - Verified `npm test -- src/__tests__/components/KnowledgeVaultAppWindow.test.tsx` — 2 tests passing.
-- Verified `npm run test:controlled-runtime` — 20 files, 120 tests passing.
+- Verified `npm run test:controlled-runtime` — 21 files, 127 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.
 - Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - Verified `npm run build` — exit 0 with the same existing `<img>` warning.

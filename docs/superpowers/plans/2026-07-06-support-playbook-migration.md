@@ -68,7 +68,7 @@ Docs after implementation:
 - Create: `src/lib/executor/playbooks/support-resolution.ts`
 - Modify: `src/lib/executor/playbooks/catalog.ts`
 
-- [ ] **Step 1: Write failing support playbook test**
+- [x] **Step 1: Write failing support playbook test**
 
 Create `src/__tests__/lib/executor/playbooks/support-resolution.test.ts`:
 
@@ -145,7 +145,7 @@ describe("supportResolutionPlaybook", () => {
 });
 ```
 
-- [ ] **Step 2: Verify support playbook test fails**
+- [x] **Step 2: Verify support playbook test fails**
 
 Run:
 
@@ -155,7 +155,7 @@ npm test -- src/__tests__/lib/executor/playbooks/support-resolution.test.ts
 
 Expected: FAIL because `@/lib/executor/playbooks/support-resolution` does not exist.
 
-- [ ] **Step 3: Add support playbook**
+- [x] **Step 3: Add support playbook**
 
 Create `src/lib/executor/playbooks/support-resolution.ts`:
 
@@ -371,7 +371,7 @@ export const supportResolutionPlaybook: ControlledPlaybook = {
 };
 ```
 
-- [ ] **Step 4: Register support playbook**
+- [x] **Step 4: Register support playbook**
 
 Update `src/lib/executor/playbooks/catalog.ts`:
 
@@ -386,7 +386,7 @@ const controlledPlaybooks: ControlledPlaybook[] = [
 ];
 ```
 
-- [ ] **Step 5: Verify support playbook test passes**
+- [x] **Step 5: Verify support playbook test passes**
 
 Run:
 
@@ -396,7 +396,7 @@ npm test -- src/__tests__/lib/executor/playbooks/support-resolution.test.ts
 
 Expected: PASS, 5 tests.
 
-- [ ] **Step 6: Commit support playbook**
+- [x] **Step 6: Commit support playbook**
 
 ```bash
 git add src/lib/executor/playbooks/support-resolution.ts src/lib/executor/playbooks/catalog.ts src/__tests__/lib/executor/playbooks/support-resolution.test.ts
@@ -410,7 +410,7 @@ git commit -m "feat: add support controlled playbook"
 - Modify: `src/__tests__/lib/executor/runtime/writeback.test.ts`
 - Modify: `src/lib/executor/runtime/writeback.ts`
 
-- [ ] **Step 1: Write failing support writeback tests**
+- [x] **Step 1: Write failing support writeback tests**
 
 In `src/__tests__/lib/executor/runtime/writeback.test.ts`:
 
@@ -618,7 +618,7 @@ it("writes approved final support output to support and knowledge assets idempot
 });
 ```
 
-- [ ] **Step 2: Verify support writeback tests fail**
+- [x] **Step 2: Verify support writeback tests fail**
 
 Run:
 
@@ -628,7 +628,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts
 
 Expected: FAIL because `support_asset` is skipped as unsupported.
 
-- [ ] **Step 3: Implement support writeback**
+- [x] **Step 3: Implement support writeback**
 
 In `src/lib/executor/runtime/writeback.ts`:
 
@@ -764,7 +764,7 @@ async function writeSupportAsset(input: WriteControlledStepAssetsInput, writtenA
       } else if (target.target === "sales_asset") {
 ```
 
-- [ ] **Step 4: Verify support writeback tests pass**
+- [x] **Step 4: Verify support writeback tests pass**
 
 Run:
 
@@ -774,7 +774,7 @@ npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit support writeback**
+- [x] **Step 5: Commit support writeback**
 
 ```bash
 git add src/lib/executor/runtime/writeback.ts src/__tests__/lib/executor/runtime/writeback.test.ts
@@ -787,7 +787,7 @@ git commit -m "feat: write support controlled assets"
 
 - Modify: `src/__tests__/lib/executor/controlled-runtime.test.ts`
 
-- [ ] **Step 1: Write failing support controlled runtime integration test**
+- [x] **Step 1: Write failing support controlled runtime integration test**
 
 In `src/__tests__/lib/executor/controlled-runtime.test.ts`:
 
@@ -954,7 +954,7 @@ it("executes support controlled playbook and writes support records", async () =
 });
 ```
 
-- [ ] **Step 2: Verify integration test passes**
+- [x] **Step 2: Verify integration test passes**
 
 Run:
 
@@ -964,7 +964,7 @@ npm test -- src/__tests__/lib/executor/controlled-runtime.test.ts
 
 Expected: PASS after Task 2 implementation.
 
-- [ ] **Step 3: Commit support runtime integration**
+- [x] **Step 3: Commit support runtime integration**
 
 ```bash
 git add src/__tests__/lib/executor/controlled-runtime.test.ts
@@ -980,7 +980,7 @@ git commit -m "test: cover support controlled runtime"
 - Modify: `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
 - Modify: `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
 
-- [ ] **Step 1: Write failing console summary support landing test**
+- [x] **Step 1: Write failing console summary support landing test**
 
 In `src/__tests__/lib/executor/runtime/console-summary.test.ts`, add a support receipt to the completed fixture or create a dedicated support run, then assert:
 
@@ -1007,7 +1007,7 @@ expect(
 ).toEqual(["run-console-1"]);
 ```
 
-- [ ] **Step 2: Verify console summary test fails**
+- [x] **Step 2: Verify console summary test fails**
 
 Run:
 
@@ -1017,7 +1017,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: FAIL because `support_asset` is not in landing labels/app ids.
 
-- [ ] **Step 3: Add support asset landing summary**
+- [x] **Step 3: Add support asset landing summary**
 
 In `src/lib/executor/runtime/console-summary.ts`:
 
@@ -1035,7 +1035,7 @@ Add maps:
   support_asset: "support_copilot",
 ```
 
-- [ ] **Step 4: Verify console summary test passes**
+- [x] **Step 4: Verify console summary test passes**
 
 Run:
 
@@ -1045,7 +1045,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Write failing Runtime Console open action test**
+- [x] **Step 5: Write failing Runtime Console open action test**
 
 In `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`:
 
@@ -1064,7 +1064,7 @@ expect(requestOpenSupportCopilot).toHaveBeenCalledWith({
 
 If the fixture scenario is updated to `support-ops`, expect `workflowScenarioId: "support-ops"`.
 
-- [ ] **Step 6: Implement support open action**
+- [x] **Step 6: Implement support open action**
 
 In `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`:
 
@@ -1085,7 +1085,7 @@ In `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`:
     }
 ```
 
-- [ ] **Step 7: Verify Runtime Console support landing tests pass**
+- [x] **Step 7: Verify Runtime Console support landing tests pass**
 
 Run:
 
@@ -1095,7 +1095,7 @@ npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx src/__
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit Runtime Console support landing**
+- [x] **Step 8: Commit Runtime Console support landing**
 
 ```bash
 git add src/lib/executor/runtime/console-summary.ts src/components/apps/ClawRuntimeConsoleAppWindow.tsx src/__tests__/lib/executor/runtime/console-summary.test.ts src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx
@@ -1113,7 +1113,7 @@ git commit -m "feat: surface support asset landings"
 - Modify: `docs/superpowers/plans/2026-07-06-support-playbook-migration.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Add support tests to controlled runtime script**
+- [x] **Step 1: Add support tests to controlled runtime script**
 
 In `package.json`, add this file to `test:controlled-runtime` immediately after the sales playbook test:
 
@@ -1121,7 +1121,7 @@ In `package.json`, add this file to `test:controlled-runtime` immediately after 
 src/__tests__/lib/executor/playbooks/support-resolution.test.ts
 ```
 
-- [ ] **Step 2: Run targeted tests**
+- [x] **Step 2: Run targeted tests**
 
 Run:
 
@@ -1131,7 +1131,7 @@ npm test -- src/__tests__/lib/executor/playbooks/support-resolution.test.ts src/
 
 Expected: PASS.
 
-- [ ] **Step 3: Run final gates**
+- [x] **Step 3: Run final gates**
 
 Run:
 
@@ -1151,7 +1151,7 @@ Expected:
 - `build` exits 0 with the same existing warning.
 - `git diff --check` exits 0.
 
-- [ ] **Step 4: Update docs**
+- [x] **Step 4: Update docs**
 
 Update:
 
@@ -1167,7 +1167,7 @@ Update:
 - `memory/2026-07-06.md`
   - Record commits, verification, and next phase.
 
-- [ ] **Step 5: Mark plan complete and commit docs**
+- [x] **Step 5: Mark plan complete and commit docs**
 
 Add final verification evidence to this plan, mark task checkboxes completed, then run:
 
@@ -1178,6 +1178,13 @@ git commit -m "docs: complete support playbook migration"
 
 ## Self-Review
 
+- Final verification evidence:
+  - `npm test -- src/__tests__/lib/executor/playbooks/support-resolution.test.ts src/__tests__/lib/executor/runtime/writeback.test.ts src/__tests__/lib/executor/controlled-runtime.test.ts src/__tests__/lib/executor/runtime/console-summary.test.ts src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` — 5 files / 31 tests passed.
+  - `npm run test:controlled-runtime` — 21 files / 127 tests passed.
+  - `npm run test:core-workflows` — all core workflow regressions passed.
+  - `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+  - `npm run build` — exit 0 with the same existing `<img>` warning.
+  - `git diff --check` — exit 0.
 - Spec coverage: playbook, catalog, writeback, runtime integration, Runtime Console support landing, tests, docs, and verification are covered.
 - Placeholder scan: no implementation task depends on an unspecified helper or a deferred behavior.
 - Type consistency: `supportResolutionPlaybook`, `support-resolution-v1`, `support-ops`, `support_asset`, `controlled-support-asset:{workflowRunId}`, and `support_copilot` are used consistently.

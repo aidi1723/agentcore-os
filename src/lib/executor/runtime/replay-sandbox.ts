@@ -4,7 +4,7 @@ import {
   type ReplaySandboxContract,
   type ReplaySandboxCursorEvent,
   validateReplaySandboxContract,
-} from "./replay-sandbox-contracts";
+} from "@/lib/executor/runtime/replay-sandbox-contracts";
 
 const successfulReplayCursorEvents: ReplaySandboxCursorEvent[] = [
   "preflight",

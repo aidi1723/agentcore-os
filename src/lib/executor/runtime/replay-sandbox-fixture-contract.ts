@@ -1,10 +1,10 @@
-import type { ControlledTraceFixture } from "./trace-fixtures";
-import { validateControlledTraceFixture } from "./trace-fixtures";
+import type { ControlledTraceFixture } from "@/lib/executor/runtime/trace-fixtures";
+import { validateControlledTraceFixture } from "@/lib/executor/runtime/trace-fixtures";
 import {
   type ReplayApprovalMode,
   type ReplaySandboxContract,
   validateReplaySandboxContract,
-} from "./replay-sandbox-contracts";
+} from "@/lib/executor/runtime/replay-sandbox-contracts";
 
 export type ReplaySandboxContractBuildResult =
   | {

@@ -10,10 +10,25 @@ export type ControlledTraceReplayReport = {
   checkedStepIds: string[];
   errors: string[];
   warnings: string[];
+  diagnostics: ControlledTraceReplayDiagnostics;
   guarantees: {
     toolCallsExecuted: false;
     assetsWritten: false;
   };
+};
+
+export type ControlledTraceReplayMissingWritebackTarget = {
+  stepId: string;
+  target: ControlledPlaybookWriteTarget;
+};
+
+export type ControlledTraceReplayDiagnostics = {
+  fixtureId: string;
+  playbookId: string;
+  expectedStepOrder: string[];
+  fixtureStepOrder: string[];
+  missingApprovalStepIds: string[];
+  missingWritebackTargets: ControlledTraceReplayMissingWritebackTarget[];
 };
 
 function arraysEqual(left: string[], right: string[]) {
@@ -32,6 +47,13 @@ export function replayControlledTraceFixture(
   fixture: ControlledTraceFixture,
 ): ControlledTraceReplayReport {
   const checkedStepIds = fixture.steps.map((step) => step.stepId);
+  const baseDiagnostics = {
+    fixtureId: fixture.fixtureId,
+    playbookId: fixture.playbookId,
+    fixtureStepOrder: checkedStepIds,
+    missingApprovalStepIds: [],
+    missingWritebackTargets: [],
+  };
   const errors = validateControlledTraceFixture(fixture).errors.map(
     (error) => `Fixture validation failed: ${error}`,
   );
@@ -46,6 +68,10 @@ export function replayControlledTraceFixture(
       checkedStepIds,
       errors,
       warnings: [],
+      diagnostics: {
+        ...baseDiagnostics,
+        expectedStepOrder: [],
+      },
       guarantees: {
         toolCallsExecuted: false,
         assetsWritten: false,
@@ -54,6 +80,8 @@ export function replayControlledTraceFixture(
   }
 
   const playbookStepIds = playbook.steps.map((step) => step.id);
+  const missingApprovalStepIds: string[] = [];
+  const missingWritebackTargets: ControlledTraceReplayMissingWritebackTarget[] = [];
   if (!arraysEqual(checkedStepIds, playbookStepIds)) {
     errors.push(`Fixture step order does not match current playbook ${fixture.playbookId}`);
   }
@@ -62,10 +90,15 @@ export function replayControlledTraceFixture(
   for (const playbookStep of playbook.steps) {
     const fixtureStep = fixtureStepsById.get(playbookStep.id);
     if (playbookStep.requiresApproval && !fixtureStep?.approvalState) {
+      missingApprovalStepIds.push(playbookStep.id);
       errors.push(`Step ${playbookStep.id} requires approval but fixture has no approval state`);
     }
     for (const writeback of playbookStep.writesTo ?? []) {
       if (!hasWritebackTarget(fixtureStep, writeback.target)) {
+        missingWritebackTargets.push({
+          stepId: playbookStep.id,
+          target: writeback.target,
+        });
         errors.push(`Step ${playbookStep.id} is missing writeback target ${writeback.target}`);
       }
     }
@@ -78,6 +111,12 @@ export function replayControlledTraceFixture(
     checkedStepIds,
     errors,
     warnings: [],
+    diagnostics: {
+      ...baseDiagnostics,
+      expectedStepOrder: playbookStepIds,
+      missingApprovalStepIds,
+      missingWritebackTargets,
+    },
     guarantees: {
       toolCallsExecuted: false,
       assetsWritten: false,

@@ -23,7 +23,7 @@
 
 ## Task 1: Rewrite Public Release Boundary Docs
 
-- [ ] Update `docs/PUBLIC_RELEASE.md`.
+- [x] Update `docs/PUBLIC_RELEASE.md`.
 
 Replace the older v1.2.0-centered public release boundary with:
 
@@ -49,7 +49,7 @@ Playbook Runtime for fixed skill/playbook workflows with durable approvals,
 trace governance, recovery, and approved asset writeback.
 ```
 
-- [ ] Ensure `docs/PUBLIC_RELEASE.md` mentions:
+- [x] Ensure `docs/PUBLIC_RELEASE.md` mentions:
 
 ```bash
 npm run delivery:ready:check
@@ -64,9 +64,9 @@ npm run lint
 npm run build
 ```
 
-- [ ] Preserve legacy `.openclaw-data` / `OpenClaw` references only as compatibility or history notes, not as the current public positioning.
+- [x] Preserve legacy `.openclaw-data` / `OpenClaw` references only as compatibility or history notes, not as the current public positioning.
 
-- [ ] Update `docs/PUBLIC_RELEASE.zh-CN.md` with the Chinese equivalent:
+- [x] Update `docs/PUBLIC_RELEASE.zh-CN.md` with the Chinese equivalent:
 
 ```md
 当前推荐公开评估版本：`v1.3.0`
@@ -79,7 +79,7 @@ npm run build
 - 真实 replay、外部系统写入和生产级运维边界仍不属于当前公开声明。
 ```
 
-- [ ] Update `docs/EARLY_ACCESS_RELEASE.zh-CN.md` so the “当前对外口径” section includes:
+- [x] Update `docs/EARLY_ACCESS_RELEASE.zh-CN.md` so the “当前对外口径” section includes:
 
 ```md
 - 当前工程主线：Controlled Skill / Playbook Runtime
@@ -90,7 +90,7 @@ npm run build
 
 ## Task 2: Update Open Source Checklist And README
 
-- [ ] Update `docs/OPEN_SOURCE_CHECKLIST.md` final verification section to include:
+- [x] Update `docs/OPEN_SOURCE_CHECKLIST.md` final verification section to include:
 
 ```bash
 npm run delivery:ready:check
@@ -101,29 +101,29 @@ npm run build
 git status
 ```
 
-- [ ] Add an explicit checklist item:
+- [x] Add an explicit checklist item:
 
 ```md
 - public docs say local delivery demo ready, not production ready
 ```
 
-- [ ] Update `README.md` only in the scripts / verification section. Add:
+- [x] Update `README.md` only in the scripts / verification section. Add:
 
 ```md
 - `npm run delivery:ready:check`：快速本地交付门禁，聚合 demo check、governed fixture、fixture summary 和 retention preview，只声明 `local_delivery_demo_ready`
 ```
 
-- [ ] Do not otherwise rewrite README positioning because it already states Controlled Skill / Playbook Runtime and not production ready.
+- [x] Do not otherwise rewrite README positioning because it already states Controlled Skill / Playbook Runtime and not production ready.
 
 ## Task 3: Backlog, Changelog, And Memory Records
 
-- [ ] Update `docs/NEXT_STEPS.md` completed baseline with:
+- [x] Update `docs/NEXT_STEPS.md` completed baseline with:
 
 ```md
 - Public Release Boundary Alignment: public release and open-source docs now describe the current Controlled Skill / Playbook Runtime boundary, local delivery demo readiness, and the `delivery:ready:check` gate without claiming production readiness.
 ```
 
-- [ ] Add a completed section to `docs/NEXT_STEPS.md`:
+- [x] Add a completed section to `docs/NEXT_STEPS.md`:
 
 ```md
 ## Completed. Public Release Boundary Alignment
@@ -134,7 +134,7 @@ git status
 - Kept production readiness, real replay, external writes, and packaged installers outside the current release claim.
 ```
 
-- [ ] Update `CHANGELOG.md` under Unreleased:
+- [x] Update `CHANGELOG.md` under Unreleased:
 
 ```md
 ### Public Release Boundary Alignment
@@ -143,11 +143,11 @@ git status
 - Documented `npm run delivery:ready:check` as the fast local delivery readiness gate while keeping production readiness out of scope.
 ```
 
-- [ ] Update `memory/2026-07-06.md` with the phase record.
+- [x] Update `memory/2026-07-06.md` with the phase record.
 
 ## Task 4: Verification
 
-- [ ] Run the wording scan:
+- [x] Run the wording scan:
 
 ```bash
 rg -n "v1\\.2\\.0|production ready|production-ready|OpenClaw|AI OS shell|delivery:ready:check|local_delivery_demo_ready" README.md docs/PUBLIC_RELEASE.md docs/PUBLIC_RELEASE.zh-CN.md docs/EARLY_ACCESS_RELEASE.zh-CN.md docs/OPEN_SOURCE_CHECKLIST.md docs/NEXT_STEPS.md CHANGELOG.md
@@ -160,7 +160,9 @@ Expected:
 - `production ready` appears only in negative boundary language.
 - `delivery:ready:check` appears in public release sanity docs.
 
-- [ ] Run:
+Result: passed review. Remaining `v1.2.0` references are previous-version or historical changelog references; remaining `OpenClaw` references are compatibility/history references; `production ready` appears only as a negative boundary.
+
+- [x] Run:
 
 ```bash
 npm run delivery:ready:check
@@ -175,6 +177,15 @@ Expected:
 
 - all commands exit 0;
 - lint/build may keep the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+
+Result:
+
+- `npm run delivery:ready:check` — exit 0; output `releaseClaim: "local_delivery_demo_ready"` and `productionReady: false`.
+- `npm run test:controlled-runtime` — 41 files / 210 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
 
 ## Task 5: Commit And Push
 

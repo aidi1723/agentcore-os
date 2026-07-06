@@ -83,6 +83,7 @@ Completed in the current controlled runtime line:
 - Trace Retention Preview CLI: `npm run trace:retention:preview` now exposes the dry-run retention report as a local operator command without adding prune, UI, route, fixture refresh, or real replay behavior.
 - Trace Retention Prune Guard: `npm run trace:retention:prune` now provides a guarded local prune command that refuses mutation unless `--confirm-prune` is present and `--expected-pruned-run-ids` exactly matches the fresh preview.
 - Delivery Release Gate Hardening: `npm run delivery:ready:check` now aggregates the fast local delivery demo, governed fixture, fixture summary, and retention preview gates into one JSON readiness report while keeping `productionReady: false`.
+- Public Release Boundary Alignment: public release and open-source docs now describe the current Controlled Skill / Playbook Runtime boundary, local delivery demo readiness, and the `delivery:ready:check` gate without claiming production readiness.
 
 Current verification baseline:
 
@@ -141,6 +142,27 @@ npm run delivery:ready:check
 
 - This gate does not replace `test:controlled-runtime`, `test:core-workflows`, `lint`, `build`, or manual browser smoke.
 - It is explicitly a local delivery demo readiness gate, not a production release gate.
+
+## Completed. Public Release Boundary Alignment
+
+Why:
+
+- Older public release docs still centered on v1.2.0-era public naming cleanup and legacy OpenClaw migration language.
+- Current delivery evidence supports a narrower and more accurate claim: local delivery demo ready, not production ready.
+
+Delivered:
+
+- Aligned `docs/PUBLIC_RELEASE.md` and `docs/PUBLIC_RELEASE.zh-CN.md` around `v1.3.0`, Controlled Skill / Playbook Runtime, and local delivery demo readiness.
+- Added `npm run delivery:ready:check` to public release sanity checks.
+- Updated `docs/EARLY_ACCESS_RELEASE.zh-CN.md` with the current controlled runtime line and non-production boundary.
+- Updated `docs/OPEN_SOURCE_CHECKLIST.md` with controlled runtime release checks.
+- Updated README script references with the delivery readiness gate.
+- Kept production readiness, real replay, external writes, and packaged installers outside the current release claim.
+
+Outcome:
+
+- Public-facing release docs now match the actual controlled runtime delivery state.
+- Remaining OpenClaw references are compatibility/history notes, not current public positioning.
 
 ## Completed. Runtime UI Delivery Polish
 

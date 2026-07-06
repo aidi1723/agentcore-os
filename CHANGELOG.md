@@ -104,6 +104,12 @@
 
 ## Unreleased
 
+### Public Release Boundary Alignment
+
+- Aligned public release and open-source checklist docs with the current Controlled Skill / Playbook Runtime direction.
+- Reframed public release wording around `v1.3.0`, local delivery demo readiness, and `npm run delivery:ready:check`.
+- Kept production readiness, real replay, external writes, and packaged installer distribution outside the current public release claim.
+
 ### Delivery Release Gate Hardening
 
 - Added `npm run delivery:ready:check`, a fast local delivery readiness gate that aggregates delivery demo validation, governed trace fixture checks, fixture summary output, and retention preview.

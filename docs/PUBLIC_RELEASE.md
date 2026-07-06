@@ -1,249 +1,134 @@
 # Public Release Guide
 
-This document defines what should be included in the public AgentCore OS repository when preparing an open-source release, what must stay private, and how to describe the release boundary in a way that is understandable to external users and contributors.
+This document defines the public release boundary for the current AgentCore OS repository.
 
-## Purpose
+## Current Public Position
 
-This release line separates the public-facing AgentCore OS product surface from legacy internal naming and private operator-oriented implementation details.
+Current recommended public evaluation line: `v1.3.0`.
 
-The main goals are:
+Current delivery status:
 
-- present a clean public runtime surface under the AgentCore OS name
-- avoid exposing historical private naming such as `openclaw` in public entrypoints
-- keep local/private operator assets out of the public repository and release archives
-- preserve enough compatibility so existing local runtime setups do not break immediately
+- local delivery demo ready;
+- production readiness is not claimed;
+- packaged desktop installers are not the default distribution promise;
+- real replay and external system writes are outside the current release claim.
 
-## Public release boundary statement
+AgentCore OS should now be described as a local-first Controlled Skill / Playbook Runtime for fixed skill/playbook workflows with durable approvals, trace governance, recovery, and approved asset writeback.
 
-For the current public release line, the intended external reading order is:
+The current branch is suitable for local evaluation and delivery demos. It should not be described as production ready until production operations, real replay boundaries, long-term retention operations, and external integration guarantees are separately implemented and verified.
 
-1. `v1.2.0` as the current stable public distribution baseline
-2. earlier tags as historical context, packaging traceability, and release evolution record
+## Public Release Boundary
 
-This means the public repository should now treat `v1.2.0` as the recommended external starting point for evaluation, installation, and release-note reference. Earlier stable tags remain useful for history, but should no longer be presented as the primary public recommendation.
+The public repository should present:
 
-In practical terms:
+- AgentCore OS as the product name and public project identity;
+- Controlled Skill / Playbook Runtime as the current engineering core;
+- Runtime Console as the operator surface for controlled runs, approvals, recovery, asset landings, and governed trace export;
+- `sales-pipeline-v1` and `support-resolution-v1` as the currently covered controlled playbooks;
+- local demo readiness through deterministic seed/check data, governed fixture gates, retention preview, and browser evidence;
+- command-line install / source run as the recommended evaluation path.
 
-- `v1.2.0` is the current public stable snapshot to recommend to new external users
-- `v1.0.0` remains the first stable public milestone and historical baseline
-- `v0.2.0-beta.2` remains the last beta milestone before the stable line, but not the default public entry point
-- public docs, installation guidance, and GitHub release copy should align around `v1.2.0`
-- domestic mirror / CNB distribution may still proceed as a separate follow-up step
+The public repository should not claim:
 
-When writing release notes, repository docs, or external summaries, prefer wording that makes this positioning explicit.
+- production readiness;
+- real LLM/tool replay;
+- automated fixture refresh;
+- external system writes during replay;
+- DMG / EXE installer distribution as the default path;
+- complete removal of all historical compatibility names.
 
-## Scope of This Public Refactor
+## Fast Local Readiness Gate
 
-This release includes four connected categories of change.
+Use the fast local readiness gate before public demos or release sanity checks:
 
-### 1. Public naming cleanup
+```bash
+npm run delivery:ready:check
+```
 
-The public product surface is renamed away from legacy `OpenClaw` terminology and aligned to `Agent Runtime`, `Runtime Console`, and `AgentCore` naming.
+This command aggregates:
 
-This applies across:
+- `npm run delivery:demo:check`;
+- `npm run trace:fixtures --silent`;
+- `npm run trace:fixtures:summary --silent`;
+- `npm run trace:retention:preview -- --max-age-days 30 --min-terminal-runs 20`.
 
-- public API paths
-- app/window labels
-- local storage namespaces
-- frontend events
-- settings semantics
-- runtime-facing client helpers
+Successful output must include:
 
-### 2. Public API path migration
+```json
+{
+  "releaseClaim": "local_delivery_demo_ready",
+  "productionReady": false
+}
+```
 
-Public API entrypoints move from:
+This gate does not replace full regression, lint, build, or manual browser smoke.
 
-- `src/app/api/openclaw/**`
+## Full Verification
 
-To:
+Before a public release announcement or handoff, run:
 
-- `src/app/api/runtime/**`
+```bash
+npm run delivery:ready:check
+npm run test:controlled-runtime
+npm run test:core-workflows
+npm run lint
+npm run build
+```
 
-This migration is meant to make the public repository reflect the actual public product boundary and reduce exposure of historical internal/private naming.
+Manual browser evidence remains separate:
 
-In the current codebase, this migration is still partial.
-Some legacy `openclaw` routes, events, storage keys, and helpers still remain in active use.
-So public documentation should describe this as an in-progress compatibility-preserving transition, not as fully completed cleanup.
+- seed demo data if needed;
+- open Home;
+- open Runtime Console;
+- inspect `delivery-demo-run-completed`;
+- confirm sales / knowledge / workflow / draft / support asset landings;
+- copy governed trace artifact.
 
-Representative public runtime routes include:
+Current browser evidence is documented in:
 
-- `src/app/api/runtime/agent/route.ts`
-- `src/app/api/runtime/copy/route.ts`
-- `src/app/api/runtime/execute/route.ts`
-- `src/app/api/runtime/gateway/health/route.ts`
-- `src/app/api/runtime/test/route.ts`
-- `src/app/api/runtime/vault/query/route.ts`
-- `src/app/api/runtime/assets/[name]/route.ts`
-- `src/app/api/runtime/remote-validate/route.ts`
-- `src/app/api/runtime/remote-validate/archive/route.ts`
+- `docs/BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md`
+- `docs/RUNTIME_UI_DELIVERY_POLISH_CLOSEOUT.zh-CN.md`
 
-At the same time, the old public-facing route files under `src/app/api/openclaw/**` should be removed from the public tree only after their runtime-named replacements are actually in place and the live code no longer depends on them.
+## Compatibility Notes
 
-### 3. Public release boundary hardening
+Some historical names remain as compatibility details. These are not the current public positioning.
 
-This release also tightens the publication boundary so private local runtime assets and operator state do not leak into the public repository or distribution archives.
+Compatibility that may still appear in code or docs:
 
-Examples of content that should remain outside the public release boundary:
+- `.openclaw-data` as the local data directory;
+- selected `openclaw.*` local/browser state migration paths;
+- legacy route or file names that still exist until runtime-named replacements are fully complete;
+- historical release notes that mention OpenClaw-era migration.
 
-- `.openclaw/`
-- `.openclaw-data/`
-- local operator files
-- temporary runtime directories
-- machine-specific local state
-- private validation artifacts
+When these terms appear in public docs, they should be framed as compatibility or history, not as the current product identity.
 
-This boundary should be enforced through repository rules such as:
+## Distribution Guidance
 
-- `.gitignore`
-- `.gitattributes`
-- release packaging exclusions
-- explicit documentation of what is public vs. local-only
+Recommended public entry points:
 
-### 4. Compatibility-preserving migration
+- GitHub repository: <https://github.com/aidi1723/agentcore-os>
+- CNB mirror: <https://cnb.cool/aidiyangyu/agentcore-os>
+- GitHub Releases: <https://github.com/aidi1723/agentcore-os/releases>
 
-Although the public naming changes are substantial, the release should preserve compatibility boundaries where practical.
-
-Examples of compatibility intentionally retained:
-
-- `.openclaw-data` local data directory compatibility
-- `OPENCLAW_BIN` environment-variable compatibility
-- selected legacy request-header compatibility
-- migration of old `openclaw.*` browser/local state into new `agentcore.*` namespaces
-
-The goal is to make the public surface cleaner without immediately breaking existing local runtime environments.
-
-## Recommended Public Change Summary
-
-The following wording can be used directly in release notes, PR descriptions, or public changelogs.
-
-### Public summary
-
-- Renamed parts of the public product surface away from legacy **OpenClaw** naming, reducing exposure of historical private or internal terminology.
-- Began migrating public API entrypoints from `src/app/api/openclaw/**` toward `src/app/api/runtime/**`, while intentionally retaining compatibility in the current release line.
-- Added stricter public release boundaries so `.openclaw/`, `.openclaw-data/`, local operator files, and temporary runtime artifacts do not enter the public repo or release archives.
-- Kept legacy `openclaw.*` events and storage keys where the live app still depends on them, instead of claiming a finished namespace migration before it exists.
-- Updated parts of the public settings and runtime wording to better match AgentCore OS naming, while preserving compatibility with existing local state.
-- Preserved compatibility boundaries, including `.openclaw-data`, `OPENCLAW_BIN`, and selected legacy request headers, so existing local runtimes do not immediately break.
-- Verified the public release build path: `npm run lint` and `npm run build` pass.
-
-## Recommended File Groups for This Release
-
-These file groups are appropriate for a single public-release refactor commit when they are part of the same coherent change.
-
-### Release boundary and public documentation
-
-- `.gitignore`
-- `.gitattributes`
-- `README.md`
-- `docs/PUBLIC_RELEASE.md`
-- `docs/GETTING_STARTED.md`
-- `docs/ARCHITECTURE.md`
-- `docs/CONFIGURATION.md`
-- `docs/TROUBLESHOOTING.md`
-- `docs/REMOTE_VALIDATION.md`
-- `docs/releases/2026-03-14.md`
+Recommended evaluation path:
 
-### Public runtime API
+```bash
+git clone https://github.com/aidi1723/agentcore-os.git
+cd agentcore-os
+npm install
+npm run dev
+```
 
-- `src/app/api/runtime/agent/route.ts`
-- `src/app/api/runtime/copy/route.ts`
-- `src/app/api/runtime/execute/route.ts`
-- `src/app/api/runtime/gateway/health/route.ts`
-- `src/app/api/runtime/test/route.ts`
-- `src/app/api/runtime/vault/query/route.ts`
-- `src/app/api/runtime/assets/[name]/route.ts`
-- `src/app/api/runtime/remote-validate/route.ts`
-- `src/app/api/runtime/remote-validate/archive/route.ts`
+For Chinese readers, prefer:
 
-### Runtime client, execution, and validation layer
+- `docs/EARLY_ACCESS_RELEASE.zh-CN.md`
+- `docs/COMMAND_LINE_INSTALL.zh-CN.md`
+- `docs/PROJECT_FRAMEWORK.zh-CN.md`
+- `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
+- `docs/NEXT_STEPS.md`
 
-- `src/lib/runtime-agent-client.ts`
-- `src/lib/runtime-agent-context.ts`
-- `src/lib/runtime-cli.ts`
-- `src/lib/solution-usecase-map.ts`
-- `src/lib/server/remote-validation.ts`
-- `src/lib/remote-validation.ts`
-- `src/lib/remote-validation-targets.ts`
-- `src/lib/result-records.ts`
-- `src/lib/server/publish-dispatch.ts`
-- `src/lib/publish-config.ts`
-- `src/lib/publish.ts`
-- `src/lib/tasks.ts`
-- `src/lib/workflow-runs.ts`
-- `src/lib/playbooks.ts`
+## Public Summary
 
-### Desktop/UI naming and runtime entry updates
+Suggested wording:
 
-- `src/components/apps/RuntimeConsoleAppWindow.tsx`
-- `src/apps/registry.ts`
-- `src/apps/types.ts`
-- `src/apps/modes.ts`
-- `src/lib/app-display.ts`
-- `src/app/page.tsx`
-- `src/components/windows/AppWindowShell.tsx`
-- `src/components/PublishQueueRunner.tsx`
-- `src/components/Spotlight.tsx`
-- `src/components/results`
-- `src/components/apps`
-
-### State, settings, and namespace migration
-
-- `src/lib/storage.ts`
-- `src/lib/settings.ts`
-- `src/lib/ui-events.ts`
-- `src/lib/asset-jumps.ts`
-- `src/lib/runtime-agent-context.ts`
-- `src/lib/runtime-cli.ts`
-
-## Recommended Legacy File Removals
-
-The following legacy public paths can be removed as part of the same change when they have been fully replaced by the runtime-named equivalents.
-
-- `src/app/api/openclaw/agent/route.ts`
-- `src/app/api/openclaw/assets/[name]/route.ts`
-- `src/app/api/openclaw/copy/route.ts`
-- `src/app/api/openclaw/execute/route.ts`
-- `src/app/api/openclaw/gateway/health/route.ts`
-- `src/app/api/openclaw/test/route.ts`
-- `src/app/api/openclaw/vault/query/route.ts`
-- `src/components/apps/OpenClawConsoleAppWindow.tsx`
-- `src/lib/openclaw-agent-client.ts`
-- `src/lib/openclaw-cli.ts`
-- `src/lib/openclaw-usecase-map.ts`
-
-These removals should be described as a naming and boundary cleanup, not as feature removal.
-
-## Public Commit Framing
-
-A commit in this area should read like a coherent product-boundary refactor, not like an unrelated file dump.
-
-Recommended commit-message styles:
-
-- `refactor: public runtime rename and release boundary cleanup`
-- `refactor: split public runtime naming and tighten release boundaries`
-
-## Staging Guidance
-
-When preparing this change for a public repository, avoid broad staging patterns that may accidentally include unrelated internal or experimental files.
-
-Recommended workflow:
-
-1. Review `git status --short`
-2. Stage only files that belong to this public-release change
-3. Remove only the legacy files that have true runtime-named replacements
-4. Review with `git diff --cached --stat`
-5. Commit only after verifying that no local/private artifacts were included
-
-In particular, use extra care with broad directory-level adds such as:
-
-- `src/components/apps`
-- `src/components/results`
-- `src/app/api/runtime`
-
-These can be valid, but they should be reviewed before commit in a public-release context.
-
-## Notes
-
-- If `docs/releases/2026-03-14.md` is intended as a working migration record, that is acceptable.
-- If the document is intended to function as an externally referenced release note, a versioned release-note filename such as `docs/releases/v1.2.0.md` may be easier to index from `README.md` and GitHub Releases.
-- The public repository should prefer clarity over perfect internal history fidelity. The goal is a clean, supportable public surface with explicit compatibility boundaries.
+> AgentCore OS is a local-first Controlled Skill / Playbook Runtime for running fixed business workflows with durable approvals, trace governance, recovery, and approved asset writeback. The current branch is ready for local delivery demos through the Runtime Console and governed trace workflow. Production readiness, real replay, and packaged installer distribution remain outside the current release claim.

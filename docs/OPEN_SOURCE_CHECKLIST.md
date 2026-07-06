@@ -71,10 +71,19 @@ Recommended:
 ## 6) Final local verification
 
 ```bash
+npm run delivery:ready:check
+npm run test:controlled-runtime
+npm run test:core-workflows
 npm run lint
 npm run build
 git status
 ```
+
+Confirm:
+
+- public docs say local delivery demo ready, not production ready
+- `delivery:ready:check` reports `releaseClaim: "local_delivery_demo_ready"`
+- `delivery:ready:check` reports `productionReady: false`
 
 ## 6.1) Command-line release sanity
 

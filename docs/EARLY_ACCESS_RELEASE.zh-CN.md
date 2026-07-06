@@ -25,6 +25,10 @@
 - 上一稳定版 GitHub / CNB 发布正文：`docs/releases/v1.2.0-github-release.zh-CN.md`
 - 当前推荐安装方式：`docs/COMMAND_LINE_INSTALL.zh-CN.md`
 - 冷启动安装验收：`docs/COLD_START_VALIDATION.zh-CN.md`
+- 当前工程主线：Controlled Skill / Playbook Runtime
+- 当前交付状态：local delivery demo ready
+- 快速本地交付门禁：`npm run delivery:ready:check`
+- 当前不声明 production ready
 - README 与安装说明都应围绕此版本展开
 
 当前已经明确验收通过的主线为：
@@ -39,6 +43,9 @@
 - `desktop_dify`
 - Docker 依赖路径
 - DMG / EXE 安装包分发
+- 真实 LLM / tool replay
+- 外部系统写入保证
+- production ready
 
 ## 分发建议
 
@@ -52,4 +59,4 @@
 
 可以这样描述：
 
-> AgentCore OS 是一个本地优先、面向真实工作的 AI 工作底座，支持在个人与企业场景下将模型、文件、工具、审批和工作流资产连接起来。当前推荐体验版本为 `v1.3.0`，推荐通过命令行方式安装和运行。
+> AgentCore OS 是一个本地优先的 Controlled Skill / Playbook Runtime，用于按固定业务流程运行 AI 工作流，并通过人工审批、trace governance、失败恢复和 approved asset writeback 保证执行过程可控。当前推荐体验版本为 `v1.3.0`，推荐通过命令行方式安装和运行；当前可声明 local delivery demo ready，但不声明 production ready。

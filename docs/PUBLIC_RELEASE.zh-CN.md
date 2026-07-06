@@ -1,125 +1,136 @@
 # AgentCore OS 公开发布说明
 
-这份文档用于说明：
+这份文档用于说明当前 AgentCore OS 仓库的公开发布边界、交付声明和发布前检查路径。
 
-- 哪些内容适合进入公开仓库
-- 哪些内容不应该进入公开发布边界
-- 当前公开版本应该如何被对外描述
+## 当前公开口径
 
-## 文档目的
+当前推荐公开评估版本：`v1.3.0`。
 
-AgentCore OS 的公开发布，不只是把代码推上去，更重要的是把产品边界讲清楚。
+当前交付状态：
 
-我们希望做到：
+- 可以声明 **local delivery demo ready**；
+- 不声明 **production ready**；
+- 不把 DMG / EXE 安装包作为默认分发承诺；
+- 真实 replay、外部系统写入和生产级运维边界仍不属于当前公开声明。
 
-- 对外呈现清晰的 AgentCore OS 产品边界
-- 避免暴露历史内部命名和私有操作习惯
-- 把本地私有数据、运行时状态和临时文件留在仓库外
-- 在必要时保留兼容层，避免已有本地环境立即断裂
+AgentCore OS 当前应被描述为：
 
-## 当前公开版本口径
+> 一个本地优先的 Controlled Skill / Playbook Runtime，用于按固定 skill / playbook 流程执行任务，并通过 durable approval、trace governance、失败恢复和 approved asset writeback 保证过程可控。
 
-当前推荐公开版本为：`v1.2.0`
+当前 `main` 分支适合本地评估和交付演示，不应被描述为生产级发布。生产级运维、真实 replay、长期 retention 操作和外部系统集成保证，需要后续单独实现和验证。
 
-对外建议这样理解：
+## 当前公开边界
 
-1. `v1.2.0` 是当前推荐给新用户的稳定版本
-2. `v1.0.0` 是第一个稳定公开版本，可作为历史基线参考
-3. 更早的 beta / alpha 标签保留为演进记录，不再作为默认入口
+公开仓库应重点呈现：
 
-这意味着：
+- AgentCore OS 作为产品名和公开项目身份；
+- Controlled Skill / Playbook Runtime 作为当前工程核心；
+- Runtime Console 作为 controlled run 检查、审批、恢复、资产落点和 governed trace 导出的操作面；
+- `sales-pipeline-v1` 和 `support-resolution-v1` 作为当前已覆盖的 controlled playbook；
+- 通过 deterministic seed/check、governed fixture gates、retention preview 和 browser evidence 支撑本地 demo readiness；
+- 命令行安装 / 从源码运行作为当前推荐评估路径。
 
-- README、安装说明、文档入口、发布说明都应优先围绕 `v1.2.0`
-- 国内镜像仓库也应与此口径保持一致
-- 如果需要双仓分发，中文入口优先给国内用户
+公开仓库不应宣称：
 
-## 当前版本边界
+- production ready；
+- 真实 LLM / tool replay；
+- 自动 fixture refresh；
+- replay 期间对外部系统写入；
+- DMG / EXE 安装包是默认分发路径；
+- 历史兼容命名已经全部清除。
 
-对于当前公开版本，最重要的边界有三条。
+## 快速本地交付门禁
 
-### 1. 产品边界
+公开演示或发布 sanity check 前，先运行：
 
-对外强调：
+```bash
+npm run delivery:ready:check
+```
 
-- 本地优先
-- 面向真实工作流
-- BYOK / API Key 驱动
-- 销售、客服、研究、创作四类工作流的推荐与状态闭环
+该命令聚合：
 
-不建议对外强调：
+- `npm run delivery:demo:check`
+- `npm run trace:fixtures --silent`
+- `npm run trace:fixtures:summary --silent`
+- `npm run trace:retention:preview -- --max-age-days 30 --min-terminal-runs 20`
 
-- 已经是完整无人公司
-- 已覆盖所有行业全部流程
-- 已完全不需要人工审核
+成功输出必须包含：
 
-### 2. 仓库边界
+```json
+{
+  "releaseClaim": "local_delivery_demo_ready",
+  "productionReady": false
+}
+```
 
-不应进入公开仓库或发布包的内容包括：
+这个门禁不替代完整 regression、lint、build 或人工浏览器 smoke。
 
-- `.openclaw/`
-- `.openclaw-data/`
-- 本地运行日志
-- 机器专属配置
-- 私有密钥
-- 临时调试文件
-- 私人工作区记忆文件
+## 完整发布前验证
 
-应通过以下方式保证边界：
+公开发布说明、外部演示或交付前，建议运行：
 
-- `.gitignore`
-- 发布前检查清单
-- 人工复核
+```bash
+npm run delivery:ready:check
+npm run test:controlled-runtime
+npm run test:core-workflows
+npm run lint
+npm run build
+```
 
-### 3. 兼容边界
+人工浏览器证据仍需单独确认：
 
-虽然产品对外名称已经统一为 AgentCore OS，但当前仍保留部分兼容层，例如：
+- 如有需要，先 seed demo 数据；
+- 打开 Home；
+- 打开 Runtime Console；
+- 检查 `delivery-demo-run-completed`；
+- 确认 sales / knowledge / workflow / draft / support 五类 asset landing；
+- 复制 governed trace artifact。
 
-- `.openclaw-data` 的本地兼容
-- 旧有 `openclaw.*` 本地状态的兼容迁移
-- 部分旧环境变量和请求头兼容
+当前浏览器证据见：
 
-目标不是一次性彻底切断历史，而是在不影响现有用户的前提下逐步清理公开边界。
+- `docs/BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md`
+- `docs/RUNTIME_UI_DELIVERY_POLISH_CLOSEOUT.zh-CN.md`
 
-## 当前公开发布建议
+## 历史兼容说明
 
-### 对外入口
+部分历史名称仍作为兼容细节存在。这些不是当前公开定位。
 
-建议同时保留两个入口：
+可能仍出现在代码或文档中的兼容项：
+
+- `.openclaw-data` 本地数据目录；
+- 旧 `openclaw.*` 本地 / 浏览器状态迁移路径；
+- 仍未完全替换的 legacy route 或文件名；
+- 历史 release notes 中的 OpenClaw-era migration 描述。
+
+这些内容应被解释为兼容或历史说明，而不是当前产品身份。
+
+## 对外入口
+
+建议公开入口：
 
 - 主仓库 GitHub：<https://github.com/aidi1723/agentcore-os>
 - 国内镜像 CNB：<https://cnb.cool/aidiyangyu/agentcore-os>
+- GitHub Releases：<https://github.com/aidi1723/agentcore-os/releases>
 
-### 推荐阅读顺序
+当前推荐安装方式：**命令行安装 / 从源码运行**。
 
-1. [README](../README.md)
-2. [当前版本说明（中文）](releases/v1.2.0.zh-CN.md)
-3. [对外分发说明](EARLY_ACCESS_RELEASE.zh-CN.md)
-4. [命令行安装说明](COMMAND_LINE_INSTALL.zh-CN.md)
-5. [用户指南（中文）](USER_GUIDE.zh-CN.md)
+```bash
+git clone https://github.com/aidi1723/agentcore-os.git
+cd agentcore-os
+npm install
+npm run dev
+```
 
-### 当前推荐安装方式
+中文用户建议阅读：
 
-当前默认安装方式：**命令行安装 / 从源码运行**
+- `docs/EARLY_ACCESS_RELEASE.zh-CN.md`
+- `docs/COMMAND_LINE_INSTALL.zh-CN.md`
+- `docs/PROJECT_FRAMEWORK.zh-CN.md`
+- `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
+- `docs/NEXT_STEPS.md`
 
-不再把 DMG / EXE 安装包作为默认公开分发口径。
+## 对外说明建议
 
-## 发布前建议
+可以这样描述：
 
-发布前至少确认：
-
-- README 首页是否中文友好
-- 版本号是否统一为当前版本
-- 发布文案是否没有承诺安装包
-- 是否不存在私人信息、测试日志、临时截图、真实密钥
-- `npm run lint` 与 `npm run build` 是否通过
-
-## 推荐配套文档
-
-- [当前版本说明（中文）](releases/v1.2.0.zh-CN.md)
-- [发布正文（GitHub / CNB）](releases/v1.2.0-github-release.zh-CN.md)
-- [市场发布文案](LAUNCH_COPY_v1.2.0.zh-CN.md)
-- [发布检查清单](RELEASE_CHECKLIST_v1.2.0.zh-CN.md)
-
-## 说明
-
-如果未来重新恢复安装包分发、海外镜像独立说明或更强的企业级发布边界，这份文档可以继续扩展。
+> AgentCore OS 是一个本地优先的 Controlled Skill / Playbook Runtime，用于按固定业务流程运行 AI 工作流，并通过人工审批、trace governance、失败恢复和 approved asset writeback 保证执行过程可控。当前分支已经具备 Runtime Console 本地交付演示路径；production ready、真实 replay 和安装包默认分发仍不属于当前公开声明。

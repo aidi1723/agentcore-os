@@ -217,6 +217,7 @@ npm run test:stability
 - `npm run test:core-workflows`：运行销售 / 客服 / 知识资产 / 发布队列核心回归
 - `npm run delivery:demo:seed`：写入本地受控 Runtime 交付演示数据
 - `npm run delivery:demo:check`：验证本地交付演示数据和 governed trace 脱敏边界
+- `npm run delivery:ready:check`：快速本地交付门禁，聚合 demo check、governed fixture、fixture summary 和 retention preview，只声明 `local_delivery_demo_ready`
 - `npm run test:stability`：运行核心回归 + lint + build 的稳定性门禁
 - `npm run desktop:smoke-test-sidecar`：运行桌面 sidecar HTTP 主链路烟测
 - `npm run lint`：运行 lint

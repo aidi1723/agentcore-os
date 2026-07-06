@@ -322,6 +322,7 @@ type ControlledPlaybookStep = {
 - [Support Playbook Migration Implementation Plan](superpowers/plans/2026-07-06-support-playbook-migration.md)
 - [Trace Fixture Replay Runner Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-replay-runner.md)
 - [Trace Fixture Catalog And Support Coverage Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-catalog-support-coverage.md)
+- [Trace Fixture Drift Diagnostics Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-drift-diagnostics.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -347,17 +348,18 @@ type ControlledPlaybookStep = {
 - Phase 10c trace fixture generation：已新增 `trace-fixtures.ts`，可把 governed trace artifact 转换成稳定 regression fixture；fixture validation 会检查 redaction boundary、step order、known playbook match、tool output redaction、approval/schema/writeback metadata，并已有 sales pipeline sample fixture。
 - Phase 10d trace fixture replay runner：已新增 `trace-replay.ts`，可用 committed governed fixture 校验当前 playbook 合约。replay 会先执行 fixture validation，再检查 playbook 是否注册、step order 是否匹配、requiresApproval step 是否有 approval state、每个 playbook `writesTo` target 是否在同一步 fixture metadata 中出现。该 runner 是纯校验，不调用 LLM、不调用工具、不写 store、不写资产。
 - Phase 10e trace fixture catalog and support coverage：已新增 explicit governed fixture catalog，并补齐 `support-resolution-v1` governed fixture。`test:controlled-runtime` 现在会通过 catalog replay 同时覆盖 sales/support committed fixtures。
+- Phase 10f trace fixture drift diagnostics：`replayControlledTraceFixture()` report 已增加结构化 `diagnostics`，包含 fixture id、playbook id、expected step order、fixture step order、missing approval step ids 和 missing writeback targets。现有 `errors` 字符串保持稳定，catalog replay 仍是纯校验。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- Replay drift report 仍以基础 error messages 为主，还没有结构化 diff-style diagnostics。
+- Catalog 目前还没有面向 CI / 维护人员的一次性 aggregate report，只能通过测试失败逐个定位 fixture。
 
 因此下一阶段默认进入：
 
-**Phase 10f. Trace Fixture Drift Diagnostics**
+**Phase 10g. Trace Fixture Catalog Report**
 
-目标是在不做真实工具回放的前提下，让 fixture/playbook drift 的失败报告更容易维护和定位。
+目标是在不做真实工具回放的前提下，把所有 committed governed fixtures 的 replay 结果聚合为一个可读、可测试、可用于 CI 的报告对象。
 
 ### Phase 0. 冻结方向
 
@@ -733,24 +735,45 @@ type ControlledPlaybookStep = {
 - 让 playbook 改动导致 fixture 失败时，可以直接看出 expected/current 差异。
 - 保持当前 replay 的纯校验边界，不引入真实工具 replay。
 
-建议范围：
+已完成范围：
 
-- 在 replay report 中增加可选 diagnostics 字段。
-- diagnostics 至少包含：
+- 在 replay report 中增加必需的 `diagnostics` 字段。
+- diagnostics 包含：
   - fixture id；
   - playbook id；
   - expected step order；
   - fixture step order；
   - missing approval step ids；
   - missing writeback targets，包含 step id 和 target。
-- 现有 `errors` 保持稳定，避免破坏当前断言。
-- 增加 drift diagnostics 测试，覆盖 step order、approval、writeback drift。
+- 现有 `errors` 保持稳定，避免破坏当前断言和 catalog replay。
+- 增加 drift diagnostics 测试，覆盖成功路径、step order、approval、writeback drift 和 unknown playbook。
 
 完成标准：
 
-- Drift report 能清楚说明 fixture 与 playbook 的差异。
-- Catalog replay 测试保持通过。
-- 不调用 LLM、不调用工具、不读写 stores、不写资产。
+- Drift report 能清楚说明 fixture 与 playbook 的差异。已完成。
+- Catalog replay 测试保持通过。已完成。
+- 不调用 LLM、不调用工具、不读写 stores、不写资产。已完成。
+
+### Phase 10g. Trace Fixture Catalog Report
+
+目标：
+
+- 把 catalog 中所有 committed governed fixtures 的 replay 结果聚合成一个稳定 report。
+- 让 CI / 维护人员不用逐个看测试断言，也能知道哪个 fixture 漂移、漂移在哪里。
+- 继续保持纯 metadata 校验，不进入真实工具 replay。
+
+建议范围：
+
+- 新增 pure report helper，遍历 explicit fixture catalog。
+- 每个 fixture report 包含 validation errors、replay errors、warnings、diagnostics 和 no-side-effect guarantees。
+- 汇总字段包含 total、passed、failed、fixture ids、playbook ids。
+- 增加测试覆盖 all-green catalog 和 synthetic drift fixture。
+
+完成标准：
+
+- 一个 report object 能说明整个 committed governed fixture catalog 的健康状态。
+- CI failure 能定位 stale fixture，并携带 Phase 10f 的 drift diagnostics。
+- 不调用 LLM、不调用工具、不读写 runtime stores、不写资产。
 
 ## 9. 开发规范
 

@@ -23,7 +23,7 @@
 **Files:**
 - Modify: `src/__tests__/lib/executor/runtime/trace-replay.test.ts`
 
-- [ ] **Step 1: Add failing diagnostics assertions to success test**
+- [x] **Step 1: Add failing diagnostics assertions to success test**
 
 Update the happy-path report expectation to include:
 
@@ -38,7 +38,7 @@ diagnostics: {
 },
 ```
 
-- [ ] **Step 2: Add failing diagnostics assertions to drift tests**
+- [x] **Step 2: Add failing diagnostics assertions to drift tests**
 
 For step order drift, assert:
 
@@ -88,7 +88,7 @@ expect(report.diagnostics).toMatchObject({
 });
 ```
 
-- [ ] **Step 3: Run test to verify RED**
+- [x] **Step 3: Run test to verify RED**
 
 Run:
 
@@ -105,7 +105,7 @@ Expected: FAIL because `diagnostics` does not exist on the report.
 **Files:**
 - Modify: `src/lib/executor/runtime/trace-replay.ts`
 
-- [ ] **Step 1: Add diagnostics types and report field**
+- [x] **Step 1: Add diagnostics types and report field**
 
 Add:
 
@@ -127,7 +127,7 @@ export type ControlledTraceReplayDiagnostics = {
 
 Add `diagnostics: ControlledTraceReplayDiagnostics` to `ControlledTraceReplayReport`.
 
-- [ ] **Step 2: Populate diagnostics in replay**
+- [x] **Step 2: Populate diagnostics in replay**
 
 Implementation rules:
 
@@ -136,7 +136,7 @@ Implementation rules:
 - For registered playbook, collect expected order, missing approvals, and missing writebacks while producing existing errors.
 - Return diagnostics in every report.
 
-- [ ] **Step 3: Run trace replay test to verify GREEN**
+- [x] **Step 3: Run trace replay test to verify GREEN**
 
 Run:
 
@@ -146,7 +146,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-replay.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 4: Run trace fixture/catalog tests**
+- [x] **Step 4: Run trace fixture/catalog tests**
 
 Run:
 
@@ -156,7 +156,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts src/__test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit diagnostics implementation**
+- [x] **Step 5: Commit diagnostics implementation**
 
 ```bash
 git add src/lib/executor/runtime/trace-replay.ts src/__tests__/lib/executor/runtime/trace-replay.test.ts
@@ -174,7 +174,7 @@ git commit -m "feat: add trace fixture drift diagnostics"
 - Modify: `docs/superpowers/plans/2026-07-06-trace-fixture-drift-diagnostics.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run full verification before docs**
+- [x] **Step 1: Run full verification before docs**
 
 Run:
 
@@ -188,7 +188,7 @@ git diff --check
 
 Expected: all commands exit 0. `lint` and `build` may show only the existing `<img>` warning.
 
-- [ ] **Step 2: Update docs and records**
+- [x] **Step 2: Update docs and records**
 
 Record:
 
@@ -197,7 +197,7 @@ Record:
 - catalog replay remains pure and green;
 - next recommended phase.
 
-- [ ] **Step 3: Re-run final verification after docs**
+- [x] **Step 3: Re-run final verification after docs**
 
 Run:
 
@@ -211,7 +211,7 @@ git diff --check
 
 Expected: all commands exit 0 with only the known existing `<img>` warning if present.
 
-- [ ] **Step 4: Commit docs**
+- [x] **Step 4: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-trace-fixture-drift-diagnostics.md
@@ -225,3 +225,22 @@ git commit -m "docs: complete trace fixture drift diagnostics"
 - Spec coverage: diagnostics shape, stable errors, success report, drift cases, catalog safety, docs, and verification are covered.
 - Placeholder scan: no placeholder markers remain.
 - Type consistency: `ControlledTraceReplayDiagnostics` and `ControlledTraceReplayMissingWritebackTarget` are used consistently.
+
+## Progress Record
+
+- RED verified: `npm test -- src/__tests__/lib/executor/runtime/trace-replay.test.ts` failed before implementation because `diagnostics` did not exist.
+- GREEN verified: `npm test -- src/__tests__/lib/executor/runtime/trace-replay.test.ts` passed after implementation.
+- Catalog safety verified: `npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts src/__tests__/lib/executor/runtime/trace-replay.test.ts src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` — 3 files / 11 tests passed.
+- Implementation commit: `c14be3a feat: add trace fixture drift diagnostics`.
+- Full verification before docs:
+  - `npm run test:controlled-runtime` — 26 files / 145 tests passed.
+  - `npm run test:core-workflows` — all core workflow regressions passed.
+  - `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+  - `npm run build` — exit 0 with the same existing warning.
+  - `git diff --check` — exit 0.
+- Final verification after docs:
+  - `npm run test:controlled-runtime` — 26 files / 145 tests passed.
+  - `npm run test:core-workflows` — all core workflow regressions passed.
+  - `npm run lint` — exit 0 with the existing `<img>` warning.
+  - `npm run build` — exit 0 with the same existing warning.
+  - `git diff --check` — exit 0.

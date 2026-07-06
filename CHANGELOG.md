@@ -163,6 +163,14 @@
 - Added catalog replay coverage that validates and replays every committed governed fixture without LLM calls, tool execution, route calls, store mutation, or asset writes.
 - Expanded `test:controlled-runtime` to include sales and support fixture catalog replay.
 
+### Trace Fixture Drift Diagnostics
+
+- Extended pure governed trace fixture replay reports with structured drift diagnostics.
+- Replay reports now include fixture id, playbook id, expected step order, fixture step order, missing approval step ids, and missing writeback targets.
+- Preserved the existing stable replay `errors` strings while adding maintenance-oriented diagnostics for stale fixtures.
+- Added replay tests for success diagnostics, step-order drift, missing approval state, missing writeback targets, and unregistered playbooks.
+- Kept replay pure: no LLM calls, no tool execution, no API route calls, no runtime store reads/writes, and no asset writes.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.
@@ -244,7 +252,8 @@
 - Verified `npm test -- src/__tests__/lib/executor/runtime/trace-governance.test.ts src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts` — 2 files, 4 tests passing.
 - Verified `npm test -- src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx src/__tests__/lib/server/controlled-execution-store.test.ts` — 3 files, 14 tests passing.
 - Verified `npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts` — 1 file, 3 tests passing.
-- Verified `npm run test:controlled-runtime` — 24 files, 137 tests passing.
+- Verified `npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts src/__tests__/lib/executor/runtime/trace-replay.test.ts src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` — 3 files, 11 tests passing.
+- Verified `npm run test:controlled-runtime` — 26 files, 145 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.
 - Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - Verified `npm run build` — exit 0 with the same existing `<img>` warning.

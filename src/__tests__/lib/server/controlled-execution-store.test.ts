@@ -198,4 +198,66 @@ describe("controlled-execution-store", () => {
       },
     ]);
   });
+
+  it("prunes old terminal runs while keeping active and approval-blocked runs", async () => {
+    const {
+      createControlledExecutionRun,
+      getControlledExecutionRun,
+      pruneControlledExecutionRuns,
+      requestControlledApproval,
+      updateControlledExecutionRun,
+    } = await import("@/lib/server/controlled-execution-store");
+
+    await createControlledExecutionRun({
+      id: "old-completed",
+      requestId: "req-old-completed",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan,
+    });
+    await createControlledExecutionRun({
+      id: "old-running",
+      requestId: "req-old-running",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan,
+    });
+    await createControlledExecutionRun({
+      id: "old-awaiting-approval",
+      requestId: "req-old-awaiting-approval",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan,
+    });
+    await createControlledExecutionRun({
+      id: "newest-terminal",
+      requestId: "req-newest-terminal",
+      sessionId: "session-1",
+      playbookId: "sales-pipeline-v1",
+      playbookVersion: "1.0.0",
+      plan,
+    });
+
+    await updateControlledExecutionRun("old-completed", { state: "completed" });
+    await requestControlledApproval("old-awaiting-approval", "human_review");
+    await updateControlledExecutionRun("newest-terminal", { state: "failed" });
+
+    const result = await pruneControlledExecutionRuns({
+      now: 10_000_000_000_000,
+      maxAgeMs: 1_000,
+      minTerminalRunsToKeep: 1,
+    });
+
+    expect(result.prunedRunIds).toContain("old-completed");
+    expect(result.prunedRunIds).not.toContain("old-running");
+    expect(result.prunedRunIds).not.toContain("old-awaiting-approval");
+    expect(result.prunedRunIds).not.toContain("newest-terminal");
+    expect(await getControlledExecutionRun("old-completed")).toBeNull();
+    expect(await getControlledExecutionRun("old-running")).not.toBeNull();
+    expect(await getControlledExecutionRun("old-awaiting-approval")).not.toBeNull();
+    expect(await getControlledExecutionRun("newest-terminal")).not.toBeNull();
+  });
 });

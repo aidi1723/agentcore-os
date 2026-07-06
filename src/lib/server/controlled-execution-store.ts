@@ -11,6 +11,12 @@ import { readJsonFile, readModifyWrite } from "@/lib/server/json-store";
 const FILE_NAME = "controlled-execution-runs.json";
 const MAX_RUNS = 400;
 
+export type ControlledRunRetentionPolicy = {
+  now?: number;
+  maxAgeMs: number;
+  minTerminalRunsToKeep: number;
+};
+
 function now() {
   return Date.now();
 }
@@ -23,6 +29,10 @@ function clipError(value?: string) {
 
 function hasOwn(object: object, key: string) {
   return Object.prototype.hasOwnProperty.call(object, key);
+}
+
+function isTerminalControlledRun(run: ControlledExecutionRunRecord) {
+  return run.state === "completed" || run.state === "failed" || run.state === "cancelled";
 }
 
 function normalizeStep(input: ControlledExecutionStepRecord): ControlledExecutionStepRecord {
@@ -170,6 +180,37 @@ export async function listControlledExecutionRuns(filter?: {
     if (filter?.playbookId && run.playbookId !== filter.playbookId) return false;
     return true;
   });
+}
+
+export async function pruneControlledExecutionRuns(policy: ControlledRunRetentionPolicy) {
+  const referenceTime = Number.isFinite(policy.now) ? policy.now! : now();
+  const cutoff = referenceTime - Math.max(0, policy.maxAgeMs);
+  const minTerminalRunsToKeep = Math.max(0, Math.floor(policy.minTerminalRunsToKeep));
+  let prunedRunIds: string[] = [];
+  let keptRunIds: string[] = [];
+
+  await readModifyWrite<unknown[]>(FILE_NAME, [], (current) => {
+    const runs = current
+      .map(normalizeRun)
+      .filter((item): item is ControlledExecutionRunRecord => Boolean(item));
+    const terminalRuns = runs
+      .filter(isTerminalControlledRun)
+      .sort((left, right) => right.updatedAt - left.updatedAt);
+    const protectedTerminalIds = new Set(
+      terminalRuns.slice(0, minTerminalRunsToKeep).map((run) => run.id),
+    );
+    const kept = runs.filter((run) => {
+      if (!isTerminalControlledRun(run)) return true;
+      if (protectedTerminalIds.has(run.id)) return true;
+      return run.updatedAt >= cutoff;
+    });
+    const keptIds = new Set(kept.map((run) => run.id));
+    prunedRunIds = runs.filter((run) => !keptIds.has(run.id)).map((run) => run.id);
+    keptRunIds = kept.map((run) => run.id);
+    return kept.sort((left, right) => right.updatedAt - left.updatedAt).slice(0, MAX_RUNS);
+  });
+
+  return { prunedRunIds, keptRunIds };
 }
 
 export async function updateControlledExecutionRun(

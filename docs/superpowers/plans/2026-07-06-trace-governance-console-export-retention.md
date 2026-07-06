@@ -188,7 +188,7 @@ git commit -m "feat: copy governed trace artifacts from console"
 - Modify: `src/lib/server/controlled-execution-store.ts`
 - Modify: `src/__tests__/lib/server/controlled-execution-store.test.ts`
 
-- [ ] **Step 1: Write failing prune tests**
+- [x] **Step 1: Write failing prune tests**
 
 Add tests that seed runs through `createControlledExecutionRun` and `updateControlledExecutionRun`.
 
@@ -209,7 +209,7 @@ expect(await getControlledExecutionRun("old-running")).not.toBeNull();
 expect(await getControlledExecutionRun("old-awaiting-approval")).not.toBeNull();
 ```
 
-- [ ] **Step 2: Run store test to verify RED**
+- [x] **Step 2: Run store test to verify RED**
 
 Run:
 
@@ -219,7 +219,7 @@ npm test -- src/__tests__/lib/server/controlled-execution-store.test.ts
 
 Expected: FAIL because `pruneControlledExecutionRuns` does not exist.
 
-- [ ] **Step 3: Implement prune helper**
+- [x] **Step 3: Implement prune helper**
 
 Add exported types and helper:
 
@@ -264,7 +264,7 @@ export async function pruneControlledExecutionRuns(policy: ControlledRunRetentio
 
 Add local `isTerminalControlledRun`.
 
-- [ ] **Step 4: Run store test to verify GREEN**
+- [x] **Step 4: Run store test to verify GREEN**
 
 Run:
 
@@ -274,7 +274,7 @@ npm test -- src/__tests__/lib/server/controlled-execution-store.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/server/controlled-execution-store.ts src/__tests__/lib/server/controlled-execution-store.test.ts

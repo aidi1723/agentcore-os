@@ -82,6 +82,7 @@ Completed in the current controlled runtime line:
 - Trace Operations Retention Preview: controlled execution cleanup now has a dry-run preview report that shows policy cutoff, kept/pruned run ids, and per-run retention reasons before mutating storage.
 - Trace Retention Preview CLI: `npm run trace:retention:preview` now exposes the dry-run retention report as a local operator command without adding prune, UI, route, fixture refresh, or real replay behavior.
 - Trace Retention Prune Guard: `npm run trace:retention:prune` now provides a guarded local prune command that refuses mutation unless `--confirm-prune` is present and `--expected-pruned-run-ids` exactly matches the fresh preview.
+- Delivery Release Gate Hardening: `npm run delivery:ready:check` now aggregates the fast local delivery demo, governed fixture, fixture summary, and retention preview gates into one JSON readiness report while keeping `productionReady: false`.
 
 Current verification baseline:
 
@@ -91,6 +92,7 @@ npm run delivery:demo:check
 npm run trace:fixtures --silent
 npm run trace:fixtures:summary --silent
 npm run trace:retention:preview -- --max-age-days 30 --min-terminal-runs 20
+npm run delivery:ready:check
 npm run test:controlled-runtime
 npm run test:core-workflows
 npm run lint
@@ -99,14 +101,46 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 40 test files.
-- 206 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, and delivery demo seed/check helper coverage.
+- 41 test files.
+- 210 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, and delivery readiness gate helper coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
 
 - existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+
+## Completed. Delivery Release Gate Hardening
+
+Why:
+
+- The local delivery path was ready, but the proof commands were spread across docs and easy to run inconsistently.
+- The project needed a fast readiness gate that confirms the demo state, governed fixture health, fixture summary, and trace retention preview without claiming production readiness.
+
+Delivered:
+
+- Added `scripts/delivery-ready/check-delivery-ready.mjs`.
+- Added `npm run delivery:ready:check`.
+- The command runs:
+  - `npm run delivery:demo:check`;
+  - `npm run trace:fixtures --silent`;
+  - `npm run trace:fixtures:summary --silent`;
+  - `npm run trace:retention:preview -- --max-age-days 30 --min-terminal-runs 20`.
+- The command emits machine-readable JSON with `releaseClaim: "local_delivery_demo_ready"` and `productionReady: false`.
+- The command fails closed on non-zero subprocess exit or `delivery:demo:check` JSON with `ok: false`.
+- Added helper coverage for success, subprocess failure, semantic delivery check failure, and diagnostic excerpt truncation.
+- Added [Delivery Release Gate Hardening spec](superpowers/specs/2026-07-06-delivery-release-gate-hardening-design.md) and [implementation plan](superpowers/plans/2026-07-06-delivery-release-gate-hardening.md).
+
+Outcome:
+
+- Maintainers now have a fast command-level gate before full regression and browser evidence:
+
+```bash
+npm run delivery:ready:check
+```
+
+- This gate does not replace `test:controlled-runtime`, `test:core-workflows`, `lint`, `build`, or manual browser smoke.
+- It is explicitly a local delivery demo readiness gate, not a production release gate.
 
 ## Completed. Runtime UI Delivery Polish
 

@@ -24,9 +24,9 @@
 
 ## Task 1: Failing Delivery Ready Gate Tests
 
-- [ ] Create `src/__tests__/scripts/delivery-ready-check-script.test.ts`.
+- [x] Create `src/__tests__/scripts/delivery-ready-check-script.test.ts`.
 
-- [ ] Import the planned helper:
+- [x] Import the planned helper:
 
 ```ts
 import {
@@ -35,7 +35,7 @@ import {
 } from "../../../scripts/delivery-ready/check-delivery-ready.mjs";
 ```
 
-- [ ] Add a success test with an injected runner:
+- [x] Add a success test with an injected runner:
 
 ```ts
 it("returns local delivery demo ready when all checks pass", () => {
@@ -68,7 +68,7 @@ it("returns local delivery demo ready when all checks pass", () => {
 });
 ```
 
-- [ ] Add a failing subprocess test:
+- [x] Add a failing subprocess test:
 
 ```ts
 it("fails closed when a check exits non-zero", () => {
@@ -99,7 +99,7 @@ it("fails closed when a check exits non-zero", () => {
 });
 ```
 
-- [ ] Add a delivery JSON semantic failure test:
+- [x] Add a delivery JSON semantic failure test:
 
 ```ts
 it("rejects delivery demo JSON with ok false even when the process exits zero", () => {
@@ -123,7 +123,7 @@ it("rejects delivery demo JSON with ok false even when the process exits zero", 
 });
 ```
 
-- [ ] Add an excerpt truncation test:
+- [x] Add an excerpt truncation test:
 
 ```ts
 it("truncates failed check stdout and stderr excerpts", () => {
@@ -134,13 +134,13 @@ it("truncates failed check stdout and stderr excerpts", () => {
   });
 
   const failed = result.report.checks[0];
-  expect(failed.stdoutExcerpt.length).toBeLessThanOrEqual(81);
-  expect(failed.stderrExcerpt.length).toBeLessThanOrEqual(81);
-  expect(failed.stdoutExcerpt.endsWith("…")).toBe(true);
+  expect(failed.stdoutExcerpt.length).toBeLessThanOrEqual(80);
+  expect(failed.stderrExcerpt.length).toBeLessThanOrEqual(80);
+  expect(failed.stdoutExcerpt.endsWith("...")).toBe(true);
 });
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 npm test -- src/__tests__/scripts/delivery-ready-check-script.test.ts
@@ -148,11 +148,13 @@ npm test -- src/__tests__/scripts/delivery-ready-check-script.test.ts
 
 Expected: fail because `scripts/delivery-ready/check-delivery-ready.mjs` does not exist yet.
 
+Result: failed because `scripts/delivery-ready/check-delivery-ready.mjs` did not exist.
+
 ## Task 2: Implement Delivery Ready Script
 
-- [ ] Create `scripts/delivery-ready/check-delivery-ready.mjs`.
+- [x] Create `scripts/delivery-ready/check-delivery-ready.mjs`.
 
-- [ ] Add constants and check definitions:
+- [x] Add constants and check definitions:
 
 ```js
 import { spawnSync } from "node:child_process";
@@ -196,7 +198,7 @@ export const DEFAULT_DELIVERY_READY_CHECKS = [
 ];
 ```
 
-- [ ] Add the default runner:
+- [x] Add the default runner:
 
 ```js
 export function runDeliveryReadySubprocess(check) {
@@ -208,13 +210,13 @@ export function runDeliveryReadySubprocess(check) {
 }
 ```
 
-- [ ] Add excerpt and JSON helper behavior:
+- [x] Add excerpt and JSON helper behavior:
 
 ```js
 export function excerptText(value, maxLength = 600) {
   const text = String(value ?? "").trim();
   if (text.length <= maxLength) return text;
-  return `${text.slice(0, Math.max(0, maxLength - 1))}…`;
+  return `${text.slice(0, Math.max(0, maxLength - 3))}...`;
 }
 
 function parseJsonOutput(stdout) {
@@ -227,7 +229,7 @@ function parseJsonOutput(stdout) {
 }
 ```
 
-- [ ] Add check execution:
+- [x] Add check execution:
 
 ```js
 function evaluateCheck(check, rawResult, excerptLength) {
@@ -275,7 +277,7 @@ function evaluateCheck(check, rawResult, excerptLength) {
 }
 ```
 
-- [ ] Add `buildDeliveryReadyReport()`:
+- [x] Add `buildDeliveryReadyReport()`:
 
 ```js
 export function buildDeliveryReadyReport({
@@ -316,7 +318,7 @@ export function buildDeliveryReadyReport({
 }
 ```
 
-- [ ] Add the CLI main:
+- [x] Add the CLI main:
 
 ```js
 function main() {
@@ -335,7 +337,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 }
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 npm test -- src/__tests__/scripts/delivery-ready-check-script.test.ts
@@ -343,17 +345,19 @@ npm test -- src/__tests__/scripts/delivery-ready-check-script.test.ts
 
 Expected: pass.
 
+Result: passed, 4 tests.
+
 ## Task 3: Package Script And Runtime Gate Inclusion
 
-- [ ] Modify `package.json` and add:
+- [x] Modify `package.json` and add:
 
 ```json
 "delivery:ready:check": "node scripts/delivery-ready/check-delivery-ready.mjs"
 ```
 
-- [ ] Add `src/__tests__/scripts/delivery-ready-check-script.test.ts` to `test:controlled-runtime`.
+- [x] Add `src/__tests__/scripts/delivery-ready-check-script.test.ts` to `test:controlled-runtime`.
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 npm run delivery:ready:check
@@ -365,21 +369,26 @@ Expected:
 - `delivery:ready:check` exits 0 and prints JSON with `"releaseClaim": "local_delivery_demo_ready"` and `"productionReady": false`.
 - `test:controlled-runtime` passes.
 
+Result:
+
+- `delivery:ready:check` exited 0 and printed JSON with `"releaseClaim": "local_delivery_demo_ready"` and `"productionReady": false`.
+- `test:controlled-runtime` passed, 41 files / 210 tests.
+
 ## Task 4: Documentation And Records
 
-- [ ] Update `CHANGELOG.md` under the current unreleased/runtime section:
+- [x] Update `CHANGELOG.md` under the current unreleased/runtime section:
 
 ```md
 - Added `npm run delivery:ready:check`, a fast local delivery readiness gate that aggregates delivery demo validation, governed trace fixture checks, and retention preview while only claiming `local_delivery_demo_ready`.
 ```
 
-- [ ] Update `docs/NEXT_STEPS.md` completed baseline and current verification baseline to include:
+- [x] Update `docs/NEXT_STEPS.md` completed baseline and current verification baseline to include:
 
 ```bash
 npm run delivery:ready:check
 ```
 
-- [ ] Add a completed section to `docs/NEXT_STEPS.md` explaining:
+- [x] Add a completed section to `docs/NEXT_STEPS.md` explaining:
 
 ```md
 ## Completed. Delivery Release Gate Hardening
@@ -390,17 +399,17 @@ npm run delivery:ready:check
 - Full regression, lint, build, and browser smoke remain separate gates.
 ```
 
-- [ ] Update `docs/BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md` to say `delivery:ready:check` is a fast command-level gate before manual browser evidence.
+- [x] Update `docs/BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md` to say `delivery:ready:check` is a fast command-level gate before manual browser evidence.
 
-- [ ] Update `docs/DELIVERY_DEMO_SMOKE_PATH.zh-CN.md` to include `npm run delivery:ready:check` after seed/check.
+- [x] Update `docs/DELIVERY_DEMO_SMOKE_PATH.zh-CN.md` to include `npm run delivery:ready:check` after seed/check.
 
-- [ ] Update `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md` current snapshot with the new gate and its non-production claim boundary.
+- [x] Update `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md` current snapshot with the new gate and its non-production claim boundary.
 
-- [ ] Update `memory/2026-07-06.md` with phase progress and targeted verification.
+- [x] Update `memory/2026-07-06.md` with phase progress and targeted verification.
 
 ## Task 5: Final Verification And Commit
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 npm test -- src/__tests__/scripts/delivery-ready-check-script.test.ts
@@ -417,6 +426,16 @@ Expected:
 - all commands exit 0;
 - `npm run lint` and `npm run build` may keep the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`;
 - `npm run delivery:ready:check` outputs JSON with `ok: true`, `releaseClaim: "local_delivery_demo_ready"`, and `productionReady: false`.
+
+Result:
+
+- `npm test -- src/__tests__/scripts/delivery-ready-check-script.test.ts` — 4 tests passed.
+- `npm run delivery:ready:check` — exit 0; output `ok: true`, `releaseClaim: "local_delivery_demo_ready"`, and `productionReady: false`.
+- `npm run test:controlled-runtime` — 41 files / 210 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
 
 - [ ] Stage only current phase files:
 

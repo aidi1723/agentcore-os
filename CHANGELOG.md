@@ -104,6 +104,12 @@
 
 ## Unreleased
 
+### Delivery Release Gate Hardening
+
+- Added `npm run delivery:ready:check`, a fast local delivery readiness gate that aggregates delivery demo validation, governed trace fixture checks, fixture summary output, and retention preview.
+- The gate emits machine-readable JSON, keeps `productionReady: false`, and only allows the `local_delivery_demo_ready` release claim.
+- Added delivery readiness gate helper coverage and included it in `test:controlled-runtime`.
+
 ### Trace Operations Retention Preview
 
 - Added a dry-run retention preview for controlled execution runs.

@@ -34,6 +34,7 @@ Last updated: 2026-07-06
 ```bash
 npm run delivery:demo:seed
 npm run delivery:demo:check
+npm run delivery:ready:check
 ```
 
 `delivery:demo:seed` 会幂等写入这些本地记录：
@@ -66,6 +67,8 @@ npm run delivery:demo:check
 ```
 
 如果失败，先看 `diagnostics`，不要手工改 trace 或 fixture 来绕过错误。
+
+`delivery:ready:check` 是更高一层的快速本地交付门禁。它会聚合 `delivery:demo:check`、governed fixture report、fixture summary 和 retention preview，并输出 machine-readable JSON。成功时只代表 `local_delivery_demo_ready`，不会宣称 production ready。
 
 ## 3. 浏览器演示路径
 
@@ -115,6 +118,7 @@ npm run dev
 git diff --check
 npm run delivery:demo:seed
 npm run delivery:demo:check
+npm run delivery:ready:check
 npm test -- src/__tests__/scripts/delivery-demo-data.test.ts src/__tests__/scripts/delivery-demo-scripts.test.ts
 npm run test:controlled-runtime
 npm run test:core-workflows

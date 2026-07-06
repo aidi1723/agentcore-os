@@ -11,6 +11,7 @@ Last updated: 2026-07-06
 ```bash
 npm run delivery:demo:seed
 npm run delivery:demo:check
+npm run delivery:ready:check
 npm run dev
 ```
 
@@ -73,6 +74,7 @@ npm run dev
 - [ ] `git diff --check` 通过。
 - [ ] `npm run delivery:demo:seed` 通过且重复运行幂等。
 - [ ] `npm run delivery:demo:check` 通过且 `diagnostics: []`。
+- [ ] `npm run delivery:ready:check` 通过，输出 `releaseClaim: "local_delivery_demo_ready"` 且 `productionReady: false`。
 - [ ] `npm run test:controlled-runtime` 通过。
 - [ ] `npm run test:core-workflows` 通过。
 - [ ] `npm run lint` 通过，只有已知 `<img>` warning。
@@ -81,6 +83,8 @@ npm run dev
 - [ ] Runtime Console 可展示 `delivery-demo-run-completed` 五类 asset landing。
 - [ ] `复制脱敏 Trace` 可调用 governed trace artifact route。
 - [ ] 发布文档不宣称生产 ready；只宣称 local delivery demo ready。
+
+`delivery:ready:check` 是浏览器证据前的快速命令级门禁。它聚合 demo check、governed fixture report、fixture summary 和 retention preview，但不启动浏览器、不替代完整 regression / lint / build，也不代表 production ready。
 
 ## 5. 下一步建议
 

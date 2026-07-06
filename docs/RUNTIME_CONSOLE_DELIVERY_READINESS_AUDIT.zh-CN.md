@@ -6,7 +6,7 @@ Last updated: 2026-07-06
 
 ## 1. 当前结论
 
-当前分支已经可以进入 **delivery demo smoke path** 阶段，但还不应宣称为完整生产发布。
+当前分支已经完成命令级 **delivery demo smoke path**，但还不应宣称为完整生产发布。
 
 可以演示的主线是：
 
@@ -20,7 +20,8 @@ Last updated: 2026-07-06
 当前审计结论：
 
 - **Ready:** Runtime Console 已具备受控运行检查、人工控制、恢复、资产落点和 governed trace copy 的交付主线。
-- **Blocker:** 还缺少一条固定 demo smoke path，证明从启动到资产检查的完整路径在浏览器里可重复演示。
+- **Ready:** 本地 seed/check 已提供固定 demo run、资产记录和 governed trace 脱敏验证。
+- **Remaining:** 还需要浏览器证据和 release readiness sweep，证明 Home -> Runtime Console -> asset landing -> governed trace copy 在真实 UI 中无阻塞。
 - **Deferred:** 真实 replay、新 playbook、更多 fixture expansion、UI 大改和通用 agent shell 扩展都应继续延期。
 
 ## 2. 可交付演示主线
@@ -58,11 +59,12 @@ Last updated: 2026-07-06
 | Governed trace | Ready | Console fetches trace artifact route and copies `{ export, artifact }` | Demo with completed run |
 | Runtime diagnostics | Partial | Runtime/sidecar/doctor panels exist but are still mixed with older runtime installation concerns | Keep visible, not the core demo story |
 | Fixture/replay visibility | Partial | Governed trace and docs explain fixture/replay gates; UI does not yet summarize fixture gate state | Explain through docs for now |
-| Demo repeatability | Blocker | No committed browser smoke path or seeded scenario checklist yet | Next phase required |
+| Demo repeatability | Ready | `npm run delivery:demo:seed` and `npm run delivery:demo:check` seed and verify deterministic demo state | Use as pre-browser smoke gate |
+| Browser evidence | Partial | Browser path is documented but not yet captured as repeatable evidence | Next phase required |
 
 ## 4. 当前阻塞项
 
-### B1. 缺少固定 demo smoke path
+### B1. 浏览器证据尚未收口
 
 需要一条可重复的本地演示路径，证明：
 
@@ -72,15 +74,18 @@ Last updated: 2026-07-06
 - governed trace copy 不包含 raw customer / secret payload；
 - build gate 和 controlled-runtime gate 仍为 green。
 
-这不是新功能，而是交付路径验证。
+命令级 seed/check 已完成；下一阶段要在真实浏览器里捕捉这条路径的证据，并只修交付阻塞问题。
 
-### B2. 演示数据边界需要固定
+### B2. 演示数据边界已经固定，仍需防止外溢
 
-Runtime Console 的演示质量取决于是否存在可讲解的 run。下一阶段应决定：
+Runtime Console 的演示数据已经由本地脚本固定：
 
-- 使用现有 committed fixture metadata 生成只读演示说明；
-- 或使用本地测试/seed 流程创建 demo run；
-- 不能为了演示而绕过 approval、writeback 或 trace governance。
+- `delivery-demo-run-completed`
+- `delivery-demo-run-awaiting-approval`
+- `delivery-demo-run-failed-retryable`
+- sales / knowledge / workflow / draft / support 资产记录
+
+后续仍不能为了演示而绕过 approval、writeback 或 trace governance，也不能把 seed 脚本升级成公开 API。
 
 ### B3. Runtime diagnostics 不应喧宾夺主
 
@@ -104,6 +109,8 @@ Runtime Console 上半部分仍保留 runtime / sidecar / doctor 信息。交付
 
 ```bash
 git diff --check
+npm run delivery:demo:seed
+npm run delivery:demo:check
 npm run test:controlled-runtime
 npm run test:core-workflows
 npm run lint
@@ -114,7 +121,7 @@ npm run build
 
 - `npm run lint` 和 `npm run build` 可能继续显示 `src/__tests__/components/ShellUI.test.tsx` 中既有的 `<img>` warning。
 
-Delivery Demo Smoke Path 阶段还应增加浏览器级检查：
+Browser Evidence And Release Readiness Sweep 阶段还应增加浏览器级检查：
 
 ```bash
 npm run dev
@@ -123,12 +130,11 @@ npm run dev
 
 ## 7. 下一阶段建议
 
-下一阶段应做 **Delivery Demo Smoke Path**：
+下一阶段应做 **Browser Evidence And Release Readiness Sweep**：
 
-- 写一份具体 smoke path spec / plan；
-- 确定 demo run 来源；
 - 用浏览器验证 Home cockpit 到 Runtime Console 的路径；
-- 验证 Runtime Console 的 asset landing 和 governed trace copy；
+- 使用 `delivery-demo` 数据验证 asset landing 和 governed trace copy；
+- 若 Playwright 可用，保存截图或可复查的浏览器证据；
 - 只修阻塞 demo 的小问题，不引入真实 replay 或新 playbook。
 
 完成该阶段后，才能再进入 governed fixture / playbook expansion review。

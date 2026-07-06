@@ -52,6 +52,7 @@ AgentCore OS 当前对外更适合这样理解：
 - [可控 Agent Runtime 开发手册](docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
 - [当前执行 backlog](docs/NEXT_STEPS.md)
 - [Runtime Console Delivery Readiness Audit](docs/RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md)
+- [Delivery Demo Smoke Path](docs/DELIVERY_DEMO_SMOKE_PATH.zh-CN.md)
 - [Governed Trace Operational Runbook](docs/GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
 - [Real Replay Boundary Design](docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
 - [No-Side-Effect Replay Sandbox Prototype Design](docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
@@ -151,6 +152,7 @@ npm run test:stability
 - [可控 Agent Runtime 开发手册](docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
 - [当前执行 backlog](docs/NEXT_STEPS.md)
 - [Runtime Console Delivery Readiness Audit](docs/RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md)
+- [Delivery Demo Smoke Path](docs/DELIVERY_DEMO_SMOKE_PATH.zh-CN.md)
 - [Governed Trace Operational Runbook](docs/GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
 - [文档总入口](docs/DOCUMENTATION_INDEX.zh-CN.md)
 - [用户指南（中文）](docs/USER_GUIDE.zh-CN.md)
@@ -183,6 +185,8 @@ npm run test:stability
 - `npm run start`：启动生产服务
 - `npm run stable`：清理重建并启动稳定版本
 - `npm run test:core-workflows`：运行销售 / 客服 / 知识资产 / 发布队列核心回归
+- `npm run delivery:demo:seed`：写入本地受控 Runtime 交付演示数据
+- `npm run delivery:demo:check`：验证本地交付演示数据和 governed trace 脱敏边界
 - `npm run test:stability`：运行核心回归 + lint + build 的稳定性门禁
 - `npm run desktop:smoke-test-sidecar`：运行桌面 sidecar HTTP 主链路烟测
 - `npm run lint`：运行 lint

@@ -215,20 +215,37 @@ Completed delivery-readiness checkpoint:
 Result:
 
 - Runtime Console is ready to serve as the primary controlled runtime demo surface.
-- Current blocker is a fixed browser-level delivery demo smoke path.
+- The follow-up command-level delivery demo smoke path is now complete.
+- Current blocker is browser evidence and release-readiness sweep.
 - Production readiness is not claimed yet.
 
 ### P12. Delivery Demo Smoke Path
 
-Next, prove a repeatable browser demo:
+Completed command-level delivery demo path:
+
+- [Delivery Demo Smoke Path](DELIVERY_DEMO_SMOKE_PATH.zh-CN.md)
+- `npm run delivery:demo:seed`
+- `npm run delivery:demo:check`
+
+The path now provides:
+
+- deterministic completed, awaiting approval, and retryable failed controlled runs,
+- local sales / knowledge / workflow / draft / support asset records,
+- governed trace redaction checks,
+- repeatable operator instructions for Home -> Runtime Console -> asset landing -> governed trace copy.
+
+### P13. Browser Evidence And Release Readiness Sweep
+
+Next, prove the command-level smoke path in a browser and close release blockers:
 
 - Home cockpit -> Runtime Console,
-- select or seed a controlled run,
+- search `delivery-demo`,
 - inspect step trace, approvals/recovery, asset landings, and governed trace copy,
-- fix only delivery-blocking issues,
+- capture browser evidence if Playwright is available,
+- fix only delivery-blocking issues found in the smoke path,
 - keep real replay and new playbooks out of this phase.
 
-### P13. Governed Fixture And Playbook Expansion Review
+### P14. Governed Fixture And Playbook Expansion Review
 
 Review whether to expand fixtures or playbooks:
 
@@ -236,7 +253,7 @@ Review whether to expand fixtures or playbooks:
 - decide whether the next phase should add fixture coverage, migrate a new controlled playbook, or harden operational retention,
 - produce a focused spec before any new fixture JSON or playbook code is added.
 
-### P14. Governed Fixture And Playbook Expansion
+### P15. Governed Fixture And Playbook Expansion
 
 Expand only when the current governed trace/replay gates stay stable:
 
@@ -244,7 +261,7 @@ Expand only when the current governed trace/replay gates stay stable:
 - add new controlled playbooks only through spec -> plan -> tests -> fixture/replay gates,
 - do not use fixture expansion as a substitute for real replay boundary design.
 
-### P15. Trace Operations Hardening
+### P16. Trace Operations Hardening
 
 Turn the governed trace operational runbook into a tighter maintenance path:
 
@@ -254,7 +271,7 @@ Turn the governed trace operational runbook into a tighter maintenance path:
 - summary/harness drift checks,
 - clearer handoff records for fixture replacement.
 
-### P16. Runtime-Supporting UI And App Polish
+### P17. Runtime-Supporting UI And App Polish
 
 Polish UI only when it serves runtime operation:
 

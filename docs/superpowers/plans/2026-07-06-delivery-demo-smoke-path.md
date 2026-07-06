@@ -37,7 +37,7 @@
 - Create: `scripts/delivery-demo/demo-data.mjs`
 - Create: `src/__tests__/scripts/delivery-demo-data.test.ts`
 
-- [ ] **Step 1: Add failing tests**
+- [x] **Step 1: Add failing tests**
 
 Create `src/__tests__/scripts/delivery-demo-data.test.ts`:
 
@@ -85,7 +85,7 @@ describe("delivery demo data", () => {
 });
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run:
 
@@ -95,7 +95,7 @@ npm test -- src/__tests__/scripts/delivery-demo-data.test.ts
 
 Expected: FAIL because `scripts/delivery-demo/demo-data.mjs` does not exist.
 
-- [ ] **Step 3: Commit RED test**
+- [x] **Step 3: Commit RED test**
 
 ```bash
 git add src/__tests__/scripts/delivery-demo-data.test.ts
@@ -110,7 +110,7 @@ git commit -m "test: specify delivery demo data"
 **Files:**
 - Create: `scripts/delivery-demo/demo-data.mjs`
 
-- [ ] **Step 1: Add demo data constants and builder**
+- [x] **Step 1: Add demo data constants and builder**
 
 Implement `buildDeliveryDemoData({ now })` with stable ids:
 
@@ -136,7 +136,7 @@ Return object keys:
 }
 ```
 
-- [ ] **Step 2: Verify GREEN**
+- [x] **Step 2: Verify GREEN**
 
 Run:
 
@@ -146,7 +146,7 @@ npm test -- src/__tests__/scripts/delivery-demo-data.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 3: Commit builder**
+- [x] **Step 3: Commit builder**
 
 ```bash
 git add scripts/delivery-demo/demo-data.mjs src/__tests__/scripts/delivery-demo-data.test.ts
@@ -163,11 +163,11 @@ git commit -m "feat: add delivery demo data builder"
 - Create: `scripts/delivery-demo/check-controlled-runtime-demo.mjs`
 - Modify: `package.json`
 
-- [ ] **Step 1: Write seed script**
+- [x] **Step 1: Write seed script**
 
 Create a local-only script that merges records into `.openclaw-data/*.json` by stable `id` or `sourceKey`, preserving unrelated records.
 
-- [ ] **Step 2: Write check script**
+- [x] **Step 2: Write check script**
 
 Create a check script that:
 
@@ -177,7 +177,7 @@ Create a check script that:
 - builds governed trace artifact for the completed run and rejects raw unsafe text;
 - exits `1` with diagnostics if any check fails.
 
-- [ ] **Step 3: Add npm scripts**
+- [x] **Step 3: Add npm scripts**
 
 Add:
 
@@ -186,7 +186,7 @@ Add:
 "delivery:demo:check": "node --import ./scripts/register-ts-alias-loader.mjs scripts/delivery-demo/check-controlled-runtime-demo.mjs"
 ```
 
-- [ ] **Step 4: Verify scripts**
+- [x] **Step 4: Verify scripts**
 
 Run:
 
@@ -197,7 +197,7 @@ npm run delivery:demo:check
 
 Expected: both exit 0.
 
-- [ ] **Step 5: Commit scripts**
+- [x] **Step 5: Commit scripts**
 
 ```bash
 git add package.json scripts/delivery-demo/seed-controlled-runtime-demo.mjs scripts/delivery-demo/check-controlled-runtime-demo.mjs
@@ -219,11 +219,11 @@ git commit -m "feat: add delivery demo smoke scripts"
 - Modify: `CHANGELOG.md`
 - Modify: this plan
 
-- [ ] **Step 1: Include new test in controlled runtime gate**
+- [x] **Step 1: Include new test in controlled runtime gate**
 
 Add `src/__tests__/scripts/delivery-demo-data.test.ts` to `test:controlled-runtime`.
 
-- [ ] **Step 2: Create delivery demo guide**
+- [x] **Step 2: Create delivery demo guide**
 
 Document:
 
@@ -237,11 +237,11 @@ Then browser path:
 
 Home -> Open Runtime Console -> search `delivery-demo` -> select completed run -> inspect asset landings -> copy governed trace.
 
-- [ ] **Step 3: Align project docs**
+- [x] **Step 3: Align project docs**
 
 Record Delivery Demo Smoke Path as completed and set next recommended phase to Browser Evidence And Release Readiness Sweep.
 
-- [ ] **Step 4: Run final verification**
+- [x] **Step 4: Run final verification**
 
 Run:
 
@@ -270,4 +270,24 @@ git commit -m "docs: complete delivery demo smoke path"
 
 ## Completion Notes
 
-Pending implementation.
+Implementation status:
+
+- `6d12bae` added the RED demo data test.
+- `cd18b7f` added the deterministic demo data builder.
+- `dbddeb0` added local delivery demo seed/check scripts, npm commands, and script helper coverage.
+- Documentation alignment completed in this plan, README, changelog, roadmap, next-stage backlog, documentation index, project framework, Runtime Console delivery audit, memory record, and `docs/DELIVERY_DEMO_SMOKE_PATH.zh-CN.md`.
+
+Final verification:
+
+- `git diff --check` — exit 0.
+- `npm run delivery:demo:seed` — exit 0; repeated run stayed idempotent.
+- `npm run delivery:demo:check` — exit 0; `ok: true`, `diagnostics: []`.
+- `npm test -- src/__tests__/scripts/delivery-demo-data.test.ts src/__tests__/scripts/delivery-demo-scripts.test.ts` — 2 files / 4 tests passed.
+- `npm run test:controlled-runtime` — 38 files / 195 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+
+Current next phase after final verification:
+
+- Browser Evidence And Release Readiness Sweep.

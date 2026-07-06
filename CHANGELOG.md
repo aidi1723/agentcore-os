@@ -104,11 +104,20 @@
 
 ## Unreleased
 
+### Delivery Demo Smoke Path
+
+- Added deterministic local delivery demo data for completed, awaiting approval, and retryable failed controlled runs.
+- Added `npm run delivery:demo:seed` to merge demo records into `.openclaw-data` while preserving unrelated local records.
+- Added `npm run delivery:demo:check` to verify demo run states, writeback targets, related sales / knowledge / workflow / draft / support assets, retry/approval metadata, and governed trace redaction.
+- Added delivery demo script tests and included them in `test:controlled-runtime`.
+- Added `docs/DELIVERY_DEMO_SMOKE_PATH.zh-CN.md` as the operator guide for Home -> Runtime Console -> asset landing -> governed trace copy.
+- Set the next phase to Browser Evidence And Release Readiness Sweep.
+
 ### Runtime Console Delivery Readiness Audit
 
 - Added `docs/RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md`.
 - Documented the current deliverable demo story from Home cockpit to Runtime Console, asset landing, and governed trace copy.
-- Identified the next blocker as a fixed browser-level Delivery Demo Smoke Path before production-readiness claims.
+- Identified the then-next blocker as a fixed Delivery Demo Smoke Path before production-readiness claims.
 
 ### Runtime UI Reframing
 

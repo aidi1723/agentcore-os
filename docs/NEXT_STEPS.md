@@ -74,10 +74,13 @@ Completed in the current controlled runtime line:
 - Replay sandbox contract types, no-side-effect replay sandbox prototype, fixture-to-contract bridge, catalog-level replay sandbox report, replay sandbox catalog CI summary, failure diagnostics taxonomy, and direct failure harness modes for committed governed fixtures.
 - Runtime UI Reframing first slice: home screen now leads with controlled playbook cockpit state and Runtime Console inspection.
 - Runtime Console Delivery Readiness Audit: current branch can move to demo smoke path, but should not claim production release readiness yet.
+- Delivery Demo Smoke Path: local deterministic seed/check scripts now provide completed, awaiting approval, and retryable failed demo runs plus sales / knowledge / workflow / draft / support asset records for Runtime Console handoff.
 
 Current verification baseline:
 
 ```bash
+npm run delivery:demo:seed
+npm run delivery:demo:check
 npm run trace:fixtures --silent
 npm run trace:fixtures:summary --silent
 npm run test:controlled-runtime
@@ -88,14 +91,45 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 36 test files.
-- 191 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
+- 38 test files.
+- 195 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, and delivery demo seed/check helper coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
 
 - existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+
+## Completed. Delivery Demo Smoke Path
+
+Why:
+
+- Runtime Console 已具备演示主线，但交付前需要一条可重复的本地 smoke path。
+- 演示不能依赖临时手工数据，也不能为了 demo 绕过 approval / writeback / trace governance。
+
+Delivered:
+
+- Added deterministic demo records for one completed run, one awaiting approval run, and one retryable failed run.
+- Added local-only `npm run delivery:demo:seed` to merge demo records into `.openclaw-data` without dropping unrelated local records.
+- Added `npm run delivery:demo:check` to verify the demo runs, writeback targets, related assets, retry/approval metadata, and governed trace redaction.
+- Added delivery demo script coverage and included it in `test:controlled-runtime`.
+- Added an operator-facing guide: [Delivery Demo Smoke Path](DELIVERY_DEMO_SMOKE_PATH.zh-CN.md).
+
+Primary files:
+
+- `scripts/delivery-demo/demo-data.mjs`
+- `scripts/delivery-demo/seed-controlled-runtime-demo.mjs`
+- `scripts/delivery-demo/check-controlled-runtime-demo.mjs`
+- `src/__tests__/scripts/delivery-demo-data.test.ts`
+- `src/__tests__/scripts/delivery-demo-scripts.test.ts`
+- `docs/DELIVERY_DEMO_SMOKE_PATH.zh-CN.md`
+- `package.json`
+
+Outcome:
+
+- A maintainer can seed and check a deterministic Runtime Console demo with two commands.
+- The project now has a command-level delivery smoke gate before browser evidence.
+- Next recommended phase: Browser Evidence And Release Readiness Sweep.
 
 ## Completed. Runtime Console Failure Recovery
 
@@ -1001,21 +1035,22 @@ Delivered:
 - Added [Runtime Console Delivery Readiness Audit](RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md).
 - Defined the deliverable demo story: Home cockpit -> Runtime Console -> controlled run detail -> approval/recovery -> asset landing -> governed trace copy.
 - Marked Runtime Console run inspection, approval/reject, resume/retry, asset landings, and governed trace copy as ready for demo use.
-- Recorded the current blocker: no fixed browser-level delivery demo smoke path yet.
+- Recorded the previous blocker: a fixed delivery demo smoke path was required before release-readiness claims.
 - Deferred real replay, new playbooks, broad UI redesign, and generic shell/skill expansion.
 
 Outcome:
 
-- Current branch can proceed to a delivery smoke path.
-- It should not yet be described as a production-ready release.
+- Current branch has proceeded through the command-level delivery smoke path.
+- It should not yet be described as a production-ready release until browser evidence and release-readiness sweep are complete.
 
-## Recommended Next. Delivery Demo Smoke Path
+## Recommended Next. Browser Evidence And Release Readiness Sweep
 
 Suggested scope:
 
-- Write a specific smoke path for Home cockpit -> Runtime Console -> selected controlled run -> asset landing -> governed trace copy.
-- Decide whether the demo run source is seeded local data, an existing controlled run, or a fixture-backed local walkthrough.
-- Verify the path in a browser.
+- Run `npm run delivery:demo:seed` and `npm run delivery:demo:check`.
+- Start `npm run dev`.
+- Verify Home cockpit -> Runtime Console -> `delivery-demo` -> asset landing -> governed trace copy in a browser.
+- Capture Playwright or manual screenshot evidence if available.
 - Fix only delivery-blocking issues found by the smoke path.
 - Do not add real replay, new playbooks, or broad UI redesign in this phase.
 

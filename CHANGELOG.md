@@ -110,6 +110,8 @@
 - `previewControlledExecutionRunRetention()` now reports kept/pruned run ids, policy cutoff, and per-run retention reasons without mutating storage.
 - Refactored `pruneControlledExecutionRuns()` to reuse the same decision logic as preview, so cleanup behavior and preview output cannot drift.
 - Added retention preview regression coverage for active runs, approval-blocked runs, newest terminal retention, terminal runs inside the retention window, and expired terminal pruning.
+- Added `npm run trace:retention:preview` as a local dry-run operator command for machine-readable retention reports.
+- The command supports `--max-age-ms`, `--max-age-days`, `--min-terminal-runs`, `--now`, and `--cwd`, and is covered by `test:controlled-runtime`.
 
 ### Project Introduction Alignment
 

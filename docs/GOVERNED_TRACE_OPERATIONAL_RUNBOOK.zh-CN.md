@@ -159,6 +159,18 @@ Start failure classification from [Governed Trace Fixture Replay Contract](GOVER
 
 `previewControlledExecutionRunRetention()` is the dry-run retention helper. Run it before cleanup to inspect the normalized policy, cutoff, kept/pruned run ids, and per-run retention reasons.
 
+Preferred local command:
+
+```bash
+npm run trace:retention:preview -- --max-age-days 30 --min-terminal-runs 20
+```
+
+For an explicit workspace or test fixture directory:
+
+```bash
+npm run trace:retention:preview -- --cwd /path/to/workspace --now 10000 --max-age-ms 1000 --min-terminal-runs 1
+```
+
 `pruneControlledExecutionRuns()` is the mutating retention helper. It uses the same decision model as preview, then prunes old terminal runs while preserving active and approval-blocked runs according to policy.
 
 Before pruning, confirm:

@@ -333,7 +333,7 @@ type ControlledPlaybookStep = {
 - Phase 6 Runtime Console operations：控制台已经支持 state filter、文本搜索、pending approval approve/reject、non-terminal run resume，并在操作后刷新 durable controlled run summary。
 - Phase 7 第一批 asset deep links：writeback receipt 已记录结构化 `assetId` / `sourceKey` / `workflowRunId`，Runtime Console 可按资产字段搜索，并能从成功 landing 打开 Deal Desk / Knowledge Vault。
 - Phase 7b failure recovery：controlled run 已有 durable audit events；summary 可展示 `failedStepId`、`canRetry`、`retryReason` 和 `auditEventCount`；Runtime Console 可对符合 playbook retry policy 的 failed step 执行 `重试失败步骤`；retry route 会从第一个失败 step 继续执行，不重放已完成前置步骤。
-- Phase 7c record-level asset focus：Runtime Console 的 sales / knowledge asset landing 现在会传递 `assetId` / `sourceKey` / `workflowRunId`；Deal Desk 会定位到已写回 sales asset 关联的现有 deal；Knowledge Vault 会定位并高亮 exact knowledge asset。
+- Phase 7c record-level asset focus：Runtime Console 的 sales / knowledge asset landing 现在会传递 `assetId` / `sourceKey` / `workflowRunId`；Deal Desk 会定位到已写回 sales asset 关联的现有 deal；Knowledge Vault 会定位并高亮 exact knowledge asset。带 record metadata 的打开动作不会创建 synthetic lead；如果 prefill 早于 server-backed store hydration，会保留 pending focus，在资产/线索同步后重试，仍未命中则提示缺失记录。
 
 仍未完成：
 
@@ -514,7 +514,7 @@ type ControlledPlaybookStep = {
 
 建议拆分：
 
-- record-level focus：Deal Desk / Knowledge Vault 根据 prefill 直接选中 sales asset / knowledge asset。已完成于 Phase 7c。
+- record-level focus：Deal Desk / Knowledge Vault 根据 prefill 直接选中 sales asset / knowledge asset，并覆盖 hydration race 下的 pending retry / missing-record error。已完成于 Phase 7c。
 - 操作审计增强：把 console-initiated approve / reject / resume 也明确记录到 trace metadata，目前 retry 已有 audit event。
 - skipped writeback targets：把 `workflow_run` / `draft` 从 skipped receipt 升级为真实写回。
 

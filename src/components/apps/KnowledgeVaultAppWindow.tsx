@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Folder, HardDrive, RefreshCw, Search } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
 import { AppToast } from "@/components/AppToast";
@@ -50,6 +50,12 @@ const folders: Array<{ id: VaultFolderId; name: string }> = [
   { id: "contracts", name: "文档归档" },
 ];
 
+type PendingKnowledgeFocusPrefill = {
+  detail: KnowledgeVaultPrefill;
+  assetRevision: number;
+  missReported: boolean;
+};
+
 function formatTimestamp(value?: number) {
   if (!value) return "暂无";
   return new Date(value).toLocaleString();
@@ -73,6 +79,8 @@ export function KnowledgeVaultAppWindow({
   const [editingBody, setEditingBody] = useState("");
   const [query, setQuery] = useState("");
   const [focusedAssetId, setFocusedAssetId] = useState<string | null>(null);
+  const [pendingFocusPrefill, setPendingFocusPrefill] =
+    useState<PendingKnowledgeFocusPrefill | null>(null);
   const [creatorSliceAssets, setCreatorSliceAssets] = useState<CreatorAssetRecord[]>([]);
   const [creatorSliceLoading, setCreatorSliceLoading] = useState(false);
   const [ask, setAsk] = useState("");
@@ -111,22 +119,41 @@ export function KnowledgeVaultAppWindow({
     };
   }, []);
 
+  const focusKnowledgeAssetFromPrefill = useCallback(
+    (detail?: KnowledgeVaultPrefill | null) => {
+      const focusedAsset =
+        getKnowledgeAssetById(detail?.assetId) ?? getKnowledgeAssetBySourceKey(detail?.sourceKey);
+      if (!focusedAsset) return false;
+      setFocusedAssetId(focusedAsset.id);
+      setAssetStatusFilter("all");
+      setQuery(focusedAsset.title);
+      setAsk(detail?.query ?? focusedAsset.title);
+      setAnswer("");
+      setStructuredAnswer(null);
+      showToast("已定位到知识资产", "ok");
+      return true;
+    },
+    [showToast],
+  );
+
   useEffect(() => {
     const onPrefill = (event: Event) => {
       const detail = (event as CustomEvent<KnowledgeVaultPrefill>).detail;
-      const focusedAsset =
-        getKnowledgeAssetById(detail?.assetId) ?? getKnowledgeAssetBySourceKey(detail?.sourceKey);
-      if (focusedAsset) {
-        setFocusedAssetId(focusedAsset.id);
-        setAssetStatusFilter("all");
-        setQuery(focusedAsset.title);
-        setAsk(detail?.query ?? focusedAsset.title);
-        setAnswer("");
-        setStructuredAnswer(null);
-        showToast("已定位到知识资产", "ok");
+      if (focusKnowledgeAssetFromPrefill(detail)) {
+        setPendingFocusPrefill(null);
         return;
       }
 
+      const hasFocusMetadata = Boolean(detail?.assetId || detail?.sourceKey);
+      setPendingFocusPrefill(
+        hasFocusMetadata
+          ? {
+              detail: detail ?? {},
+              assetRevision,
+              missReported: false,
+            }
+          : null,
+      );
       setFocusedAssetId(null);
       setAsk(detail?.query ?? "");
       setAnswer("");
@@ -135,7 +162,22 @@ export function KnowledgeVaultAppWindow({
     };
     window.addEventListener("openclaw:vault-prefill", onPrefill);
     return () => window.removeEventListener("openclaw:vault-prefill", onPrefill);
-  }, [showToast]);
+  }, [assetRevision, focusKnowledgeAssetFromPrefill, showToast]);
+
+  useEffect(() => {
+    if (!pendingFocusPrefill) return;
+    if (focusKnowledgeAssetFromPrefill(pendingFocusPrefill.detail)) {
+      setPendingFocusPrefill(null);
+      return;
+    }
+    if (
+      assetRevision !== pendingFocusPrefill.assetRevision &&
+      !pendingFocusPrefill.missReported
+    ) {
+      showToast("同步后仍未找到知识资产", "error");
+      setPendingFocusPrefill({ ...pendingFocusPrefill, missReported: true });
+    }
+  }, [assetRevision, focusKnowledgeAssetFromPrefill, pendingFocusPrefill, showToast]);
 
   const filteredAssets = useMemo<KnowledgeAssetRecord[]>(() => {
     void assetRevision;

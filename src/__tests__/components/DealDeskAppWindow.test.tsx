@@ -88,4 +88,63 @@ describe("DealDeskAppWindow record-level asset focus", () => {
     });
     expect(getDeals()).toHaveLength(2);
   });
+
+  it("retries record focus when sales asset metadata arrives after prefill", async () => {
+    render(
+      <DealDeskAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent("openclaw:deal-desk-prefill", {
+          detail: {
+            workflowRunId: "workflow-late-focus",
+            workflowSource: "Runtime Console asset",
+          },
+        }),
+      );
+    });
+
+    act(() => {
+      createDeal({
+        company: "Other Lead",
+        contact: "Ada",
+        workflowRunId: "workflow-other-late",
+        workflowScenarioId: "sales-pipeline",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByDisplayValue("Other Lead")).toBeInTheDocument();
+    });
+    expect(screen.getByText("同步后仍未找到对应线索")).toBeInTheDocument();
+
+    let targetDealId = "";
+    act(() => {
+      targetDealId = createDeal({
+        company: "Late Focus Facades",
+        contact: "Nora",
+        workflowRunId: "workflow-late-focus",
+        workflowScenarioId: "sales-pipeline",
+      });
+      upsertSalesAsset("workflow-late-focus", {
+        scenarioId: "sales-pipeline",
+        dealId: targetDealId,
+        company: "Late Focus Facades",
+        contactName: "Nora",
+        requirementSummary: "Server-hydrated sales asset",
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue("Late Focus Facades")).toBeInTheDocument();
+    });
+    expect(getDeals()).toHaveLength(2);
+  });
 });

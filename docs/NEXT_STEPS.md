@@ -122,7 +122,8 @@ Delivered:
 - Runtime Console forwards record focus metadata in successful asset landing open actions.
 - Deal Desk selects the written sales asset's related existing deal instead of creating a duplicate lead.
 - Knowledge Vault focuses and highlights the exact knowledge asset, including when the previous status filter would hide it.
-- Preserve fallback behavior for old receipts without structured metadata.
+- Old receipts without structured record metadata keep the broad app/context fallback only.
+- Record-focus-only openings do not create synthetic Deal Desk leads; they wait for sales/knowledge asset hydration, retry focus, and report a missing-record error if the retained record is still unavailable.
 
 Primary files:
 

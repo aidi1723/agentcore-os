@@ -155,6 +155,7 @@
 - Runtime Console now forwards record focus metadata when opening successful sales and knowledge asset landings.
 - Deal Desk now focuses an existing deal from sales asset prefill metadata instead of creating a duplicate lead.
 - Knowledge Vault now focuses and highlights the exact knowledge asset from `assetId` / `sourceKey` prefill metadata.
+- Deal Desk and Knowledge Vault now retry record focus after asset hydration; missing record-focus-only openings report an error instead of creating synthetic records.
 - Expanded `test:controlled-runtime` to include record-level asset lookup, Deal Desk focus, and Knowledge Vault focus coverage.
 
 ### Framework Alignment

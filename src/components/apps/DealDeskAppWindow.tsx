@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Briefcase, FilePlus2, MessageSquareQuote, Plus, Sparkles, Trash2 } from "lucide-react";
 import type { AppWindowProps } from "@/apps/types";
 import { AppToast } from "@/components/AppToast";
@@ -71,6 +71,13 @@ const sampleInquiry: DealDeskPrefill = {
   workflowNextStep: "先确认尺寸、玻璃配置、交期和 MOQ，再生成英文报价跟进邮件。",
 };
 
+type PendingDealFocusPrefill = {
+  detail: DealDeskPrefill;
+  assetRevision: number;
+  dealCount: number;
+  missReported: boolean;
+};
+
 function buildLocalBrief(deal: DealRecord) {
   return [
     "【Deal Brief】",
@@ -109,6 +116,8 @@ export function DealDeskAppWindow({
   const [deals, setDeals] = useState<DealRecord[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [assetRevision, setAssetRevision] = useState(0);
+  const [pendingFocusPrefill, setPendingFocusPrefill] =
+    useState<PendingDealFocusPrefill | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast, showToast } = useTimedToast(2200);
 
@@ -140,34 +149,46 @@ export function DealDeskAppWindow({
     };
   }, []);
 
-  useEffect(() => {
-    const onPrefill = (event: Event) => {
-      const detail = (event as CustomEvent<DealDeskPrefill>).detail;
+  const focusDealFromPrefill = useCallback(
+    (detail?: DealDeskPrefill | null) => {
       const focusAsset =
         getSalesAssetById(detail?.assetId) ??
         getSalesAssetByWorkflowRunId(detail?.workflowRunId);
-      if (focusAsset) {
-        const currentDeals = getDeals();
-        const targetDeal =
-          currentDeals.find((deal) => deal.id === focusAsset.dealId) ??
-          currentDeals.find((deal) => deal.workflowRunId === focusAsset.workflowRunId);
-        if (!targetDeal) {
-          showToast("未找到对应线索", "error");
-          return;
-        }
-        setSelectedId(targetDeal.id);
-        showToast("已定位到线索记录", "ok");
+      if (!focusAsset) return false;
+      const currentDeals = getDeals();
+      const targetDeal =
+        currentDeals.find((deal) => deal.id === focusAsset.dealId) ??
+        currentDeals.find((deal) => deal.workflowRunId === focusAsset.workflowRunId);
+      if (!targetDeal) return false;
+      setSelectedId(targetDeal.id);
+      showToast("已定位到线索记录", "ok");
+      return true;
+    },
+    [showToast],
+  );
+
+  useEffect(() => {
+    const onPrefill = (event: Event) => {
+      const detail = (event as CustomEvent<DealDeskPrefill>).detail;
+      if (focusDealFromPrefill(detail)) {
+        setPendingFocusPrefill(null);
         return;
       }
-
       const hasFocusMetadata = Boolean(
         detail?.assetId || detail?.sourceKey || detail?.workflowRunId,
       );
       const hasLeadFields = Boolean(detail?.company?.trim() || detail?.need?.trim());
       if (hasFocusMetadata && !hasLeadFields) {
-        showToast("未找到对应线索", "error");
+        setPendingFocusPrefill({
+          detail: detail ?? {},
+          assetRevision,
+          dealCount: deals.length,
+          missReported: false,
+        });
+        showToast("未找到对应线索，等待同步", "error");
         return;
       }
+      setPendingFocusPrefill(null);
 
       const id = createDeal({
         company: detail?.company ?? "",
@@ -187,7 +208,22 @@ export function DealDeskAppWindow({
     };
     window.addEventListener("openclaw:deal-desk-prefill", onPrefill);
     return () => window.removeEventListener("openclaw:deal-desk-prefill", onPrefill);
-  }, [showToast]);
+  }, [assetRevision, deals.length, focusDealFromPrefill, showToast]);
+
+  useEffect(() => {
+    if (!pendingFocusPrefill) return;
+    if (focusDealFromPrefill(pendingFocusPrefill.detail)) {
+      setPendingFocusPrefill(null);
+      return;
+    }
+    const observedSyncChange =
+      assetRevision !== pendingFocusPrefill.assetRevision ||
+      deals.length !== pendingFocusPrefill.dealCount;
+    if (observedSyncChange && !pendingFocusPrefill.missReported) {
+      showToast("同步后仍未找到对应线索", "error");
+      setPendingFocusPrefill({ ...pendingFocusPrefill, missReported: true });
+    }
+  }, [assetRevision, deals, focusDealFromPrefill, pendingFocusPrefill, showToast]);
 
   useEffect(() => {
     const onSelect = (event: Event) => {

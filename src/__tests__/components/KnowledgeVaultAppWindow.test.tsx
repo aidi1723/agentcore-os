@@ -88,4 +88,71 @@ describe("KnowledgeVaultAppWindow record-level asset focus", () => {
     });
     expect(screen.getByText("已聚焦")).toBeInTheDocument();
   });
+
+  it("retries record focus when a knowledge asset arrives after prefill", async () => {
+    const sourceKey = "controlled-run:run-late:knowledge_asset";
+
+    render(
+      <KnowledgeVaultAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent("openclaw:vault-prefill", {
+          detail: {
+            sourceKey,
+            workflowRunId: "workflow-late-focus",
+          },
+        }),
+      );
+    });
+
+    expect(screen.queryByText("Late knowledge asset")).not.toBeInTheDocument();
+
+    act(() => {
+      upsertKnowledgeAsset("controlled-run:other-late:knowledge_asset", {
+        title: "Other knowledge asset",
+        body: "A different hydrated asset.",
+        sourceApp: "personal_crm",
+        scenarioId: "sales-pipeline",
+        workflowRunId: "workflow-other-late",
+        assetType: "sales_playbook",
+        status: "active",
+        tags: ["sales"],
+        applicableScene: "Different server hydration",
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("同步后仍未找到知识资产")).toBeInTheDocument();
+    });
+
+    act(() => {
+      upsertKnowledgeAsset(sourceKey, {
+        title: "Late knowledge asset",
+        body: "Hydrated after prefill.",
+        sourceApp: "personal_crm",
+        scenarioId: "sales-pipeline",
+        workflowRunId: "workflow-late-focus",
+        assetType: "sales_playbook",
+        status: "active",
+        tags: ["sales"],
+        applicableScene: "Late server hydration",
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("搜索流程资产...")).toHaveValue(
+        "Late knowledge asset",
+      );
+    });
+    expect(screen.getByText("已聚焦")).toBeInTheDocument();
+  });
 });

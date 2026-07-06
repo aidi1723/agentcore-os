@@ -300,7 +300,24 @@ git diff --check
 - 判断下一步应该新增 fixture coverage、迁移新 controlled playbook，还是先强化 operational retention / maintenance。
 - 输出下一阶段 spec 范围，不能直接创建新 fixture JSON 或新 playbook。
 
-### P10. Governed Fixture / Playbook Expansion
+### P10. Runtime UI Reframing
+
+目标：
+
+- 已新增 runtime cockpit summary model。
+- 首页第一视口已从 app/chat desk 转向 controlled playbook cockpit。
+- Runtime Console 已成为首页主检查动作。
+- 不改变业务 app window、workflow launch 或后端 replay 行为。
+
+### P11. Runtime Console Delivery Readiness Audit
+
+目标：
+
+- 审查 Runtime Console 是否足够作为当前分支的交付主界面。
+- 检查 approval、retry/resume、governed trace copy、asset landing、fixture/replay gate 是否清晰。
+- 输出交付阻塞清单，不能在审计阶段直接新增真实 replay。
+
+### P12. Governed Fixture / Playbook Expansion
 
 目标：
 
@@ -308,7 +325,7 @@ git diff --check
 - 新 fixture 必须通过 redaction、approval、writeback metadata、stable identity 和 catalog coverage 审查。
 - 新 playbook 必须先进入 spec / plan / TDD / fixture replay 边界，而不是直接接真实工具。
 
-### P11. Operational Retention And Maintenance Hardening
+### P13. Operational Retention And Maintenance Hardening
 
 目标：
 
@@ -316,7 +333,7 @@ git diff --check
 - 继续收紧 raw trace retention、fixture refresh stop condition、summary/harness drift 处理。
 - 保持 `trace:fixtures` 作为机器可读自动化合同，`trace:fixtures:summary` 作为人读 triage。
 
-### P12. Runtime-Serving UI / App Polish
+### P14. Runtime-Serving UI / App Polish
 
 目标：
 

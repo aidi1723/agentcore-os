@@ -72,6 +72,7 @@ Completed in the current controlled runtime line:
 - Governed trace fixture catalog coverage guide for committed fixture expansion decisions.
 - Governed trace operational runbook for artifact export, fixture refresh, replay gates, retention, and real replay boundaries.
 - Replay sandbox contract types, no-side-effect replay sandbox prototype, fixture-to-contract bridge, catalog-level replay sandbox report, replay sandbox catalog CI summary, failure diagnostics taxonomy, and direct failure harness modes for committed governed fixtures.
+- Runtime UI Reframing first slice: home screen now leads with controlled playbook cockpit state and Runtime Console inspection.
 
 Current verification baseline:
 
@@ -86,9 +87,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 35 test files.
-- 188 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
+- 36 test files.
+- 191 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -963,14 +964,38 @@ Outcome:
 - Replay sandbox failure harness direct modes for contract, sandbox, and guarantee failures are now stable.
 - Synthetic failures remain test-only and outside the committed governed fixture catalog.
 
-## Recommended Next. Governed Fixture And Playbook Expansion Review
+## Completed. Runtime UI Reframing
+
+Why:
+
+- The backend direction has moved to Controlled Skill / Playbook Runtime, but the home UI still read too much like an app/chat desk.
+- The first viewport needed to show controlled playbook state, approvals, recovery, and governance gates before generic tools.
+
+Delivered:
+
+- Added `buildRuntimeCockpitSummary()` in `src/lib/home-command-center.ts`.
+- Added unit coverage in `src/__tests__/lib/home-command-center.test.ts`.
+- Reframed `SolutionCenterPanel` around `Controlled Playbook Cockpit`.
+- Added home metrics for playbook run, approvals, recovery, and governance gate.
+- Added a primary `Open Runtime Console` action.
+- Added a runtime cockpit section at the top of `CommandCenterSidebar`.
+- Included the test in `npm run test:controlled-runtime`.
+- Fixed replay sandbox fixture contract governance-mode typing caught by the production build gate.
+
+Outcome:
+
+- The home screen now points users toward running, inspecting, approving, recovering, and governing controlled playbooks.
+- Existing app windows and workflow launch behavior remain intact.
+- The branch now keeps `npm run build` green after the runtime UI reframing slice.
+
+## Recommended Next. Runtime Console Delivery Readiness Audit
 
 Suggested scope:
 
-- Inspect whether current sales/support governed fixtures are sufficient before adding any new fixture JSON.
-- Decide whether the next expansion should be fixture coverage, a new controlled playbook, or additional operational retention hardening.
-- Keep every new fixture or playbook behind spec, plan, TDD, fixture gates, and no-side-effect replay gates.
-- Do not use fixture expansion as a shortcut into real tool replay.
+- Audit Runtime Console as the primary controlled runtime inspection surface.
+- Check whether approval, retry/resume, governed trace copy, asset landing, and fixture/replay gate affordances are clear enough for a deliverable demo.
+- Identify remaining blockers before calling this branch presentable as a controlled playbook product.
+- Do not add new backend replay behavior during this audit.
 
 ## Completed. Support Runtime Console Record Focus
 

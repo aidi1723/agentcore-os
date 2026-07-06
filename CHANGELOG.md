@@ -104,13 +104,21 @@
 
 ## Unreleased
 
+### Runtime UI Reframing
+
+- Added a runtime cockpit summary model for the home command center.
+- Reframed the home first viewport around controlled playbook state, approvals, recovery, and governed trace / replay gates.
+- Added a visible Runtime Console primary inspection action on the home cockpit.
+- Included the runtime cockpit summary test in `test:controlled-runtime`.
+- Fixed replay sandbox fixture contract governance-mode typing so the production build gate stays green after the runtime UI reframing slice.
+- Expanded `test:controlled-runtime` to 36 files / 191 tests.
+
 ### Replay Sandbox Failure Harness Expansion
 
 - Added direct replay sandbox failure harness modes for `contract`, `sandbox`, and `guarantee` failures.
 - Kept the no-argument harness mode backward-compatible with contract failure output.
 - Added unknown-mode fail-closed behavior with exit `2` and no report JSON.
 - Preserved committed `npm run replay:sandbox:fixtures` as an all-green no-side-effect command.
-- Expanded `test:controlled-runtime` to 35 files / 188 tests.
 
 ### Replay Sandbox Failure Diagnostics Hardening
 

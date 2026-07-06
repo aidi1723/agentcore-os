@@ -36,7 +36,7 @@
 **Files:**
 - Create: `src/__tests__/lib/home-command-center.test.ts`
 
-- [ ] **Step 1: Add tests**
+- [x] **Step 1: Add tests**
 
 Create `src/__tests__/lib/home-command-center.test.ts`:
 
@@ -120,7 +120,7 @@ describe("buildRuntimeCockpitSummary", () => {
 });
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run:
 
@@ -130,7 +130,7 @@ npm test -- src/__tests__/lib/home-command-center.test.ts
 
 Expected: FAIL because `buildRuntimeCockpitSummary` does not exist.
 
-- [ ] **Step 3: Commit RED tests**
+- [x] **Step 3: Commit RED tests**
 
 ```bash
 git add src/__tests__/lib/home-command-center.test.ts
@@ -145,7 +145,7 @@ git commit -m "test: specify runtime cockpit summary"
 **Files:**
 - Modify: `src/lib/home-command-center.ts`
 
-- [ ] **Step 1: Add types and helper**
+- [x] **Step 1: Add types and helper**
 
 Add:
 
@@ -191,7 +191,7 @@ function formatRunState(state: string | null | undefined, lang: "zh" | "en" | "j
 
 Then add `buildRuntimeCockpitSummary()` with localized labels for zh/en/ja and metrics matching the tests.
 
-- [ ] **Step 2: Verify GREEN**
+- [x] **Step 2: Verify GREEN**
 
 Run:
 
@@ -201,7 +201,7 @@ npm test -- src/__tests__/lib/home-command-center.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 3: Commit helper**
+- [x] **Step 3: Commit helper**
 
 ```bash
 git add src/lib/home-command-center.ts
@@ -217,19 +217,19 @@ git commit -m "feat: add runtime cockpit summary model"
 - Modify: `src/components/SolutionCenterPanel.tsx`
 - Modify: `src/components/CommandCenterSidebar.tsx`
 
-- [ ] **Step 1: Import and build summary**
+- [x] **Step 1: Import and build summary**
 
 In `SolutionCenterPanel.tsx`, import `buildRuntimeCockpitSummary` and build it after current counts are computed.
 
-- [ ] **Step 2: Reframe hero copy and actions**
+- [x] **Step 2: Reframe hero copy and actions**
 
 Use summary title/subtitle in the top of the central panel. Add a compact metric row under the title. Make `Open Runtime Console` a visible action that opens `runtime_console`; keep `Run workflow` as the secondary controlled playbook action.
 
-- [ ] **Step 3: Reframe sidebar**
+- [x] **Step 3: Reframe sidebar**
 
 Pass `runtimeCockpitSummary` to `CommandCenterSidebar` and render a top `Runtime cockpit` section before the tools grid.
 
-- [ ] **Step 4: Verify UI compiles through targeted tests**
+- [x] **Step 4: Verify UI compiles through targeted tests**
 
 Run:
 
@@ -239,7 +239,7 @@ npm test -- src/__tests__/lib/home-command-center.test.ts src/__tests__/componen
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit UI wiring**
+- [x] **Step 5: Commit UI wiring**
 
 ```bash
 git add src/components/SolutionCenterPanel.tsx src/components/CommandCenterSidebar.tsx
@@ -260,11 +260,11 @@ git commit -m "feat: reframe home as runtime cockpit"
 - Modify: `docs/superpowers/plans/2026-07-06-runtime-ui-reframing.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Mark plan complete**
+- [x] **Step 1: Mark plan complete**
 
 Update checkboxes and add completion notes with commits and verification.
 
-- [ ] **Step 2: Update docs**
+- [x] **Step 2: Update docs**
 
 Record:
 
@@ -278,7 +278,7 @@ Set next recommended phase:
 Runtime Console Delivery Readiness Audit
 ```
 
-- [ ] **Step 3: Run final verification**
+- [x] **Step 3: Run final verification**
 
 Run:
 
@@ -292,7 +292,7 @@ npm run lint
 
 Expected: all commands exit 0. Existing `<img>` lint warning may remain if unchanged.
 
-- [ ] **Step 4: Commit docs**
+- [x] **Step 4: Commit docs**
 
 ```bash
 git add CHANGELOG.md README.md docs/NEXT_STEPS.md docs/ROADMAP.md docs/PROJECT_FRAMEWORK.zh-CN.md docs/superpowers/plans/2026-07-06-runtime-ui-reframing.md
@@ -304,11 +304,49 @@ git commit -m "docs: complete runtime ui reframing"
 
 ## Final Verification Checklist
 
-- [ ] `git diff --check`
-- [ ] `npm test -- src/__tests__/lib/home-command-center.test.ts`
-- [ ] `npm run test:controlled-runtime`
-- [ ] `npm run test:core-workflows`
-- [ ] `npm run lint`
+- [x] `git diff --check`
+- [x] `npm test -- src/__tests__/lib/home-command-center.test.ts`
+- [x] `npm run test:controlled-runtime`
+- [x] `npm run test:core-workflows`
+- [x] `npm run lint`
+
+## Completion Notes
+
+Completed on 2026-07-06.
+
+Commits:
+
+- `776b2be` — `docs: spec runtime ui reframing`
+- `e6bd929` — `docs: plan runtime ui reframing`
+- `e30af4a` — `test: specify runtime cockpit summary`
+- `3781a44` — `feat: add runtime cockpit summary model`
+- `aa25267` — `feat: reframe home as runtime cockpit`
+- `a6460d1` — `test: include runtime cockpit summary in controlled runtime`
+- `81d707c` — `fix: align replay sandbox governance modes`
+
+TDD evidence:
+
+- RED: `npm test -- src/__tests__/lib/home-command-center.test.ts` failed because `buildRuntimeCockpitSummary` did not exist.
+- GREEN: the same targeted command passed after adding the pure summary helper.
+
+Delivered capability:
+
+- Runtime UI Reframing first slice: home screen now leads with controlled playbook cockpit state and Runtime Console inspection.
+- `SolutionCenterPanel` now presents playbook run, approvals, recovery, and governance gate metrics.
+- `CommandCenterSidebar` now starts with runtime cockpit state before generic tools.
+- Production build gate exposed stale replay sandbox governance-mode typing (`audit` vs current `export`); fixed in `replay-sandbox-contracts.ts` / `replay-sandbox-fixture-contract.ts` with a regression test.
+- Existing app windows, workflow launch behavior, stores, routes, tools, and replay behavior remain unchanged.
+
+Final verification evidence:
+
+- `npm test -- src/__tests__/lib/home-command-center.test.ts` — passed, 1 file / 2 tests.
+- `npm test -- src/__tests__/lib/home-command-center.test.ts src/__tests__/components/ShellUI.test.tsx` — passed, 2 files / 4 tests, with the existing mocked image warning.
+- `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-fixture-contract.test.ts` — RED failed on export governance-mode bridging, then GREEN passed, 1 file / 4 tests.
+- `npm run test:controlled-runtime` — passed, 36 files / 191 tests.
+- `npm run test:core-workflows` — passed, all core workflow regressions.
+- `npm run lint` — passed with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — passed with the same existing `<img>` warning.
+- `git diff --check` — passed.
 
 ## Expected Next Phase
 

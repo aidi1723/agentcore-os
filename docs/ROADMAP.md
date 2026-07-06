@@ -189,13 +189,38 @@ The harness now:
 
 ### P9. Governed Fixture And Playbook Expansion Review
 
-Next, review whether to expand fixtures or playbooks:
+This review is superseded by a UI delivery-readiness checkpoint because the
+home surface now needs to present the controlled runtime clearly before more
+fixture or playbook expansion.
+
+### P10. Runtime UI Reframing
+
+Completed first slice:
+
+- added a tested runtime cockpit summary model,
+- reframed the home first viewport around controlled playbook state,
+- made Runtime Console the primary inspection action,
+- kept app windows and workflow launch behavior intact.
+
+### P11. Runtime Console Delivery Readiness Audit
+
+Next, audit the Runtime Console as the primary deliverable surface:
+
+- approval and recovery clarity,
+- governed trace export clarity,
+- asset landing inspection,
+- fixture/replay gate visibility,
+- demo-readiness blockers.
+
+### P12. Governed Fixture And Playbook Expansion Review
+
+Review whether to expand fixtures or playbooks:
 
 - inspect current sales/support governed fixture coverage,
 - decide whether the next phase should add fixture coverage, migrate a new controlled playbook, or harden operational retention,
 - produce a focused spec before any new fixture JSON or playbook code is added.
 
-### P10. Governed Fixture And Playbook Expansion
+### P13. Governed Fixture And Playbook Expansion
 
 Expand only when the current governed trace/replay gates stay stable:
 
@@ -203,7 +228,7 @@ Expand only when the current governed trace/replay gates stay stable:
 - add new controlled playbooks only through spec -> plan -> tests -> fixture/replay gates,
 - do not use fixture expansion as a substitute for real replay boundary design.
 
-### P11. Trace Operations Hardening
+### P14. Trace Operations Hardening
 
 Turn the governed trace operational runbook into a tighter maintenance path:
 
@@ -213,7 +238,7 @@ Turn the governed trace operational runbook into a tighter maintenance path:
 - summary/harness drift checks,
 - clearer handoff records for fixture replacement.
 
-### P12. Runtime-Supporting UI And App Polish
+### P15. Runtime-Supporting UI And App Polish
 
 Polish UI only when it serves runtime operation:
 

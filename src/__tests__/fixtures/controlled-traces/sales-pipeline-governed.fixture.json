@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "controlled-trace-fixture/v1",
+  "fixtureId": "controlled-trace-fixture:run-fixture-1",
+  "sourceRunId": "run-fixture-1",
+  "playbookId": "sales-pipeline-v1",
+  "playbookVersion": "1.0.0",
+  "planId": "playbook:sales-pipeline-v1:1.0.0",
+  "scenarioId": "sales-pipeline",
+  "workflowRunId": "workflow-fixture-1",
+  "terminalState": "completed",
+  "generatedAt": 300,
+  "governance": {
+    "mode": "fixture",
+    "redactedAt": 210
+  },
+  "plan": {
+    "id": "playbook:sales-pipeline-v1:1.0.0",
+    "totalSteps": 5,
+    "requiresApproval": true,
+    "stepOrder": [
+      "intake",
+      "qualify",
+      "draft_outreach",
+      "human_review",
+      "writeback"
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "intake",
+      "state": "completed",
+      "attempts": 1,
+      "hasRedactedInput": true,
+      "hasRedactedOutput": true,
+      "toolCalls": [
+        {
+          "toolName": "llm_generate",
+          "success": true,
+          "durationMs": 12,
+          "tokensUsed": 5,
+          "outputRedacted": true
+        }
+      ],
+      "writebackTargets": []
+    },
+    {
+      "stepId": "qualify",
+      "state": "completed",
+      "attempts": 1,
+      "hasRedactedInput": true,
+      "hasRedactedOutput": true,
+      "toolCalls": [
+        {
+          "toolName": "llm_generate",
+          "success": true,
+          "durationMs": 12,
+          "tokensUsed": 5,
+          "outputRedacted": true
+        }
+      ],
+      "writebackTargets": []
+    },
+    {
+      "stepId": "draft_outreach",
+      "state": "completed",
+      "attempts": 1,
+      "hasRedactedInput": true,
+      "hasRedactedOutput": true,
+      "toolCalls": [
+        {
+          "toolName": "llm_generate",
+          "success": true,
+          "durationMs": 12,
+          "tokensUsed": 5,
+          "outputRedacted": true
+        }
+      ],
+      "writebackTargets": [
+        {
+          "target": "draft",
+          "ok": true,
+          "assetId": "controlled-draft:workflow-fixture-1",
+          "sourceKey": "controlled-run:run-fixture-1:draft",
+          "workflowRunId": "workflow-fixture-1"
+        }
+      ]
+    },
+    {
+      "stepId": "human_review",
+      "state": "completed",
+      "attempts": 1,
+      "hasRedactedInput": true,
+      "hasRedactedOutput": true,
+      "toolCalls": [
+        {
+          "toolName": "llm_generate",
+          "success": true,
+          "durationMs": 12,
+          "tokensUsed": 5,
+          "outputRedacted": true
+        }
+      ],
+      "approvalState": "approved",
+      "writebackTargets": []
+    },
+    {
+      "stepId": "writeback",
+      "state": "completed",
+      "attempts": 1,
+      "hasRedactedInput": true,
+      "hasRedactedOutput": true,
+      "toolCalls": [
+        {
+          "toolName": "llm_generate",
+          "success": true,
+          "durationMs": 12,
+          "tokensUsed": 5,
+          "outputRedacted": true
+        }
+      ],
+      "schemaValid": true,
+      "writebackTargets": [
+        {
+          "target": "sales_asset",
+          "ok": true,
+          "assetId": "sales-asset-1",
+          "sourceKey": "controlled-run:run-fixture-1:sales_asset",
+          "workflowRunId": "workflow-fixture-1"
+        }
+      ]
+    }
+  ],
+  "auditEventTypes": [
+    "console_retry_requested"
+  ],
+  "assertions": {
+    "stepOrder": [
+      "intake",
+      "qualify",
+      "draft_outreach",
+      "human_review",
+      "writeback"
+    ],
+    "redactionBoundary": "required",
+    "knownPlaybookMatched": true
+  }
+}

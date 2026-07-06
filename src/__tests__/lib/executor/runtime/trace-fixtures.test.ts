@@ -4,6 +4,7 @@ import {
   buildControlledTraceFixture,
   validateControlledTraceFixture,
 } from "@/lib/executor/runtime/trace-fixtures";
+import sampleFixture from "@/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json";
 
 const redacted = { redacted: true, reason: "trace_governance" as const, summary: "object(keys=raw)" };
 
@@ -215,5 +216,13 @@ describe("trace fixtures", () => {
       ok: false,
       errors: ["Step intake input is not redacted"],
     });
+  });
+
+  it("validates the committed governed sales trace fixture", () => {
+    const serialized = JSON.stringify(sampleFixture);
+
+    expect(validateControlledTraceFixture(sampleFixture)).toEqual({ ok: true, errors: [] });
+    expect(serialized).not.toContain("Nora");
+    expect(serialized).not.toContain("sk-fixture-secret");
   });
 });

@@ -146,7 +146,7 @@ git commit -m "feat: build governed trace fixtures"
 - Modify: `src/__tests__/lib/executor/runtime/trace-fixtures.test.ts`
 - Modify: `package.json`
 
-- [ ] **Step 1: Write failing sample fixture test**
+- [x] **Step 1: Write failing sample fixture test**
 
 Add a test that imports the JSON fixture and validates it:
 
@@ -158,7 +158,7 @@ expect(JSON.stringify(sampleFixture)).not.toContain("Nora");
 expect(JSON.stringify(sampleFixture)).not.toContain("sk-fixture-secret");
 ```
 
-- [ ] **Step 2: Run fixture test to verify RED**
+- [x] **Step 2: Run fixture test to verify RED**
 
 Run:
 
@@ -168,7 +168,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts
 
 Expected: FAIL because the JSON fixture does not exist.
 
-- [ ] **Step 3: Add sample fixture and coverage script**
+- [x] **Step 3: Add sample fixture and coverage script**
 
 Create `sales-pipeline-governed.fixture.json` using the fixture shape produced by Task 1.
 
@@ -180,7 +180,7 @@ src/__tests__/lib/executor/runtime/trace-fixtures.test.ts
 
 to `test:controlled-runtime`.
 
-- [ ] **Step 4: Run fixture test and controlled runtime**
+- [x] **Step 4: Run fixture test and controlled runtime**
 
 Run:
 
@@ -191,7 +191,7 @@ npm run test:controlled-runtime
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add package.json src/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json src/__tests__/lib/executor/runtime/trace-fixtures.test.ts

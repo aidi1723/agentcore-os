@@ -541,6 +541,8 @@ export function ClawRuntimeConsoleAppWindow({
 
     if (asset.appId === "support_copilot") {
       requestOpenSupportCopilot({
+        assetId: asset.assetId,
+        sourceKey: asset.sourceKey,
         workflowRunId: asset.workflowRunId ?? selectedControlledRunSummary?.workflowRunId,
         workflowScenarioId: selectedControlledRunSummary?.scenarioId,
         workflowSource: `Runtime Console asset ${asset.assetId ?? asset.target}`,

@@ -61,6 +61,8 @@ export type KnowledgeVaultPrefill = {
 };
 
 export type SupportCopilotPrefill = {
+  assetId?: string;
+  sourceKey?: string;
   customer?: string;
   channel?: SupportChannel;
   subject?: string;

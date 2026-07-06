@@ -482,6 +482,8 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
     fireEvent.click(openButtons[4]);
 
     expect(requestOpenSupportCopilot).toHaveBeenCalledWith({
+      assetId: "controlled-support-asset:workflow-assets-1",
+      sourceKey: "controlled-run:run-assets-1:support_asset",
       workflowRunId: "workflow-assets-1",
       workflowScenarioId: "sales-pipeline",
       workflowSource: "Runtime Console asset controlled-support-asset:workflow-assets-1",

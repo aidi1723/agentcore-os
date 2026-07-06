@@ -149,6 +149,14 @@ output/release-handoff/
 
 这些 snapshot 只是本地 handoff evidence，不是已发布 release artifact，默认不应提交到源码仓库。
 
+交付审查前，可以用下面命令只读校验本地 snapshot：
+
+```bash
+npm run release:handoff:snapshot:check -- <snapshot.json>
+```
+
+该 validator 会检查 snapshot schema、内嵌 `release:handoff:check` 报告结构，以及 `productionReady: false`、`publishingPerformed: false`、`evidenceOnly: true` 等发布边界字段。它不会发布、上传、打 tag、打包或修改 evidence 文件。
+
 ## 完整发布前验证
 
 公开发布说明、外部演示或交付前，建议运行：
@@ -156,6 +164,7 @@ output/release-handoff/
 ```bash
 npm run release:handoff:check
 npm run release:handoff:snapshot
+npm run release:handoff:snapshot:check -- <snapshot.json>
 ```
 
 如果聚合门禁失败，需要复现具体子命令时，再按 JSON 输出里的 failed check 单独运行对应命令。

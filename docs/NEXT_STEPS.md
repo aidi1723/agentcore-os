@@ -87,6 +87,7 @@ Completed in the current controlled runtime line:
 - Open Source Hygiene Gate: `npm run release:hygiene:check` now provides a local read-only repository hygiene gate for required public docs, GPLv3+ package metadata, tracked artifact paths, public release boundary wording, and warning-only secret pattern review.
 - Local Release Handoff Gate: `npm run release:handoff:check` now aggregates repository hygiene, delivery readiness, controlled-runtime regression, core workflow regression, lint, build, and `git diff --check` into one local handoff JSON report while keeping `productionReady: false` and `publishingPerformed: false`.
 - Release Handoff Evidence Snapshot: `npm run release:handoff:snapshot` now writes a local-only JSON evidence snapshot under `output/release-handoff/` with the handoff report and git context while keeping `productionReady: false`, `publishingPerformed: false`, and `evidenceOnly: true`.
+- Release Handoff Snapshot Validation: `npm run release:handoff:snapshot:check -- <snapshot.json>` now validates local handoff evidence schema and release-boundary fields without mutating evidence or publishing anything.
 - Release Handoff Retry Stability: server-backed list state now honors explicit local/test retry timings below `100ms` while keeping production defaults unchanged, reducing flake risk in the core workflow child gate.
 
 Current verification baseline:
@@ -99,6 +100,7 @@ npm run trace:fixtures:summary --silent
 npm run trace:retention:preview -- --max-age-days 30 --min-terminal-runs 20
 npm run release:handoff:check
 npm run release:handoff:snapshot
+npm run release:handoff:snapshot:check -- <snapshot.json>
 npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
@@ -109,9 +111,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 45 test files.
-- 228 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, and server-backed retry timing stability coverage.
+- 46 test files.
+- 233 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, and server-backed retry timing stability coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -286,6 +288,27 @@ Outcome:
 
 - The release handoff gate no longer depends on the old sub-100ms configuration being silently clamped.
 - This phase changes no UI, publishing behavior, route, dependency, data model, or release artifact boundary.
+
+## Completed. Release Handoff Snapshot Validation
+
+Why:
+
+- Snapshot generation produced local evidence, but reviewers still needed to inspect JSON manually to confirm schema and release-boundary fields.
+- A local-only validator makes handoff review repeatable without turning evidence into a published artifact.
+
+Delivered:
+
+- Added `scripts/release-handoff/check-release-handoff-snapshot.mjs`.
+- Added `npm run release:handoff:snapshot:check -- <snapshot.json>`.
+- The command validates top-level snapshot shape, git context shape, embedded `release:handoff:check` report shape, and release boundary fields.
+- Successful snapshots must include `releaseClaim: "local_release_handoff_ready"` in both the snapshot and embedded handoff report.
+- Failed snapshots can validate structurally as evidence, but exit non-zero and must not expose a top-level successful release claim.
+- Added helper coverage for valid successful snapshots, valid failed evidence snapshots, production boundary violations, failed snapshots with release claims, and invalid JSON.
+- Added [Release Handoff Snapshot Validation spec](superpowers/specs/2026-07-07-release-handoff-snapshot-validation-design.md) and [implementation plan](superpowers/plans/2026-07-07-release-handoff-snapshot-validation.md).
+
+Outcome:
+
+- Local handoff evidence can now be generated and validated without publishing, uploading, tagging, packaging, modifying evidence, or claiming production readiness.
 
 ## Completed. Runtime UI Delivery Polish
 

@@ -154,6 +154,17 @@ Successful snapshot output includes:
 Snapshots are local handoff evidence only. They are not published release
 artifacts and should not be committed by default.
 
+Validate a local snapshot before handoff review with:
+
+```bash
+npm run release:handoff:snapshot:check -- <snapshot.json>
+```
+
+The validator is read-only. It checks the snapshot schema, embedded
+`release:handoff:check` report shape, and release boundary fields such as
+`productionReady: false`, `publishingPerformed: false`, and
+`evidenceOnly: true`.
+
 ## Full Verification
 
 Before a public release announcement or handoff, run:
@@ -161,6 +172,7 @@ Before a public release announcement or handoff, run:
 ```bash
 npm run release:handoff:check
 npm run release:handoff:snapshot
+npm run release:handoff:snapshot:check -- <snapshot.json>
 ```
 
 If the aggregate gate fails and the failed child command needs to be reproduced

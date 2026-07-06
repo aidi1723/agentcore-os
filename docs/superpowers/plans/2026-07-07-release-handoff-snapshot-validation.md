@@ -38,7 +38,7 @@
 **Files:**
 - Create: `src/__tests__/scripts/release-handoff-snapshot-check-script.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/__tests__/scripts/release-handoff-snapshot-check-script.test.ts`:
 
@@ -173,7 +173,7 @@ describe("release handoff snapshot check script", () => {
 });
 ```
 
-- [ ] **Step 2: Run the target test and confirm RED**
+- [x] **Step 2: Run the target test and confirm RED**
 
 Run:
 
@@ -189,7 +189,7 @@ does not exist.
 **Files:**
 - Create: `scripts/release-handoff/check-release-handoff-snapshot.mjs`
 
-- [ ] **Step 1: Add validation helpers and CLI**
+- [x] **Step 1: Add validation helpers and CLI**
 
 Create `scripts/release-handoff/check-release-handoff-snapshot.mjs` with:
 
@@ -225,7 +225,7 @@ Validation should gather `failures` in a string array and return:
 For structurally valid failed snapshots, return `report.ok: true`,
 `report.snapshotOk: false`, and `exitCode: 1`.
 
-- [ ] **Step 2: Run the target test and confirm GREEN**
+- [x] **Step 2: Run the target test and confirm GREEN**
 
 Run:
 
@@ -240,7 +240,7 @@ Expected: 5 tests pass.
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add package script**
+- [x] **Step 1: Add package script**
 
 Add near existing release handoff scripts:
 
@@ -248,7 +248,7 @@ Add near existing release handoff scripts:
 "release:handoff:snapshot:check": "node scripts/release-handoff/check-release-handoff-snapshot.mjs"
 ```
 
-- [ ] **Step 2: Add test to `test:controlled-runtime`**
+- [x] **Step 2: Add test to `test:controlled-runtime`**
 
 Add:
 
@@ -258,7 +258,7 @@ src/__tests__/scripts/release-handoff-snapshot-check-script.test.ts
 
 near the other release handoff script tests.
 
-- [ ] **Step 3: Run controlled runtime suite**
+- [x] **Step 3: Run controlled runtime suite**
 
 Run:
 
@@ -280,7 +280,7 @@ tests compared with `45 files / 228 tests`.
 - Modify: `docs/PUBLIC_RELEASE.zh-CN.md`
 - Modify: `memory/2026-07-07.md`
 
-- [ ] **Step 1: Document the validator**
+- [x] **Step 1: Document the validator**
 
 Add concise wording that:
 
@@ -290,7 +290,7 @@ Add concise wording that:
 - it checks schema and release boundary;
 - it does not publish, upload, tag, package installers, or modify evidence.
 
-- [ ] **Step 2: Update baseline counts**
+- [x] **Step 2: Update baseline counts**
 
 After verification, update `docs/NEXT_STEPS.md` and memory with exact
 `test:controlled-runtime` file/test counts.
@@ -300,13 +300,13 @@ After verification, update `docs/NEXT_STEPS.md` and memory with exact
 **Files:**
 - All files changed by Tasks 1-4.
 
-- [ ] **Step 1: Run target test**
+- [x] **Step 1: Run target test**
 
 ```bash
 npm test -- src/__tests__/scripts/release-handoff-snapshot-check-script.test.ts
 ```
 
-- [ ] **Step 2: Generate and validate a real snapshot**
+- [x] **Step 2: Generate and validate a real snapshot**
 
 ```bash
 npm run release:handoff:snapshot
@@ -315,7 +315,7 @@ npm run release:handoff:snapshot:check -- <generated-snapshot-path>
 
 Use the `snapshotPath` from the previous command output.
 
-- [ ] **Step 3: Run full handoff and regression checks**
+- [x] **Step 3: Run full handoff and regression checks**
 
 ```bash
 npm run release:handoff:check
@@ -323,7 +323,7 @@ npm run test:controlled-runtime
 npm run test:core-workflows
 ```
 
-- [ ] **Step 4: Run quality checks**
+- [x] **Step 4: Run quality checks**
 
 ```bash
 npm run lint
@@ -335,7 +335,7 @@ Known acceptable warning:
 
 - existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 
-- [ ] **Step 5: Commit and push**
+- [x] **Step 5: Commit and push**
 
 Stage only source, tests, docs, and the plan:
 

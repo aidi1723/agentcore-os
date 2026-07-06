@@ -104,6 +104,12 @@
 
 ## Unreleased
 
+### Release Handoff Snapshot Validation
+
+- Added `npm run release:handoff:snapshot:check -- <snapshot.json>`, a local read-only validator for handoff evidence snapshot schema and release-boundary fields.
+- The validator checks `productionReady: false`, `publishingPerformed: false`, `evidenceOnly: true`, git context shape, embedded `release:handoff:check` report shape, and release-claim rules for successful vs failed snapshots.
+- Added snapshot validation coverage and included it in `test:controlled-runtime`.
+
 ### Release Handoff Retry Stability
 
 - Honored explicit `retryBaseMs` / `retryMaxMs` values in server-backed list state while keeping the default retry timings at `750ms` and `30_000ms`.

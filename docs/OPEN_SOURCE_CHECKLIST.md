@@ -94,6 +94,7 @@ Confirm:
 - `release:handoff:check` reports `publishingPerformed: false`
 - `release:handoff:snapshot` writes local evidence under `output/release-handoff/`
 - `release:handoff:snapshot` reports `evidenceOnly: true`
+- `release:handoff:snapshot:check -- <snapshot.json>` validates the local evidence schema and release boundary
 - `release:hygiene:check` reports `ok: true` and `productionReady: false`
 - secret pattern review results are warning-only and still require human review
 - public docs say local delivery demo ready, not production ready
@@ -113,6 +114,9 @@ Confirm:
 `release:handoff:snapshot` preserves the handoff JSON and git context for local
 review only. Snapshot files under `output/release-handoff/` are not published
 release artifacts and should not be committed by default.
+
+`release:handoff:snapshot:check` is read-only. It validates one local snapshot
+file and does not publish, upload, tag, package, or modify evidence.
 
 ## 6.1) Command-line release sanity
 

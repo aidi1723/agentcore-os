@@ -104,6 +104,12 @@
 
 ## Unreleased
 
+### Release Handoff Retry Stability
+
+- Honored explicit `retryBaseMs` / `retryMaxMs` values in server-backed list state while keeping the default retry timings at `750ms` and `30_000ms`.
+- Added fake-timer coverage proving failed server-backed upserts retry using explicit sub-100ms local harness timing and drain the pending sync status.
+- Included server-backed retry timing coverage in `test:controlled-runtime` to reduce release handoff gate flake risk.
+
 ### Release Handoff Evidence Snapshot
 
 - Added `npm run release:handoff:snapshot`, a local-only evidence command that runs the full handoff gate and writes a JSON snapshot under `output/release-handoff/`.

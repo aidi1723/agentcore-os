@@ -28,7 +28,7 @@
 **Files:**
 - Create: `src/__tests__/lib/server-backed-list-state.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `src/__tests__/lib/server-backed-list-state.test.ts`:
 
@@ -150,7 +150,7 @@ describe("server-backed list state", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test and confirm RED**
+- [x] **Step 2: Run the test and confirm RED**
 
 Run:
 
@@ -166,7 +166,7 @@ timers by `50ms` does not trigger the second attempt.
 **Files:**
 - Modify: `src/lib/server-backed-list-state.ts`
 
-- [ ] **Step 1: Change retry timing normalization**
+- [x] **Step 1: Change retry timing normalization**
 
 Replace:
 
@@ -184,7 +184,7 @@ const retryMaxMs =
   config.retryMaxMs === undefined ? 30_000 : Math.max(retryBaseMs, config.retryMaxMs);
 ```
 
-- [ ] **Step 2: Run the target test and confirm GREEN**
+- [x] **Step 2: Run the target test and confirm GREEN**
 
 Run:
 
@@ -199,7 +199,7 @@ Expected: 1 test passes.
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add the new test file to `test:controlled-runtime`**
+- [x] **Step 1: Add the new test file to `test:controlled-runtime`**
 
 Add:
 
@@ -209,7 +209,7 @@ src/__tests__/lib/server-backed-list-state.test.ts
 
 near `src/__tests__/lib/server/controlled-execution-store.test.ts`.
 
-- [ ] **Step 2: Run the controlled runtime suite**
+- [x] **Step 2: Run the controlled runtime suite**
 
 Run:
 
@@ -227,7 +227,7 @@ previous `44 files / 227 tests` baseline.
 - Modify: `docs/NEXT_STEPS.md`
 - Modify: `memory/2026-07-07.md`
 
-- [ ] **Step 1: Add release gate stability notes**
+- [x] **Step 1: Add release gate stability notes**
 
 Document:
 
@@ -236,7 +236,7 @@ Document:
 - default production retry values remain `750ms` and `30_000ms`;
 - no publishing or UI behavior changed.
 
-- [ ] **Step 2: Update test baseline counts**
+- [x] **Step 2: Update test baseline counts**
 
 Update the controlled runtime baseline after the fresh suite run.
 
@@ -245,25 +245,25 @@ Update the controlled runtime baseline after the fresh suite run.
 **Files:**
 - All files changed by Tasks 1-4.
 
-- [ ] **Step 1: Run focused test**
+- [x] **Step 1: Run focused test**
 
 ```bash
 npm test -- src/__tests__/lib/server-backed-list-state.test.ts
 ```
 
-- [ ] **Step 2: Run core workflow regression**
+- [x] **Step 2: Run core workflow regression**
 
 ```bash
 npm run test:core-workflows
 ```
 
-- [ ] **Step 3: Run controlled runtime suite**
+- [x] **Step 3: Run controlled runtime suite**
 
 ```bash
 npm run test:controlled-runtime
 ```
 
-- [ ] **Step 4: Run handoff commands**
+- [x] **Step 4: Run handoff commands**
 
 ```bash
 npm run release:handoff:check
@@ -276,7 +276,7 @@ Expected:
 - snapshot writes local evidence under `output/release-handoff/`;
 - generated evidence remains unstaged.
 
-- [ ] **Step 5: Run quality checks**
+- [x] **Step 5: Run quality checks**
 
 ```bash
 npm run lint
@@ -288,7 +288,7 @@ Known acceptable warning:
 
 - existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 
-- [ ] **Step 6: Commit and push**
+- [x] **Step 6: Commit and push**
 
 Stage only this phase's source, tests, docs, and plan:
 

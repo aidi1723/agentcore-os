@@ -157,8 +157,10 @@ export function createServerBackedListState<
   const pendingOps = new Map<string, PendingSyncOperation<TItem>>();
   let retryTimer: ReturnType<typeof setTimeout> | null = null;
   let flushPromise: Promise<void> | null = null;
-  const retryBaseMs = Math.max(100, config.retryBaseMs ?? 750);
-  const retryMaxMs = Math.max(retryBaseMs, config.retryMaxMs ?? 30_000);
+  const retryBaseMs =
+    config.retryBaseMs === undefined ? 750 : Math.max(0, config.retryBaseMs);
+  const retryMaxMs =
+    config.retryMaxMs === undefined ? 30_000 : Math.max(retryBaseMs, config.retryMaxMs);
   let isFlushing = false;
 
   function writeSyncStatus(patch: Partial<Omit<ServerBackedSyncStatus, "id" | "label">>) {

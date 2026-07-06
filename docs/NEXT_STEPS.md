@@ -87,6 +87,7 @@ Completed in the current controlled runtime line:
 - Open Source Hygiene Gate: `npm run release:hygiene:check` now provides a local read-only repository hygiene gate for required public docs, GPLv3+ package metadata, tracked artifact paths, public release boundary wording, and warning-only secret pattern review.
 - Local Release Handoff Gate: `npm run release:handoff:check` now aggregates repository hygiene, delivery readiness, controlled-runtime regression, core workflow regression, lint, build, and `git diff --check` into one local handoff JSON report while keeping `productionReady: false` and `publishingPerformed: false`.
 - Release Handoff Evidence Snapshot: `npm run release:handoff:snapshot` now writes a local-only JSON evidence snapshot under `output/release-handoff/` with the handoff report and git context while keeping `productionReady: false`, `publishingPerformed: false`, and `evidenceOnly: true`.
+- Release Handoff Retry Stability: server-backed list state now honors explicit local/test retry timings below `100ms` while keeping production defaults unchanged, reducing flake risk in the core workflow child gate.
 
 Current verification baseline:
 
@@ -108,9 +109,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 44 test files.
-- 227 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, and release handoff evidence snapshot coverage.
+- 45 test files.
+- 228 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, and server-backed retry timing stability coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -265,6 +266,26 @@ npm run release:handoff:snapshot
 - Snapshot files are local handoff evidence only.
 - Generated files under `output/release-handoff/` are not source artifacts and should not be committed by default.
 - This command does not publish, tag, upload artifacts, package installers, create GitHub Releases, run browser smoke, or claim production readiness.
+
+## Completed. Release Handoff Retry Stability
+
+Why:
+
+- After the snapshot command was added, one standalone `release:handoff:check` run exposed a transient `server backed retry` failure inside `test:core-workflows`.
+- The direct rerun passed, which pointed to a timing-sensitive regression rather than a deterministic product failure.
+- Investigation found that the core workflow regression supplied `retryBaseMs: 10`, but `createServerBackedListState()` forced explicit values to at least `100ms`, leaving a narrow wall-clock wait margin.
+
+Delivered:
+
+- Updated `createServerBackedListState()` so omitted retry config keeps production defaults (`750ms` base, `30_000ms` max), while explicit local/test values are honored.
+- Added `src/__tests__/lib/server-backed-list-state.test.ts` with fake-timer coverage for failed upsert retry timing and pending sync drain status.
+- Added the new server-backed retry timing test to `test:controlled-runtime`.
+- Added [Release Handoff Retry Stability spec](superpowers/specs/2026-07-07-release-handoff-retry-stability-design.md) and [implementation plan](superpowers/plans/2026-07-07-release-handoff-retry-stability.md).
+
+Outcome:
+
+- The release handoff gate no longer depends on the old sub-100ms configuration being silently clamped.
+- This phase changes no UI, publishing behavior, route, dependency, data model, or release artifact boundary.
 
 ## Completed. Runtime UI Delivery Polish
 

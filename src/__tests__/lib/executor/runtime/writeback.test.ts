@@ -5,11 +5,13 @@ import path from "node:path";
 
 import type { StepResult } from "@/lib/executor/contracts";
 import { salesPipelinePlaybook } from "@/lib/executor/playbooks/sales-pipeline";
+import { supportResolutionPlaybook } from "@/lib/executor/playbooks/support-resolution";
 import type { ControlledExecutionRunRecord } from "@/lib/executor/runtime/types";
 import { writeControlledStepAssets } from "@/lib/executor/runtime/writeback";
 import { listDraftStoreSnapshot } from "@/lib/server/draft-store";
 import { listKnowledgeAssetStoreSnapshot } from "@/lib/server/knowledge-asset-store";
 import { listSalesAssetStoreSnapshot } from "@/lib/server/sales-asset-store";
+import { listSupportAssetStoreSnapshot } from "@/lib/server/support-asset-store";
 import { listWorkflowRunStoreSnapshot } from "@/lib/server/workflow-run-store";
 
 let tmpDir: string;
@@ -49,6 +51,25 @@ function makeRun(): ControlledExecutionRunRecord {
       steps: [],
     },
     steps: [],
+  };
+}
+
+function makeSupportRun(): ControlledExecutionRunRecord {
+  return {
+    ...makeRun(),
+    id: "support-run-1",
+    requestId: "support-run-1",
+    workflowRunId: "support-workflow-1",
+    scenarioId: "support-ops",
+    playbookId: "support-resolution-v1",
+    planId: "support-plan-1",
+    plan: {
+      id: "support-plan-1",
+      goal: "support resolution",
+      totalSteps: 5,
+      requiresApproval: true,
+      steps: [],
+    },
   };
 }
 
@@ -112,11 +133,90 @@ const previousResults: StepResult[] = [
   },
 ];
 
+const supportPreviousResults: StepResult[] = [
+  {
+    stepId: "intake",
+    status: "completed",
+    output: {
+      summary: "Customer reports delayed delivery",
+      missingFields: [],
+      normalizedIssue: {
+        customer: "Ada Customer",
+        channel: "email",
+        subject: "Delivery delay",
+        issue: "Order has not arrived",
+        orderId: "ORD-9",
+        productLine: "uPVC windows",
+        language: "en",
+      },
+    },
+    toolCallResults: [],
+    tokensUsed: 0,
+    durationMs: 1,
+  },
+  {
+    stepId: "classify",
+    status: "completed",
+    output: {
+      category: "delivery_delay",
+      priority: "high",
+      risks: ["SLA risk"],
+      missingInfo: [],
+      nextAction: "confirm logistics ETA",
+    },
+    toolCallResults: [],
+    tokensUsed: 0,
+    durationMs: 1,
+  },
+  {
+    stepId: "draft_reply",
+    status: "completed",
+    output: {
+      subject: "Delivery update",
+      body: "We are checking the latest delivery status and will update you shortly.",
+      tone: "calm",
+      assumptions: [],
+      needsHumanCheck: ["Confirm ETA"],
+    },
+    toolCallResults: [],
+    tokensUsed: 0,
+    durationMs: 1,
+  },
+  {
+    stepId: "human_review",
+    status: "completed",
+    output: {
+      approved: true,
+      approvedReply: "Approved support reply",
+      reviewNotes: "Do not promise refund",
+      nextAction: "send update after logistics confirms ETA",
+    },
+    toolCallResults: [],
+    tokensUsed: 0,
+    durationMs: 1,
+  },
+];
+
 function makeWritebackResult(): StepResult {
   return {
     stepId: "writeback",
     status: "completed",
     output: { salesAssetUpdated: true, knowledgeAssetCandidate: "Approved body" },
+    toolCallResults: [],
+    tokensUsed: 0,
+    durationMs: 1,
+  };
+}
+
+function makeSupportWritebackResult(): StepResult {
+  return {
+    stepId: "writeback",
+    status: "completed",
+    output: {
+      supportAssetUpdated: true,
+      knowledgeAssetCandidate: "Delay response guidance",
+      faqCandidate: "If delivery is delayed, confirm ETA before promising compensation.",
+    },
     toolCallResults: [],
     tokensUsed: 0,
     durationMs: 1,
@@ -354,5 +454,88 @@ describe("writeControlledStepAssets", () => {
     });
     expect((await listSalesAssetStoreSnapshot()).salesAssets).toHaveLength(0);
     expect((await listKnowledgeAssetStoreSnapshot()).knowledgeAssets).toHaveLength(0);
+  });
+
+  it("writes support asset target to the support asset store", async () => {
+    const step = supportResolutionPlaybook.steps.find((item) => item.id === "classify")!;
+
+    const receipts = await writeControlledStepAssets({
+      run: makeSupportRun(),
+      step,
+      result: supportPreviousResults[1],
+      previousResults: supportPreviousResults.slice(0, 1),
+      approved: true,
+    });
+
+    expect(receipts).toEqual([
+      expect.objectContaining({
+        target: "support_asset",
+        ok: true,
+        assetId: "controlled-support-asset:support-workflow-1",
+        sourceKey: "controlled-run:support-run-1:support_asset",
+        workflowRunId: "support-workflow-1",
+      }),
+    ]);
+
+    const snapshot = await listSupportAssetStoreSnapshot();
+    expect(snapshot.supportAssets).toHaveLength(1);
+    expect(snapshot.supportAssets[0]).toMatchObject({
+      id: "controlled-support-asset:support-workflow-1",
+      workflowRunId: "support-workflow-1",
+      scenarioId: "support-ops",
+      customer: "Ada Customer",
+      channel: "email",
+      issueSummary: "Customer reports delayed delivery",
+      nextAction: "confirm logistics ETA",
+      status: "replying",
+    });
+    expect(snapshot.supportAssets[0].latestDigest).toContain("delivery_delay");
+    expect(snapshot.supportAssets[0].latestDigest).toContain("SLA risk");
+  });
+
+  it("writes approved final support output to support and knowledge assets idempotently", async () => {
+    const step = supportResolutionPlaybook.steps.find((item) => item.id === "writeback")!;
+
+    await writeControlledStepAssets({
+      run: makeSupportRun(),
+      step,
+      result: makeSupportWritebackResult(),
+      previousResults: supportPreviousResults,
+      approved: true,
+    });
+    const receipts = await writeControlledStepAssets({
+      run: makeSupportRun(),
+      step,
+      result: makeSupportWritebackResult(),
+      previousResults: supportPreviousResults,
+      approved: true,
+    });
+
+    expect(receipts.map((receipt) => receipt.target)).toEqual([
+      "support_asset",
+      "knowledge_asset",
+      "workflow_run",
+    ]);
+    expect(receipts.every((receipt) => receipt.ok)).toBe(true);
+
+    const supportSnapshot = await listSupportAssetStoreSnapshot();
+    expect(supportSnapshot.supportAssets).toHaveLength(1);
+    expect(supportSnapshot.supportAssets[0]).toMatchObject({
+      id: "controlled-support-asset:support-workflow-1",
+      workflowRunId: "support-workflow-1",
+      latestReply: "Approved support reply",
+      faqDraft: "If delivery is delayed, confirm ETA before promising compensation.",
+      status: "completed",
+    });
+
+    const knowledgeSnapshot = await listKnowledgeAssetStoreSnapshot();
+    expect(knowledgeSnapshot.knowledgeAssets).toHaveLength(1);
+    expect(knowledgeSnapshot.knowledgeAssets[0]).toMatchObject({
+      sourceKey: "controlled-run:support-run-1:knowledge_asset",
+      workflowRunId: "support-workflow-1",
+      assetType: "support_faq",
+      status: "active",
+    });
+    expect(knowledgeSnapshot.knowledgeAssets[0].body).toContain("Delay response guidance");
   });
 });

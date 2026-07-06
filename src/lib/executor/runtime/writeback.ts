@@ -8,6 +8,7 @@ import type {
 import { upsertDraftInStore } from "@/lib/server/draft-store";
 import { upsertKnowledgeAssetInStore } from "@/lib/server/knowledge-asset-store";
 import { upsertSalesAssetInStore } from "@/lib/server/sales-asset-store";
+import { upsertSupportAssetInStore } from "@/lib/server/support-asset-store";
 import { upsertWorkflowRunInStore } from "@/lib/server/workflow-run-store";
 
 type WriteControlledStepAssetsInput = {
@@ -47,6 +48,10 @@ function scenarioIdFor(run: ControlledExecutionRunRecord) {
 
 function stableId(prefix: string, key: string) {
   return `${prefix}:${key.replace(/[^a-zA-Z0-9._:-]/g, "_")}`;
+}
+
+function isSupportPlaybook(input: WriteControlledStepAssetsInput) {
+  return input.run.playbookId === "support-resolution-v1" || scenarioIdFor(input.run) === "support-ops";
 }
 
 function buildSalesAssetInput(input: WriteControlledStepAssetsInput) {
@@ -89,6 +94,47 @@ function buildSalesAssetInput(input: WriteControlledStepAssetsInput) {
   };
 }
 
+function buildSupportAssetInput(input: WriteControlledStepAssetsInput) {
+  const allResults = [...input.previousResults, input.result];
+  const intake = outputFor(allResults, "intake");
+  const normalizedIssue = isRecord(intake.normalizedIssue) ? intake.normalizedIssue : {};
+  const classify = outputFor(allResults, "classify");
+  const draft = outputFor(allResults, "draft_reply");
+  const review = outputFor(allResults, "human_review");
+  const finalOutput = isRecord(input.result.output) ? input.result.output : {};
+  const workflowRunId = workflowRunIdFor(input.run);
+  const risks = stringList(classify.risks);
+  const missingInfo = stringList(classify.missingInfo);
+  const latestDigest = [
+    stringValue(classify.category) ? `Category: ${stringValue(classify.category)}` : "",
+    stringValue(classify.priority) ? `Priority: ${stringValue(classify.priority)}` : "",
+    risks.length ? `Risks: ${risks.join("; ")}` : "",
+    missingInfo.length ? `Missing info: ${missingInfo.join("; ")}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const approvedReply = stringValue(review.approvedReply);
+  const now = Date.now();
+
+  return {
+    id: stableId("controlled-support-asset", workflowRunId),
+    workflowRunId,
+    scenarioId: scenarioIdFor(input.run),
+    customer: stringValue(normalizedIssue.customer),
+    channel: stringValue(normalizedIssue.channel),
+    issueSummary:
+      stringValue(intake.summary) || stringValue(normalizedIssue.issue) || stringValue(draft.body),
+    latestDigest,
+    latestReply: approvedReply || stringValue(draft.body),
+    escalationTask: risks.join("\n"),
+    faqDraft: stringValue(finalOutput.faqCandidate),
+    nextAction: stringValue(review.nextAction) || stringValue(classify.nextAction),
+    status: input.step?.id === "writeback" ? "completed" : "replying",
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
 function buildKnowledgeAssetInput(input: WriteControlledStepAssetsInput) {
   const allResults = [...input.previousResults, input.result];
   const intake = outputFor(allResults, "intake");
@@ -97,6 +143,49 @@ function buildKnowledgeAssetInput(input: WriteControlledStepAssetsInput) {
   const review = outputFor(allResults, "human_review");
   const workflowRunId = workflowRunIdFor(input.run);
   const sourceKey = `controlled-run:${input.run.id}:knowledge_asset`;
+
+  if (isSupportPlaybook(input)) {
+    const supportIssue = outputFor(allResults, "intake");
+    const normalizedIssue = isRecord(supportIssue.normalizedIssue)
+      ? supportIssue.normalizedIssue
+      : {};
+    const classify = outputFor(allResults, "classify");
+    const supportReview = outputFor(allResults, "human_review");
+    const finalOutput = isRecord(input.result.output) ? input.result.output : {};
+    const customer = stringValue(normalizedIssue.customer);
+    const approvedReply = stringValue(supportReview.approvedReply);
+    const faqCandidate = stringValue(finalOutput.faqCandidate);
+    const knowledgeCandidate = stringValue(finalOutput.knowledgeAssetCandidate);
+    const now = Date.now();
+
+    return {
+      id: stableId("controlled-knowledge-asset", input.run.id),
+      sourceKey,
+      title: `Support playbook asset - ${customer || input.run.id}`,
+      body: [
+        knowledgeCandidate,
+        faqCandidate,
+        approvedReply ? `Approved reply: ${approvedReply}` : "",
+        stringValue(classify.category) ? `Category: ${stringValue(classify.category)}` : "",
+        stringValue(supportReview.reviewNotes)
+          ? `Review notes: ${stringValue(supportReview.reviewNotes)}`
+          : "",
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
+      sourceApp: "support_copilot",
+      scenarioId: scenarioIdFor(input.run),
+      workflowRunId,
+      assetType: "support_faq",
+      status: "active",
+      tags: ["controlled-run", "support-ops", input.run.playbookId],
+      applicableScene: "support reply / FAQ reuse / escalation boundary",
+      reuseCount: 0,
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
   const approvedBody =
     stringValue(review.approvedBody) ||
     stringValue(isRecord(input.result.output) ? input.result.output.knowledgeAssetCandidate : "");
@@ -177,6 +266,40 @@ function buildWorkflowRunInput(input: WriteControlledStepAssetsInput, writtenAt:
 function buildDraftInput(input: WriteControlledStepAssetsInput, writtenAt: number) {
   const allResults = [...input.previousResults, input.result];
   const intake = outputFor(allResults, "intake");
+  if (isSupportPlaybook(input)) {
+    const normalizedIssue = isRecord(intake.normalizedIssue) ? intake.normalizedIssue : {};
+    const classify = outputFor(allResults, "classify");
+    const draft = outputFor(allResults, "draft_reply");
+    const workflowRunId = workflowRunIdFor(input.run);
+    const customer = stringValue(normalizedIssue.customer);
+    const assumptions = stringList(draft.assumptions);
+    const needsHumanCheck = stringList(draft.needsHumanCheck);
+
+    return {
+      id: stableId("controlled-draft", workflowRunId),
+      title: stringValue(draft.subject) || `Support reply draft - ${customer || workflowRunId}`,
+      body: stringValue(draft.body),
+      tags: ["controlled-run", "support-ops", input.run.playbookId],
+      source: "publisher",
+      workflowRunId,
+      workflowScenarioId: scenarioIdFor(input.run),
+      workflowStageId: "draft_reply",
+      workflowSource: `Controlled run ${input.run.id}`,
+      workflowNextStep: "Review and approve the controlled support reply draft.",
+      workflowTriggerType: "manual",
+      workflowOriginApp: "publisher",
+      workflowOriginId: input.run.id,
+      workflowOriginLabel: input.run.playbookId,
+      workflowAudience: customer || undefined,
+      workflowPrimaryAngle: stringValue(classify.nextAction) || undefined,
+      workflowSourceSummary: stringValue(intake.summary) || undefined,
+      workflowBlockLabel: "Controlled Runtime",
+      workflowPublishNotes: [...assumptions, ...needsHumanCheck].join("\n") || undefined,
+      createdAt: input.run.createdAt,
+      updatedAt: writtenAt,
+    };
+  }
+
   const normalizedLead = isRecord(intake.normalizedLead) ? intake.normalizedLead : {};
   const qualify = outputFor(allResults, "qualify");
   const draft = outputFor(allResults, "draft_outreach");
@@ -279,6 +402,29 @@ async function writeSalesAsset(input: WriteControlledStepAssetsInput, writtenAt:
   } satisfies ControlledWritebackReceipt;
 }
 
+async function writeSupportAsset(input: WriteControlledStepAssetsInput, writtenAt: number) {
+  const payload = buildSupportAssetInput(input);
+  const result = await upsertSupportAssetInStore(payload);
+  const stored = result.supportAsset;
+  if (!stored) {
+    return {
+      target: "support_asset",
+      ok: false,
+      summary: "Failed to write support asset",
+      writtenAt,
+    } satisfies ControlledWritebackReceipt;
+  }
+  return {
+    target: "support_asset",
+    ok: true,
+    summary: `Wrote support asset ${stored.id} for workflow ${stored.workflowRunId}`,
+    writtenAt,
+    assetId: stored.id,
+    sourceKey: `controlled-run:${input.run.id}:support_asset`,
+    workflowRunId: stored.workflowRunId,
+  } satisfies ControlledWritebackReceipt;
+}
+
 async function writeKnowledgeAsset(input: WriteControlledStepAssetsInput, writtenAt: number) {
   const payload = buildKnowledgeAssetInput(input);
   const result = await upsertKnowledgeAssetInStore(payload);
@@ -321,7 +467,9 @@ export async function writeControlledStepAssets(
     }
 
     try {
-      if (target.target === "sales_asset") {
+      if (target.target === "support_asset") {
+        receipts.push(await writeSupportAsset(input, writtenAt));
+      } else if (target.target === "sales_asset") {
         receipts.push(await writeSalesAsset(input, writtenAt));
       } else if (target.target === "knowledge_asset") {
         receipts.push(await writeKnowledgeAsset(input, writtenAt));

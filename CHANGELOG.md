@@ -156,6 +156,13 @@
 - Aligned the committed sales governed trace fixture with the current `sales-pipeline-v1` writeback / approval contract.
 - Expanded `test:controlled-runtime` to include trace fixture replay coverage.
 
+### Trace Fixture Catalog And Support Coverage
+
+- Added an explicit governed trace fixture catalog for committed controlled trace fixtures.
+- Added a committed `support-resolution-v1` governed trace fixture aligned with the current support playbook approval and writeback contract.
+- Added catalog replay coverage that validates and replays every committed governed fixture without LLM calls, tool execution, route calls, store mutation, or asset writes.
+- Expanded `test:controlled-runtime` to include sales and support fixture catalog replay.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

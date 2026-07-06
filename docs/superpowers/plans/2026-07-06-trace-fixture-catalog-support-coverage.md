@@ -25,7 +25,7 @@
 **Files:**
 - Create: `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts`
 
-- [ ] **Step 1: Write failing catalog test**
+- [x] **Step 1: Write failing catalog test**
 
 Create:
 
@@ -69,7 +69,7 @@ describe("controlled trace fixture catalog", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify RED**
+- [x] **Step 2: Run test to verify RED**
 
 Run:
 
@@ -87,7 +87,7 @@ Expected: FAIL because `src/__tests__/fixtures/controlled-traces/catalog.ts` doe
 - Create: `src/__tests__/fixtures/controlled-traces/catalog.ts`
 - Create: `src/__tests__/fixtures/controlled-traces/support-resolution-governed.fixture.json`
 
-- [ ] **Step 1: Add explicit fixture catalog**
+- [x] **Step 1: Add explicit fixture catalog**
 
 Create:
 
@@ -116,7 +116,7 @@ export const controlledTraceFixtureCatalog: ControlledTraceFixtureCatalogEntry[]
 ];
 ```
 
-- [ ] **Step 2: Add support fixture JSON**
+- [x] **Step 2: Add support fixture JSON**
 
 Create `support-resolution-governed.fixture.json` with:
 
@@ -130,7 +130,7 @@ Create `support-resolution-governed.fixture.json` with:
 - approval state on `human_review` and `writeback`.
 - writeback targets matching the current support playbook contract.
 
-- [ ] **Step 3: Run catalog test to verify GREEN**
+- [x] **Step 3: Run catalog test to verify GREEN**
 
 Run:
 
@@ -140,7 +140,7 @@ npm test -- src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 4: Commit catalog and fixture**
+- [x] **Step 4: Commit catalog and fixture**
 
 ```bash
 git add src/__tests__/fixtures/controlled-traces/catalog.ts src/__tests__/fixtures/controlled-traces/support-resolution-governed.fixture.json src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts
@@ -154,7 +154,7 @@ git commit -m "test: catalog governed trace fixtures"
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add catalog test to controlled-runtime script**
+- [x] **Step 1: Add catalog test to controlled-runtime script**
 
 Insert:
 
@@ -168,7 +168,7 @@ after:
 src/__tests__/lib/executor/runtime/trace-replay.test.ts
 ```
 
-- [ ] **Step 2: Run controlled runtime tests**
+- [x] **Step 2: Run controlled runtime tests**
 
 Run:
 
@@ -178,7 +178,7 @@ npm run test:controlled-runtime
 
 Expected: PASS and includes `trace-fixture-catalog.test.ts`.
 
-- [ ] **Step 3: Commit script coverage**
+- [x] **Step 3: Commit script coverage**
 
 ```bash
 git add package.json
@@ -196,7 +196,7 @@ git commit -m "test: include trace fixture catalog coverage"
 - Modify: `docs/superpowers/plans/2026-07-06-trace-fixture-catalog-support-coverage.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run full verification before docs**
+- [x] **Step 1: Run full verification before docs**
 
 Run:
 
@@ -210,7 +210,7 @@ git diff --check
 
 Expected: all commands exit 0. `lint` and `build` may show only the existing `<img>` warning.
 
-- [ ] **Step 2: Update docs and records**
+- [x] **Step 2: Update docs and records**
 
 Record:
 
@@ -220,7 +220,7 @@ Record:
 - no runtime replay or asset mutation was added;
 - next recommended phase.
 
-- [ ] **Step 3: Re-run final verification after docs**
+- [x] **Step 3: Re-run final verification after docs**
 
 Run:
 
@@ -234,7 +234,7 @@ git diff --check
 
 Expected: all commands exit 0 with only the known existing `<img>` warning if present.
 
-- [ ] **Step 4: Commit docs**
+- [x] **Step 4: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-trace-fixture-catalog-support-coverage.md
@@ -248,3 +248,33 @@ git commit -m "docs: complete trace fixture catalog support coverage"
 - Spec coverage: explicit catalog, support fixture, catalog replay test, controlled-runtime coverage, docs, and verification are covered.
 - Placeholder scan: no placeholder markers remain.
 - Type consistency: `ControlledTraceFixtureCatalogEntry`, `controlledTraceFixtureCatalog`, and existing replay/validation helpers are used consistently.
+
+## Completion Record
+
+Commits:
+
+- `e01dd66` — `docs: spec trace fixture catalog support coverage`
+- `46ffe03` — `test: catalog governed trace fixtures`
+- `336b365` — `test: include trace fixture catalog coverage`
+
+Verification before final docs:
+
+- `npm test -- src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` — 1 file / 3 tests passed.
+- `npm test -- src/__tests__/lib/executor/runtime/trace-fixtures.test.ts src/__tests__/lib/executor/runtime/trace-replay.test.ts src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` — 3 files / 11 tests passed.
+- `npm run test:controlled-runtime` — 26 files / 145 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
+
+Final verification after docs:
+
+- `npm run test:controlled-runtime` — 26 files / 145 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
+
+Next phase:
+
+- Trace Fixture Drift Diagnostics.

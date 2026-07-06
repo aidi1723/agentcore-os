@@ -57,6 +57,7 @@ Completed in the current controlled runtime line:
 - Runtime Console governed trace copy action and conservative terminal-run prune helper.
 - Governed trace fixture builder, validator, and committed sales pipeline trace fixture.
 - Pure trace fixture replay runner that checks committed governed fixtures against current controlled playbook contracts without executing tools or writing assets.
+- Explicit governed trace fixture catalog with sales and support fixture replay coverage.
 
 Current verification baseline:
 
@@ -69,9 +70,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 25 test files.
-- 142 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, and pure trace fixture replay validation.
+- 26 test files.
+- 145 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, and catalog replay coverage for sales/support governed fixtures.
 
 Known current lint/build note:
 
@@ -283,7 +284,7 @@ Outcome:
 - Replay remains pure: no LLM calls, no tool calls, no route calls, no store mutation, and no asset writes.
 - `test:controlled-runtime` now covers trace fixture replay.
 
-## Recommended Next. Trace Fixture Catalog And Support Coverage
+## Completed. Trace Fixture Catalog And Support Coverage
 
 Why:
 
@@ -291,17 +292,45 @@ Why:
 - The project now has two controlled playbooks, so support needs the same fixture/replay contract.
 - A small fixture catalog will let future CI run all committed fixture replays without hardcoding each file in separate tests.
 
-Suggested scope:
+Delivered:
 
-- Add a typed fixture catalog for committed governed trace fixtures.
-- Add a committed governed `support-resolution-v1` fixture.
-- Add a test that replays every catalog fixture and reports fixture id / playbook id failures.
-- Keep the scope pure: no fixture generation route, no runtime store mutation, no tool replay.
+- Added a typed fixture catalog for committed governed trace fixtures.
+- Added a committed governed `support-resolution-v1` fixture.
+- Added a catalog replay test that validates every catalog fixture and runs `replayControlledTraceFixture()` for each entry.
+- Kept the scope pure: no fixture generation route, no runtime store mutation, no tool replay.
 
-Completion target:
+Primary files:
+
+- `src/__tests__/fixtures/controlled-traces/catalog.ts`
+- `src/__tests__/fixtures/controlled-traces/support-resolution-governed.fixture.json`
+- `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts`
+- `package.json`
+
+Outcome:
 
 - `test:controlled-runtime` validates every committed governed trace fixture through one catalog replay test.
 - Sales and support playbook fixtures both fail deterministically if their current playbook contract drifts.
+
+## Recommended Next. Trace Fixture Drift Diagnostics
+
+Why:
+
+- Catalog replay now catches drift, but error output is still optimized for unit assertions rather than maintenance.
+- Playbook edits should produce a compact diff-style report showing expected/current step order, missing approvals, and missing writeback targets.
+- Better diagnostics will make fixture updates safer before any future real replay or fixture generation workflow.
+
+Suggested scope:
+
+- Enrich `ControlledTraceReplayReport` with optional structured mismatch diagnostics.
+- Add helper output for fixture id, playbook id, expected step order, fixture step order, missing approval step ids, and missing writeback targets.
+- Keep existing `errors` stable for current tests.
+- Add tests that prove drift diagnostics are present for step order, approval, and writeback mismatches.
+- Keep scope pure: no LLM/tool replay, no routes, no stores, no asset writes.
+
+Completion target:
+
+- Fixture drift failures are easy to interpret from one report object.
+- Existing catalog replay coverage remains green.
 
 ## Completed. Support Runtime Console Record Focus
 

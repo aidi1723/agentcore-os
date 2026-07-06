@@ -124,8 +124,8 @@ User / Trigger
 - 真实 LLM / tool replay 还没有实现。
 - real replay 的 sandbox、credential isolation、approval simulation、store isolation、side-effect blocking 和 replay result ownership 已在 `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md` 文档化。
 - replay sandbox contract types 已在 `src/lib/executor/runtime/replay-sandbox-contracts.ts` 文档化为 TypeScript contract 和纯 validator。
-- no-side-effect replay sandbox prototype design 已在 `docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md` 文档化。
-- 因此下一阶段只能实现最小 No-Side-Effect Replay Sandbox Prototype，不能直接写真实工具 replay。
+- no-side-effect replay sandbox prototype 已在 `src/lib/executor/runtime/replay-sandbox.ts` 实现为 contract -> replay result artifact 的纯函数。
+- 因此下一阶段只能实现 governed fixture -> replay sandbox contract bridge，不能直接写真实工具 replay。
 
 ## 6. 文档体系
 
@@ -235,12 +235,22 @@ git diff --check
 
 目标：
 
-- 只有在 P0/P1 边界与 P2 prototype design 通过后，才允许实现最小 no-side-effect sandbox prototype。
-- Implementation 只能新增独立的 replay sandbox module 和测试，不接 executor、route、Runtime Console 或 store。
-- Prototype 不允许调用生产凭据、不允许写 store、不允许写资产、不允许绕过 approval simulation。
-- 输出必须落在 replay result artifact，而不是业务资产层。
+- 已新增 `src/lib/executor/runtime/replay-sandbox.ts`。
+- `runNoSideEffectReplaySandbox()` 先执行 `validateReplaySandboxContract()`。
+- unsafe contract 返回 failed replay result artifact，cursor 只到 `preflight`。
+- safe contract 返回 replay-local result artifact，不接 executor、route、Runtime Console 或 store。
+- Prototype 不调用生产凭据、不写 store、不写资产、不绕过 approval simulation。
 
-### P4. Governed Fixture / Playbook Expansion
+### P4. Governed Fixture To Replay Sandbox Contract Bridge
+
+目标：
+
+- 新增纯 helper，把 committed governed fixture metadata 转成 `ReplaySandboxContract`。
+- 只读取 fixture metadata，不恢复 raw governed artifact payload。
+- 继续拒绝 live credentials、production stores、business asset writes 和 raw controlled run input。
+- 输出只能进入 no-side-effect replay sandbox prototype。
+
+### P5. Governed Fixture / Playbook Expansion
 
 目标：
 
@@ -248,7 +258,7 @@ git diff --check
 - 新 fixture 必须通过 redaction、approval、writeback metadata、stable identity 和 catalog coverage 审查。
 - 新 playbook 必须先进入 spec / plan / TDD / fixture replay 边界，而不是直接接真实工具。
 
-### P5. Operational Retention And Maintenance Hardening
+### P6. Operational Retention And Maintenance Hardening
 
 目标：
 

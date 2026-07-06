@@ -40,7 +40,7 @@
 **Files:**
 - Create: `src/__tests__/lib/executor/runtime/replay-sandbox.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/__tests__/lib/executor/runtime/replay-sandbox.test.ts`:
 
@@ -165,7 +165,7 @@ describe("no-side-effect replay sandbox", () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests and verify RED**
+- [x] **Step 2: Run the tests and verify RED**
 
 Run:
 
@@ -175,7 +175,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox.test.ts
 
 Expected: FAIL because `@/lib/executor/runtime/replay-sandbox` does not exist.
 
-- [ ] **Step 3: Commit failing tests**
+- [x] **Step 3: Commit failing tests**
 
 ```bash
 git add src/__tests__/lib/executor/runtime/replay-sandbox.test.ts
@@ -192,7 +192,7 @@ git commit -m "test: specify no-side-effect replay sandbox prototype"
 - Modify: `src/lib/executor/runtime/replay-sandbox-contracts.ts`
 - Modify: `src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts`
 
-- [ ] **Step 1: Add artifact status and cursor event types**
+- [x] **Step 1: Add artifact status and cursor event types**
 
 In `src/lib/executor/runtime/replay-sandbox-contracts.ts`, add:
 
@@ -228,7 +228,7 @@ Return defaults:
     cursorEvents: options.cursorEvents ?? [],
 ```
 
-- [ ] **Step 2: Add the prototype implementation**
+- [x] **Step 2: Add the prototype implementation**
 
 Create `src/lib/executor/runtime/replay-sandbox.ts`:
 
@@ -270,7 +270,7 @@ export function runNoSideEffectReplaySandbox(
 }
 ```
 
-- [ ] **Step 3: Align contract artifact builder test**
+- [x] **Step 3: Align contract artifact builder test**
 
 In `src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts`, update the artifact expectation to include:
 
@@ -279,7 +279,7 @@ In `src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts`, update
       cursorEvents: [],
 ```
 
-- [ ] **Step 4: Run targeted tests and verify GREEN**
+- [x] **Step 4: Run targeted tests and verify GREEN**
 
 Run:
 
@@ -289,7 +289,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox.test.ts src/__test
 
 Expected: PASS, 2 files.
 
-- [ ] **Step 5: Commit implementation**
+- [x] **Step 5: Commit implementation**
 
 ```bash
 git add src/lib/executor/runtime/replay-sandbox.ts src/lib/executor/runtime/replay-sandbox-contracts.ts src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts
@@ -304,7 +304,7 @@ git commit -m "feat: add no-side-effect replay sandbox prototype"
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add the prototype test to `test:controlled-runtime`**
+- [x] **Step 1: Add the prototype test to `test:controlled-runtime`**
 
 In `package.json`, add this path immediately after `src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts`:
 
@@ -312,7 +312,7 @@ In `package.json`, add this path immediately after `src/__tests__/lib/executor/r
 src/__tests__/lib/executor/runtime/replay-sandbox.test.ts
 ```
 
-- [ ] **Step 2: Run the controlled runtime gate**
+- [x] **Step 2: Run the controlled runtime gate**
 
 Run:
 
@@ -322,7 +322,7 @@ npm run test:controlled-runtime
 
 Expected: PASS with the new replay sandbox prototype test included.
 
-- [ ] **Step 3: Commit the gate update**
+- [x] **Step 3: Commit the gate update**
 
 ```bash
 git add package.json
@@ -344,7 +344,7 @@ git commit -m "test: include replay sandbox prototype in controlled runtime"
 - Modify: `docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md`
 - Modify: `docs/superpowers/plans/2026-07-06-no-side-effect-replay-sandbox-prototype-implementation.md`
 
-- [ ] **Step 1: Update current docs**
+- [x] **Step 1: Update current docs**
 
 Record Phase 10y as completed and set the next recommended phase to replay sandbox contract factory / fixture-to-contract bridge.
 
@@ -356,7 +356,7 @@ The docs must state:
 - Safe contracts emit replay-local result artifacts with no executor, route, store, tool, UI, or asset side effects.
 - The next phase should convert governed fixtures into replay sandbox contracts without recovering raw payloads or touching stores.
 
-- [ ] **Step 2: Run final verification**
+- [x] **Step 2: Run final verification**
 
 Run:
 
@@ -376,11 +376,11 @@ Expected:
 - controlled runtime tests pass;
 - core workflow regressions pass.
 
-- [ ] **Step 3: Mark this plan complete**
+- [x] **Step 3: Mark this plan complete**
 
 Update all checkboxes to `- [x]` and add completion notes with exact verification results.
 
-- [ ] **Step 4: Commit docs and plan record**
+- [x] **Step 4: Commit docs and plan record**
 
 ```bash
 git add README.md CHANGELOG.md docs/NEXT_STEPS.md docs/PROJECT_FRAMEWORK.zh-CN.md docs/ROADMAP.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md docs/superpowers/plans/2026-07-06-no-side-effect-replay-sandbox-prototype-implementation.md
@@ -395,3 +395,22 @@ git commit -m "docs: complete no-side-effect replay sandbox prototype"
 - Spec coverage: consumes only `ReplaySandboxContract`, validates first, returns failure artifact for unsafe input, returns safe replay-local artifact for valid input, preserves no-side-effect guarantees, and avoids executor/route/store/UI integration.
 - Scope boundary: no LLM replay, no tool execution, no route calls, no runtime store reads/writes, no business asset writes, no fixture JSON changes, no Runtime Console changes.
 - Placeholder scan: this plan contains no deferred placeholders.
+
+## Completion Notes
+
+- Completed on: 2026-07-06
+- Commits:
+  - `bcab8e3` - `docs: plan no-side-effect replay sandbox prototype`
+  - `455026e` - `test: specify no-side-effect replay sandbox prototype`
+  - `edb98c7` - `feat: add no-side-effect replay sandbox prototype`
+  - `359eef1` - `test: include replay sandbox prototype in controlled runtime`
+- TDD evidence:
+  - RED: `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox.test.ts` failed because `@/lib/executor/runtime/replay-sandbox` did not exist.
+  - GREEN: `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox.test.ts src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts` passed with 2 files / 7 tests.
+- Final verification:
+  - `git diff --check` - exit 0
+  - `npm run trace:fixtures --silent` - ok true; 2 total / 2 passed / 0 failed
+  - `npm run trace:fixtures:summary --silent` - Status OK
+  - `npm run test:controlled-runtime` - 32 files / 173 tests passed
+  - `npm run test:core-workflows` - all core workflow regressions passed
+- Outcome: Phase 10y is complete. The next recommended phase is Governed Fixture To Replay Sandbox Contract Bridge.

@@ -4,7 +4,7 @@ Last updated: 2026-07-06
 
 ## 1. Purpose
 
-本文档定义未来最小 no-side-effect replay sandbox prototype。
+本文档定义最小 no-side-effect replay sandbox prototype。
 
 Prototype 只能消费已经通过 `validateReplaySandboxContract()` 的 `ReplaySandboxContract`，只能输出 replay result artifact。
 
@@ -26,11 +26,12 @@ Prototype 不允许：
 - replay sandbox contract types；
 - `validateReplaySandboxContract()`；
 - `buildNoSideEffectReplayResultArtifact()`；
-- no-side-effect contract tests in `test:controlled-runtime`。
+- `src/lib/executor/runtime/replay-sandbox.ts`；
+- `runNoSideEffectReplaySandbox()`；
+- no-side-effect contract / prototype tests in `test:controlled-runtime`。
 
 仍未实现：
 
-- replay sandbox prototype；
 - LLM replay；
 - tool replay；
 - API route replay；
@@ -38,15 +39,15 @@ Prototype 不允许：
 - business asset replay；
 - production replay。
 
-## 3. Future Module Boundary
+## 3. Module Boundary
 
-未来 implementation 应新增：
+当前 implementation 已新增：
 
 ```text
 src/lib/executor/runtime/replay-sandbox.ts
 ```
 
-模块建议导出：
+模块导出：
 
 ```ts
 runNoSideEffectReplaySandbox(contract: ReplaySandboxContract): ReplayResultArtifact
@@ -218,15 +219,11 @@ artifact 不得伪装成：
 
 这些能力属于后续单独设计，不属于最小 no-side-effect prototype。
 
-## 12. Next Phase
+## 12. Current Implementation And Next Phase
 
-下一阶段允许进入：
+当前 prototype 已证明：
 
-**No-Side-Effect Replay Sandbox Prototype Implementation**
-
-该阶段可以新增 `src/lib/executor/runtime/replay-sandbox.ts` 和测试，证明：
-
-- unsafe contract 在执行前返回 failure artifact；
+- unsafe contract 在执行前返回 failed replay result artifact；
 - safe contract 只输出 replay result artifact；
 - result artifact 不像 controlled run、writeback receipt 或 business asset；
 - guarantees 仍保持：
@@ -235,4 +232,10 @@ artifact 不得伪装成：
   - `runtimeStoresMutated: false`
   - `productionCredentialsUsed: false`
 
-该阶段仍禁止 LLM replay、tool execution、route calls、runtime store reads/writes 和 business asset writes。
+下一阶段允许进入：
+
+**Governed Fixture To Replay Sandbox Contract Bridge**
+
+该阶段可以新增纯 helper，把 committed governed fixture metadata 转成 `ReplaySandboxContract`，再交给 no-side-effect prototype。
+
+该阶段仍禁止 LLM replay、tool execution、route calls、runtime store reads/writes、business asset writes、fixture JSON changes 和 raw governed artifact payload recovery。

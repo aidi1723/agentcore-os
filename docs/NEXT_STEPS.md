@@ -85,8 +85,8 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 30 test files.
-- 166 tests.
+- 32 test files.
+- 173 tests.
 - Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
@@ -839,14 +839,36 @@ Outcome:
 
 - Future implementation can build the smallest no-side-effect prototype without touching production stores or business assets.
 
-## Recommended Next. No-Side-Effect Replay Sandbox Prototype Implementation
+## Completed. No-Side-Effect Replay Sandbox Prototype Implementation
+
+Why:
+
+- Prototype design was accepted, and the runtime needed the smallest executable no-side-effect sandbox before any fixture-to-contract bridge.
+- The prototype must prove preflight failure behavior and artifact-only success behavior without integrating executor, routes, stores, tools, UI, or business assets.
+
+Delivered:
+
+- Added `src/lib/executor/runtime/replay-sandbox.ts`.
+- Added `runNoSideEffectReplaySandbox(contract)`.
+- Extended replay result artifacts with `status` and replay-local `cursorEvents`.
+- Unsafe contracts return failed artifacts with only `preflight` cursor advancement and validation diagnostics.
+- Safe contracts return succeeded replay result artifacts with replay-local cursor events.
+- Added prototype tests proving artifact shape isolation from controlled runs and business assets.
+- Included the prototype test in `npm run test:controlled-runtime`.
+
+Outcome:
+
+- The runtime now has a pure contract-to-artifact replay sandbox prototype.
+- It still performs no LLM replay, no tool execution, no route calls, no runtime store reads/writes, and no asset writes.
+
+## Recommended Next. Governed Fixture To Replay Sandbox Contract Bridge
 
 Suggested scope:
 
-- Add `src/lib/executor/runtime/replay-sandbox.ts`.
-- Add tests proving unsafe contracts return failure artifacts before execution.
-- Add tests proving safe contracts emit replay result artifacts only.
-- Keep implementation no-side-effect: no LLM replay, no tool execution, no route calls, no runtime store reads/writes, and no asset writes.
+- Add a pure helper that converts committed governed fixture metadata into `ReplaySandboxContract`.
+- Add tests proving current sales/support governed fixtures can produce safe contracts.
+- Reject missing provenance, missing redaction boundary, raw controlled run input, live credentials, production stores, and business asset writes.
+- Keep the bridge no-side-effect: no fixture JSON changes, no raw governed artifact payload recovery, no route calls, no runtime store reads/writes, and no asset writes.
 
 ## Completed. Support Runtime Console Record Focus
 

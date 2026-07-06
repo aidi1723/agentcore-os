@@ -103,21 +103,31 @@ The design defines the smallest prototype that:
 
 ### P3. No-Side-Effect Replay Sandbox Prototype Implementation
 
-Only after P0, P1, and P2 are accepted, build the smallest no-side-effect prototype:
+Completed prototype reference:
 
-- independent `replay-sandbox.ts` module,
-- no production credentials,
-- no LLM replay,
-- no tool execution,
+- `src/lib/executor/runtime/replay-sandbox.ts`
+- `src/__tests__/lib/executor/runtime/replay-sandbox.test.ts`
+
+The prototype:
+
+- validates `ReplaySandboxContract` before all other work,
+- returns failed artifacts for unsafe contracts with only `preflight` cursor advancement,
+- returns replay-local result artifacts for safe contracts,
+- performs no LLM replay, tool execution, route calls, runtime store reads/writes, or asset writes.
+
+### P4. Governed Fixture To Replay Sandbox Contract Bridge
+
+Next, build a pure bridge from committed governed fixture metadata into
+`ReplaySandboxContract`:
+
+- no fixture JSON changes,
+- no raw governed artifact payload recovery,
+- no runtime store access,
+- no business asset writes,
 - no route calls,
-- no runtime store reads,
-- no store writes,
-- no asset writes,
-- no hidden API side effects,
-- approval simulation only,
-- replay results written to replay artifacts, not business assets.
+- output only replay sandbox contracts for the no-side-effect prototype.
 
-### P4. Governed Fixture And Playbook Expansion
+### P5. Governed Fixture And Playbook Expansion
 
 Expand only when the current governed trace/replay gates stay stable:
 

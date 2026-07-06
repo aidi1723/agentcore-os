@@ -324,14 +324,15 @@ npm run test:controlled-runtime
 
 ## 14. Next Phase
 
-Prototype design 已完成：
+Prototype design and implementation 已完成：
 
 - [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
+- `src/lib/executor/runtime/replay-sandbox.ts`
 
 下一阶段允许进入：
 
-**No-Side-Effect Replay Sandbox Prototype Implementation**
+**Governed Fixture To Replay Sandbox Contract Bridge**
 
-该阶段只能实现一个最小 prototype：消费 validated replay sandbox contract，输出 replay result artifact。
+该阶段只能实现纯 fixture metadata -> `ReplaySandboxContract` helper，再交给 no-side-effect prototype 输出 replay result artifact。
 
-该阶段仍不能实现真实工具 replay，不能调用 route，不能读写 runtime store，不能写业务资产。unsafe contract 必须在 prototype 启动前返回 failure artifact。
+该阶段仍不能实现真实工具 replay，不能调用 route，不能读写 runtime store，不能写业务资产，不能恢复 raw governed artifact payload。

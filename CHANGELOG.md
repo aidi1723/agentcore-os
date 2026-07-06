@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### No-Side-Effect Replay Sandbox Prototype Implementation
+
+- Added `runNoSideEffectReplaySandbox()` as a pure contract-to-artifact prototype that validates replay sandbox contracts before all other work.
+- Unsafe contracts now return failed replay result artifacts with only `preflight` cursor advancement and validation diagnostics.
+- Safe contracts return replay-local result artifacts with no executor, route, store, tool, UI, or business asset side effects.
+- Added prototype tests and included them in `test:controlled-runtime`.
+
 ### No-Side-Effect Replay Sandbox Prototype Design
 
 - Added a no-side-effect replay sandbox prototype design guide covering future module boundaries, preflight validation, replay-local state, cursor events, approval simulation, side-effect blocking, result artifacts, and stop conditions.

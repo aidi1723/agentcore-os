@@ -49,6 +49,7 @@ Completed in the current controlled runtime line:
 - Retry route for eligible failed controlled steps.
 - Runtime Console record-level asset focus for Deal Desk and Knowledge Vault.
 - Real server-backed `workflow_run` and `draft` controlled writeback targets.
+- Runtime Console workflow run and draft deep links.
 
 Current verification baseline:
 
@@ -62,8 +63,8 @@ npm run build
 Current `test:controlled-runtime` coverage:
 
 - 20 test files.
-- 119 tests.
-- Includes playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, and record-level asset focus coverage.
+- 120 tests.
+- Includes playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, and workflow/draft deep link coverage.
 
 Known current lint/build note:
 
@@ -177,35 +178,38 @@ Outcome:
 - The sales controlled runtime no longer reports unsupported skipped receipts for `workflow_run` or `draft`.
 - `test:controlled-runtime` covers the workflow/draft stores and final writeback receipt shape.
 
-## P0. Runtime Console Workflow And Draft Deep Links
+## Completed. Runtime Console Workflow And Draft Deep Links
 
 Why:
 
 - The controlled runtime now writes workflow and draft records, but Runtime Console asset landings still focus on sales/knowledge assets.
 - Operators should be able to inspect the workflow run and draft records that were written by the controlled trace without manual search.
 
-Scope:
+Delivered:
 
-- Add workflow/draft landing metadata to controlled run summaries where receipt metadata exists.
-- Add Runtime Console open actions for workflow run and draft records using existing cross-app event patterns.
-- Keep this as navigation/focus only; do not add new workflow or draft editing behavior.
+- Controlled run summaries now include successful `workflow_run` and `draft` receipts in the asset landing panel.
+- Workflow run landings open Industry Hub with `workflowRunId` and `scenarioId` focus prefill.
+- Draft landings open Publisher with the written `draftId`, workflow run id, scenario id, source, and next-step context.
+- Industry Hub listens for workflow focus prefill and selects the role/scenario that owns the matching run.
+- Missing draft ids fail closed with a Runtime Console toast instead of opening an ambiguous Publisher context.
 
 Primary files:
 
 - `src/lib/executor/runtime/console-summary.ts`
 - `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
 - `src/lib/ui-events.ts`
-- `src/components/apps/WorkflowRunnerAppWindow.tsx`
-- `src/components/apps/ContentStudioAppWindow.tsx`
+- `src/components/apps/IndustryHubAppWindow.tsx`
 - `src/__tests__/lib/executor/runtime/console-summary.test.ts`
 - `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
+- `src/__tests__/components/IndustryHubAppWindow.test.tsx`
 
-Expected outcome:
+Outcome:
 
 - Runtime Console can open sales, knowledge, workflow, and draft writeback records from one trace.
 - Operators no longer need to copy ids out of receipt text to find workflow/draft state.
+- The trace landing panel remains one consistent surface for all current writeback targets.
 
-## P1. Support Playbook Migration
+## P0. Support Playbook Migration
 
 Why:
 
@@ -236,7 +240,7 @@ Expected outcome:
 - Support workflow becomes the second controlled playbook.
 - Runtime Console can compare multiple playbook families.
 
-## P2. Trace Governance
+## P1. Trace Governance
 
 Why:
 

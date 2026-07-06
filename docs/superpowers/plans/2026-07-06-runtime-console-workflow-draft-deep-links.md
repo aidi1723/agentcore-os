@@ -56,7 +56,7 @@ Docs after implementation:
 - Modify: `src/__tests__/lib/executor/runtime/console-summary.test.ts`
 - Modify: `src/lib/executor/runtime/console-summary.ts`
 
-- [ ] **Step 1: Write failing summary test for workflow and draft landings**
+- [x] **Step 1: Write failing summary test for workflow and draft landings**
 
 In `src/__tests__/lib/executor/runtime/console-summary.test.ts`, change the `makeRun()` fixture:
 
@@ -178,7 +178,7 @@ expect(
 ).toEqual(["run-console-1"]);
 ```
 
-- [ ] **Step 2: Verify summary test fails**
+- [x] **Step 2: Verify summary test fails**
 
 Run:
 
@@ -188,7 +188,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: FAIL because `workflow_run` and `draft` are not included in `assetLandings`, and their app ids are not recognized.
 
-- [ ] **Step 3: Implement summary landing support**
+- [x] **Step 3: Implement summary landing support**
 
 In `src/lib/executor/runtime/console-summary.ts`, update the landing app id type:
 
@@ -237,7 +237,7 @@ function buildAssetLandings(
 }
 ```
 
-- [ ] **Step 4: Verify summary test passes**
+- [x] **Step 4: Verify summary test passes**
 
 Run:
 
@@ -247,7 +247,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts
 
 Expected: PASS, 6 tests.
 
-- [ ] **Step 5: Commit summary model**
+- [x] **Step 5: Commit summary model**
 
 ```bash
 git add src/lib/executor/runtime/console-summary.ts src/__tests__/lib/executor/runtime/console-summary.test.ts
@@ -262,7 +262,7 @@ git commit -m "feat: summarize workflow and draft landings"
 - Modify: `src/lib/ui-events.ts`
 - Modify: `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
 
-- [ ] **Step 1: Write failing Runtime Console open action test**
+- [x] **Step 1: Write failing Runtime Console open action test**
 
 In `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`, update the imports:
 
@@ -374,7 +374,7 @@ it("opens workflow run and draft landings with focused prefill", async () => {
 });
 ```
 
-- [ ] **Step 2: Verify Runtime Console open action test fails**
+- [x] **Step 2: Verify Runtime Console open action test fails**
 
 Run:
 
@@ -384,7 +384,7 @@ npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx
 
 Expected: FAIL because `requestOpenIndustryHub` / `requestOpenPublisher` are not imported or called.
 
-- [ ] **Step 3: Add Industry Hub open helper**
+- [x] **Step 3: Add Industry Hub open helper**
 
 In `src/lib/ui-events.ts`, add this type after `SettingsTargetTab`:
 
@@ -418,7 +418,7 @@ dispatchPrefill(
 );
 ```
 
-- [ ] **Step 4: Route Runtime Console workflow/draft landings**
+- [x] **Step 4: Route Runtime Console workflow/draft landings**
 
 In `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`, update the `@/lib/ui-events` import:
 
@@ -461,7 +461,7 @@ Add these branches to `handleOpenControlledRunAsset` after the knowledge vault b
     }
 ```
 
-- [ ] **Step 5: Verify Runtime Console test passes**
+- [x] **Step 5: Verify Runtime Console test passes**
 
 Run:
 
@@ -471,7 +471,7 @@ npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx
 
 Expected: PASS, with the existing sales/knowledge tests still green.
 
-- [ ] **Step 6: Commit open actions**
+- [x] **Step 6: Commit open actions**
 
 ```bash
 git add src/lib/ui-events.ts src/components/apps/ClawRuntimeConsoleAppWindow.tsx src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx
@@ -485,7 +485,7 @@ git commit -m "feat: open workflow and draft landings"
 - Create: `src/__tests__/components/IndustryHubAppWindow.test.tsx`
 - Modify: `src/components/apps/IndustryHubAppWindow.tsx`
 
-- [ ] **Step 1: Write failing Industry Hub prefill test**
+- [x] **Step 1: Write failing Industry Hub prefill test**
 
 Create `src/__tests__/components/IndustryHubAppWindow.test.tsx`:
 
@@ -559,7 +559,7 @@ describe("IndustryHubAppWindow workflow focus prefill", () => {
 });
 ```
 
-- [ ] **Step 2: Verify Industry Hub test fails**
+- [x] **Step 2: Verify Industry Hub test fails**
 
 Run:
 
@@ -569,7 +569,7 @@ npm test -- src/__tests__/components/IndustryHubAppWindow.test.tsx
 
 Expected: FAIL because `IndustryHubAppWindow` does not listen for `openclaw:industry-hub-prefill`.
 
-- [ ] **Step 3: Implement Industry Hub focus listener**
+- [x] **Step 3: Implement Industry Hub focus listener**
 
 In `src/components/apps/IndustryHubAppWindow.tsx`, update imports:
 
@@ -625,7 +625,7 @@ Add this effect after the workflow-runs subscription effect:
   }, [focusWorkflowRun]);
 ```
 
-- [ ] **Step 4: Verify Industry Hub test passes**
+- [x] **Step 4: Verify Industry Hub test passes**
 
 Run:
 
@@ -635,7 +635,7 @@ npm test -- src/__tests__/components/IndustryHubAppWindow.test.tsx
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit Industry Hub focus**
+- [x] **Step 5: Commit Industry Hub focus**
 
 ```bash
 git add src/components/apps/IndustryHubAppWindow.tsx src/__tests__/components/IndustryHubAppWindow.test.tsx
@@ -652,7 +652,7 @@ git commit -m "feat: focus workflow runs in industry hub"
 - Modify: `docs/superpowers/plans/2026-07-06-runtime-console-workflow-draft-deep-links.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run targeted implementation tests**
+- [x] **Step 1: Run targeted implementation tests**
 
 Run:
 
@@ -662,7 +662,7 @@ npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts src/__tes
 
 Expected: PASS. The controlled runtime targeted tests should include the new summary/open/focus coverage.
 
-- [ ] **Step 2: Run final gates**
+- [x] **Step 2: Run final gates**
 
 Run:
 
@@ -682,7 +682,7 @@ Expected:
 - `build` exits 0 with the same existing warning.
 - `git diff --check` exits 0.
 
-- [ ] **Step 3: Update docs**
+- [x] **Step 3: Update docs**
 
 Update:
 
@@ -702,7 +702,7 @@ Update:
 - `memory/2026-07-06.md`
   - Record commits and final verification results.
 
-- [ ] **Step 4: Mark plan progress complete**
+- [x] **Step 4: Mark plan progress complete**
 
 In this plan file, mark completed checkboxes for tasks and add final verification evidence:
 
@@ -714,12 +714,21 @@ In this plan file, mark completed checkboxes for tasks and add final verificatio
 - `git diff --check` — exit 0.
 ```
 
-- [ ] **Step 5: Commit docs**
+- [x] **Step 5: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-runtime-console-workflow-draft-deep-links.md
 git commit -m "docs: complete workflow draft deep links"
 ```
+
+## Final Verification Evidence
+
+- `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx src/__tests__/components/IndustryHubAppWindow.test.tsx` — 3 files / 11 tests passed.
+- `npm run test:controlled-runtime` — 20 files / 120 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `git diff --check` — exit 0.
+- `npm run build` — exit 0 with the same existing `<img>` warning.
 
 ## Self-Review
 

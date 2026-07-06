@@ -318,6 +318,7 @@ type ControlledPlaybookStep = {
 - [Runtime Console Asset Deep Links Implementation Plan](superpowers/plans/2026-07-05-runtime-console-asset-deep-links.md)
 - [Runtime Console Failure Recovery Implementation Plan](superpowers/plans/2026-07-05-runtime-console-failure-recovery.md)
 - [Runtime Console Record-Level Asset Focus Implementation Plan](superpowers/plans/2026-07-06-runtime-console-record-level-asset-focus.md)
+- [Runtime Console Workflow And Draft Deep Links Implementation Plan](superpowers/plans/2026-07-06-runtime-console-workflow-draft-deep-links.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -335,17 +336,17 @@ type ControlledPlaybookStep = {
 - Phase 7b failure recovery：controlled run 已有 durable audit events；summary 可展示 `failedStepId`、`canRetry`、`retryReason` 和 `auditEventCount`；Runtime Console 可对符合 playbook retry policy 的 failed step 执行 `重试失败步骤`；retry route 会从第一个失败 step 继续执行，不重放已完成前置步骤。
 - Phase 7c record-level asset focus：Runtime Console 的 sales / knowledge asset landing 现在会传递 `assetId` / `sourceKey` / `workflowRunId`；Deal Desk 会定位到已写回 sales asset 关联的现有 deal；Knowledge Vault 会定位并高亮 exact knowledge asset。带 record metadata 的打开动作不会创建 synthetic lead；如果 prefill 早于 server-backed store hydration，会保留 pending focus，在资产/线索同步后重试，仍未命中则提示缺失记录。
 - Phase 7d complete skipped writeback targets：`workflow_run` 和 `draft` target 已从 skipped receipt 升级为真实 server-backed 写回。workflow run 使用稳定 `workflowRunId` upsert；draft 使用 `controlled-draft:{workflowRunId}` upsert；final approved writeback 会把 workflow run 状态推进到 `completed`。
+- Phase 7e workflow/draft deep links：Runtime Console 的 landing panel 已覆盖 `workflow_run` 和 `draft` receipt。workflow run landing 会打开 Industry Hub 并定位对应 workflow run / scenario；draft landing 会打开 Publisher 并带入 `draftId`、`workflowRunId`、scenario 和下一步处理上下文。
 
 仍未完成：
 
-- Runtime Console 对 workflow run / draft receipt 仍缺少 record-level open action。
 - support scenario 还没有迁移成第二条 controlled playbook。
 
 因此下一阶段默认进入：
 
-**Phase 7e. Runtime Console Workflow And Draft Deep Links**
+**Phase 8. Support Playbook Migration**
 
-目标是在 Runtime Console 里把新写入的 workflow run / draft record 也变成可打开、可定位的 trace landing，补齐从一次 controlled run 到所有写回记录的检查路径。
+目标是把 support scenario 迁移成第二条 controlled playbook，验证当前 runtime 不只服务 sales-pipeline，还能复用到 intake、classification、draft reply、human review 和 support/knowledge asset writeback 的业务链路。
 
 ### Phase 0. 冻结方向
 
@@ -518,7 +519,7 @@ type ControlledPlaybookStep = {
 
 - record-level focus：Deal Desk / Knowledge Vault 根据 prefill 直接选中 sales asset / knowledge asset，并覆盖 hydration race 下的 pending retry / missing-record error。已完成于 Phase 7c。
 - skipped writeback targets：把 `workflow_run` / `draft` 从 skipped receipt 升级为真实写回。已完成于 Phase 7d。
-- workflow/draft deep links：Runtime Console 增加 workflow run / draft record open actions，避免只显示 receipt 文本。建议作为 Phase 7e。
+- workflow/draft deep links：Runtime Console 增加 workflow run / draft record open actions，避免只显示 receipt 文本。已完成于 Phase 7e。
 - 操作审计增强：把 console-initiated approve / reject / resume 也明确记录到 trace metadata，目前 retry 已有 audit event。
 
 完成标准：
@@ -526,7 +527,42 @@ type ControlledPlaybookStep = {
 - 用户能从一次 controlled run 直接跳到它写回的业务资产所在业务面板。
 - 用户能筛出某个 workflowRunId、playbookId 或 asset id 的 controlled runs。
 - failed run 不再只显示错误文本，而能展示下一步可执行恢复动作。
-- `workflow_run` / `draft` target 能写入对应业务状态，并在后续 UI slice 中从 Runtime Console 直接打开。
+- `workflow_run` / `draft` target 能写入对应业务状态，并能从 Runtime Console 直接打开。
+
+### Phase 8. Support Playbook Migration
+
+目标：
+
+- 把 support scenario 迁移成第二条 controlled playbook。
+- 验证 controlled runtime 的 playbook resolver、validator、approval gate、writeback 和 Runtime Console trace 对多业务线复用。
+- 避免为 support 单独做特殊 UI 分支，优先复用现有 Runtime Console summary、landing 和 writeback receipt 模型。
+
+建议固定步骤：
+
+```text
+1. intake
+   收集客户问题、来源、紧急程度、相关订单/产品信息。
+
+2. classify
+   判断问题类型、优先级、风险和缺失信息。
+
+3. draft_reply
+   生成客服回复草稿和内部处理建议。
+
+4. human_review
+   人工确认事实、承诺边界、语气和下一步动作。
+
+5. writeback
+   写回 support asset、draft、workflow run，并沉淀可复用 knowledge asset。
+```
+
+完成标准：
+
+- `support-resolution-v1` 有显式 playbook schema、step input/output schema、allowed tools 和审批节点。
+- validator 能拒绝未知 support step、未授权工具和绕过审批的执行请求。
+- final approved writeback 能写入 support/draft/workflow/knowledge 相关资产，并保持 idempotency。
+- Runtime Console 能显示 support controlled run 的 trace、approval、writeback receipts 和 asset landings，不需要为 support 新增独立 trace UI。
+- `test:controlled-runtime` 覆盖 support playbook resolver、validator、execution、approval、writeback 和 Runtime Console summary。
 
 ## 9. 开发规范
 
@@ -631,12 +667,12 @@ npm run test:core-workflows
 
 `test:controlled-runtime` 是第一阶段的最小门禁，覆盖 sales playbook、plan validator、显式 controlled plan 执行和 workflow runner 请求收口。
 
-截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 20 个测试文件、119 个测试，包括：
+截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 20 个测试文件、120 个测试，包括：
 
 - sales playbook / validator / schema / step input。
 - controlled run store、approval store、controlled execution、step executor、workflow bridge。
 - durable resume、failed-step retry runtime、retry route、controlled run list / detail route。
-- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback 和 idempotency。
+- client stream recovery、Runtime Console retry UI wiring、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links 和 idempotency。
 
 ### 10.3 手工验收场景
 

@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 import { controlledTraceFixtureCatalog } from "@/__tests__/fixtures/controlled-traces/catalog";
 import { buildControlledTraceFixtureCatalogReport } from "@/__tests__/fixtures/controlled-traces/catalog-report";
 import {
+  buildMissingSourceRunIdCatalogEntry,
   buildMissingStableMetadataCatalogEntry,
   buildPlaybookVersionDriftCatalogEntry,
+  buildUnredactedInputCatalogEntry,
+  buildUnredactedToolOutputCatalogEntry,
 } from "@/__tests__/fixtures/controlled-traces/synthetic-failures";
 import { validateControlledTraceFixture } from "@/lib/executor/runtime/trace-fixtures";
 import { replayControlledTraceFixture } from "@/lib/executor/runtime/trace-replay";
@@ -142,6 +145,39 @@ describe("controlled trace fixture catalog", () => {
       target: "sales_asset",
       missingFields: ["sourceKey"],
     });
+  });
+
+  it("builds failed aggregate reports from reusable validation failure entries", () => {
+    const report = buildControlledTraceFixtureCatalogReport([
+      buildMissingSourceRunIdCatalogEntry(),
+      buildUnredactedInputCatalogEntry(),
+      buildUnredactedToolOutputCatalogEntry(),
+    ]);
+
+    expect(report.ok).toBe(false);
+    expect(report.total).toBe(3);
+    expect(report.passed).toBe(0);
+    expect(report.failed).toBe(3);
+    expect(report.fixtureIds).toEqual([
+      "sales-pipeline-missing-source-run-id",
+      "sales-pipeline-unredacted-input",
+      "sales-pipeline-unredacted-tool-output",
+    ]);
+    expect(report.guarantees).toEqual({
+      toolCallsExecuted: false,
+      assetsWritten: false,
+    });
+
+    expect(report.items[0].validation.errors).toContain(
+      "Fixture sourceRunId is required",
+    );
+    expect(report.items[1].validation.errors).toContain(
+      "Step intake input is not redacted",
+    );
+    expect(report.items[2].validation.errors).toContain(
+      "Step intake tool llm_generate output is not redacted",
+    );
+    expect(report.items.map((item) => item.ok)).toEqual([false, false, false]);
   });
 
   it("does not include raw customer content or secret markers", () => {

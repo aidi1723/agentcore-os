@@ -187,6 +187,14 @@
 - Added a subprocess regression test for the command and included it in `test:controlled-runtime`.
 - Updated fixture JSON imports to use standard Node ESM JSON import attributes so the catalog report can run outside Vitest.
 
+### Governed Trace Fixture Builder CLI
+
+- Added `npm run trace:fixture:build -- <artifact.json>` as a local governed artifact to fixture builder command.
+- The command reads one governed trace artifact JSON file, builds a fixture through `buildControlledTraceFixture()`, validates it, and prints fixture JSON to stdout.
+- Missing files, malformed JSON, and invalid artifact shapes now exit non-zero with stable stderr diagnostics instead of stack traces.
+- Added subprocess regression coverage for success, unreadable input, and invalid governed artifact input.
+- Kept the builder command pure: no LLM calls, no tool execution, no API route calls, no runtime store mutation, no automatic fixture writeback, and no asset writes.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

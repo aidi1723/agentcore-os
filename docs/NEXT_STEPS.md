@@ -61,6 +61,7 @@ Completed in the current controlled runtime line:
 - Structured trace fixture drift diagnostics in replay reports, including expected/fixture step order, missing approval step ids, and missing writeback targets.
 - Pure trace fixture catalog report helper that aggregates validation, replay, diagnostics, and no-side-effect guarantees for all committed fixtures.
 - `npm run trace:fixtures` local CI summary command for governed fixture catalog health.
+- `npm run trace:fixture:build -- <artifact.json>` local builder command for converting governed trace artifact files into validated fixture JSON.
 
 Current verification baseline:
 
@@ -74,9 +75,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 27 test files.
-- 148 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, and trace fixture catalog CI summary command coverage.
+- 28 test files.
+- 151 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
 - Trace fixture replay reports include structured drift diagnostics while preserving stable error messages.
 
 Known current lint/build note:
@@ -396,7 +397,7 @@ Outcome:
 - A maintainer can run one focused command to inspect governed fixture catalog health.
 - CI can surface the same aggregate report object when fixtures drift.
 
-## Recommended Next. Governed Trace Fixture Builder CLI
+## Completed. Governed Trace Fixture Builder CLI
 
 Why:
 
@@ -404,18 +405,41 @@ Why:
 - A local builder command can convert a governed artifact JSON file into a fixture JSON document on stdout.
 - This keeps fixture maintenance inside the governed artifact boundary without adding runtime write paths.
 
-Suggested scope:
+Delivered:
 
-- Add a local script that reads a governed trace artifact JSON file path.
-- Use `buildControlledTraceFixture()` and `validateControlledTraceFixture()`.
-- Print fixture JSON to stdout and validation errors to stderr.
-- Exit non-zero when the artifact cannot become a valid governed fixture.
-- Keep scope pure: no LLM calls, no tool calls, no route calls, no runtime store mutation, and no asset writes.
+- Added `scripts/trace-fixtures/build-fixture.mjs`.
+- Added `npm run trace:fixture:build -- <artifact.json>`.
+- The command reads one governed trace artifact JSON file, builds a fixture with `buildControlledTraceFixture()`, validates it, and prints fixture JSON to stdout.
+- Missing files, malformed JSON, and invalid artifact shapes exit non-zero with stable stderr diagnostics.
+- Added subprocess coverage for success, missing-file failure, and invalid artifact shape failure.
+- Included the builder CLI test in `test:controlled-runtime`.
+- Kept scope pure: no LLM calls, no tool calls, no route calls, no runtime store mutation, no fixture writeback, and no asset writes.
 
-Completion target:
+Primary files:
+
+- `scripts/trace-fixtures/build-fixture.mjs`
+- `src/__tests__/scripts/trace-fixture-builder-script.test.ts`
+- `package.json`
+
+Outcome:
 
 - A maintainer can export a governed trace artifact, run one command, and inspect the resulting fixture JSON before committing it.
 - Fixture refresh remains explicit and reviewable.
+
+## Recommended Next. Governed Fixture Refresh Review Workflow
+
+Why:
+
+- The project can now export governed artifacts, build fixture JSON, and validate the committed catalog.
+- The remaining maintenance gap is the human review path for replacing a stale committed fixture safely.
+- A documented refresh workflow should make fixture updates repeatable without adding automatic writes.
+
+Suggested scope:
+
+- Document the exact maintainer sequence: export governed artifact, run `trace:fixture:build`, inspect the JSON, replace a fixture manually, run `trace:fixtures`, then run `test:controlled-runtime`.
+- Add a small checklist or command recipe to the controlled runtime manual.
+- Keep committed fixture replacement manual and reviewable.
+- Keep scope pure: no auto-write command, no filesystem discovery, no runtime store mutation, no tool replay, and no asset writes.
 
 ## Completed. Support Runtime Console Record Focus
 

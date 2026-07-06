@@ -24,7 +24,7 @@
 **Files:**
 - Create: `src/__tests__/scripts/trace-fixture-builder-script.test.ts`
 
-- [ ] **Step 1: Write the failing success and failure tests**
+- [x] **Step 1: Write the failing success and failure tests**
 
 Create `src/__tests__/scripts/trace-fixture-builder-script.test.ts` with:
 
@@ -271,7 +271,7 @@ describe("trace fixture builder script", () => {
 });
 ```
 
-- [ ] **Step 2: Run the script test to verify RED**
+- [x] **Step 2: Run the script test to verify RED**
 
 Run:
 
@@ -289,7 +289,7 @@ Expected: FAIL because `trace:fixture:build` is not defined and the builder scri
 - Create: `scripts/trace-fixtures/build-fixture.mjs`
 - Modify: `package.json`
 
-- [ ] **Step 1: Add npm script**
+- [x] **Step 1: Add npm script**
 
 In `package.json`, add near `trace:fixtures`:
 
@@ -297,7 +297,7 @@ In `package.json`, add near `trace:fixtures`:
 "trace:fixture:build": "node --import ./scripts/register-ts-alias-loader.mjs ./scripts/trace-fixtures/build-fixture.mjs",
 ```
 
-- [ ] **Step 2: Create the builder script**
+- [x] **Step 2: Create the builder script**
 
 Create `scripts/trace-fixtures/build-fixture.mjs` with:
 
@@ -356,7 +356,7 @@ if (!artifactPath) {
 }
 ```
 
-- [ ] **Step 3: Run the builder script test to verify GREEN**
+- [x] **Step 3: Run the builder script test to verify GREEN**
 
 Run:
 
@@ -366,7 +366,7 @@ npm test -- src/__tests__/scripts/trace-fixture-builder-script.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 4: Run manual builder command against test-created style input**
+- [x] **Step 4: Run manual builder command against test-created style input**
 
 Run:
 
@@ -376,7 +376,7 @@ npm run trace:fixture:build --silent -- /tmp/agentcore-missing-artifact.json
 
 Expected: non-zero exit and stderr includes `Failed to read governed trace artifact`.
 
-- [ ] **Step 5: Include script test in controlled runtime gate**
+- [x] **Step 5: Include script test in controlled runtime gate**
 
 Modify `package.json` `test:controlled-runtime` to include:
 
@@ -386,7 +386,7 @@ src/__tests__/scripts/trace-fixture-builder-script.test.ts
 
 Place it after `src/__tests__/scripts/trace-fixture-catalog-report-script.test.ts`.
 
-- [ ] **Step 6: Run focused fixture/script tests**
+- [x] **Step 6: Run focused fixture/script tests**
 
 Run:
 
@@ -396,7 +396,7 @@ npm test -- src/__tests__/scripts/trace-fixture-builder-script.test.ts src/__tes
 
 Expected: PASS.
 
-- [ ] **Step 7: Run controlled runtime gate**
+- [x] **Step 7: Run controlled runtime gate**
 
 Run:
 
@@ -406,7 +406,7 @@ npm run test:controlled-runtime
 
 Expected: PASS with the new script test included.
 
-- [ ] **Step 8: Commit implementation**
+- [x] **Step 8: Commit implementation**
 
 ```bash
 git add package.json scripts/trace-fixtures/build-fixture.mjs src/__tests__/scripts/trace-fixture-builder-script.test.ts
@@ -424,7 +424,7 @@ git commit -m "test: add governed trace fixture builder cli"
 - Modify: `docs/superpowers/plans/2026-07-06-governed-trace-fixture-builder-cli.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run full verification before docs**
+- [x] **Step 1: Run full verification before docs**
 
 Run:
 
@@ -439,7 +439,7 @@ git diff --check
 
 Expected: all commands exit 0. `lint` and `build` may show only the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 
-- [ ] **Step 2: Update docs and records**
+- [x] **Step 2: Update docs and records**
 
 Record:
 
@@ -451,7 +451,7 @@ Record:
 - controlled runtime test inclusion;
 - next recommended phase.
 
-- [ ] **Step 3: Re-run final verification after docs**
+- [x] **Step 3: Re-run final verification after docs**
 
 Run:
 
@@ -466,7 +466,7 @@ git diff --check
 
 Expected: all commands exit 0 with only the known existing `<img>` warning if present.
 
-- [ ] **Step 4: Commit docs**
+- [x] **Step 4: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-governed-trace-fixture-builder-cli.md

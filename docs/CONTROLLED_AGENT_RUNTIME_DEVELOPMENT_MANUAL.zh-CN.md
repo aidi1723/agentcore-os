@@ -325,6 +325,7 @@ type ControlledPlaybookStep = {
 - [Trace Fixture Drift Diagnostics Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-drift-diagnostics.md)
 - [Trace Fixture Catalog Report Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-catalog-report.md)
 - [Trace Fixture Catalog CI Summary Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-catalog-ci-summary.md)
+- [Governed Trace Fixture Builder CLI Implementation Plan](superpowers/plans/2026-07-06-governed-trace-fixture-builder-cli.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -353,17 +354,18 @@ type ControlledPlaybookStep = {
 - Phase 10f trace fixture drift diagnostics：`replayControlledTraceFixture()` report 已增加结构化 `diagnostics`，包含 fixture id、playbook id、expected step order、fixture step order、missing approval step ids 和 missing writeback targets。现有 `errors` 字符串保持稳定，catalog replay 仍是纯校验。
 - Phase 10g trace fixture catalog report：已新增 `buildControlledTraceFixtureCatalogReport()`，可以把 explicit catalog 中每个 fixture 的 validation、replay、diagnostics 和 no-side-effect guarantees 聚合到一个 report object。synthetic drift 覆盖证明 report item 会保留 Phase 10f diagnostics。
 - Phase 10h trace fixture catalog CI summary：已新增 `npm run trace:fixtures`，输出 compact JSON catalog health summary，并在 report 不通过时以非零退出码失败。该命令已纳入 `test:controlled-runtime` 覆盖。
+- Phase 10i governed trace fixture builder CLI：已新增 `npm run trace:fixture:build -- <artifact.json>`，可以把一个 governed trace artifact JSON 文件转换为经过 validation 的 fixture JSON，并输出到 stdout。缺文件、非法 JSON、非法 artifact shape 会以非零退出码和稳定 stderr diagnostics 失败。该命令不自动改写 committed fixture。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- 从 governed trace artifact 刷新 fixture 仍然需要手工处理 JSON，还没有本地 builder 命令。
+- 从 builder 输出替换 committed fixture 的流程仍是人工审查步骤，还没有写成明确 refresh checklist。
 
 因此下一阶段默认进入：
 
-**Phase 10i. Governed Trace Fixture Builder CLI**
+**Phase 10j. Governed Fixture Refresh Review Workflow**
 
-目标是在不做真实工具回放的前提下，增加一个本地命令，把 governed trace artifact JSON 转换为 fixture JSON，供维护人员审查后再提交。
+目标是在不做真实工具回放、不自动写回 fixture 的前提下，把 fixture refresh 的人工审查流程写成固定 checklist：导出 governed artifact、运行 builder、审查 JSON、手工替换 fixture、运行 catalog summary 和 controlled runtime gate。
 
 ### Phase 0. 冻结方向
 
@@ -643,8 +645,8 @@ type ControlledPlaybookStep = {
 
 - Trace redaction 有单元测试覆盖。已完成。
 - Local trace artifact route 不导出未脱敏 step payload。已完成。
-- Runtime Console 不会导出未脱敏敏感字段。待导出入口实现。
-- 关键 controlled run 可以生成可复现 fixture。待 fixture 生成入口实现。
+- Runtime Console 不会导出未脱敏敏感字段。已完成 governed trace copy action。
+- 关键 controlled run 可以生成可复现 fixture。已完成 governed artifact、fixture builder、fixture replay runner 和 builder CLI。
 - 手册中明确哪些 trace 字段允许长期保留，哪些必须脱敏或清理。Phase 10b 已完成 raw run prune helper；长期自动清理策略可在后续运营化。
 
 ### Phase 10b. Trace Governance Console Export And Retention
@@ -665,7 +667,7 @@ type ControlledPlaybookStep = {
 
 - 操作者可以从 Runtime Console 获取 governed trace artifact。已完成。
 - Raw trace 清理不会影响 running / awaiting approval runs。已完成。
-- governed artifact 可作为未来回归 fixture 的输入。已完成 artifact 输入边界，fixture runner 待下一阶段实现。
+- governed artifact 可作为未来回归 fixture 的输入。已完成 artifact 输入边界、fixture builder、fixture replay runner 和本地 builder CLI。
 
 ### Phase 10c. Trace Fixture Generation
 
@@ -808,18 +810,22 @@ type ControlledPlaybookStep = {
 - 让 fixture refresh 工作变成本地显式命令，而不是手工复制字段。
 - 继续保持纯 metadata / file input-output 边界，不读取 runtime stores。
 
-建议范围：
+已完成范围：
 
-- 新增本地脚本，接收 artifact JSON 文件路径。
-- 调用 `buildControlledTraceFixture()` 和 `validateControlledTraceFixture()`。
-- 成功时把 fixture JSON 输出到 stdout。
-- 失败时把 validation errors 输出到 stderr，并以非零退出码结束。
+- 新增 `scripts/trace-fixtures/build-fixture.mjs`。
+- 新增 `npm run trace:fixture:build -- <artifact.json>`。
+- 命令接收一个 governed artifact JSON 文件路径。
+- 命令调用 `buildControlledTraceFixture()` 和 `validateControlledTraceFixture()`。
+- 成功时只把 fixture JSON 输出到 stdout。
+- 缺文件、非法 JSON、非法 artifact shape 会把稳定诊断输出到 stderr，并以非零退出码结束。
+- 增加 subprocess 测试覆盖成功、缺文件失败和非法 artifact shape 失败。
+- 命令已纳入 `test:controlled-runtime`。
 
 完成标准：
 
-- 维护人员可以从 governed artifact 文件生成 fixture JSON。
-- 命令不自动修改 committed fixture 文件，仍需人工审查。
-- 不调用 LLM、不调用工具、不读写 runtime stores、不写资产。
+- 维护人员可以从 governed artifact 文件生成 fixture JSON。已完成。
+- 命令不自动修改 committed fixture 文件，仍需人工审查。已完成。
+- 不调用 LLM、不调用工具、不读写 runtime stores、不写资产。已完成。
 
 ## 9. 开发规范
 

@@ -21,6 +21,7 @@ import {
 } from "@/lib/deals";
 import { requestOpenClawAgent, requestRealityCheck } from "@/lib/openclaw-agent-client";
 import {
+  getSalesAssetById,
   getSalesAssetByWorkflowRunId,
   subscribeSalesAssets,
   upsertSalesAsset,
@@ -142,6 +143,32 @@ export function DealDeskAppWindow({
   useEffect(() => {
     const onPrefill = (event: Event) => {
       const detail = (event as CustomEvent<DealDeskPrefill>).detail;
+      const focusAsset =
+        getSalesAssetById(detail?.assetId) ??
+        getSalesAssetByWorkflowRunId(detail?.workflowRunId);
+      if (focusAsset) {
+        const currentDeals = getDeals();
+        const targetDeal =
+          currentDeals.find((deal) => deal.id === focusAsset.dealId) ??
+          currentDeals.find((deal) => deal.workflowRunId === focusAsset.workflowRunId);
+        if (!targetDeal) {
+          showToast("未找到对应线索", "error");
+          return;
+        }
+        setSelectedId(targetDeal.id);
+        showToast("已定位到线索记录", "ok");
+        return;
+      }
+
+      const hasFocusMetadata = Boolean(
+        detail?.assetId || detail?.sourceKey || detail?.workflowRunId,
+      );
+      const hasLeadFields = Boolean(detail?.company?.trim() || detail?.need?.trim());
+      if (hasFocusMetadata && !hasLeadFields) {
+        showToast("未找到对应线索", "error");
+        return;
+      }
+
       const id = createDeal({
         company: detail?.company ?? "",
         contact: detail?.contact ?? "",

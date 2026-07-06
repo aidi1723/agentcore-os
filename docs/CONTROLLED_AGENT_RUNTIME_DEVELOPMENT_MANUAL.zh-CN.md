@@ -326,6 +326,7 @@ type ControlledPlaybookStep = {
 - [Trace Fixture Catalog Report Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-catalog-report.md)
 - [Trace Fixture Catalog CI Summary Implementation Plan](superpowers/plans/2026-07-06-trace-fixture-catalog-ci-summary.md)
 - [Governed Trace Fixture Builder CLI Implementation Plan](superpowers/plans/2026-07-06-governed-trace-fixture-builder-cli.md)
+- [Governed Trace Fixture Refresh Workflow](GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -355,17 +356,18 @@ type ControlledPlaybookStep = {
 - Phase 10g trace fixture catalog report：已新增 `buildControlledTraceFixtureCatalogReport()`，可以把 explicit catalog 中每个 fixture 的 validation、replay、diagnostics 和 no-side-effect guarantees 聚合到一个 report object。synthetic drift 覆盖证明 report item 会保留 Phase 10f diagnostics。
 - Phase 10h trace fixture catalog CI summary：已新增 `npm run trace:fixtures`，输出 compact JSON catalog health summary，并在 report 不通过时以非零退出码失败。该命令已纳入 `test:controlled-runtime` 覆盖。
 - Phase 10i governed trace fixture builder CLI：已新增 `npm run trace:fixture:build -- <artifact.json>`，可以把一个 governed trace artifact JSON 文件转换为经过 validation 的 fixture JSON，并输出到 stdout。缺文件、非法 JSON、非法 artifact shape 会以非零退出码和稳定 stderr diagnostics 失败。该命令不自动改写 committed fixture。
+- Phase 10j governed fixture refresh review workflow：已新增 `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`，固定 fixture refresh 的人工审查路径：导出 governed artifact、运行 builder、审查 candidate fixture、手工替换 committed fixture、运行 catalog/runtime gates，并保持 no-side-effect 边界。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- 从 builder 输出替换 committed fixture 的流程仍是人工审查步骤，还没有写成明确 refresh checklist。
+- Fixture replay 目前还只校验 step/order/approval/writeback 等关键 metadata，尚未增加更深的 golden invariants。
 
 因此下一阶段默认进入：
 
-**Phase 10j. Governed Fixture Refresh Review Workflow**
+**Phase 10k. Fixture Replay Depth And Golden Invariants**
 
-目标是在不做真实工具回放、不自动写回 fixture 的前提下，把 fixture refresh 的人工审查流程写成固定 checklist：导出 governed artifact、运行 builder、审查 JSON、手工替换 fixture、运行 catalog summary 和 controlled runtime gate。
+目标是在仍然不做真实工具回放的前提下，扩展 pure fixture replay 可检查的 metadata 合约，例如 schema/writeback/idempotency 关键字段和更明确的 golden invariants。
 
 ### Phase 0. 冻结方向
 
@@ -826,6 +828,29 @@ type ControlledPlaybookStep = {
 - 维护人员可以从 governed artifact 文件生成 fixture JSON。已完成。
 - 命令不自动修改 committed fixture 文件，仍需人工审查。已完成。
 - 不调用 LLM、不调用工具、不读写 runtime stores、不写资产。已完成。
+
+### Phase 10j. Governed Fixture Refresh Review Workflow
+
+目标：
+
+- 把 governed fixture refresh 的人工维护路径写成固定 checklist。
+- 明确 builder stdout、candidate fixture review、committed fixture 手工替换、catalog/runtime 验证之间的边界。
+- 防止后续把 builder 扩展成绕过人工审查的自动 fixture 写回工具。
+
+已完成范围：
+
+- 新增 [Governed Trace Fixture Refresh Workflow](GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md)。
+- 文档规定 artifact 必须先处于 trace governance boundary 内，raw step input/output、tool output、approval feedback、audit message 和 free-form plan text 都应已脱敏。
+- 文档规定 candidate fixture 通过 `npm run trace:fixture:build -- <artifact.json>` 生成到 stdout，重定向到临时文件是维护人员的显式动作。
+- 文档规定 committed fixture 只能在审查 candidate fixture 后手工替换。
+- 审查清单覆盖 schema version、playbook id/version、step order、approval state、writeback targets、redaction flags、tool output redaction 和敏感字符串搜索。
+- 验证清单覆盖 `npm run trace:fixtures --silent`、`npm run test:controlled-runtime`、`npm run test:core-workflows`、`npm run lint`、`npm run build` 和 `git diff --check`。
+
+完成标准：
+
+- 维护人员可以按一份文档刷新 governed fixture。已完成。
+- 文档明确 builder 不会自动修改 committed fixture。已完成。
+- 不新增 API/UI、不调用 LLM/工具、不读写 runtime stores、不写资产。已完成。
 
 ## 9. 开发规范
 

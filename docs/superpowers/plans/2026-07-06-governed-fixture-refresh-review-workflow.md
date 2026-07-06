@@ -26,7 +26,7 @@
 **Files:**
 - Create: `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`
 
-- [ ] **Step 1: Create the maintainer guide**
+- [x] **Step 1: Create the maintainer guide**
 
 Create `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md` with:
 
@@ -189,7 +189,7 @@ git commit -m "test: refresh governed trace fixture"
 If documentation changes accompany the refresh, commit them separately unless they are inseparable from the fixture update.
 ```
 
-- [ ] **Step 2: Inspect the guide**
+- [x] **Step 2: Inspect the guide**
 
 Run:
 
@@ -209,7 +209,7 @@ Expected: the guide contains purpose, boundaries, command recipe, review checkli
 - Modify: `docs/DOCUMENTATION_INDEX.zh-CN.md`
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Update controlled runtime manual**
+- [x] **Step 1: Update controlled runtime manual**
 
 Modify `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`:
 
@@ -226,7 +226,7 @@ The Phase 10j section must state:
 - verification uses `trace:fixtures`, `test:controlled-runtime`, `test:core-workflows`, lint, build, and diff check;
 - no LLM/tool replay or store/asset writes were added.
 
-- [ ] **Step 2: Update Next Steps**
+- [x] **Step 2: Update Next Steps**
 
 Modify `docs/NEXT_STEPS.md`:
 
@@ -240,7 +240,7 @@ The next recommendation should stay conservative:
 - keep replay pure;
 - no real tool replay yet.
 
-- [ ] **Step 3: Update documentation index**
+- [x] **Step 3: Update documentation index**
 
 Modify `docs/DOCUMENTATION_INDEX.zh-CN.md` to include:
 
@@ -250,7 +250,7 @@ Modify `docs/DOCUMENTATION_INDEX.zh-CN.md` to include:
 
 Place it near other engineering/runtime documentation links.
 
-- [ ] **Step 4: Update changelog**
+- [x] **Step 4: Update changelog**
 
 Add a `### Governed Fixture Refresh Review Workflow` entry to `CHANGELOG.md` under Unreleased, describing:
 
@@ -267,13 +267,13 @@ Add a `### Governed Fixture Refresh Review Workflow` entry to `CHANGELOG.md` und
 - Modify: `docs/superpowers/plans/2026-07-06-governed-fixture-refresh-review-workflow.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Check doc links and stale wording**
+- [x] **Step 1: Check doc links and stale wording**
 
 Run:
 
 ```bash
 rg "Governed Trace Fixture Refresh Workflow|Phase 10j|Fixture Replay Depth" docs README.md CHANGELOG.md
-rg "Recommended Next\\. Governed Fixture Refresh Review Workflow|还没有写成明确 refresh checklist" docs
+rg "Recommended Next\\. Governed Fixture Refresh Review Workflow|还没有写成明确 refresh checklist" docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/DOCUMENTATION_INDEX.zh-CN.md CHANGELOG.md README.md
 ```
 
 Expected:
@@ -281,7 +281,7 @@ Expected:
 - First command finds the new guide and Phase 10j/10k references.
 - Second command returns no matches.
 
-- [ ] **Step 2: Run verification**
+- [x] **Step 2: Run verification**
 
 Run:
 
@@ -301,7 +301,7 @@ Expected:
 - `test:controlled-runtime` remains 28 files / 151 tests;
 - `lint` and `build` may show only the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 
-- [ ] **Step 3: Update memory**
+- [x] **Step 3: Update memory**
 
 Append to `memory/2026-07-06.md`:
 
@@ -311,11 +311,11 @@ Append to `memory/2026-07-06.md`:
 - verification results;
 - next recommended phase.
 
-- [ ] **Step 4: Mark plan complete**
+- [x] **Step 4: Mark plan complete**
 
 Mark all checklist items in this plan complete.
 
-- [ ] **Step 5: Commit docs**
+- [x] **Step 5: Commit docs**
 
 Run:
 

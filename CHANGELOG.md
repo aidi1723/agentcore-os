@@ -195,6 +195,14 @@
 - Added subprocess regression coverage for success, unreadable input, and invalid governed artifact input.
 - Kept the builder command pure: no LLM calls, no tool execution, no API route calls, no runtime store mutation, no automatic fixture writeback, and no asset writes.
 
+### Governed Fixture Refresh Review Workflow
+
+- Added `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md` as the manual refresh workflow for committed governed trace fixtures.
+- Documented the exact maintainer sequence from governed artifact export through `trace:fixture:build`, candidate JSON review, manual committed fixture replacement, catalog health verification, runtime gate verification, and git diff review.
+- Added explicit fixture review checks for schema version, playbook id/version, step order, approval state, writeback targets, redaction flags, tool output redaction, and sensitive string search.
+- Linked the guide from the controlled runtime manual and documentation index.
+- Kept fixture refresh manual and pure: no auto-write command, no filesystem discovery, no runtime store mutation, no LLM/tool replay, and no asset writes.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

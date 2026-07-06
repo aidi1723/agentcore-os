@@ -62,6 +62,7 @@ Completed in the current controlled runtime line:
 - Pure trace fixture catalog report helper that aggregates validation, replay, diagnostics, and no-side-effect guarantees for all committed fixtures.
 - `npm run trace:fixtures` local CI summary command for governed fixture catalog health.
 - `npm run trace:fixture:build -- <artifact.json>` local builder command for converting governed trace artifact files into validated fixture JSON.
+- Governed trace fixture refresh workflow guide for manual fixture replacement and review.
 
 Current verification baseline:
 
@@ -426,7 +427,7 @@ Outcome:
 - A maintainer can export a governed trace artifact, run one command, and inspect the resulting fixture JSON before committing it.
 - Fixture refresh remains explicit and reviewable.
 
-## Recommended Next. Governed Fixture Refresh Review Workflow
+## Completed. Governed Fixture Refresh Review Workflow
 
 Why:
 
@@ -434,12 +435,39 @@ Why:
 - The remaining maintenance gap is the human review path for replacing a stale committed fixture safely.
 - A documented refresh workflow should make fixture updates repeatable without adding automatic writes.
 
+Delivered:
+
+- Added `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`.
+- Documented the exact maintainer sequence: export governed artifact, save it locally, run `trace:fixture:build`, inspect candidate fixture JSON, manually replace a committed fixture, run catalog/runtime gates, and review git diff.
+- Added review checks for schema version, playbook id/version, step order, approval state, writeback targets, redaction flags, tool output redaction, sensitive string search, and git diff review.
+- Linked the guide from the controlled runtime manual and documentation index.
+- Kept committed fixture replacement manual and reviewable.
+- Kept scope pure: no auto-write command, no filesystem discovery, no runtime store mutation, no tool replay, and no asset writes.
+
+Primary files:
+
+- `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`
+- `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
+- `docs/DOCUMENTATION_INDEX.zh-CN.md`
+
+Outcome:
+
+- Maintainers now have a fixed path for refreshing governed fixtures without inventing ad hoc steps.
+- The builder command remains stdout-only, and committed fixture replacement remains a reviewed manual action.
+
+## Recommended Next. Fixture Replay Depth And Golden Invariants
+
+Why:
+
+- Current pure replay catches step order, approval state, and writeback target drift.
+- As playbooks evolve, fixture replay can enforce deeper metadata invariants without executing tools.
+- This should happen before considering any real replay or replay-like tool simulation.
+
 Suggested scope:
 
-- Document the exact maintainer sequence: export governed artifact, run `trace:fixture:build`, inspect the JSON, replace a fixture manually, run `trace:fixtures`, then run `test:controlled-runtime`.
-- Add a small checklist or command recipe to the controlled runtime manual.
-- Keep committed fixture replacement manual and reviewable.
-- Keep scope pure: no auto-write command, no filesystem discovery, no runtime store mutation, no tool replay, and no asset writes.
+- Compare fixture plan metadata against current playbook schema/writeback/approval contracts more deeply.
+- Add explicit golden invariants for stable id/source key/workflow metadata where current fixtures already carry it.
+- Keep replay pure: no LLM calls, no tool execution, no API route calls, no runtime store mutation, and no asset writes.
 
 ## Completed. Support Runtime Console Record Focus
 

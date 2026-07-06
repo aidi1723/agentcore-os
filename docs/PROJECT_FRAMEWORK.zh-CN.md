@@ -127,7 +127,8 @@ User / Trigger
 - no-side-effect replay sandbox prototype 已在 `src/lib/executor/runtime/replay-sandbox.ts` 实现为 contract -> replay result artifact 的纯函数。
 - governed fixture -> replay sandbox contract bridge 已在 `src/lib/executor/runtime/replay-sandbox-fixture-contract.ts` 实现为 fixture metadata -> contract 的纯 helper。
 - catalog-level replay sandbox report 已在 `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts` 实现为 explicit catalog -> contract -> artifact 的纯报告 helper。
-- 因此下一阶段只能实现 replay sandbox catalog CI summary，不能直接写真实工具 replay。
+- replay sandbox catalog CI summary 已通过 `npm run replay:sandbox:fixtures` 实现为 compact JSON 命令。
+- 因此下一阶段只能实现 replay sandbox failure diagnostics hardening，不能直接写真实工具 replay。
 
 ## 6. 文档体系
 
@@ -266,11 +267,21 @@ git diff --check
 
 目标：
 
-- 新增本地 compact JSON command，读取 `buildReplaySandboxCatalogReport()` 的结果。
-- 当 committed fixture 不能进入 no-side-effect sandbox path 时以非零退出。
+- 已新增 `npm run replay:sandbox:fixtures`。
+- 命令读取 `buildReplaySandboxCatalogReport()` 的结果并输出 compact JSON。
+- 当 report 不通过时以非零退出；test-only failure harness 已覆盖 failed JSON 和 exit 1。
 - 保持 no route、no store、no tool execution、no business asset write 边界。
 
-### P7. Governed Fixture / Playbook Expansion
+### P7. Replay Sandbox Failure Diagnostics Hardening
+
+目标：
+
+- 新增 reusable synthetic sandbox / contract failure coverage。
+- 固定 CLI failed output 的 diagnostics shape。
+- 区分 contract bridge failure、sandbox preflight failure 和 guarantee failure。
+- 不把 failing fixture JSON 加入 committed governed fixture catalog。
+
+### P8. Governed Fixture / Playbook Expansion
 
 目标：
 
@@ -278,7 +289,7 @@ git diff --check
 - 新 fixture 必须通过 redaction、approval、writeback metadata、stable identity 和 catalog coverage 审查。
 - 新 playbook 必须先进入 spec / plan / TDD / fixture replay 边界，而不是直接接真实工具。
 
-### P8. Operational Retention And Maintenance Hardening
+### P9. Operational Retention And Maintenance Hardening
 
 目标：
 
@@ -286,7 +297,7 @@ git diff --check
 - 继续收紧 raw trace retention、fixture refresh stop condition、summary/harness drift 处理。
 - 保持 `trace:fixtures` 作为机器可读自动化合同，`trace:fixtures:summary` 作为人读 triage。
 
-### P9. Runtime-Serving UI / App Polish
+### P10. Runtime-Serving UI / App Polish
 
 目标：
 

@@ -87,8 +87,8 @@ npm run build
 Current `test:controlled-runtime` coverage:
 
 - 34 test files.
-- 179 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
+- 181 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -903,14 +903,34 @@ Outcome:
 - Committed sales/support governed fixtures now have a catalog-level report for `fixture -> contract -> no-side-effect replay artifact`.
 - The report remains no-side-effect: no real replay, no route calls, no runtime store reads/writes, no fixture JSON changes, and no asset writes.
 
-## Recommended Next. Replay Sandbox Catalog CI Summary
+## Completed. Replay Sandbox Catalog CI Summary
+
+Why:
+
+- The replay sandbox catalog report needed a local CI-style surface.
+- Maintainers need a machine-readable command that fails non-zero when committed fixtures cannot enter the no-side-effect sandbox path.
+
+Delivered:
+
+- Added `npm run replay:sandbox:fixtures`.
+- Added `scripts/trace-fixtures/replay-sandbox-catalog-report.mjs`.
+- Added compact output helper `replay-sandbox-report-output.ts`.
+- Added direct test-only failure harness proving failed reports emit parseable JSON and exit `1`.
+- Included the subprocess test in `npm run test:controlled-runtime`.
+
+Outcome:
+
+- Committed sales/support governed fixtures now have both a TypeScript report helper and a local compact JSON CI command.
+- The command remains no-side-effect: no real replay, no route calls, no runtime store reads/writes, no fixture JSON changes, and no asset writes.
+
+## Recommended Next. Replay Sandbox Failure Diagnostics Hardening
 
 Suggested scope:
 
-- Add a local compact JSON command over `buildReplaySandboxCatalogReport()`.
-- Exit non-zero when a committed fixture cannot build a contract or sandbox preflight fails.
-- Include the command in `test:controlled-runtime`.
-- Keep the command no-side-effect: no real replay, no route calls, no runtime store reads/writes, no fixture JSON changes, and no asset writes.
+- Add reusable synthetic sandbox / contract failure coverage.
+- Keep `replay:sandbox:fixtures` failed output shape stable.
+- Distinguish contract bridge failure, sandbox preflight failure, and guarantee failure diagnostics.
+- Do not add failing committed fixture JSON.
 
 ## Completed. Support Runtime Console Record Focus
 

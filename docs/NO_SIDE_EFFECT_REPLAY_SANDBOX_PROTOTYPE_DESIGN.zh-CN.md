@@ -237,10 +237,15 @@ Catalog-level replay sandbox report 已完成：
 - `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`
 - `buildReplaySandboxCatalogReport()` 汇总 explicit fixture catalog 的 contract build result、sandbox artifact、diagnostics 和 guarantees。
 
+Replay sandbox catalog CI summary 也已完成：
+
+- `npm run replay:sandbox:fixtures`
+- `scripts/trace-fixtures/replay-sandbox-catalog-report.mjs`
+
 下一阶段允许进入：
 
-**Replay Sandbox Catalog CI Summary**
+**Replay Sandbox Failure Diagnostics Hardening**
 
-该阶段可以新增本地 compact JSON command，把 replay sandbox catalog report 输出为机器可读结果，并在 report 不通过时以非零退出。
+该阶段可以新增 reusable synthetic sandbox / contract failure coverage，固定 failed JSON diagnostics shape，区分 contract bridge failure、sandbox preflight failure 和 guarantee failure。
 
 该阶段仍禁止 LLM replay、tool execution、route calls、runtime store reads/writes、business asset writes、fixture JSON changes 和 raw governed artifact payload recovery。

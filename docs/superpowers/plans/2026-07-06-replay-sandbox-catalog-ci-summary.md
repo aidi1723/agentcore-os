@@ -43,7 +43,7 @@
 **Files:**
 - Create: `src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
 
-- [ ] **Step 1: Write failing subprocess tests**
+- [x] **Step 1: Write failing subprocess tests**
 
 Create `src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`:
 
@@ -164,7 +164,7 @@ describe("replay sandbox catalog report script", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run:
 
@@ -174,7 +174,7 @@ npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts
 
 Expected: FAIL because the new npm script and harness do not exist.
 
-- [ ] **Step 3: Commit failing tests**
+- [x] **Step 3: Commit failing tests**
 
 ```bash
 git add src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts
@@ -191,7 +191,7 @@ git commit -m "test: specify replay sandbox catalog summary command"
 - Create: `scripts/trace-fixtures/replay-sandbox-catalog-report.mjs`
 - Create: `scripts/trace-fixtures/replay-sandbox-failure-harness.mjs`
 
-- [ ] **Step 1: Add compact output helper**
+- [x] **Step 1: Add compact output helper**
 
 Create `src/__tests__/fixtures/controlled-traces/replay-sandbox-report-output.ts`:
 
@@ -225,7 +225,7 @@ export function buildReplaySandboxCatalogReportOutput(
 }
 ```
 
-- [ ] **Step 2: Add committed-catalog command script**
+- [x] **Step 2: Add committed-catalog command script**
 
 Create `scripts/trace-fixtures/replay-sandbox-catalog-report.mjs`:
 
@@ -243,7 +243,7 @@ if (!report.ok) {
 }
 ```
 
-- [ ] **Step 3: Add failed-report harness**
+- [x] **Step 3: Add failed-report harness**
 
 Create `scripts/trace-fixtures/replay-sandbox-failure-harness.mjs`:
 
@@ -273,7 +273,7 @@ if (!report.ok) {
 }
 ```
 
-- [ ] **Step 4: Run targeted test before package script**
+- [x] **Step 4: Run targeted test before package script**
 
 Run:
 
@@ -283,7 +283,7 @@ npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts
 
 Expected: still FAIL because `npm run replay:sandbox:fixtures` does not exist, while direct harness resolution should now work.
 
-- [ ] **Step 5: Commit helper and scripts**
+- [x] **Step 5: Commit helper and scripts**
 
 ```bash
 git add src/__tests__/fixtures/controlled-traces/replay-sandbox-report-output.ts scripts/trace-fixtures/replay-sandbox-catalog-report.mjs scripts/trace-fixtures/replay-sandbox-failure-harness.mjs
@@ -298,7 +298,7 @@ git commit -m "feat: add replay sandbox catalog summary scripts"
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add npm script**
+- [x] **Step 1: Add npm script**
 
 Add to `scripts`:
 
@@ -306,7 +306,7 @@ Add to `scripts`:
 "replay:sandbox:fixtures": "node --import ./scripts/register-ts-alias-loader.mjs ./scripts/trace-fixtures/replay-sandbox-catalog-report.mjs"
 ```
 
-- [ ] **Step 2: Add new test to `test:controlled-runtime`**
+- [x] **Step 2: Add new test to `test:controlled-runtime`**
 
 Insert:
 
@@ -320,7 +320,7 @@ after:
 src/__tests__/lib/executor/runtime/replay-sandbox-catalog-report.test.ts
 ```
 
-- [ ] **Step 3: Run the new command**
+- [x] **Step 3: Run the new command**
 
 Run:
 
@@ -330,7 +330,7 @@ npm run replay:sandbox:fixtures --silent
 
 Expected: exit 0 with parseable JSON, `ok: true`, `total: 2`, `failed: 0`.
 
-- [ ] **Step 4: Run targeted script test and controlled runtime gate**
+- [x] **Step 4: Run targeted script test and controlled runtime gate**
 
 Run:
 
@@ -342,9 +342,9 @@ npm run test:controlled-runtime
 Expected:
 
 - targeted script test passes with 1 file / 2 tests;
-- controlled runtime gate passes with one more file and two more tests than the previous 34 files / 179 tests baseline.
+- controlled runtime gate passes with one more file and two more tests than the previous 34 files / 179 tests baseline; observed 35 files / 181 tests.
 
-- [ ] **Step 5: Commit package/gate update**
+- [x] **Step 5: Commit package/gate update**
 
 ```bash
 git add package.json
@@ -369,12 +369,12 @@ git commit -m "test: include replay sandbox catalog summary command"
 - Modify: `docs/superpowers/plans/2026-07-06-replay-sandbox-catalog-ci-summary.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Mark this plan complete**
+- [x] **Step 1: Mark this plan complete**
 
 Update this plan's task checkboxes and add completion notes with commits and
 verification evidence.
 
-- [ ] **Step 2: Update project docs**
+- [x] **Step 2: Update project docs**
 
 Record the new capability as:
 
@@ -391,7 +391,7 @@ Set the next recommended phase to:
 Replay Sandbox Failure Diagnostics Hardening
 ```
 
-- [ ] **Step 3: Update daily memory**
+- [x] **Step 3: Update daily memory**
 
 Append a concise record to `memory/2026-07-06.md` with:
 
@@ -401,7 +401,7 @@ Append a concise record to `memory/2026-07-06.md` with:
 - verification commands and observed results;
 - next recommended phase.
 
-- [ ] **Step 4: Run final verification**
+- [x] **Step 4: Run final verification**
 
 Run:
 
@@ -416,7 +416,7 @@ npm run test:core-workflows
 
 Expected: all commands exit 0.
 
-- [ ] **Step 5: Commit docs and records**
+- [x] **Step 5: Commit docs and records**
 
 ```bash
 git add CHANGELOG.md README.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/DOCUMENTATION_INDEX.zh-CN.md docs/NEXT_STEPS.md docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md docs/PROJECT_FRAMEWORK.zh-CN.md docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md docs/ROADMAP.md docs/superpowers/plans/2026-07-06-replay-sandbox-catalog-ci-summary.md
@@ -428,13 +428,38 @@ git commit -m "docs: complete replay sandbox catalog ci summary"
 
 ## Final Verification Checklist
 
-- [ ] `git diff --check`
-- [ ] `npm run replay:sandbox:fixtures --silent`
-- [ ] `npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
-- [ ] `npm run trace:fixtures --silent`
-- [ ] `npm run trace:fixtures:summary --silent`
-- [ ] `npm run test:controlled-runtime`
-- [ ] `npm run test:core-workflows`
+- [x] `git diff --check`
+- [x] `npm run replay:sandbox:fixtures --silent`
+- [x] `npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
+- [x] `npm run trace:fixtures --silent`
+- [x] `npm run trace:fixtures:summary --silent`
+- [x] `npm run test:controlled-runtime`
+- [x] `npm run test:core-workflows`
+
+## Completion Notes
+
+- Completed on: 2026-07-06
+- Commits:
+  - `0ad4df9` - `docs: spec replay sandbox catalog ci summary`
+  - `32d3512` - `docs: plan replay sandbox catalog ci summary`
+  - `139b864` - `test: specify replay sandbox catalog summary command`
+  - `a1719fa` - `feat: add replay sandbox catalog summary scripts`
+  - `88d834c` - `test: include replay sandbox catalog summary command`
+- TDD evidence:
+  - RED: `npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts` failed because the npm script and failure harness did not exist.
+  - GREEN: `npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts` passed with 1 file / 2 tests.
+- Debugging note:
+  - Node ESM script execution could not resolve extensionless relative imports in replay sandbox runtime modules.
+  - Updated replay sandbox runtime imports to use existing `@/lib/...` alias paths, matching script-compatible runtime modules such as `trace-replay.ts`.
+- Final verification:
+  - `git diff --check` - exit 0
+  - `npm run replay:sandbox:fixtures --silent` - ok true; 2 total / 2 passed / 0 failed
+  - `npm test -- src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts` - 1 file / 2 tests passed
+  - `npm run trace:fixtures --silent` - ok true; 2 total / 2 passed / 0 failed
+  - `npm run trace:fixtures:summary --silent` - Status OK
+  - `npm run test:controlled-runtime` - 35 files / 181 tests passed
+  - `npm run test:core-workflows` - all core workflow regressions passed
+- Outcome: Phase 10ab is complete. The next recommended phase is Replay Sandbox Failure Diagnostics Hardening.
 
 ## Expected Next Phase
 

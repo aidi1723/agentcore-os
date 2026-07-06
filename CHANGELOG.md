@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Replay Sandbox Catalog CI Summary
+
+- Added `npm run replay:sandbox:fixtures` for compact JSON replay sandbox catalog health.
+- The command reports committed fixture contract/artifact status and exits non-zero when the report is not green.
+- Added a test-only failure harness proving failed replay sandbox reports produce parseable JSON and exit `1`.
+- Included the script regression in `test:controlled-runtime`.
+
 ### Catalog-Level Replay Sandbox Report
 
 - Added `buildReplaySandboxCatalogReport()` for committed governed fixture catalog entries.

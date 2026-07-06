@@ -38,7 +38,7 @@ Completed in the current controlled runtime line:
 - Governed trace artifact builder and local trace artifact route.
 - Runtime Console governed trace copy action.
 - Conservative terminal-run prune helper.
-- Governed trace fixture builder, validator, committed sales/support fixtures, pure fixture replay runner, fixture catalog, catalog report, JSON summary command, human-readable summary command, failure harness, fixture builder CLI, replay sandbox fixture contract bridge, and replay sandbox catalog report.
+- Governed trace fixture builder, validator, committed sales/support fixtures, pure fixture replay runner, fixture catalog, catalog report, JSON summary command, human-readable summary command, failure harness, fixture builder CLI, replay sandbox fixture contract bridge, replay sandbox catalog report, and replay sandbox catalog CI summary command.
 - Fixture refresh workflow, replay contract, failure fixture matrix, refresh review checklist, CI gate guide, catalog coverage guide, and governed trace operational runbook.
 
 Current fixture replay remains metadata-only. It does not call LLMs, execute tools, call API routes, mutate stores, or write assets.
@@ -145,13 +145,27 @@ The report runs a pure path over committed fixtures:
 
 ### P6. Replay Sandbox Catalog CI Summary
 
-Next, add a local compact JSON command over the replay sandbox catalog report:
+Completed command reference:
+
+- `npm run replay:sandbox:fixtures`
+- `scripts/trace-fixtures/replay-sandbox-catalog-report.mjs`
+- `src/__tests__/scripts/replay-sandbox-catalog-report-script.test.ts`
+
+The command:
 
 - print aggregate fixture/contract/artifact health,
 - exit non-zero when a committed fixture cannot enter the no-side-effect sandbox path,
 - preserve the same no-route, no-store, no-tool, no-asset-write boundary.
 
-### P7. Governed Fixture And Playbook Expansion
+### P7. Replay Sandbox Failure Diagnostics Hardening
+
+Next, add reusable synthetic sandbox / contract failure coverage:
+
+- keep CLI failed output stable,
+- map failures to contract bridge vs sandbox preflight vs guarantee diagnostics,
+- avoid adding failing committed fixture JSON.
+
+### P8. Governed Fixture And Playbook Expansion
 
 Expand only when the current governed trace/replay gates stay stable:
 
@@ -159,7 +173,7 @@ Expand only when the current governed trace/replay gates stay stable:
 - add new controlled playbooks only through spec -> plan -> tests -> fixture/replay gates,
 - do not use fixture expansion as a substitute for real replay boundary design.
 
-### P8. Trace Operations Hardening
+### P9. Trace Operations Hardening
 
 Turn the governed trace operational runbook into a tighter maintenance path:
 
@@ -169,7 +183,7 @@ Turn the governed trace operational runbook into a tighter maintenance path:
 - summary/harness drift checks,
 - clearer handoff records for fixture replacement.
 
-### P9. Runtime-Supporting UI And App Polish
+### P10. Runtime-Supporting UI And App Polish
 
 Polish UI only when it serves runtime operation:
 

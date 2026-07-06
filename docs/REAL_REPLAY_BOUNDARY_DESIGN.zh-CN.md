@@ -333,10 +333,14 @@ Catalog-level replay sandbox report 也已完成：
 
 - `src/__tests__/fixtures/controlled-traces/replay-sandbox-report.ts`
 
+Replay sandbox catalog CI summary 也已完成：
+
+- `npm run replay:sandbox:fixtures`
+
 下一阶段允许进入：
 
-**Replay Sandbox Catalog CI Summary**
+**Replay Sandbox Failure Diagnostics Hardening**
 
-该阶段只能实现本地 compact JSON command，把 committed fixture catalog 的 fixture metadata -> `ReplaySandboxContract` -> no-side-effect replay result artifact 报告输出为机器可读结果。
+该阶段只能新增 synthetic failure coverage 和 diagnostics hardening，用于固定 replay sandbox catalog failed output。仍不能进入真实 replay。
 
 该阶段仍不能实现真实工具 replay，不能调用 route，不能读写 runtime store，不能写业务资产，不能恢复 raw governed artifact payload。

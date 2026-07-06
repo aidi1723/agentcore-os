@@ -15,6 +15,8 @@ import type { WorkflowContextMeta } from "@/lib/workflow-context";
 export type SettingsTargetTab = "llm" | "engine" | "matrix" | "personalization";
 
 export type DealDeskPrefill = {
+  assetId?: string;
+  sourceKey?: string;
   company?: string;
   contact?: string;
   inquiryChannel?: string;
@@ -47,6 +49,9 @@ export type PersonalCrmPrefill = {
 } & SalesWorkflowMeta;
 
 export type KnowledgeVaultPrefill = {
+  assetId?: string;
+  sourceKey?: string;
+  workflowRunId?: string;
   query?: string;
 };
 

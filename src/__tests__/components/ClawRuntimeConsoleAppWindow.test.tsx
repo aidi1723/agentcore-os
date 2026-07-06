@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ClawRuntimeConsoleAppWindow } from "@/components/apps/ClawRuntimeConsoleAppWindow";
 import type { ControlledExecutionRunRecord } from "@/lib/executor/runtime/types";
+import { requestOpenDealDesk, requestOpenKnowledgeVault } from "@/lib/ui-events";
 
 vi.mock("@/components/windows/AppWindowShell", () => ({
   AppWindowShell: ({ children }: { children: React.ReactNode }) => (
@@ -131,6 +132,73 @@ function buildRetryableFailedRun(): ControlledExecutionRunRecord {
   };
 }
 
+function buildCompletedRunWithAssetLandings(): ControlledExecutionRunRecord {
+  return {
+    id: "run-assets-1",
+    requestId: "request-assets-1",
+    sessionId: "session-assets-1",
+    workflowRunId: "workflow-assets-1",
+    scenarioId: "sales-pipeline",
+    playbookId: "sales-pipeline-v1",
+    playbookVersion: "1.0.0",
+    planId: "plan-assets-1",
+    state: "completed",
+    currentStepId: "writeback",
+    createdAt: 1,
+    updatedAt: 2,
+    finishedAt: 2,
+    auditEvents: [],
+    plan: {
+      id: "plan-assets-1",
+      goal: "Asset landing run",
+      requiresApproval: false,
+      totalSteps: 1,
+      steps: [
+        {
+          id: "writeback",
+          title: "Write assets",
+          description: "Write controlled assets",
+          toolCalls: [],
+          dependsOn: [],
+          mode: "auto",
+        },
+      ],
+    },
+    steps: [
+      {
+        stepId: "writeback",
+        state: "completed",
+        startedAt: 1,
+        finishedAt: 2,
+        input: {},
+        output: {},
+        attempts: 1,
+        toolCallResults: [],
+        writebackReceipts: [
+          {
+            target: "sales_asset",
+            ok: true,
+            summary: "Wrote sales asset sales-asset-1",
+            writtenAt: 2,
+            assetId: "sales-asset-1",
+            sourceKey: "controlled-run:run-assets-1:sales_asset",
+            workflowRunId: "workflow-assets-1",
+          },
+          {
+            target: "knowledge_asset",
+            ok: true,
+            summary: "Wrote knowledge asset knowledge-asset-1",
+            writtenAt: 2,
+            assetId: "knowledge-asset-1",
+            sourceKey: "controlled-run:run-assets-1:knowledge_asset",
+            workflowRunId: "workflow-assets-1",
+          },
+        ],
+      },
+    ],
+  };
+}
+
 describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
   it("posts retry requests for eligible failed controlled runs", async () => {
     const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
@@ -180,5 +248,58 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
         { method: "POST" },
       );
     });
+  });
+
+  it("passes record focus metadata when opening controlled run asset landings", async () => {
+    const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
+      const href = String(url);
+      if (href.endsWith("/api/runtime/executor/controlled-runs")) {
+        return Response.json({
+          ok: true,
+          data: { runs: [buildCompletedRunWithAssetLandings()] },
+        });
+      }
+      if (href.endsWith("/api/runtime/executor/sessions")) {
+        return Response.json({ ok: true, data: { sessions: [] } });
+      }
+      return Response.json({ ok: true, data: {} });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ClawRuntimeConsoleAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Asset landing run").length).toBeGreaterThan(0);
+    });
+
+    const openButtons = await screen.findAllByRole("button", { name: "打开" });
+    expect(openButtons).toHaveLength(2);
+    fireEvent.click(openButtons[0]);
+    fireEvent.click(openButtons[1]);
+
+    expect(requestOpenDealDesk).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assetId: "sales-asset-1",
+        workflowRunId: "workflow-assets-1",
+        workflowScenarioId: "sales-pipeline",
+      }),
+    );
+    expect(requestOpenKnowledgeVault).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assetId: "knowledge-asset-1",
+        sourceKey: "controlled-run:run-assets-1:knowledge_asset",
+        workflowRunId: "workflow-assets-1",
+        query: "knowledge-asset-1",
+      }),
+    );
   });
 });

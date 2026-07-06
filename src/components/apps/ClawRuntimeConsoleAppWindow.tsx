@@ -484,6 +484,8 @@ export function ClawRuntimeConsoleAppWindow({
   const handleOpenControlledRunAsset = (asset: ControlledRunAssetLandingSummary) => {
     if (asset.appId === "deal_desk") {
       requestOpenDealDesk({
+        assetId: asset.assetId,
+        sourceKey: asset.sourceKey,
         workflowRunId: asset.workflowRunId ?? selectedControlledRunSummary?.workflowRunId,
         workflowScenarioId: selectedControlledRunSummary?.scenarioId,
         workflowSource: `Runtime Console asset ${asset.assetId ?? asset.target}`,
@@ -496,6 +498,9 @@ export function ClawRuntimeConsoleAppWindow({
 
     if (asset.appId === "knowledge_vault") {
       requestOpenKnowledgeVault({
+        assetId: asset.assetId,
+        sourceKey: asset.sourceKey,
+        workflowRunId: asset.workflowRunId ?? selectedControlledRunSummary?.workflowRunId,
         query: asset.assetId ?? asset.sourceKey ?? asset.detail,
       });
       showToast("已打开 Knowledge Vault", "ok");

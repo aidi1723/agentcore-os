@@ -104,6 +104,12 @@
 
 ## Unreleased
 
+### License Migration
+
+- Changed current repository source license metadata from Apache-2.0 to GPL-3.0-or-later.
+- Added a license change notice preserving the historical Apache-2.0 boundary for previously published versions.
+- Updated README, NOTICE, package metadata, and open-source release checklist to reflect the new license.
+
 ### Project Direction Documentation Alignment
 
 - Aligned README, project framework, roadmap, architecture, documentation index, and next-stage backlog around the current Controlled Skill / Playbook Runtime branch.

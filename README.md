@@ -1,7 +1,7 @@
 # AgentCore OS（智枢 OS）
 
 [![CI](https://github.com/aidi1723/agentcore-os/actions/workflows/ci.yml/badge.svg)](https://github.com/aidi1723/agentcore-os/actions/workflows/ci.yml)
-[![License: Apache_2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License: GPL v3+](https://img.shields.io/badge/License-GPLv3%2B-blue.svg)](LICENSE)
 
 AgentCore OS 是一个**本地优先、面向真实工作的 AI 工作底座**。
 它不是只会聊天的单点工具，而是把模型、文件、工具、审批、连接器和工作流资产，放进一个可持续积累的本地工作系统里。
@@ -187,11 +187,12 @@ npm run test:stability
 
 ## 开源协议
 
-AgentCore OS 采用 **Apache License 2.0** 开源。
+AgentCore OS 当前源代码自本次许可证迁移起采用 **GNU General Public License v3.0 or later（GPL-3.0-or-later）** 开源。
 
 请注意：
 
-- **本仓库源代码** 按 Apache-2.0 许可发布
+- **当前仓库源代码** 按 GPL-3.0-or-later 许可发布
+- **历史上已经按 Apache-2.0 发布的版本** 继续保留原 Apache-2.0 授权边界；本次迁移不撤销既有授权
 - **Logo、商标、产品名和品牌资产** 不默认随软件许可证一起授权，除非另有明确说明
 - 第三方依赖仍遵循各自原有许可证
 
@@ -199,3 +200,4 @@ AgentCore OS 采用 **Apache License 2.0** 开源。
 
 - [LICENSE](LICENSE)
 - [NOTICE](NOTICE)
+- [许可证迁移说明](docs/LICENSE_CHANGE_NOTICE.md)

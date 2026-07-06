@@ -41,6 +41,15 @@ Confirm these files exist and are current:
 - `CONTRIBUTING.md`
 - `CODE_OF_CONDUCT.md`
 - `docs/PRIVACY.md`
+- `docs/LICENSE_CHANGE_NOTICE.md`
+
+License migration checks:
+
+- `package.json` uses `GPL-3.0-or-later`
+- README badge and license section match GPLv3+
+- `NOTICE` states GPL-3.0-or-later for the current source
+- release notes preserve the historical Apache-2.0 boundary when relevant
+- brand/trademark and third-party dependency carve-outs remain visible
 
 ## 4) Verify repository presentation
 

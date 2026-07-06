@@ -14,6 +14,7 @@
 
 - Replace `LICENSE`: GNU GPL version 3 canonical text from `https://www.gnu.org/licenses/gpl-3.0.txt`.
 - Modify `package.json`: set `"license": "GPL-3.0-or-later"`.
+- Modify `package-lock.json`: set the root package license to `"GPL-3.0-or-later"` while leaving dependency license entries untouched.
 - Modify `README.md`: update license badge and open-source protocol section.
 - Modify `NOTICE`: update current source license and keep brand/trademark carve-out.
 - Modify `docs/OPEN_SOURCE_CHECKLIST.md`: add migration-specific license checks.
@@ -26,6 +27,7 @@
 **Files:**
 - Modify: `LICENSE`
 - Modify: `package.json`
+- Modify: `package-lock.json`
 
 - [ ] **Step 1: Verify downloaded GPLv3 source**
 
@@ -53,7 +55,7 @@
 
 - [ ] **Step 3: Update package license metadata**
 
-  Change `package.json`:
+  Change `package.json` and the root package record in `package-lock.json`:
 
   ```json
   "license": "GPL-3.0-or-later"
@@ -66,12 +68,13 @@
   ```bash
   sed -n '1,8p' LICENSE
   rg -n '"license": "GPL-3.0-or-later"' package.json
+  sed -n '1,16p' package-lock.json
   ```
 
   Expected:
 
   - GPLv3 header is present.
-  - package license field matches `GPL-3.0-or-later`.
+  - package license fields match `GPL-3.0-or-later`.
 
 ## Task 2: Update Public License Documents
 
@@ -197,7 +200,7 @@
   Run:
 
   ```bash
-  git add LICENSE package.json README.md NOTICE docs/OPEN_SOURCE_CHECKLIST.md docs/LICENSE_CHANGE_NOTICE.md CHANGELOG.md
+  git add LICENSE package.json package-lock.json README.md NOTICE docs/OPEN_SOURCE_CHECKLIST.md docs/LICENSE_CHANGE_NOTICE.md CHANGELOG.md docs/superpowers/specs/2026-07-06-gplv3-license-migration-design.md docs/superpowers/plans/2026-07-06-gplv3-license-migration.md
   git commit -m "docs: migrate project license to gplv3"
   ```
 

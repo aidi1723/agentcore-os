@@ -3,6 +3,10 @@ Copyright 2026 OpenClaw OS Contributors
 
 This product includes software developed by the AgentCore OS contributors.
 
-Source code in this repository is licensed under the Apache License 2.0.
+Source code in this repository is licensed under the GNU General Public
+License version 3 or later (GPL-3.0-or-later) from the license migration
+commit onward.
+Previously published Apache-2.0 versions keep their historical Apache-2.0
+license boundary; this migration does not revoke existing grants.
 Logos, trademarks, and brand assets are not granted under the software license
 unless explicitly stated otherwise.

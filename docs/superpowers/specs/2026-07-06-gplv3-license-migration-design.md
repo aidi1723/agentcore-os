@@ -52,6 +52,7 @@ Update:
 
 - `LICENSE`
 - `package.json`
+- `package-lock.json`
 - `README.md`
 - `NOTICE`
 - `docs/OPEN_SOURCE_CHECKLIST.md`
@@ -63,7 +64,6 @@ Do not update:
 
 - runtime source code,
 - dependency versions,
-- package lock files unless a verification tool changes them,
 - release tags,
 - remote repository settings,
 - publication channels.

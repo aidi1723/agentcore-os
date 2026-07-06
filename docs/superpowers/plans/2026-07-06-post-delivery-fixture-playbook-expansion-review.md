@@ -174,7 +174,7 @@ rg "Recommended Next\\. Governed Fixture And Playbook Expansion Review|当前下
 
 Expected: no matches after docs are aligned.
 
-- [ ] **Step 3: Commit record alignment**
+- [x] **Step 3: Commit record alignment**
 
 ```bash
 git add docs/NEXT_STEPS.md docs/ROADMAP.md docs/PROJECT_FRAMEWORK.zh-CN.md docs/DOCUMENTATION_INDEX.zh-CN.md CHANGELOG.md docs/superpowers/plans/2026-07-06-post-delivery-fixture-playbook-expansion-review.md
@@ -184,7 +184,7 @@ git commit -m "docs: record post-delivery expansion decision"
 
 ## Task 4: Final Verification
 
-- [ ] **Step 1: Run focused verification**
+- [x] **Step 1: Run focused verification**
 
 ```bash
 git diff --check
@@ -195,7 +195,7 @@ npm run replay:sandbox:fixtures --silent
 
 Expected: all exit 0.
 
-- [ ] **Step 2: Run controlled runtime gate**
+- [x] **Step 2: Run controlled runtime gate**
 
 ```bash
 npm run test:controlled-runtime
@@ -203,7 +203,7 @@ npm run test:controlled-runtime
 
 Expected: all controlled runtime tests pass.
 
-- [ ] **Step 3: Record completion**
+- [x] **Step 3: Record completion**
 
 Update this plan with final verification output and commit if needed.
 
@@ -213,10 +213,26 @@ Implementation status:
 
 - `29bffe5` added the governed fixture/playbook coverage regression.
 - `475b12d` added the post-delivery expansion review document.
-- Project record alignment is in progress.
+- `458661d` aligned project records around the post-delivery expansion decision.
 
 RED/GREEN evidence:
 
 - RED: `npm test -- src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` failed when the coverage assertion expected an extra `missing-playbook`.
 - GREEN: the same command passed after restoring the real invariant.
 - Stale status scan passed across README, changelog, documentation index, Next Steps, Roadmap, Project Framework, and Runtime Console audit.
+
+Final verification:
+
+- `git diff --check` — exit 0.
+- `npm test -- src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts` — 1 file / 8 tests passed.
+- `npm run trace:fixtures --silent` — exit 0; 2 total / 2 passed / 0 failed.
+- `npm run replay:sandbox:fixtures --silent` — exit 0; 2 total / 2 passed / 0 failed.
+- `npm run test:controlled-runtime` — 38 files / 196 tests passed.
+- `npm run delivery:demo:check` — exit 0; `ok: true`, `diagnostics: []`.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+
+Current next phase:
+
+- Trace Operations Hardening.

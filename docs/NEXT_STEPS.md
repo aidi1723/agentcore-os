@@ -54,6 +54,7 @@ Completed in the current controlled runtime line:
 - Server-backed support asset writeback and support FAQ knowledge writeback.
 - Runtime Console support asset landing summaries, search, and open action.
 - Governed trace artifact builder and local trace artifact route.
+- Runtime Console governed trace copy action and conservative terminal-run prune helper.
 
 Current verification baseline:
 
@@ -67,8 +68,8 @@ npm run build
 Current `test:controlled-runtime` coverage:
 
 - 23 test files.
-- 132 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, and the local trace artifact route.
+- 134 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, and retention prune safety.
 
 Known current lint/build note:
 
@@ -303,30 +304,49 @@ Outcome:
 - Controlled run trace now has a safe artifact boundary for future export and fixture generation.
 - Runtime Console operations continue to use the full local run record without losing resume/retry behavior.
 
-## P0. Trace Governance Console Export And Retention
+## Completed. Trace Governance Console Export And Retention
 
-Why:
+Delivered:
 
-- The safe artifact boundary exists, but operators still need a Runtime Console action to inspect/export it.
-- Retention and cleanup rules are still not codified.
-
-Scope:
-
-- Add a Runtime Console action for governed trace artifact preview/copy/download.
-- Define retention policy for raw controlled run records.
-- Add cleanup / pruning path for old traces.
-- Add trace-to-test fixture generation from governed artifacts.
+- Added export metadata to `GET /api/runtime/executor/controlled-runs/[runId]/trace-artifact`.
+- Runtime Console selected run detail now includes `Governed trace` and `复制脱敏 Trace`.
+- Console export fetches the governed artifact route and copies `{ export, artifact }` JSON.
+- Console export does not serialize the raw selected run record.
+- Added `ControlledRunRetentionPolicy` and `pruneControlledExecutionRuns()` to the controlled execution store.
+- Retention pruning removes only old terminal runs and keeps `running` / `awaiting_approval` runs.
+- Retention pruning keeps at least `minTerminalRunsToKeep` terminal runs.
 
 Primary files:
 
-- `src/lib/executor/runtime/trace-governance.ts`
+- `src/app/api/runtime/executor/controlled-runs/[runId]/trace-artifact/route.ts`
 - `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
 - `src/lib/server/controlled-execution-store.ts`
+- `src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts`
+- `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
+- `src/__tests__/lib/server/controlled-execution-store.test.ts`
+
+Outcome:
+
+- Operators can copy a governed trace artifact from Runtime Console without exposing raw step payloads.
+- Raw controlled run cleanup now has a tested conservative helper.
+
+## P0. Trace Fixture Generation And Replay
+
+Why:
+
+- Governed trace artifacts can now be copied from Runtime Console.
+- The next reliability gain is turning governed artifacts into replayable regression fixtures.
+
+Scope:
+
+- `src/lib/executor/runtime/trace-governance.ts`
+- `src/lib/executor/runtime/trace-fixtures.ts`
+- `src/__tests__/fixtures/controlled-traces/`
 - `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
 
 Expected outcome:
 
-- Operators can export governed trace artifacts and the runtime has explicit raw trace retention rules.
+- Selected governed trace artifacts can become stable regression fixtures without leaking raw customer payloads.
 
 ## Maintenance Rules
 

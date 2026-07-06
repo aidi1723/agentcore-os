@@ -292,7 +292,7 @@ git commit -m "feat: prune terminal controlled runs"
 - Modify: `docs/superpowers/plans/2026-07-06-trace-governance-console-export-retention.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run targeted verification**
+- [x] **Step 1: Run targeted verification**
 
 Run:
 
@@ -302,7 +302,7 @@ npm test -- src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts sr
 
 Expected: PASS.
 
-- [ ] **Step 2: Run full verification**
+- [x] **Step 2: Run full verification**
 
 Run:
 
@@ -316,7 +316,7 @@ git diff --check
 
 Expected: all commands exit 0. `lint` and `build` may show only the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 
-- [ ] **Step 3: Update docs and records**
+- [x] **Step 3: Update docs and records**
 
 Record:
 
@@ -326,7 +326,7 @@ Record:
 - verification results;
 - next recommended phase.
 
-- [ ] **Step 4: Re-run final verification after docs**
+- [x] **Step 4: Re-run final verification after docs**
 
 Run:
 
@@ -340,7 +340,7 @@ git diff --check
 
 Expected: all commands exit 0 with only the known existing `<img>` warning if present.
 
-- [ ] **Step 5: Commit docs**
+- [x] **Step 5: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-trace-governance-console-export-retention.md
@@ -354,3 +354,33 @@ git commit -m "docs: complete trace governance export retention"
 - Spec coverage: console export, route metadata, retention pruning, tests, docs, and verification all have explicit tasks.
 - Placeholder scan: no TBD/TODO/fill-in-later markers.
 - Type consistency: route response uses `data.export`, console action serializes `{ export, artifact }`, and retention helper returns `{ prunedRunIds, keptRunIds }`.
+
+## Completion Record
+
+Commits:
+
+- `447705b` — `docs: spec trace governance export retention`
+- `6366937` — `feat: add trace artifact export metadata`
+- `0bb55cc` — `feat: copy governed trace artifacts from console`
+- `d415165` — `feat: prune terminal controlled runs`
+
+Verification before final docs:
+
+- `npm test -- src/__tests__/app/api/controlled-run-trace-artifact-route.test.ts src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx src/__tests__/lib/server/controlled-execution-store.test.ts` — 3 files / 14 tests passed.
+- `npm run test:controlled-runtime` — 23 files / 134 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
+
+Final verification after docs:
+
+- `npm run test:controlled-runtime` — 23 files / 134 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
+
+Next phase:
+
+- `Trace Fixture Generation And Replay`.

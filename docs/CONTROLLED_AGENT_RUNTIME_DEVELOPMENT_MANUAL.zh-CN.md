@@ -360,17 +360,18 @@ type ControlledPlaybookStep = {
 - Phase 10k fixture replay depth and golden invariants：pure replay 已进一步校验 playbook version、scenario、plan id、step count、approval flag、completed attempts、approval terminal state，以及成功 writeback receipt 的 `assetId` / `sourceKey` / `workflowRunId` 稳定 metadata。该阶段仍然不重放工具、不调用 API、不读写 store、不写资产。
 - Phase 10l fixture replay contract documentation：已新增 `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`，把 replay invariant matrix、diagnostics fields 和 failure triage 文档化，并从 fixture refresh workflow 链接过去。
 - Phase 10m fixture replay error summary CLI：已新增 `npm run trace:fixtures:summary`，从同一个 catalog report 输出 human-readable replay summary；原有 `npm run trace:fixtures` 继续保持 machine-readable JSON。该命令不发现 fixture、不刷新 fixture、不调用 route、不重放工具、不读写 store、不写资产。
+- Phase 10n fixture replay failure fixture tests：已新增 test-only reusable synthetic failure fixture factories，用于 report/summary drift 覆盖；committed governed fixture catalog 继续保持全绿，不新增 failing catalog JSON，不发现 fixture、不刷新 fixture、不调用 route、不重放工具、不读写 store、不写资产。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- Summary/report 测试目前只有内联 synthetic failure，后续可以沉淀 reusable synthetic failure fixtures，便于扩展更多 drift 场景。
+- Summary/report process-level 非零退出行为还缺少可注入 failed catalog input 的专用测试 harness，不能通过让 committed fixture command 失败来覆盖。
 
 因此下一阶段默认进入：
 
-**Phase 10n. Fixture Replay Failure Fixture Tests**
+**Phase 10o. Fixture Replay Failure Exit-Code Harness**
 
-目标是为 report/summary 测试增加 reusable synthetic failure fixtures，同时保持 committed governed fixtures 全绿，并继续避免自动发现 fixture、刷新 fixture、调用 route、重放工具、读写 store 或写资产。
+目标是在不改变 committed fixture commands 全绿状态的前提下，为 report/summary 的非零退出行为建立 focused harness。该阶段仍然避免自动发现 fixture、刷新 fixture、调用 route、重放工具、读写 store 或写资产。
 
 ### Phase 0. 冻结方向
 

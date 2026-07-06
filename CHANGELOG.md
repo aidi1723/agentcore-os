@@ -219,6 +219,12 @@
 - Added `npm run trace:fixtures:summary` as a human-readable governed fixture replay summary command while keeping `npm run trace:fixtures` as stable JSON.
 - Added synthetic failure coverage for summary diagnostics without making committed governed fixtures fail.
 
+### Fixture Replay Failure Fixture Tests
+
+- Added reusable synthetic governed trace failure fixture factories for report and summary tests.
+- Extended catalog report coverage for version drift and missing stable writeback metadata without adding failing fixtures to the committed catalog.
+- Refactored summary failure diagnostics coverage to use reusable synthetic fixtures instead of inline fixture mutation.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

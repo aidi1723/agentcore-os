@@ -538,7 +538,7 @@ Outcome:
 - Maintainers can run one local command to see replay health in readable text.
 - CI and automation can continue consuming the original JSON summary.
 
-## Recommended Next. Fixture Replay Failure Fixture Tests
+## Completed. Fixture Replay Failure Fixture Tests
 
 Why:
 
@@ -546,11 +546,38 @@ Why:
 - More reusable synthetic failure fixtures would make future report/summary tests easier to extend.
 - These fixtures should remain separate from committed governed fixtures so catalog health stays green.
 
+Delivered:
+
+- Added reusable synthetic failure fixture factories under the test fixture boundary.
+- Covered playbook version drift and missing stable writeback metadata as reusable catalog entries.
+- Extended catalog report tests to cover multiple reusable failed entries while preserving no-side-effect guarantees.
+- Refactored summary failure diagnostics coverage to use `buildCombinedSummaryFailureCatalogEntry()` instead of inline mutation.
+- Kept committed governed fixtures green.
+
+Primary files:
+
+- `src/__tests__/fixtures/controlled-traces/synthetic-failures.ts`
+- `src/__tests__/lib/executor/runtime/trace-fixture-catalog.test.ts`
+- `src/__tests__/scripts/trace-fixture-catalog-summary-script.test.ts`
+
+Outcome:
+
+- Future report and summary drift coverage can reuse explicit failure factories.
+- The committed catalog remains a green source of truth for CI and fixture health.
+
+## Recommended Next. Fixture Replay Failure Exit-Code Harness
+
+Why:
+
+- The report builder and summary formatter can now consume reusable synthetic failed entries.
+- The committed CLI commands must stay green, so process-level non-zero behavior needs a focused harness that can inject failed catalog inputs without altering the committed catalog scripts.
+- This keeps exit-code coverage separate from fixture discovery, refresh, route calls, tool replay, store mutation, and asset writes.
+
 Suggested scope:
 
-- Add reusable synthetic failure fixtures for summary/report tests.
-- Keep committed governed fixtures green.
-- Avoid automatic fixture discovery, refresh, route calls, tool replay, store mutation, and asset writes.
+- Add a focused test harness for non-zero report/summary process behavior using synthetic failed catalog inputs.
+- Keep `npm run trace:fixtures` and `npm run trace:fixtures:summary` green for committed fixtures.
+- Avoid route calls, tool replay, store mutation, asset writes, fixture refresh, and automatic fixture discovery.
 
 ## Completed. Support Runtime Console Record Focus
 

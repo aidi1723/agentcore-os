@@ -1,6 +1,6 @@
 # Architecture
 
-Last updated: 2026-07-05
+Last updated: 2026-07-06
 
 ## Current Architecture Direction
 
@@ -12,6 +12,8 @@ For the full project frame, read:
 
 - [Project Framework](PROJECT_FRAMEWORK.zh-CN.md)
 - [Controlled Agent Runtime Development Manual](CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
+- [Next Steps](NEXT_STEPS.md)
+- [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
 
 ## High-Level Runtime Stack
 
@@ -39,6 +41,7 @@ Primary files:
 - `src/lib/executor/playbooks/resolver.ts`
 - `src/lib/executor/playbooks/validator.ts`
 - `src/lib/executor/playbooks/sales-pipeline.ts`
+- `src/lib/executor/playbooks/support-resolution.ts`
 
 Responsibilities:
 
@@ -49,9 +52,10 @@ Responsibilities:
 - declare writeback targets,
 - provide stable execution plans for controlled runs.
 
-Current first path:
+Current controlled paths:
 
 - `sales-pipeline-v1`
+- `support-resolution-v1`
 
 ### Executor Core
 
@@ -82,6 +86,9 @@ Primary files:
 - `src/lib/executor/runtime/resume.ts`
 - `src/lib/executor/runtime/writeback.ts`
 - `src/lib/executor/runtime/console-summary.ts`
+- `src/lib/executor/runtime/trace-governance.ts`
+- `src/lib/executor/runtime/trace-fixtures.ts`
+- `src/lib/executor/runtime/trace-replay.ts`
 
 Responsibilities:
 
@@ -89,7 +96,10 @@ Responsibilities:
 - persist approval records,
 - support resume / recovery,
 - write approved outputs into assets,
-- summarize recent runs for Runtime Console.
+- summarize recent runs for Runtime Console,
+- build governed trace artifacts,
+- build and validate governed trace fixtures,
+- replay committed fixtures against current playbook metadata without side effects.
 
 ### APIs
 
@@ -100,6 +110,8 @@ Primary routes:
 - `GET /api/runtime/executor/controlled-runs`
 - `GET /api/runtime/executor/controlled-runs/[runId]`
 - `POST /api/runtime/executor/controlled-runs/[runId]/resume`
+- `POST /api/runtime/executor/controlled-runs/[runId]/retry`
+- `GET /api/runtime/executor/controlled-runs/[runId]/trace-artifact`
 
 Rules:
 
@@ -120,8 +132,10 @@ Responsibilities:
 - show approval state and schema state,
 - approve / reject pending steps,
 - resume non-terminal runs,
+- retry eligible failed runs,
 - show asset landing metadata,
-- open Deal Desk / Knowledge Vault from successful asset landings.
+- open Deal Desk / Support Copilot / Knowledge Vault / Industry Hub / Publisher from successful asset landings,
+- copy governed trace artifacts through the local trace artifact route.
 
 The console is an operations surface, not a decorative dashboard.
 
@@ -142,6 +156,7 @@ Architectural rule:
 For example:
 
 - Deal Desk can display and continue sales work.
+- Support Copilot can display and continue support work.
 - Knowledge Vault can display retained knowledge.
 - Runtime Console owns controlled run operation and trace review.
 
@@ -166,19 +181,32 @@ See:
 Controlled writeback currently supports:
 
 - `sales_asset`
+- `support_asset`
 - `knowledge_asset`
+- `workflow_run`
+- `draft`
 
 Writeback rules:
 
 - approved output can be written,
 - rejected or unapproved output is skipped,
 - successful receipts include structured `assetId`, `sourceKey`, and `workflowRunId` when available,
-- unsupported targets remain explicit skipped receipts.
+- repeated resume / writeback paths should update existing records instead of creating duplicates,
+- unsupported future targets must remain explicit skipped receipts until wired to a server-backed store.
 
-Still pending:
+## Governed Trace And Fixture Replay
 
-- `workflow_run`
-- `draft`
+Current governed trace capabilities:
+
+- export-safe governed trace artifacts redact raw step input/output, tool output, approval feedback, audit messages, and free-form errors,
+- Runtime Console copies governed artifacts instead of raw run records,
+- committed sales/support governed fixtures validate current playbook metadata,
+- fixture replay is pure metadata validation: no LLM calls, no tool execution, no API route calls, no store mutation, and no asset writes,
+- `npm run trace:fixtures` is the machine-readable fixture catalog health gate,
+- `npm run trace:fixtures:summary` is the human-readable triage view,
+- `npm run trace:fixture:build -- <artifact.json>` converts one governed artifact into fixture JSON on stdout for manual review.
+
+Real replay is not implemented. Future real replay work must first define sandbox, credential, approval simulation, store isolation, side-effect blocking, and replay result ownership boundaries.
 
 ## Compatibility Layers
 

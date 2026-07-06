@@ -14,8 +14,10 @@ import { requestOpenClawAgent, requestRealityCheck } from "@/lib/openclaw-agent-
 import { upsertKnowledgeAsset } from "@/lib/knowledge-assets";
 import {
   getSupportAssetByWorkflowRunId,
+  getSupportAssetForFocus,
   subscribeSupportAssets,
   upsertSupportAsset,
+  type SupportAssetRecord,
 } from "@/lib/support-assets";
 import { buildSupportWorkflowMeta, getSupportWorkflowScenario } from "@/lib/support-workflow";
 import {
@@ -67,6 +69,19 @@ function getDefaultTriggerType(ticket: SupportTicket): WorkflowTriggerType {
   return ticket.workflowTriggerType ?? "manual";
 }
 
+function hasSupportRecordFocus(detail?: SupportCopilotPrefill | null) {
+  return Boolean(detail?.assetId || detail?.sourceKey);
+}
+
+function findTicketForSupportAsset(asset: SupportAssetRecord) {
+  const tickets = getSupportTickets();
+  return (
+    tickets.find((ticket) => asset.ticketId && ticket.id === asset.ticketId) ??
+    tickets.find((ticket) => ticket.workflowRunId === asset.workflowRunId) ??
+    null
+  );
+}
+
 export function SupportCopilotAppWindow({
   state,
   zIndex,
@@ -102,6 +117,18 @@ export function SupportCopilotAppWindow({
   useEffect(() => {
     const onPrefill = (event: Event) => {
       const detail = (event as CustomEvent<SupportCopilotPrefill>).detail;
+      if (hasSupportRecordFocus(detail)) {
+        const asset = getSupportAssetForFocus(detail);
+        const targetTicket = asset ? findTicketForSupportAsset(asset) : null;
+        if (targetTicket) {
+          setSelectedId(targetTicket.id);
+          showToast("已定位到客服工单", "ok");
+          return;
+        }
+        showToast("未找到对应客服工单", "error");
+        return;
+      }
+
       const id = createSupportTicket({
         customer: detail?.customer ?? "",
         channel: detail?.channel ?? "email",

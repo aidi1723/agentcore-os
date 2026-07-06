@@ -118,6 +118,13 @@
 - Added server-backed controlled writeback for `workflow_run` and `draft` targets.
 - Made workflow run writeback idempotent by stable `workflowRunId` and draft writeback idempotent by `controlled-draft:{workflowRunId}`.
 - Final approved writeback now records `sales_asset`, `knowledge_asset`, and `workflow_run` receipts, while draft writeback is produced from the `draft_outreach` step.
+
+### Runtime Console Record Focus
+
+- Extended support asset lookup with exact `assetId`, stable `sourceKey`, and `workflowRunId` fallback helpers.
+- Runtime Console support asset landings now pass `assetId`, `sourceKey`, and workflow context into Support Copilot.
+- Support Copilot treats exact support asset prefills as record-focus requests, selects the related existing support ticket, and keeps broad support handoffs on the existing new-ticket path.
+- Added pending hydration retry for support asset focus and a visible missing-record error that does not create synthetic support tickets.
 - Added unit and resume integration coverage for approved writeback, unapproved skips, workflow/draft writes, idempotency, and final resume-driven asset creation.
 
 ### Runtime Console Trace Landing

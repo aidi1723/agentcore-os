@@ -250,21 +250,17 @@ Outcome:
 - Approved support runs write support assets, FAQ knowledge assets, drafts, and completed workflow runs.
 - Support writeback is covered by `test:controlled-runtime`.
 
-## P0. Support Runtime Console Record Focus
+## Completed. Support Runtime Console Record Focus
 
-Why:
+Delivered:
 
-- Runtime Console can now expose and open support asset landings.
-- The current open action passes workflow context to Support Copilot, but it does not yet focus the exact written support asset or related support ticket.
-- This is the support equivalent of the Deal Desk / Knowledge Vault record-focus work.
-
-Scope:
-
-- Extend `SupportCopilotPrefill` with optional `assetId`, `sourceKey`, and focused workflow metadata if needed.
-- Add support asset lookup helpers by `assetId`, `sourceKey`, and `workflowRunId`.
-- Make Support Copilot focus the retained support asset when opened from Runtime Console.
-- Preserve broad fallback behavior for legacy support receipts without structured metadata.
-- Add hydration-race handling if the open event arrives before support assets hydrate from the server.
+- Extended `SupportCopilotPrefill` with optional `assetId` and `sourceKey`.
+- Added support asset lookup helpers by `assetId`, `sourceKey`, and `workflowRunId` fallback.
+- Runtime Console support asset landings now pass exact support receipt metadata into Support Copilot.
+- Support Copilot focuses the existing related support ticket for exact support asset prefills.
+- Broad support prefills without exact metadata still create a new ticket.
+- Prefill-before-hydration requests stay pending and retry after support asset / ticket store updates.
+- Missing exact support records show an error and do not create synthetic support tickets.
 
 Primary files:
 
@@ -274,13 +270,14 @@ Primary files:
 - `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
 - `src/__tests__/components/SupportCopilotAppWindow.test.tsx`
 - `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
+- `src/__tests__/lib/asset-record-focus.test.ts`
 
-Expected outcome:
+Outcome:
 
-- A support controlled run's support asset landing opens the exact retained support asset, not only Support Copilot with workflow context.
-- Missing exact support records fail visibly instead of creating duplicate local support records.
+- A support controlled run's support asset landing now opens Support Copilot on the retained support asset's existing ticket.
+- Missing exact support records fail visibly instead of duplicating local support records.
 
-## P1. Trace Governance
+## P0. Trace Governance
 
 Why:
 

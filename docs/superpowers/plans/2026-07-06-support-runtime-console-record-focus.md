@@ -1,6 +1,6 @@
 # Support Runtime Console Record Focus Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Make Runtime Console support asset landings open Support Copilot on the exact retained support asset / related ticket without creating duplicate support tickets.
 
@@ -29,7 +29,7 @@
 - Modify: `src/lib/support-assets.ts`
 - Modify: `src/__tests__/lib/asset-record-focus.test.ts`
 
-- [ ] **Step 1: Write the failing helper tests**
+- [x] **Step 1: Write the failing helper tests**
 
 Add this import block to `src/__tests__/lib/asset-record-focus.test.ts`:
 
@@ -75,7 +75,7 @@ Add this test inside `describe("record-level asset lookup helpers", () => { ... 
   });
 ```
 
-- [ ] **Step 2: Run helper test to verify RED**
+- [x] **Step 2: Run helper test to verify RED**
 
 Run:
 
@@ -85,7 +85,7 @@ npm test -- src/__tests__/lib/asset-record-focus.test.ts
 
 Expected: FAIL because `getSupportAssetById`, `getSupportAssetBySourceKey`, `getSupportAssetForFocus`, and `sourceKey` support do not exist yet.
 
-- [ ] **Step 3: Implement minimal helper support**
+- [x] **Step 3: Implement minimal helper support**
 
 In `src/lib/support-assets.ts`, add `sourceKey?: string;` to `SupportAssetRecord` after `workflowRunId: string;`.
 
@@ -137,7 +137,7 @@ sourceKey: patch.sourceKey,
 
 after `workflowRunId,`.
 
-- [ ] **Step 4: Run helper test to verify GREEN**
+- [x] **Step 4: Run helper test to verify GREEN**
 
 Run:
 
@@ -147,7 +147,7 @@ npm test -- src/__tests__/lib/asset-record-focus.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/support-assets.ts src/__tests__/lib/asset-record-focus.test.ts
@@ -163,7 +163,7 @@ git commit -m "feat: add support asset focus helpers"
 - Modify: `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`
 - Modify: `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`
 
-- [ ] **Step 1: Write the failing Runtime Console expectation**
+- [x] **Step 1: Write the failing Runtime Console expectation**
 
 In the support landing test in `src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx`, change the expectation to:
 
@@ -179,7 +179,7 @@ In the support landing test in `src/__tests__/components/ClawRuntimeConsoleAppWi
     });
 ```
 
-- [ ] **Step 2: Run component test to verify RED**
+- [x] **Step 2: Run component test to verify RED**
 
 Run:
 
@@ -189,7 +189,7 @@ npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx
 
 Expected: FAIL because `assetId` and `sourceKey` are not passed.
 
-- [ ] **Step 3: Extend the prefill type and pass metadata**
+- [x] **Step 3: Extend the prefill type and pass metadata**
 
 In `src/lib/ui-events.ts`, change `SupportCopilotPrefill` to:
 
@@ -223,7 +223,7 @@ In `src/components/apps/ClawRuntimeConsoleAppWindow.tsx`, update the `support_co
     }
 ```
 
-- [ ] **Step 4: Run component test to verify GREEN**
+- [x] **Step 4: Run component test to verify GREEN**
 
 Run:
 
@@ -233,7 +233,7 @@ npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/ui-events.ts src/components/apps/ClawRuntimeConsoleAppWindow.tsx src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx
@@ -248,7 +248,7 @@ git commit -m "feat: pass support asset focus metadata"
 - Create: `src/__tests__/components/SupportCopilotAppWindow.test.tsx`
 - Modify: `src/components/apps/SupportCopilotAppWindow.tsx`
 
-- [ ] **Step 1: Write failing tests for exact focus and broad fallback**
+- [x] **Step 1: Write failing tests for exact focus and broad fallback**
 
 Create `src/__tests__/components/SupportCopilotAppWindow.test.tsx` with:
 
@@ -350,7 +350,7 @@ describe("SupportCopilotAppWindow record focus", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify RED**
+- [x] **Step 2: Run tests to verify RED**
 
 Run:
 
@@ -360,7 +360,7 @@ npm test -- src/__tests__/components/SupportCopilotAppWindow.test.tsx
 
 Expected: FAIL because record-focus prefill still creates a new support ticket instead of selecting the existing one.
 
-- [ ] **Step 3: Implement exact focus selection**
+- [x] **Step 3: Implement exact focus selection**
 
 In `src/components/apps/SupportCopilotAppWindow.tsx`, update the support asset imports:
 
@@ -426,7 +426,7 @@ Replace the current `onPrefill` effect body with this split behavior:
   }, [showToast]);
 ```
 
-- [ ] **Step 4: Run tests to verify GREEN**
+- [x] **Step 4: Run tests to verify GREEN**
 
 Run:
 
@@ -436,7 +436,7 @@ npm test -- src/__tests__/components/SupportCopilotAppWindow.test.tsx
 
 Expected: PASS for exact focus and broad fallback.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/apps/SupportCopilotAppWindow.tsx src/__tests__/components/SupportCopilotAppWindow.test.tsx
@@ -451,7 +451,7 @@ git commit -m "feat: focus support copilot records"
 - Modify: `src/__tests__/components/SupportCopilotAppWindow.test.tsx`
 - Modify: `src/components/apps/SupportCopilotAppWindow.tsx`
 
-- [ ] **Step 1: Add failing hydration and missing-record tests**
+- [x] **Step 1: Add failing hydration and missing-record tests**
 
 Add these tests inside `describe("SupportCopilotAppWindow record focus", () => { ... })`:
 
@@ -510,7 +510,7 @@ Add these tests inside `describe("SupportCopilotAppWindow record focus", () => {
   });
 ```
 
-- [ ] **Step 2: Run tests to verify RED**
+- [x] **Step 2: Run tests to verify RED**
 
 Run:
 
@@ -520,7 +520,7 @@ npm test -- src/__tests__/components/SupportCopilotAppWindow.test.tsx
 
 Expected: FAIL because missing focus errors immediately and does not retry pending focus.
 
-- [ ] **Step 3: Implement pending focus retry**
+- [x] **Step 3: Implement pending focus retry**
 
 In `src/components/apps/SupportCopilotAppWindow.tsx`, add state inside the component:
 
@@ -582,7 +582,7 @@ Add a retry effect after the support asset subscription effect:
   }, [assetRevision, pendingFocus, resolveSupportRecordFocus, tickets]);
 ```
 
-- [ ] **Step 4: Run tests to verify GREEN**
+- [x] **Step 4: Run tests to verify GREEN**
 
 Run:
 
@@ -592,7 +592,7 @@ npm test -- src/__tests__/components/SupportCopilotAppWindow.test.tsx
 
 Expected: PASS.
 
-- [ ] **Step 5: Run focused controlled-runtime tests**
+- [x] **Step 5: Run focused controlled-runtime tests**
 
 Run:
 
@@ -602,7 +602,7 @@ npm test -- src/__tests__/lib/asset-record-focus.test.ts src/__tests__/component
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/apps/SupportCopilotAppWindow.tsx src/__tests__/components/SupportCopilotAppWindow.test.tsx
@@ -620,7 +620,7 @@ git commit -m "fix: retry support record focus hydration"
 - Modify: `docs/superpowers/plans/2026-07-06-support-runtime-console-record-focus.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run required verification**
+- [x] **Step 1: Run required verification**
 
 Run:
 
@@ -634,7 +634,7 @@ git diff --check
 
 Expected: all commands exit 0. `npm run lint` and `npm run build` may still show the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 
-- [ ] **Step 2: Update docs**
+- [x] **Step 2: Update docs**
 
 Update:
 
@@ -644,7 +644,7 @@ Update:
 - This plan: check off completed tasks and record verification results.
 - `memory/2026-07-06.md`: append commits, behavior, verification, and next phase.
 
-- [ ] **Step 3: Re-run final verification after docs**
+- [x] **Step 3: Re-run final verification after docs**
 
 Run:
 
@@ -658,7 +658,7 @@ git diff --check
 
 Expected: all commands exit 0 with only the known existing `<img>` warning if present.
 
-- [ ] **Step 4: Commit docs**
+- [x] **Step 4: Commit docs**
 
 ```bash
 git add CHANGELOG.md docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/superpowers/plans/2026-07-06-support-runtime-console-record-focus.md memory/2026-07-06.md
@@ -672,3 +672,31 @@ git commit -m "docs: complete support record focus"
 - Spec coverage: Runtime Console metadata, Support Copilot exact focus, broad fallback, hydration retry, missing-record guard, helper tests, docs, and verification all have tasks.
 - Placeholder scan: the plan contains no unresolved markers or vague implementation placeholders.
 - Type consistency: `assetId`, `sourceKey`, `workflowRunId`, `SupportCopilotPrefill`, and `SupportAssetRecord.sourceKey` names are consistent across tasks.
+
+## Completion Record
+
+Commits:
+
+- `459a05c` — `docs: spec support record focus`
+- `cc055f5` — `docs: plan support record focus`
+- `b864770` — `feat: add support asset focus helpers`
+- `981db95` — `feat: pass support asset focus metadata`
+- `55e56a0` — `feat: focus support copilot records`
+- `fda34fb` — `fix: retry support record focus hydration`
+
+Verification before documentation:
+
+- `npm test -- src/__tests__/lib/asset-record-focus.test.ts src/__tests__/components/SupportCopilotAppWindow.test.tsx src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` — 3 files / 12 tests passed.
+- `npm run test:controlled-runtime` — 21 files / 128 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.
+
+Final verification after documentation:
+
+- `npm run test:controlled-runtime` — 21 files / 128 tests passed.
+- `npm run test:core-workflows` — all core workflow regressions passed.
+- `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- `npm run build` — exit 0 with the same existing warning.
+- `git diff --check` — exit 0.

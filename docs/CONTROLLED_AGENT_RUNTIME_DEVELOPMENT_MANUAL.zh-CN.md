@@ -339,17 +339,17 @@ type ControlledPlaybookStep = {
 - Phase 7d complete skipped writeback targets：`workflow_run` 和 `draft` target 已从 skipped receipt 升级为真实 server-backed 写回。workflow run 使用稳定 `workflowRunId` upsert；draft 使用 `controlled-draft:{workflowRunId}` upsert；final approved writeback 会把 workflow run 状态推进到 `completed`。
 - Phase 7e workflow/draft deep links：Runtime Console 的 landing panel 已覆盖 `workflow_run` 和 `draft` receipt。workflow run landing 会打开 Industry Hub 并定位对应 workflow run / scenario；draft landing 会打开 Publisher 并带入 `draftId`、`workflowRunId`、scenario 和下一步处理上下文。
 - Phase 8 support playbook migration：`support-resolution-v1` 已成为第二条 controlled playbook。它复用现有 resolver / validator / approval gate / writeback / Runtime Console summary，固定执行 intake、classify、draft_reply、human_review、writeback，并能写回 support asset、draft、workflow run 和 support FAQ knowledge asset。
+- Phase 9 support record focus：Runtime Console 的 support asset landing 已传递 `assetId` / `sourceKey` / `workflowRunId`；Support Copilot 会把 exact support asset prefill 当作 record-focus 请求，定位关联的现有 support ticket。prefill 早于 support asset / ticket store hydration 时会保留 pending focus 并在同步后重试；仍缺失时提示错误，不创建 synthetic support ticket。旧 broad support prefill 继续创建新工单。
 
 仍未完成：
 
-- Support Copilot 从 Runtime Console 打开 support asset landing 时，还只是带入 workflow context，尚未精确聚焦到已写回的 support asset / ticket。
 - Trace governance 还没有明确 retention、redaction、export 和 replay 规则。
 
 因此下一阶段默认进入：
 
-**Phase 9. Support Runtime Console Record Focus**
+**Phase 10. Trace Governance**
 
-目标是把 Runtime Console 的 `support_asset` landing 从“打开 Support Copilot 并带入上下文”升级为“精确定位 support controlled run 写回的 support asset / ticket”，补齐 support 线的 record-level trace 检查路径。
+目标是把 controlled run trace 从“可查看的调试历史”升级为“可治理的产品资产”，明确 retention、redaction、export、replay 和 fixture 生成规则。
 
 ### Phase 0. 冻结方向
 
@@ -587,19 +587,43 @@ type ControlledPlaybookStep = {
 - 对齐此前 Deal Desk / Knowledge Vault 的 record-level focus 行为。
 - 保持旧 receipt 的 broad fallback，不因为缺少结构化 metadata 而误创建重复 support records。
 
-建议范围：
+完成范围：
 
-- 给 `SupportCopilotPrefill` 增加可选 `assetId`、`sourceKey`、`workflowRunId` 聚焦字段。
-- 在 `src/lib/support-assets.ts` 增加 support asset lookup helper。
-- Support Copilot 接收 prefill 后优先根据 exact support asset 定位；找不到时保持 pending focus，hydration 后重试。
-- Runtime Console 继续传递 support asset receipt 的 `assetId`、`sourceKey`、`workflowRunId`。
+- `SupportCopilotPrefill` 已增加可选 `assetId`、`sourceKey` 聚焦字段，并复用 `WorkflowContextMeta.workflowRunId`。
+- `src/lib/support-assets.ts` 已增加 `getSupportAssetById`、`getSupportAssetBySourceKey`、`getSupportAssetForFocus`。
+- Runtime Console 已把 support asset receipt 的 `assetId`、`sourceKey`、`workflowRunId` 传给 Support Copilot。
+- Support Copilot 接收 exact support asset prefill 后优先定位关联 ticket，不创建新工单。
+- 找不到 exact 记录时保留 pending focus，在 support asset / ticket store 更新后重试；仍缺失时提示错误。
+- 旧 broad support prefill 保持创建新工单的行为。
 
 完成标准：
 
-- Runtime Console support asset landing 能定位 exact support asset。
-- support asset prefill 早于 store hydration 时不会静默失败。
-- exact record 缺失时提示错误，不创建 synthetic support ticket。
-- legacy support receipts without structured metadata 保持 broad Support Copilot fallback。
+- Runtime Console support asset landing 能定位 exact support asset / ticket。已完成。
+- support asset prefill 早于 store hydration 时不会静默失败。已完成。
+- exact record 缺失时提示错误，不创建 synthetic support ticket。已完成。
+- legacy support receipts without structured metadata 保持 broad Support Copilot fallback。已完成。
+
+### Phase 10. Trace Governance
+
+目标：
+
+- 明确 controlled run trace 的保留、脱敏、导出、回放和 fixture 生成规则。
+- 把 Runtime Console 中已经可见的 trace 升级为可审计、可分享、可测试复现的产品能力。
+
+建议范围：
+
+- 定义 step input/output、approval decision、writeback receipt、audit event 的敏感字段分类。
+- 增加 trace redaction helper，并在导出 / fixture 生成入口使用。
+- 定义 trace retention 策略和手动清理路径。
+- 支持从 selected controlled run 生成脱敏测试 fixture。
+- 在 Runtime Console 中展示 trace governance 状态或导出入口。
+
+完成标准：
+
+- Trace redaction 有单元测试覆盖。
+- Runtime Console 不会导出未脱敏敏感字段。
+- 关键 controlled run 可以生成可复现 fixture。
+- 手册中明确哪些 trace 字段允许长期保留，哪些必须脱敏或清理。
 
 ## 9. 开发规范
 

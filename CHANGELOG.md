@@ -203,6 +203,12 @@
 - Linked the guide from the controlled runtime manual and documentation index.
 - Kept fixture refresh manual and pure: no auto-write command, no filesystem discovery, no runtime store mutation, no LLM/tool replay, and no asset writes.
 
+### Fixture Replay Golden Invariants
+
+- Extended pure governed trace fixture replay with deeper plan/version/approval/writeback identity invariant checks and diagnostics while preserving no-side-effect guarantees.
+- Replay now checks current playbook version, scenario id, expected plan id, plan step count, plan approval flag, completed step attempts, approved terminal state, and stable successful writeback metadata.
+- Added replay tests for version drift, plan metadata drift, missing attempts, non-approved completed approval steps, and missing stable writeback metadata.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

@@ -63,6 +63,7 @@ Completed in the current controlled runtime line:
 - `npm run trace:fixtures` local CI summary command for governed fixture catalog health.
 - `npm run trace:fixture:build -- <artifact.json>` local builder command for converting governed trace artifact files into validated fixture JSON.
 - Governed trace fixture refresh workflow guide for manual fixture replacement and review.
+- Deeper fixture replay golden invariants for playbook version, scenario, plan metadata, completed attempts, approval terminal state, and stable writeback identity metadata.
 
 Current verification baseline:
 
@@ -77,9 +78,9 @@ npm run build
 Current `test:controlled-runtime` coverage:
 
 - 28 test files.
-- 151 tests.
+- 156 tests.
 - Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, and governed trace fixture builder CLI coverage.
-- Trace fixture replay reports include structured drift diagnostics while preserving stable error messages.
+- Trace fixture replay reports include structured drift diagnostics and deeper golden invariant diagnostics while preserving stable error messages.
 
 Known current lint/build note:
 
@@ -455,19 +456,46 @@ Outcome:
 - Maintainers now have a fixed path for refreshing governed fixtures without inventing ad hoc steps.
 - The builder command remains stdout-only, and committed fixture replacement remains a reviewed manual action.
 
-## Recommended Next. Fixture Replay Depth And Golden Invariants
+## Completed. Fixture Replay Depth And Golden Invariants
 
 Why:
 
-- Current pure replay catches step order, approval state, and writeback target drift.
-- As playbooks evolve, fixture replay can enforce deeper metadata invariants without executing tools.
-- This should happen before considering any real replay or replay-like tool simulation.
+- Current pure replay caught step order, approval state, and writeback target drift.
+- Maintainers also need drift checks for the stable metadata that powers governed fixture review, Runtime Console deep links, and record focus.
+- This deeper gate should still avoid real replay, tool simulation, routes, stores, and asset writes.
+
+Delivered:
+
+- Pure fixture replay now checks playbook version, scenario id, plan id, plan step count, and plan approval flag against the current registered playbook.
+- Replay diagnostics now include expected and fixture plan/version/scenario metadata.
+- Completed fixture steps must record at least one attempt.
+- Completed approval-gated steps must carry approved terminal state.
+- Successful writeback receipts must carry stable `assetId`, `sourceKey`, and `workflowRunId` metadata.
+- Replay remains pure: no LLM calls, no tool execution, no API route calls, no runtime store mutation, and no asset writes.
+
+Primary files:
+
+- `src/lib/executor/runtime/trace-replay.ts`
+- `src/__tests__/lib/executor/runtime/trace-replay.test.ts`
+
+Outcome:
+
+- Fixture replay now catches subtle plan/writeback identity drift before a fixture refresh is accepted.
+- Catalog reports and `npm run trace:fixtures` inherit the deeper diagnostics automatically.
+
+## Recommended Next. Fixture Replay Contract Documentation
+
+Why:
+
+- The replay runner now enforces a broader invariant matrix.
+- Maintainers refreshing fixtures need a concise reference for which field failed and why it matters.
+- This documentation should come before adding more automation around fixture refresh.
 
 Suggested scope:
 
-- Compare fixture plan metadata against current playbook schema/writeback/approval contracts more deeply.
-- Add explicit golden invariants for stable id/source key/workflow metadata where current fixtures already carry it.
-- Keep replay pure: no LLM calls, no tool execution, no API route calls, no runtime store mutation, and no asset writes.
+- Document the replay invariant matrix for maintainers.
+- Add a compact table covering playbook, plan, step, approval, and writeback metadata.
+- Link the matrix from the fixture refresh guide so reviewers know why a candidate fixture fails.
 
 ## Completed. Support Runtime Console Record Focus
 

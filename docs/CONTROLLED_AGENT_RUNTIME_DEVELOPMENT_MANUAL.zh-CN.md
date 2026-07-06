@@ -357,17 +357,18 @@ type ControlledPlaybookStep = {
 - Phase 10h trace fixture catalog CI summary：已新增 `npm run trace:fixtures`，输出 compact JSON catalog health summary，并在 report 不通过时以非零退出码失败。该命令已纳入 `test:controlled-runtime` 覆盖。
 - Phase 10i governed trace fixture builder CLI：已新增 `npm run trace:fixture:build -- <artifact.json>`，可以把一个 governed trace artifact JSON 文件转换为经过 validation 的 fixture JSON，并输出到 stdout。缺文件、非法 JSON、非法 artifact shape 会以非零退出码和稳定 stderr diagnostics 失败。该命令不自动改写 committed fixture。
 - Phase 10j governed fixture refresh review workflow：已新增 `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`，固定 fixture refresh 的人工审查路径：导出 governed artifact、运行 builder、审查 candidate fixture、手工替换 committed fixture、运行 catalog/runtime gates，并保持 no-side-effect 边界。
+- Phase 10k fixture replay depth and golden invariants：pure replay 已进一步校验 playbook version、scenario、plan id、step count、approval flag、completed attempts、approval terminal state，以及成功 writeback receipt 的 `assetId` / `sourceKey` / `workflowRunId` 稳定 metadata。该阶段仍然不重放工具、不调用 API、不读写 store、不写资产。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- Fixture replay 目前还只校验 step/order/approval/writeback 等关键 metadata，尚未增加更深的 golden invariants。
+- Fixture replay 已有更深的 golden invariants，但维护者还缺一份集中说明哪些字段会被 replay gate 检查、失败时该如何判断是 playbook 漂移还是 fixture 需要刷新。
 
 因此下一阶段默认进入：
 
-**Phase 10k. Fixture Replay Depth And Golden Invariants**
+**Phase 10l. Fixture Replay Contract Documentation**
 
-目标是在仍然不做真实工具回放的前提下，扩展 pure fixture replay 可检查的 metadata 合约，例如 schema/writeback/idempotency 关键字段和更明确的 golden invariants。
+目标是在不增加自动写回和真实 replay 的前提下，把 replay invariant matrix 文档化，并从 governed fixture refresh workflow 链接过去，让维护者能解释每个 replay 失败项。
 
 ### Phase 0. 冻结方向
 

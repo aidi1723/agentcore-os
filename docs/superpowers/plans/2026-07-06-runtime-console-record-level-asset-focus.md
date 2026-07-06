@@ -914,3 +914,9 @@ git commit -m "docs: track record-level asset focus"
   - Verification: `npm test -- src/__tests__/components/DealDeskAppWindow.test.tsx` passed.
   - Spec review: approved after the selection-proof test was added.
   - Code quality review: approved with non-blocking notes about future test isolation and fallback coverage.
+- Task 4 completed across `454febb` and `38fa71c`.
+  - `454febb`: made Knowledge Vault resolve `assetId` / `sourceKey` prefill metadata and render a focused row marker.
+  - `38fa71c`: reset the status filter to `all` when focusing so the target asset remains visible.
+  - Verification: `npm test -- src/__tests__/components/KnowledgeVaultAppWindow.test.tsx` passed.
+  - Spec review: approved after the hidden-by-filter case was fixed.
+  - Code quality review: approved with non-blocking notes about future focus clearing and JSX readability.

@@ -31,13 +31,14 @@ type ReplaySandboxCatalogSummaryOutput = {
   };
 };
 
-function runFailureHarness() {
+function runFailureHarness(mode?: string) {
   return spawnSync(
     "node",
     [
       "--import",
       "./scripts/register-ts-alias-loader.mjs",
       "./scripts/trace-fixtures/replay-sandbox-failure-harness.mjs",
+      ...(mode ? [mode] : []),
     ],
     {
       cwd: process.cwd(),
@@ -76,7 +77,7 @@ describe("replay sandbox catalog report script", () => {
     });
   });
 
-  it("exits non-zero with parseable failed replay sandbox JSON output", () => {
+  it("defaults to contract failure mode with parseable failed replay sandbox JSON output", () => {
     const result = runFailureHarness();
 
     expect(result.status).toBe(1);
@@ -116,6 +117,79 @@ describe("replay sandbox catalog report script", () => {
     ]);
     expect(output.failedItems[0].errors).toEqual(
       output.failedItems[0].contractErrors,
+    );
+  });
+
+  it("supports explicit contract failure mode", () => {
+    const result = runFailureHarness("contract");
+
+    expect(result.status).toBe(1);
+    expect(result.stderr.trim()).toBe("");
+
+    const output = JSON.parse(result.stdout) as ReplaySandboxCatalogSummaryOutput;
+    expect(output.failedItems[0]).toMatchObject({
+      failureKind: "contract_build_failed",
+      contractBuildOk: false,
+      artifactStatus: null,
+      guaranteeErrors: [],
+    });
+  });
+
+  it("supports sandbox artifact failure mode", () => {
+    const result = runFailureHarness("sandbox");
+
+    expect(result.status).toBe(1);
+    expect(result.stderr.trim()).toBe("");
+
+    const output = JSON.parse(result.stdout) as ReplaySandboxCatalogSummaryOutput;
+    expect(output).toMatchObject({
+      ok: false,
+      total: 1,
+      passed: 0,
+      failed: 1,
+      fixtureIds: ["sales-pipeline-governed"],
+      playbookIds: ["sales-pipeline-v1"],
+    });
+    expect(output.failedItems[0]).toMatchObject({
+      catalogId: "sales-pipeline-governed",
+      fixtureId: "controlled-trace-fixture:run-fixture-1",
+      playbookId: "sales-pipeline-v1",
+      failureKind: "sandbox_artifact_failed",
+      contractBuildOk: true,
+      artifactStatus: "failed",
+      artifactDiagnostics: ["Synthetic sandbox preflight rejection"],
+      guaranteeErrors: [],
+      errors: ["Synthetic sandbox preflight rejection"],
+    });
+  });
+
+  it("supports guarantee violation failure mode", () => {
+    const result = runFailureHarness("guarantee");
+
+    expect(result.status).toBe(1);
+    expect(result.stderr.trim()).toBe("");
+
+    const output = JSON.parse(result.stdout) as ReplaySandboxCatalogSummaryOutput;
+    expect(output.failedItems[0]).toMatchObject({
+      catalogId: "sales-pipeline-governed",
+      fixtureId: "controlled-trace-fixture:run-fixture-1",
+      playbookId: "sales-pipeline-v1",
+      failureKind: "guarantee_violation",
+      contractBuildOk: true,
+      artifactStatus: "succeeded",
+      artifactDiagnostics: ["Synthetic replay completed"],
+      guaranteeErrors: ["Replay sandbox no-side-effect guarantees were not preserved"],
+      errors: ["Replay sandbox no-side-effect guarantees were not preserved"],
+    });
+  });
+
+  it("rejects unknown failure harness modes without report JSON", () => {
+    const result = runFailureHarness("unknown");
+
+    expect(result.status).toBe(2);
+    expect(result.stdout.trim()).toBe("");
+    expect(result.stderr.trim()).toBe(
+      "Unsupported replay sandbox failure harness mode: unknown. Supported modes: contract, sandbox, guarantee.",
     );
   });
 });

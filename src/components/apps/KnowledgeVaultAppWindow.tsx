@@ -118,6 +118,7 @@ export function KnowledgeVaultAppWindow({
         getKnowledgeAssetById(detail?.assetId) ?? getKnowledgeAssetBySourceKey(detail?.sourceKey);
       if (focusedAsset) {
         setFocusedAssetId(focusedAsset.id);
+        setAssetStatusFilter("all");
         setQuery(focusedAsset.title);
         setAsk(detail?.query ?? focusedAsset.title);
         setAnswer("");

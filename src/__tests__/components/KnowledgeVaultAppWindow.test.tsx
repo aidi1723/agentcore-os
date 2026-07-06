@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { KnowledgeVaultAppWindow } from "@/components/apps/KnowledgeVaultAppWindow";
 import { upsertKnowledgeAsset } from "@/lib/knowledge-assets";
@@ -67,6 +67,9 @@ describe("KnowledgeVaultAppWindow record-level asset focus", () => {
         onClose={vi.fn()}
       />,
     );
+
+    fireEvent.click(screen.getByRole("button", { name: "已归档" }));
+    expect(screen.queryByText("Focused knowledge asset")).not.toBeInTheDocument();
 
     act(() => {
       window.dispatchEvent(

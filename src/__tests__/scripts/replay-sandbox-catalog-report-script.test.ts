@@ -12,10 +12,15 @@ type ReplaySandboxCatalogSummaryOutput = {
     catalogId: string;
     fixtureId: string;
     playbookId: string;
+    failureKind:
+      | "contract_build_failed"
+      | "sandbox_artifact_failed"
+      | "guarantee_violation";
     contractBuildOk: boolean;
     contractErrors: string[];
     artifactStatus: "succeeded" | "failed" | null;
     artifactDiagnostics: string[];
+    guaranteeErrors: string[];
     errors: string[];
   }>;
   guarantees: {
@@ -96,9 +101,11 @@ describe("replay sandbox catalog report script", () => {
       catalogId: "sales-pipeline-replay-sandbox-broken-contract",
       fixtureId: "controlled-trace-fixture:run-fixture-1",
       playbookId: "sales-pipeline-v1",
+      failureKind: "contract_build_failed",
       contractBuildOk: false,
       artifactStatus: null,
       artifactDiagnostics: [],
+      guaranteeErrors: [],
     });
     expect(output.failedItems[0].contractErrors).toEqual([
       "Fixture sourceRunId is required",

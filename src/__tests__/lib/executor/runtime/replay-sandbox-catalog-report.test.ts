@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { controlledTraceFixtureCatalog } from "@/__tests__/fixtures/controlled-traces/catalog";
 import { buildReplaySandboxCatalogReport } from "@/__tests__/fixtures/controlled-traces/replay-sandbox-report";
+import {
+  buildNoSideEffectReplayResultArtifact,
+  type ReplayResultArtifact,
+} from "@/lib/executor/runtime/replay-sandbox-contracts";
 
 describe("replay sandbox catalog report", () => {
   it("builds an all-green replay sandbox report for committed governed fixtures", () => {
@@ -105,5 +109,85 @@ describe("replay sandbox catalog report", () => {
       "Replay input redaction boundary is required",
     ]);
     expect(report.items[0].contractBuild.ok).toBe(false);
+  });
+
+  it("classifies contract build failures separately from sandbox failures", () => {
+    const fixture = structuredClone(controlledTraceFixtureCatalog[0].fixture);
+    fixture.sourceRunId = "";
+    fixture.playbookVersion = "";
+    fixture.assertions.redactionBoundary = "optional" as "required";
+
+    const report = buildReplaySandboxCatalogReport([
+      {
+        id: "sales-pipeline-contract-build-failure",
+        playbookId: "sales-pipeline-v1",
+        fixture,
+      },
+    ]);
+
+    expect(report.items[0]).toMatchObject({
+      ok: false,
+      failureKind: "contract_build_failed",
+      artifact: null,
+      guaranteeErrors: [],
+      errors: [
+        "Fixture sourceRunId is required",
+        "Fixture playbookVersion is required",
+        "Fixture redaction boundary is required",
+        "Replay input playbookVersion is required",
+        "Replay input redaction boundary is required",
+      ],
+    });
+  });
+
+  it("classifies injected sandbox artifact failures", () => {
+    const report = buildReplaySandboxCatalogReport([controlledTraceFixtureCatalog[0]], {
+      runSandbox: (contract) =>
+        buildNoSideEffectReplayResultArtifact(contract, {
+          status: "failed",
+          cursorEvents: ["preflight"],
+          diagnostics: ["Synthetic sandbox preflight rejection"],
+        }),
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.items[0]).toMatchObject({
+      ok: false,
+      failureKind: "sandbox_artifact_failed",
+      errors: ["Synthetic sandbox preflight rejection"],
+      guaranteeErrors: [],
+      artifact: {
+        status: "failed",
+        diagnostics: ["Synthetic sandbox preflight rejection"],
+      },
+    });
+  });
+
+  it("classifies no-side-effect guarantee violations", () => {
+    const report = buildReplaySandboxCatalogReport([controlledTraceFixtureCatalog[0]], {
+      runSandbox: (contract): ReplayResultArtifact => ({
+        ...buildNoSideEffectReplayResultArtifact(contract, {
+          status: "succeeded",
+          diagnostics: ["Synthetic replay completed"],
+        }),
+        guarantees: {
+          toolCallsExecuted: true as false,
+          assetsWritten: false,
+          runtimeStoresMutated: false,
+          productionCredentialsUsed: false,
+        },
+      }),
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.items[0]).toMatchObject({
+      ok: false,
+      failureKind: "guarantee_violation",
+      errors: ["Replay sandbox no-side-effect guarantees were not preserved"],
+      guaranteeErrors: ["Replay sandbox no-side-effect guarantees were not preserved"],
+      artifact: {
+        status: "succeeded",
+      },
+    });
   });
 });

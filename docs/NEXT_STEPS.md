@@ -565,7 +565,7 @@ Outcome:
 - Future report and summary drift coverage can reuse explicit failure factories.
 - The committed catalog remains a green source of truth for CI and fixture health.
 
-## Recommended Next. Fixture Replay Failure Exit-Code Harness
+## Completed. Fixture Replay Failure Exit-Code Harness
 
 Why:
 
@@ -573,10 +573,38 @@ Why:
 - The committed CLI commands must stay green, so process-level non-zero behavior needs a focused harness that can inject failed catalog inputs without altering the committed catalog scripts.
 - This keeps exit-code coverage separate from fixture discovery, refresh, route calls, tool replay, store mutation, and asset writes.
 
+Delivered:
+
+- Added `scripts/trace-fixtures/catalog-failure-harness.mjs` as a direct-invoked test harness, not a public npm script.
+- Added `src/__tests__/fixtures/controlled-traces/catalog-report-output.ts` so committed JSON output and harness JSON output share the same shape.
+- Added subprocess coverage for failed JSON output, failed summary output, unknown format usage text, and committed command green behavior.
+- Included the harness test in `test:controlled-runtime`.
+
+Primary files:
+
+- `scripts/trace-fixtures/catalog-failure-harness.mjs`
+- `src/__tests__/fixtures/controlled-traces/catalog-report-output.ts`
+- `src/__tests__/scripts/trace-fixture-catalog-failure-harness-script.test.ts`
+- `scripts/trace-fixtures/catalog-report.mjs`
+
+Outcome:
+
+- Failed report and summary process behavior is covered without making committed fixture commands fail.
+- `npm run trace:fixtures` and `npm run trace:fixtures:summary` remain green against committed fixtures.
+
+## Recommended Next. Fixture Replay Validation Failure Fixtures
+
+Why:
+
+- Current synthetic failures focus on replay drift against an otherwise valid fixture.
+- Report and summary diagnostics should also cover validation failures from malformed governed fixtures.
+- These validation failure fixtures should stay separate from committed governed catalog entries.
+
 Suggested scope:
 
-- Add a focused test harness for non-zero report/summary process behavior using synthetic failed catalog inputs.
-- Keep `npm run trace:fixtures` and `npm run trace:fixtures:summary` green for committed fixtures.
+- Add reusable synthetic validation failure fixtures.
+- Cover malformed schema, missing required fixture fields, and unsafe redaction boundary cases in report/summary diagnostics.
+- Keep committed governed fixtures and committed CLI commands green.
 - Avoid route calls, tool replay, store mutation, asset writes, fixture refresh, and automatic fixture discovery.
 
 ## Completed. Support Runtime Console Record Focus

@@ -225,6 +225,12 @@
 - Extended catalog report coverage for version drift and missing stable writeback metadata without adding failing fixtures to the committed catalog.
 - Refactored summary failure diagnostics coverage to use reusable synthetic fixtures instead of inline fixture mutation.
 
+### Fixture Replay Failure Exit-Code Harness
+
+- Added a direct-invoked synthetic failure harness for governed fixture report and summary subprocess tests.
+- Extracted the committed JSON report output shape into a shared helper used by both the committed command and the failure harness.
+- Added non-zero exit coverage for failed JSON and human-readable summary paths while keeping committed fixture commands green.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

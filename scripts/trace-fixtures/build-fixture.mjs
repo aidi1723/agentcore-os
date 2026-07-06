@@ -39,16 +39,23 @@ if (!artifactPath) {
     }
 
     if (artifact !== undefined) {
-      const fixture = buildControlledTraceFixture(artifact);
-      const validation = validateControlledTraceFixture(fixture);
+      try {
+        const fixture = buildControlledTraceFixture(artifact);
+        const validation = validateControlledTraceFixture(fixture);
 
-      if (!validation.ok) {
+        if (!validation.ok) {
+          fail(
+            "Governed trace artifact did not produce a valid fixture",
+            validation.errors.map((item) => `- ${item}`).join("\n"),
+          );
+        } else {
+          console.log(JSON.stringify(fixture, null, 2));
+        }
+      } catch (error) {
         fail(
           "Governed trace artifact did not produce a valid fixture",
-          validation.errors.map((item) => `- ${item}`).join("\n"),
+          error instanceof Error ? error.message : String(error),
         );
-      } else {
-        console.log(JSON.stringify(fixture, null, 2));
       }
     }
   }

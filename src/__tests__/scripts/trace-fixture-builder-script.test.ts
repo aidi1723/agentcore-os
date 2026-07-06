@@ -237,4 +237,20 @@ describe("trace fixture builder script", () => {
     expect(result.stdout.trim()).toBe("");
     expect(result.stderr).toContain("Failed to read governed trace artifact");
   });
+
+  it("exits non-zero when parsed JSON is not a valid governed trace artifact", () => {
+    const dir = mkdtempSync(join(tmpdir(), "agentcore-trace-fixture-invalid-"));
+    const artifactPath = join(dir, "artifact.json");
+    writeFileSync(artifactPath, JSON.stringify({ id: "not-a-governed-artifact" }, null, 2));
+
+    const result = spawnSync("npm", ["run", "trace:fixture:build", "--silent", "--", artifactPath], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    expect(result.status).not.toBe(0);
+    expect(result.stdout.trim()).toBe("");
+    expect(result.stderr).toContain("Governed trace artifact did not produce a valid fixture");
+  });
 });

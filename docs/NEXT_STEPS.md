@@ -78,6 +78,7 @@ Completed in the current controlled runtime line:
 - Browser Evidence And Release Readiness Sweep: Playwright smoke verified Home -> Runtime Console -> `delivery-demo-run-completed` -> five asset landings -> governed trace copy with 0 browser console errors.
 - Post-Delivery Fixture And Playbook Expansion Review: every registered controlled playbook now has a committed governed fixture coverage assertion; no new fixture JSON or playbook migration is needed immediately after delivery smoke.
 - Runtime UI Delivery Polish: Runtime Console now has a compact delivery handoff summary for recent runs, pending approvals, retryable failures, asset landings, and governed trace candidates without changing runtime behavior.
+- Runtime UI Delivery Polish Closeout: Playwright screenshot evidence confirms the new `Delivery handoff` band renders in Runtime Console with 0 browser console errors; the stage is closed and should not expand into full UI redesign.
 
 Current verification baseline:
 
@@ -95,7 +96,7 @@ npm run build
 Current `test:controlled-runtime` coverage:
 
 - 38 test files.
-- 195 tests.
+- 198 tests.
 - Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention prune safety, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, and delivery demo seed/check helper coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
@@ -117,11 +118,18 @@ Delivered:
 - Summary covers recent runs, pending approvals, retryable failures, successful asset landings, and completed runs that can produce governed trace artifacts.
 - Preserved all existing run list, search, state filters, approval, resume, retry, asset landing, and governed trace copy behavior.
 - Added helper and component tests.
+- Added [Runtime UI Delivery Polish Closeout](RUNTIME_UI_DELIVERY_POLISH_CLOSEOUT.zh-CN.md) with screenshot evidence, final verification, explicit non-goals, and next-stage boundary.
 
 Outcome:
 
 - UI work is now aligned with the controlled runtime delivery path instead of restarting app-shell redesign.
 - The next default phase remains Trace Operations Hardening unless browser evidence finds a UI blocker.
+
+Browser evidence:
+
+- `output/playwright/runtime-ui-delivery-handoff.png`
+- Browser console errors: `0`
+- Browser console warnings: `9` dev/browser warnings.
 
 ## Completed. Delivery Demo Smoke Path
 

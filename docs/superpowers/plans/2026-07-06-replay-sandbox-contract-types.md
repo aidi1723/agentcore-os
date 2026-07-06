@@ -35,7 +35,7 @@
 - Create: `src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts`
 - Create: `src/lib/executor/runtime/replay-sandbox-contracts.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts`:
 
@@ -170,7 +170,7 @@ describe("replay sandbox contracts", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify RED**
+- [x] **Step 2: Run the test to verify RED**
 
 Run:
 
@@ -180,7 +180,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts
 
 Expected: FAIL because `@/lib/executor/runtime/replay-sandbox-contracts` does not exist.
 
-- [ ] **Step 3: Implement the minimal contract module**
+- [x] **Step 3: Implement the minimal contract module**
 
 Create `src/lib/executor/runtime/replay-sandbox-contracts.ts`:
 
@@ -403,7 +403,7 @@ export function buildNoSideEffectReplayResultArtifact(
 }
 ```
 
-- [ ] **Step 4: Run the test to verify GREEN**
+- [x] **Step 4: Run the test to verify GREEN**
 
 Run:
 
@@ -413,7 +413,7 @@ npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts
 
 Expected: PASS, 4 tests.
 
-- [ ] **Step 5: Commit Task 1**
+- [x] **Step 5: Commit Task 1**
 
 ```bash
 git add src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts src/lib/executor/runtime/replay-sandbox-contracts.ts
@@ -428,7 +428,7 @@ git commit -m "feat: add replay sandbox contracts"
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Add the test to `test:controlled-runtime`**
+- [x] **Step 1: Add the test to `test:controlled-runtime`**
 
 In `package.json`, insert this path after `src/__tests__/lib/executor/runtime/trace-replay.test.ts`:
 
@@ -436,7 +436,7 @@ In `package.json`, insert this path after `src/__tests__/lib/executor/runtime/tr
 src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts
 ```
 
-- [ ] **Step 2: Run controlled runtime gate**
+- [x] **Step 2: Run controlled runtime gate**
 
 Run:
 
@@ -446,7 +446,7 @@ npm run test:controlled-runtime
 
 Expected: PASS and includes the new replay sandbox contract test file.
 
-- [ ] **Step 3: Commit Task 2**
+- [x] **Step 3: Commit Task 2**
 
 ```bash
 git add package.json
@@ -464,7 +464,7 @@ git commit -m "test: include replay sandbox contracts"
 - Modify: `docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md`
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Update `docs/NEXT_STEPS.md`**
+- [x] **Step 1: Update `docs/NEXT_STEPS.md`**
 
 Add a completed section:
 
@@ -497,11 +497,11 @@ Suggested scope:
 - Add tests proving unsafe contracts fail before prototype execution starts.
 ```
 
-- [ ] **Step 2: Update controlled runtime manual and boundary guide**
+- [x] **Step 2: Update controlled runtime manual and boundary guide**
 
 Record Phase 10w in the runtime manual progress list. In the real replay boundary guide, note that contract types now encode the boundary while real replay remains unimplemented.
 
-- [ ] **Step 3: Update changelog**
+- [x] **Step 3: Update changelog**
 
 Add:
 
@@ -512,7 +512,7 @@ Add:
 - Added no-side-effect contract tests and included them in `test:controlled-runtime`.
 ```
 
-- [ ] **Step 4: Commit Task 3**
+- [x] **Step 4: Commit Task 3**
 
 ```bash
 git add docs/NEXT_STEPS.md docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md CHANGELOG.md
@@ -528,7 +528,7 @@ git commit -m "docs: complete replay sandbox contracts"
 - Modify: `docs/superpowers/plans/2026-07-06-replay-sandbox-contract-types.md`
 - Optional local-only: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Run final verification**
+- [x] **Step 1: Run final verification**
 
 Run:
 
@@ -548,11 +548,11 @@ Expected:
 - fixture summary reports `Status: OK`;
 - core workflow regressions pass.
 
-- [ ] **Step 2: Mark this plan complete**
+- [x] **Step 2: Mark this plan complete**
 
 Update checkboxes to `- [x]` and add completion notes with exact verification results.
 
-- [ ] **Step 3: Commit final plan record**
+- [x] **Step 3: Commit final plan record**
 
 ```bash
 git add docs/superpowers/plans/2026-07-06-replay-sandbox-contract-types.md
@@ -568,3 +568,20 @@ git commit -m "docs: complete replay sandbox contract plan"
 - TDD coverage: test-first RED/GREEN sequence is explicit.
 - Scope boundary: no real replay, tool execution, route calls, store access, asset writes, fixture JSON, package script additions, or UI changes.
 - Placeholder scan: this plan contains no deferred placeholders.
+
+## Completion Notes
+
+- Added `src/lib/executor/runtime/replay-sandbox-contracts.ts`.
+- Added `src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts`.
+- Included the new test in `npm run test:controlled-runtime`.
+- Updated README, documentation index, project framework, roadmap, Next Steps, controlled runtime manual, real replay boundary guide, and changelog.
+- Next recommended phase is Phase 10x No-Side-Effect Replay Sandbox Prototype Design.
+- TDD evidence:
+  - RED: `npm test -- src/__tests__/lib/executor/runtime/replay-sandbox-contracts.test.ts` failed because the module did not exist.
+  - GREEN: the same command passed with 1 file / 4 tests.
+- Final verification:
+  - `git diff --check` — exit 0.
+  - `npm run test:controlled-runtime` — 31 files, 170 tests passed.
+  - `npm run trace:fixtures --silent` — `ok: true`, 2 total, 2 passed, 0 failed, `toolCallsExecuted=false`, `assetsWritten=false`.
+  - `npm run trace:fixtures:summary --silent` — `Status: OK`, 2 total, 2 passed, 0 failed.
+  - `npm run test:core-workflows` — all core workflow regressions passed.

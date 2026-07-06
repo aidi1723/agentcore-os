@@ -1,4 +1,5 @@
 import type { ExecutionPlan, ExecutionStep, ToolCallResult } from "@/lib/executor/contracts";
+import type { ControlledPlaybookStep } from "@/lib/executor/playbooks/types";
 import type {
   ControlledApprovalRecord,
   ControlledExecutionRunRecord,
@@ -63,6 +64,7 @@ export type ControlledTraceArtifactPlanStep = Omit<
   "description" | "toolCalls" | "inputSchema" | "outputSchema" | "estimatedTokens"
 > & {
   description?: ControlledTraceRedaction;
+  writesTo: NonNullable<ControlledPlaybookStep["writesTo"]>;
   toolCallCount: number;
   hasInputSchema: boolean;
   hasOutputSchema: boolean;
@@ -155,14 +157,23 @@ function buildPlanArtifact(plan: ExecutionPlan): ControlledTraceArtifactPlan {
       description: redactTraceValue(step.description),
       dependsOn: [...step.dependsOn],
       mode: step.mode,
-      writesTo: step.writesTo ? step.writesTo.map((target) => ({ ...target })) : undefined,
+      writesTo: getStepWriteTargets(step).map((target) => ({ ...target })),
       onFailure: step.onFailure ? { ...step.onFailure } : undefined,
       toolCallCount: step.toolCalls.length,
-      hasInputSchema: Boolean(step.inputSchema),
+      hasInputSchema: hasStepInputSchema(step),
       hasOutputSchema: Boolean(step.outputSchema),
       estimatedTokens: step.estimatedTokens,
     })),
   };
+}
+
+function getStepWriteTargets(step: ExecutionStep) {
+  if (!("writesTo" in step) || !Array.isArray(step.writesTo)) return [];
+  return step.writesTo as NonNullable<ControlledPlaybookStep["writesTo"]>;
+}
+
+function hasStepInputSchema(step: ExecutionStep) {
+  return "inputSchema" in step && Boolean(step.inputSchema);
 }
 
 function buildToolCallArtifact(

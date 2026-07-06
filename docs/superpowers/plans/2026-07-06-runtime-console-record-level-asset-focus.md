@@ -908,3 +908,9 @@ git commit -m "docs: track record-level asset focus"
   - Verification: `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` passed.
   - Spec review: approved after the sales `sourceKey` assertion was added.
   - Code quality review: approved after production sales receipt `sourceKey` generation was added.
+- Task 3 completed across `5d552d0` and `f09a05c`.
+  - `5d552d0`: made Deal Desk focus an existing deal from sales asset prefill metadata.
+  - `f09a05c`: strengthened the component test so it proves selection moves from another deal to the target deal.
+  - Verification: `npm test -- src/__tests__/components/DealDeskAppWindow.test.tsx` passed.
+  - Spec review: approved after the selection-proof test was added.
+  - Code quality review: approved with non-blocking notes about future test isolation and fallback coverage.

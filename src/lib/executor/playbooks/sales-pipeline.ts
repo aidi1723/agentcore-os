@@ -195,6 +195,7 @@ export const salesPipelinePlaybook: ControlledPlaybook = {
       writesTo: [
         { target: "sales_asset", when: "after_approval" },
         { target: "knowledge_asset", when: "after_approval" },
+        { target: "workflow_run", when: "after_approval" },
       ],
       onFailure: { action: "fail_run" },
     },

@@ -1,11 +1,14 @@
 import type { StepResult } from "@/lib/executor/contracts";
+import { getControlledPlaybook } from "@/lib/executor/playbooks/catalog";
 import type { ControlledPlaybookStep } from "@/lib/executor/playbooks/types";
 import type {
   ControlledExecutionRunRecord,
   ControlledWritebackReceipt,
 } from "@/lib/executor/runtime/types";
+import { upsertDraftInStore } from "@/lib/server/draft-store";
 import { upsertKnowledgeAssetInStore } from "@/lib/server/knowledge-asset-store";
 import { upsertSalesAssetInStore } from "@/lib/server/sales-asset-store";
+import { upsertWorkflowRunInStore } from "@/lib/server/workflow-run-store";
 
 type WriteControlledStepAssetsInput = {
   run: ControlledExecutionRunRecord;
@@ -128,6 +131,131 @@ function buildKnowledgeAssetInput(input: WriteControlledStepAssetsInput) {
   };
 }
 
+function buildWorkflowRunInput(input: WriteControlledStepAssetsInput, writtenAt: number) {
+  const workflowRunId = workflowRunIdFor(input.run);
+  const scenarioId = scenarioIdFor(input.run);
+  const playbook = getControlledPlaybook(input.run.playbookId);
+  const planSteps = playbook?.steps ?? input.run.plan.steps;
+  const currentStepIndex = planSteps.findIndex((step) => step.id === input.result.stepId);
+  const normalizedIndex = currentStepIndex >= 0 ? currentStepIndex : 0;
+  const isFinalWriteback = input.result.stepId === "writeback" && input.approved;
+  const nextStep = planSteps[normalizedIndex + 1];
+  const stageRuns = planSteps.map((step, index) => {
+    const state =
+      isFinalWriteback || index <= normalizedIndex
+        ? "completed"
+        : index === normalizedIndex + 1
+          ? step.mode === "review" || step.mode === "manual"
+            ? "awaiting_human"
+            : "running"
+          : "pending";
+    return {
+      id: step.id,
+      title: step.title,
+      mode: step.mode,
+      state,
+    };
+  });
+
+  return {
+    id: workflowRunId,
+    scenarioId,
+    scenarioTitle: playbook?.title ?? input.run.plan.goal ?? input.run.playbookId,
+    triggerType: "manual",
+    state: isFinalWriteback
+      ? "completed"
+      : nextStep?.mode === "review" || nextStep?.mode === "manual"
+        ? "awaiting_human"
+        : "running",
+    currentStageId: isFinalWriteback ? undefined : nextStep?.id ?? input.result.stepId,
+    stageRuns,
+    createdAt: input.run.createdAt,
+    updatedAt: writtenAt,
+  };
+}
+
+function buildDraftInput(input: WriteControlledStepAssetsInput, writtenAt: number) {
+  const allResults = [...input.previousResults, input.result];
+  const intake = outputFor(allResults, "intake");
+  const normalizedLead = isRecord(intake.normalizedLead) ? intake.normalizedLead : {};
+  const qualify = outputFor(allResults, "qualify");
+  const draft = outputFor(allResults, "draft_outreach");
+  const workflowRunId = workflowRunIdFor(input.run);
+  const company = stringValue(normalizedLead.company);
+  const contact = stringValue(normalizedLead.contact);
+  const assumptions = stringList(draft.assumptions);
+  const needsHumanCheck = stringList(draft.needsHumanCheck);
+
+  return {
+    id: stableId("controlled-draft", workflowRunId),
+    title: stringValue(draft.subject) || `Sales outreach draft - ${company || workflowRunId}`,
+    body: stringValue(draft.body),
+    tags: ["controlled-run", "sales-pipeline", input.run.playbookId],
+    source: "publisher",
+    workflowRunId,
+    workflowScenarioId: scenarioIdFor(input.run),
+    workflowStageId: "draft_outreach",
+    workflowSource: `Controlled run ${input.run.id}`,
+    workflowNextStep: "Review and approve the controlled outreach draft.",
+    workflowTriggerType: "manual",
+    workflowOriginApp: "publisher",
+    workflowOriginId: input.run.id,
+    workflowOriginLabel: input.run.playbookId,
+    workflowAudience: [company, contact].filter(Boolean).join(" / ") || undefined,
+    workflowPrimaryAngle: stringValue(qualify.nextAction) || undefined,
+    workflowSourceSummary: stringValue(intake.summary) || undefined,
+    workflowBlockLabel: "Controlled Runtime",
+    workflowPublishNotes: [...assumptions, ...needsHumanCheck].join("\n") || undefined,
+    createdAt: input.run.createdAt,
+    updatedAt: writtenAt,
+  };
+}
+
+async function writeWorkflowRun(input: WriteControlledStepAssetsInput, writtenAt: number) {
+  const payload = buildWorkflowRunInput(input, writtenAt);
+  const result = await upsertWorkflowRunInStore(payload);
+  const stored = result.workflowRun;
+  if (!stored) {
+    return {
+      target: "workflow_run",
+      ok: false,
+      summary: "Failed to write workflow run",
+      writtenAt,
+    } satisfies ControlledWritebackReceipt;
+  }
+  return {
+    target: "workflow_run",
+    ok: true,
+    summary: `Wrote workflow run ${stored.id} as ${stored.state}`,
+    writtenAt,
+    sourceKey: `controlled-run:${input.run.id}:workflow_run`,
+    workflowRunId: stored.id,
+  } satisfies ControlledWritebackReceipt;
+}
+
+async function writeDraft(input: WriteControlledStepAssetsInput, writtenAt: number) {
+  const payload = buildDraftInput(input, writtenAt);
+  const result = await upsertDraftInStore(payload);
+  const stored = result.draft;
+  if (!stored) {
+    return {
+      target: "draft",
+      ok: false,
+      summary: "Failed to write draft",
+      writtenAt,
+    } satisfies ControlledWritebackReceipt;
+  }
+  return {
+    target: "draft",
+    ok: true,
+    summary: `Wrote draft ${stored.id}`,
+    writtenAt,
+    assetId: stored.id,
+    sourceKey: `controlled-run:${input.run.id}:draft`,
+    workflowRunId: stored.workflowRunId,
+  } satisfies ControlledWritebackReceipt;
+}
+
 async function writeSalesAsset(input: WriteControlledStepAssetsInput, writtenAt: number) {
   const payload = buildSalesAssetInput(input);
   const result = await upsertSalesAssetInStore(payload);
@@ -197,6 +325,10 @@ export async function writeControlledStepAssets(
         receipts.push(await writeSalesAsset(input, writtenAt));
       } else if (target.target === "knowledge_asset") {
         receipts.push(await writeKnowledgeAsset(input, writtenAt));
+      } else if (target.target === "workflow_run") {
+        receipts.push(await writeWorkflowRun(input, writtenAt));
+      } else if (target.target === "draft") {
+        receipts.push(await writeDraft(input, writtenAt));
       } else {
         receipts.push({
           target: target.target,

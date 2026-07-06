@@ -7,8 +7,10 @@ import type { StepResult } from "@/lib/executor/contracts";
 import { salesPipelinePlaybook } from "@/lib/executor/playbooks/sales-pipeline";
 import type { ControlledExecutionRunRecord } from "@/lib/executor/runtime/types";
 import { writeControlledStepAssets } from "@/lib/executor/runtime/writeback";
+import { listDraftStoreSnapshot } from "@/lib/server/draft-store";
 import { listKnowledgeAssetStoreSnapshot } from "@/lib/server/knowledge-asset-store";
 import { listSalesAssetStoreSnapshot } from "@/lib/server/sales-asset-store";
+import { listWorkflowRunStoreSnapshot } from "@/lib/server/workflow-run-store";
 
 let tmpDir: string;
 let originalCwd: () => string;
@@ -122,6 +124,45 @@ function makeWritebackResult(): StepResult {
 }
 
 describe("writeControlledStepAssets", () => {
+  it("writes workflow run target to the workflow run store", async () => {
+    const step = salesPipelinePlaybook.steps.find((item) => item.id === "intake")!;
+
+    const receipts = await writeControlledStepAssets({
+      run: makeRun(),
+      step,
+      result: previousResults[0],
+      previousResults: [],
+      approved: true,
+    });
+
+    expect(receipts).toEqual([
+      expect.objectContaining({
+        target: "workflow_run",
+        ok: true,
+        sourceKey: "controlled-run:run-1:workflow_run",
+        workflowRunId: "workflow-1",
+      }),
+    ]);
+    expect(receipts[0].summary).toContain("workflow-1");
+
+    const snapshot = await listWorkflowRunStoreSnapshot();
+    expect(snapshot.workflowRuns).toHaveLength(1);
+    expect(snapshot.workflowRuns[0]).toMatchObject({
+      id: "workflow-1",
+      scenarioId: "sales-pipeline",
+      scenarioTitle: "Sales Pipeline Controlled Runtime",
+      state: "running",
+      currentStageId: "qualify",
+    });
+    expect(snapshot.workflowRuns[0].stageRuns.map((stage) => [stage.id, stage.state])).toEqual([
+      ["intake", "completed"],
+      ["qualify", "running"],
+      ["draft_outreach", "pending"],
+      ["human_review", "pending"],
+      ["writeback", "pending"],
+    ]);
+  });
+
   it("writes approved final output to sales and knowledge assets", async () => {
     const step = salesPipelinePlaybook.steps.find((item) => item.id === "writeback")!;
 
@@ -136,6 +177,7 @@ describe("writeControlledStepAssets", () => {
     expect(receipts.map((receipt) => receipt.target)).toEqual([
       "sales_asset",
       "knowledge_asset",
+      "workflow_run",
     ]);
     expect(receipts.every((receipt) => receipt.ok)).toBe(true);
     expect(receipts[0].summary).toContain("workflow-1");
@@ -154,6 +196,12 @@ describe("writeControlledStepAssets", () => {
           ok: true,
           assetId: "controlled-knowledge-asset:run-1",
           sourceKey: "controlled-run:run-1:knowledge_asset",
+          workflowRunId: "workflow-1",
+        }),
+        expect.objectContaining({
+          target: "workflow_run",
+          ok: true,
+          sourceKey: "controlled-run:run-1:workflow_run",
           workflowRunId: "workflow-1",
         }),
       ]),
@@ -179,6 +227,13 @@ describe("writeControlledStepAssets", () => {
       status: "active",
     });
     expect(knowledgeSnapshot.knowledgeAssets[0].body).toContain("Approved body");
+
+    const workflowSnapshot = await listWorkflowRunStoreSnapshot();
+    expect(workflowSnapshot.workflowRuns[0]).toMatchObject({
+      id: "workflow-1",
+      state: "completed",
+      currentStageId: undefined,
+    });
   });
 
   it("skips after-approval writes when output is not approved", async () => {
@@ -192,7 +247,7 @@ describe("writeControlledStepAssets", () => {
       approved: false,
     });
 
-    expect(receipts).toHaveLength(2);
+    expect(receipts).toHaveLength(3);
     expect(receipts.every((receipt) => !receipt.ok)).toBe(true);
     expect(receipts.every((receipt) => receipt.summary === "Skipped because output is not approved")).toBe(
       true,
@@ -223,7 +278,44 @@ describe("writeControlledStepAssets", () => {
     expect((await listKnowledgeAssetStoreSnapshot()).knowledgeAssets).toHaveLength(1);
   });
 
-  it("returns unsupported receipts without writing unsupported targets", async () => {
+  it("is idempotent for workflow run and draft targets", async () => {
+    const workflowStep = salesPipelinePlaybook.steps.find((item) => item.id === "intake")!;
+    const draftStep = salesPipelinePlaybook.steps.find((item) => item.id === "draft_outreach")!;
+
+    await writeControlledStepAssets({
+      run: makeRun(),
+      step: workflowStep,
+      result: previousResults[0],
+      previousResults: [],
+      approved: true,
+    });
+    await writeControlledStepAssets({
+      run: makeRun(),
+      step: workflowStep,
+      result: previousResults[0],
+      previousResults: [],
+      approved: true,
+    });
+    await writeControlledStepAssets({
+      run: makeRun(),
+      step: draftStep,
+      result: previousResults[2],
+      previousResults: previousResults.slice(0, 2),
+      approved: true,
+    });
+    await writeControlledStepAssets({
+      run: makeRun(),
+      step: draftStep,
+      result: previousResults[2],
+      previousResults: previousResults.slice(0, 2),
+      approved: true,
+    });
+
+    expect((await listWorkflowRunStoreSnapshot()).workflowRuns).toHaveLength(1);
+    expect((await listDraftStoreSnapshot()).drafts).toHaveLength(1);
+  });
+
+  it("writes draft target to the draft store", async () => {
     const step = salesPipelinePlaybook.steps.find((item) => item.id === "draft_outreach")!;
 
     const receipts = await writeControlledStepAssets({
@@ -237,10 +329,27 @@ describe("writeControlledStepAssets", () => {
     expect(receipts).toEqual([
       expect.objectContaining({
         target: "draft",
-        ok: false,
-        summary: "Skipped unsupported writeback target draft",
+        ok: true,
+        assetId: "controlled-draft:workflow-1",
+        sourceKey: "controlled-run:run-1:draft",
+        workflowRunId: "workflow-1",
       }),
     ]);
+    expect(receipts[0].summary).toContain("controlled-draft:workflow-1");
+
+    const snapshot = await listDraftStoreSnapshot();
+    expect(snapshot.drafts).toHaveLength(1);
+    expect(snapshot.drafts[0]).toMatchObject({
+      id: "controlled-draft:workflow-1",
+      title: "Window project follow-up",
+      body: "Draft body",
+      source: "publisher",
+      workflowRunId: "workflow-1",
+      workflowScenarioId: "sales-pipeline",
+      workflowStageId: "draft_outreach",
+      workflowOriginId: "run-1",
+      workflowOriginLabel: "sales-pipeline-v1",
+    });
     expect((await listSalesAssetStoreSnapshot()).salesAssets).toHaveLength(0);
     expect((await listKnowledgeAssetStoreSnapshot()).knowledgeAssets).toHaveLength(0);
   });

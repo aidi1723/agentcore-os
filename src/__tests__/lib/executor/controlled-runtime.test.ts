@@ -245,13 +245,56 @@ describe("controlled runtime execution", () => {
     const result = await runMultiStepTask(request, callbacks);
     const run = await getControlledExecutionRun(request.metadata.requestId);
     const intake = run?.steps.find((step) => step.stepId === "intake");
+    const draftOutreach = run?.steps.find((step) => step.stepId === "draft_outreach");
 
     expect(result.ok).toBe(true);
     expect(intake?.writebackReceipts.length).toBeGreaterThan(0);
     expect(intake?.writebackReceipts[0]).toMatchObject({
       target: "workflow_run",
-      ok: false,
-      summary: "Skipped unsupported writeback target workflow_run",
+      ok: true,
+      workflowRunId: "controlled-runtime-test",
+      sourceKey: "controlled-run:controlled-runtime-test:workflow_run",
+    });
+    expect(draftOutreach?.writebackReceipts).toEqual([
+      expect.objectContaining({
+        target: "draft",
+        ok: true,
+        assetId: "controlled-draft:controlled-runtime-test",
+        sourceKey: "controlled-run:controlled-runtime-test:draft",
+        workflowRunId: "controlled-runtime-test",
+      }),
+    ]);
+    expect(run?.steps.find((step) => step.stepId === "writeback")?.writebackReceipts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "sales_asset", ok: true }),
+        expect.objectContaining({ target: "knowledge_asset", ok: true }),
+      ]),
+    );
+  });
+
+  it("writes workflow and draft records to server-backed stores", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    const { listDraftStoreSnapshot } = await import("@/lib/server/draft-store");
+    const { listWorkflowRunStoreSnapshot } = await import(
+      "@/lib/server/workflow-run-store"
+    );
+    const request = buildRequest();
+    const { callbacks } = buildCallbacks();
+
+    const result = await runMultiStepTask(request, callbacks);
+
+    expect(result.ok).toBe(true);
+    expect((await listWorkflowRunStoreSnapshot()).workflowRuns[0]).toMatchObject({
+      id: "controlled-runtime-test",
+      scenarioId: "sales-pipeline",
+      state: "completed",
+      currentStageId: undefined,
+    });
+    expect((await listDraftStoreSnapshot()).drafts[0]).toMatchObject({
+      id: "controlled-draft:controlled-runtime-test",
+      title: "Following up on your window inquiry",
+      workflowRunId: "controlled-runtime-test",
+      workflowStageId: "draft_outreach",
     });
   });
 });

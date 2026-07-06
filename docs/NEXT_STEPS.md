@@ -61,7 +61,7 @@ npm run build
 Current `test:controlled-runtime` coverage:
 
 - 20 test files.
-- 115 tests.
+- 118 tests.
 - Includes playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, and record-level asset focus coverage.
 
 Known current lint/build note:

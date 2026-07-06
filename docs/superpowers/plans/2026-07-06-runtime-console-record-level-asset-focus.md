@@ -925,13 +925,14 @@ git commit -m "docs: track record-level asset focus"
   - Verification: `npm run test:controlled-runtime` passed with 20 files and 115 tests.
 - Final review follow-up completed.
   - Added regression coverage for prefill-before-hydration races in Deal Desk and Knowledge Vault.
+  - Added regression coverage for legacy sales asset landings without structured record metadata so Runtime Console keeps broad Deal Desk fallback.
   - Deal Desk and Knowledge Vault keep record-focus-only prefill pending across asset/store updates, retry focus after hydration, and show a missing-record error if the exact retained record is still unavailable.
   - Clarified fallback semantics: old receipts without structured record metadata keep broad app/context fallback; record-focus-only missing Deal Desk records do not create synthetic leads.
   - Verification: `npm test -- src/__tests__/components/KnowledgeVaultAppWindow.test.tsx src/__tests__/components/DealDeskAppWindow.test.tsx src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx src/__tests__/lib/asset-record-focus.test.ts` passed.
 - Task 6 completed in final documentation pass.
   - Updated changelog, next steps, controlled runtime manual, this plan, and local daily memory.
   - Final verification:
-    - `npm run test:controlled-runtime` passed: 20 files, 117 tests.
+    - `npm run test:controlled-runtime` passed: 20 files, 118 tests.
     - `npm run test:core-workflows` passed.
     - `npm run lint` passed with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
     - `npm run build` passed with the same existing `<img>` warning.

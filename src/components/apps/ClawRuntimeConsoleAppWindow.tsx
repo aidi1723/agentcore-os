@@ -483,10 +483,13 @@ export function ClawRuntimeConsoleAppWindow({
 
   const handleOpenControlledRunAsset = (asset: ControlledRunAssetLandingSummary) => {
     if (asset.appId === "deal_desk") {
+      const recordFocusMetadata = {
+        ...(asset.assetId ? { assetId: asset.assetId } : {}),
+        ...(asset.sourceKey ? { sourceKey: asset.sourceKey } : {}),
+        ...(asset.workflowRunId ? { workflowRunId: asset.workflowRunId } : {}),
+      };
       requestOpenDealDesk({
-        assetId: asset.assetId,
-        sourceKey: asset.sourceKey,
-        workflowRunId: asset.workflowRunId ?? selectedControlledRunSummary?.workflowRunId,
+        ...recordFocusMetadata,
         workflowScenarioId: selectedControlledRunSummary?.scenarioId,
         workflowSource: `Runtime Console asset ${asset.assetId ?? asset.target}`,
         workflowNextStep:

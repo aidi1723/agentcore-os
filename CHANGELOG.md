@@ -156,6 +156,7 @@
 - Deal Desk now focuses an existing deal from sales asset prefill metadata instead of creating a duplicate lead.
 - Knowledge Vault now focuses and highlights the exact knowledge asset from `assetId` / `sourceKey` prefill metadata.
 - Deal Desk and Knowledge Vault now retry record focus after asset hydration; missing record-focus-only openings report an error instead of creating synthetic records.
+- Legacy Runtime Console sales landings without structured record metadata now keep the broad Deal Desk fallback instead of receiving run-level record focus metadata.
 - Expanded `test:controlled-runtime` to include record-level asset lookup, Deal Desk focus, and Knowledge Vault focus coverage.
 
 ### Framework Alignment
@@ -170,10 +171,10 @@
 - Verified `npm test -- src/__tests__/lib/executor/runtime/writeback.test.ts` — 4 tests passing.
 - Verified `npm test -- src/__tests__/lib/executor/runtime/console-summary.test.ts` — 6 tests passing.
 - Verified `npm test -- src/__tests__/lib/executor/runtime/resume.test.ts` — 10 tests passing.
-- Verified `npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` — 2 tests passing.
-- Verified `npm test -- src/__tests__/components/DealDeskAppWindow.test.tsx` — 1 test passing.
-- Verified `npm test -- src/__tests__/components/KnowledgeVaultAppWindow.test.tsx` — 1 test passing.
-- Verified `npm run test:controlled-runtime` — 20 files, 115 tests passing.
+- Verified `npm test -- src/__tests__/components/ClawRuntimeConsoleAppWindow.test.tsx` — 3 tests passing.
+- Verified `npm test -- src/__tests__/components/DealDeskAppWindow.test.tsx` — 2 tests passing.
+- Verified `npm test -- src/__tests__/components/KnowledgeVaultAppWindow.test.tsx` — 2 tests passing.
+- Verified `npm run test:controlled-runtime` — 20 files, 118 tests passing.
 - Verified `npm run test:core-workflows` — all core workflow regressions passing.
 - Verified `npm run lint` — exit 0 with the existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
 - Verified `npm run build` — exit 0 with the same existing `<img>` warning.

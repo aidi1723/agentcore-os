@@ -199,6 +199,61 @@ function buildCompletedRunWithAssetLandings(): ControlledExecutionRunRecord {
   };
 }
 
+function buildCompletedRunWithLegacySalesLanding(): ControlledExecutionRunRecord {
+  return {
+    id: "run-legacy-sales-1",
+    requestId: "request-legacy-sales-1",
+    sessionId: "session-legacy-sales-1",
+    workflowRunId: "workflow-legacy-sales-1",
+    scenarioId: "sales-pipeline",
+    playbookId: "sales-pipeline-v1",
+    playbookVersion: "1.0.0",
+    planId: "plan-legacy-sales-1",
+    state: "completed",
+    currentStepId: "writeback",
+    createdAt: 1,
+    updatedAt: 2,
+    finishedAt: 2,
+    auditEvents: [],
+    plan: {
+      id: "plan-legacy-sales-1",
+      goal: "Legacy sales landing run",
+      requiresApproval: false,
+      totalSteps: 1,
+      steps: [
+        {
+          id: "writeback",
+          title: "Write legacy sales asset",
+          description: "Write legacy controlled assets",
+          toolCalls: [],
+          dependsOn: [],
+          mode: "auto",
+        },
+      ],
+    },
+    steps: [
+      {
+        stepId: "writeback",
+        state: "completed",
+        startedAt: 1,
+        finishedAt: 2,
+        input: {},
+        output: {},
+        attempts: 1,
+        toolCallResults: [],
+        writebackReceipts: [
+          {
+            target: "sales_asset",
+            ok: true,
+            summary: "Legacy sales asset receipt without structured metadata",
+            writtenAt: 2,
+          },
+        ],
+      },
+    ],
+  };
+}
+
 describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
   it("posts retry requests for eligible failed controlled runs", async () => {
     const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
@@ -302,5 +357,50 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
         query: "knowledge-asset-1",
       }),
     );
+  });
+
+  it("keeps legacy sales asset landings on broad Deal Desk fallback", async () => {
+    const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
+      const href = String(url);
+      if (href.endsWith("/api/runtime/executor/controlled-runs")) {
+        return Response.json({
+          ok: true,
+          data: { runs: [buildCompletedRunWithLegacySalesLanding()] },
+        });
+      }
+      if (href.endsWith("/api/runtime/executor/sessions")) {
+        return Response.json({ ok: true, data: { sessions: [] } });
+      }
+      return Response.json({ ok: true, data: {} });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ClawRuntimeConsoleAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Legacy sales landing run").length).toBeGreaterThan(0);
+    });
+
+    fireEvent.click(await screen.findByRole("button", { name: "打开" }));
+
+    const prefill = vi.mocked(requestOpenDealDesk).mock.calls.at(-1)?.[0];
+    expect(prefill).toEqual(
+      expect.objectContaining({
+        workflowScenarioId: "sales-pipeline",
+        workflowSource: "Runtime Console asset sales_asset",
+      }),
+    );
+    expect(prefill).not.toHaveProperty("assetId");
+    expect(prefill).not.toHaveProperty("sourceKey");
+    expect(prefill).not.toHaveProperty("workflowRunId");
   });
 });

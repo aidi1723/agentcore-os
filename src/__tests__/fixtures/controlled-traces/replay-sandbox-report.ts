@@ -12,13 +12,24 @@ import type {
   ReplaySandboxGuarantees,
 } from "@/lib/executor/runtime/replay-sandbox-contracts";
 
+export type ReplaySandboxCatalogFailureKind =
+  | "contract_build_failed"
+  | "sandbox_artifact_failed"
+  | "guarantee_violation";
+
+type BuildReplaySandboxCatalogReportOptions = {
+  runSandbox?: typeof runNoSideEffectReplaySandbox;
+};
+
 export type ReplaySandboxCatalogReportItem = {
   catalogId: string;
   fixtureId: string;
   playbookId: string;
   ok: boolean;
+  failureKind: ReplaySandboxCatalogFailureKind | null;
   contractBuild: ReplaySandboxContractBuildResult;
   artifact: ReplayResultArtifact | null;
+  guaranteeErrors: string[];
   errors: string[];
 };
 
@@ -51,6 +62,7 @@ function guaranteesArePreserved(artifact: ReplayResultArtifact) {
 
 function buildItem(
   entry: ControlledTraceFixtureCatalogEntry,
+  options: Required<BuildReplaySandboxCatalogReportOptions>,
 ): ReplaySandboxCatalogReportItem {
   const contractBuild = buildReplaySandboxContractFromFixture(entry.fixture);
 
@@ -60,34 +72,48 @@ function buildItem(
       fixtureId: entry.fixture.fixtureId,
       playbookId: entry.playbookId,
       ok: false,
+      failureKind: "contract_build_failed",
       contractBuild,
       artifact: null,
+      guaranteeErrors: [],
       errors: contractBuild.errors,
     };
   }
 
-  const artifact = runNoSideEffectReplaySandbox(contractBuild.contract);
+  const artifact = options.runSandbox(contractBuild.contract);
   const artifactErrors = artifact.status === "failed" ? artifact.diagnostics : [];
   const guaranteeErrors = guaranteesArePreserved(artifact)
     ? []
     : ["Replay sandbox no-side-effect guarantees were not preserved"];
   const errors = [...artifactErrors, ...guaranteeErrors];
+  const failureKind: ReplaySandboxCatalogFailureKind | null =
+    artifact.status === "failed"
+      ? "sandbox_artifact_failed"
+      : guaranteeErrors.length > 0
+        ? "guarantee_violation"
+        : null;
 
   return {
     catalogId: entry.id,
     fixtureId: entry.fixture.fixtureId,
     playbookId: entry.playbookId,
     ok: artifact.status === "succeeded" && errors.length === 0,
+    failureKind,
     contractBuild,
     artifact,
+    guaranteeErrors,
     errors,
   };
 }
 
 export function buildReplaySandboxCatalogReport(
   entries: ControlledTraceFixtureCatalogEntry[] = controlledTraceFixtureCatalog,
+  options: BuildReplaySandboxCatalogReportOptions = {},
 ): ReplaySandboxCatalogReport {
-  const items = entries.map(buildItem);
+  const resolvedOptions = {
+    runSandbox: options.runSandbox ?? runNoSideEffectReplaySandbox,
+  };
+  const items = entries.map((entry) => buildItem(entry, resolvedOptions));
   const passed = items.filter((item) => item.ok).length;
   const failed = items.length - passed;
 

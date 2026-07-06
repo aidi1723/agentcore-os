@@ -128,6 +128,15 @@ function makeRun(): ControlledExecutionRunRecord {
             sourceKey: "controlled-run:run-console-1:knowledge_asset",
             workflowRunId: "workflow-1",
           },
+          {
+            target: "support_asset",
+            ok: true,
+            summary: "Wrote support asset controlled-support-asset:workflow-1 for workflow workflow-1",
+            writtenAt: 212,
+            assetId: "controlled-support-asset:workflow-1",
+            sourceKey: "controlled-run:run-console-1:support_asset",
+            workflowRunId: "workflow-1",
+          },
         ],
       },
     ],
@@ -145,7 +154,7 @@ describe("buildControlledRunConsoleSummary", () => {
     expect(summary.failedSteps).toBe(0);
     expect(summary.approvalCount).toBe(1);
     expect(summary.auditEventCount).toBe(0);
-    expect(summary.writebackReceiptCount).toBe(4);
+    expect(summary.writebackReceiptCount).toBe(5);
     expect(summary.assetLandings).toEqual([
       {
         target: "workflow_run",
@@ -187,6 +196,16 @@ describe("buildControlledRunConsoleSummary", () => {
         workflowRunId: "workflow-1",
         appId: "knowledge_vault",
       },
+      {
+        target: "support_asset",
+        label: "Support asset",
+        detail: "Wrote support asset controlled-support-asset:workflow-1 for workflow workflow-1",
+        ok: true,
+        assetId: "controlled-support-asset:workflow-1",
+        sourceKey: "controlled-run:run-console-1:support_asset",
+        workflowRunId: "workflow-1",
+        appId: "support_copilot",
+      },
     ]);
 
     expect(summary.steps.map((step) => step.id)).toEqual([
@@ -210,6 +229,7 @@ describe("buildControlledRunConsoleSummary", () => {
     expect(summary.steps[2].writebackReceipts.map((receipt) => receipt.target)).toEqual([
       "sales_asset",
       "knowledge_asset",
+      "support_asset",
     ]);
   });
 
@@ -369,6 +389,13 @@ describe("buildControlledRunConsoleSummary", () => {
       filterControlledRunConsoleSummaries([completed, awaiting], {
         state: "all",
         query: "Workflow run",
+      }).map((summary) => summary.id),
+    ).toEqual(["run-console-1"]);
+
+    expect(
+      filterControlledRunConsoleSummaries([completed, awaiting], {
+        state: "all",
+        query: "Support asset",
       }).map((summary) => summary.id),
     ).toEqual(["run-console-1"]);
   });

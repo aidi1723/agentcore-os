@@ -7,6 +7,7 @@ import {
   requestOpenIndustryHub,
   requestOpenKnowledgeVault,
   requestOpenPublisher,
+  requestOpenSupportCopilot,
 } from "@/lib/ui-events";
 
 vi.mock("@/components/windows/AppWindowShell", () => ({
@@ -86,6 +87,7 @@ vi.mock("@/lib/ui-events", () => ({
   requestOpenIndustryHub: vi.fn(),
   requestOpenKnowledgeVault: vi.fn(),
   requestOpenPublisher: vi.fn(),
+  requestOpenSupportCopilot: vi.fn(),
   requestOpenSettings: vi.fn(),
 }));
 
@@ -215,6 +217,15 @@ function buildCompletedRunWithAssetLandings(): ControlledExecutionRunRecord {
             writtenAt: 2,
             assetId: "controlled-draft:workflow-assets-1",
             sourceKey: "controlled-run:run-assets-1:draft",
+            workflowRunId: "workflow-assets-1",
+          },
+          {
+            target: "support_asset",
+            ok: true,
+            summary: "Wrote support asset controlled-support-asset:workflow-assets-1",
+            writtenAt: 2,
+            assetId: "controlled-support-asset:workflow-assets-1",
+            sourceKey: "controlled-run:run-assets-1:support_asset",
             workflowRunId: "workflow-assets-1",
           },
         ],
@@ -361,7 +372,7 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
     });
 
     const openButtons = await screen.findAllByRole("button", { name: "打开" });
-    expect(openButtons).toHaveLength(4);
+    expect(openButtons).toHaveLength(5);
     fireEvent.click(openButtons[0]);
     fireEvent.click(openButtons[1]);
 
@@ -415,7 +426,7 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
     });
 
     const openButtons = await screen.findAllByRole("button", { name: "打开" });
-    expect(openButtons).toHaveLength(4);
+    expect(openButtons).toHaveLength(5);
     fireEvent.click(openButtons[2]);
     fireEvent.click(openButtons[3]);
 
@@ -433,6 +444,50 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
           "Review the controlled run draft and decide whether to publish or revise.",
       }),
     );
+  });
+
+  it("opens support asset landings with support workflow context", async () => {
+    const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
+      const href = String(url);
+      if (href.endsWith("/api/runtime/executor/controlled-runs")) {
+        return Response.json({
+          ok: true,
+          data: { runs: [buildCompletedRunWithAssetLandings()] },
+        });
+      }
+      if (href.endsWith("/api/runtime/executor/sessions")) {
+        return Response.json({ ok: true, data: { sessions: [] } });
+      }
+      return Response.json({ ok: true, data: {} });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ClawRuntimeConsoleAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Asset landing run").length).toBeGreaterThan(0);
+    });
+
+    const openButtons = await screen.findAllByRole("button", { name: "打开" });
+    expect(openButtons).toHaveLength(5);
+    fireEvent.click(openButtons[4]);
+
+    expect(requestOpenSupportCopilot).toHaveBeenCalledWith({
+      workflowRunId: "workflow-assets-1",
+      workflowScenarioId: "sales-pipeline",
+      workflowSource: "Runtime Console asset controlled-support-asset:workflow-assets-1",
+      workflowNextStep:
+        "Review the controlled run support asset and continue support resolution.",
+    });
   });
 
   it("keeps legacy sales asset landings on broad Deal Desk fallback", async () => {

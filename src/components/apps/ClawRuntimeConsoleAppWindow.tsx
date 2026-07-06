@@ -42,6 +42,7 @@ import {
   requestOpenKnowledgeVault,
   requestOpenPublisher,
   requestOpenSettings,
+  requestOpenSupportCopilot,
 } from "@/lib/ui-events";
 
 const DEFAULT_BASE = "http://127.0.0.1:18789";
@@ -535,6 +536,18 @@ export function ClawRuntimeConsoleAppWindow({
           "Review the controlled run draft and decide whether to publish or revise.",
       });
       showToast("已打开 Publisher", "ok");
+      return;
+    }
+
+    if (asset.appId === "support_copilot") {
+      requestOpenSupportCopilot({
+        workflowRunId: asset.workflowRunId ?? selectedControlledRunSummary?.workflowRunId,
+        workflowScenarioId: selectedControlledRunSummary?.scenarioId,
+        workflowSource: `Runtime Console asset ${asset.assetId ?? asset.target}`,
+        workflowNextStep:
+          "Review the controlled run support asset and continue support resolution.",
+      });
+      showToast("已打开 Support Copilot", "ok");
     }
   };
 

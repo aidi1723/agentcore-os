@@ -13,7 +13,7 @@ export type ControlledRunAssetLandingSummary = {
   assetId?: string;
   sourceKey?: string;
   workflowRunId?: string;
-  appId?: "deal_desk" | "knowledge_vault" | "industry_hub" | "publisher";
+  appId?: "deal_desk" | "knowledge_vault" | "industry_hub" | "publisher" | "support_copilot";
 };
 
 export type ControlledRunStepConsoleSummary = {
@@ -71,6 +71,7 @@ const LANDING_LABELS: Record<string, string> = {
   draft: "Draft",
   sales_asset: "Sales asset",
   knowledge_asset: "Knowledge asset",
+  support_asset: "Support asset",
 };
 
 const LANDING_APP_IDS: Record<string, ControlledRunAssetLandingSummary["appId"]> = {
@@ -78,6 +79,7 @@ const LANDING_APP_IDS: Record<string, ControlledRunAssetLandingSummary["appId"]>
   draft: "publisher",
   sales_asset: "deal_desk",
   knowledge_asset: "knowledge_vault",
+  support_asset: "support_copilot",
 };
 
 const LANDING_TARGETS = new Set(Object.keys(LANDING_LABELS));

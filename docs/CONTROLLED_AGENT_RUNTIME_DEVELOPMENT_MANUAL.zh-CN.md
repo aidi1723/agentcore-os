@@ -329,6 +329,7 @@ type ControlledPlaybookStep = {
 - [Governed Trace Fixture Refresh Workflow](GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md)
 - [Fixture Replay Failure Documentation Matrix Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-failure-documentation-matrix.md)
 - [Fixture Replay Refresh Review Checklist Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-refresh-review-checklist.md)
+- [Fixture Replay CI Gate Documentation Implementation Plan](superpowers/plans/2026-07-06-fixture-replay-ci-gate-documentation.md)
 
 ### 8.1 当前进度快照（2026-07-06）
 
@@ -367,17 +368,18 @@ type ControlledPlaybookStep = {
 - Phase 10p fixture replay validation failure fixtures：已新增 reusable synthetic validation failure factories，覆盖缺失 `sourceRunId`、未脱敏 step input、未脱敏 tool output，并在 report/summary 测试中验证 validation errors 会被保留和展示。committed governed fixture catalog 和 committed CLI commands 继续保持全绿。
 - Phase 10q fixture replay failure documentation matrix：已在 replay contract guide 中新增 failure fixture matrix，把 validation failure、replay drift、summary diagnostics 和 process exit harness 对应到具体 factories、测试文件、诊断和维护动作。synthetic failures 明确保持 test-only，不进入 committed governed fixture catalog。
 - Phase 10r fixture replay refresh review checklist：已把 governed fixture refresh 的候选 fixture 审查拆成 source identity、redaction、playbook contract、approval、writeback identity、failure triage、sensitive search 和 replacement diff gates。失败分类链接到 replay contract failure fixture matrix。
+- Phase 10s fixture replay CI gate documentation：已新增 governed trace fixture CI gate guide，明确 `trace:fixtures` 是自动化 JSON contract，`trace:fixtures:summary` 是人读 triage，`trace:fixture:build` 只属于人工 refresh workflow。
 
 仍未完成：
 
 - Fixture 目前只验证 playbook/trace metadata，还不重放真实工具调用。
-- Fixture replay health commands 已存在，但还缺一份 local / CI-style gate 使用说明，明确 JSON command 和 human summary command 的使用边界。
+- 当前 committed fixture catalog 覆盖 sales/support 两条 playbook；还需要 review 是否存在高价值 edge-case fixture 或后续 playbook fixture gap。
 
 因此下一阶段默认进入：
 
-**Phase 10s. Fixture Replay CI Gate Documentation**
+**Phase 10t. Fixture Replay Catalog Expansion Review**
 
-目标是文档化 `npm run trace:fixtures --silent` 和 `npm run trace:fixtures:summary --silent` 在本地、fixture refresh 和 CI-style gate 中的使用边界。该阶段优先文档对齐，除非审查暴露真实缺失的 package command 或脚本 gate。
+目标是盘点当前 committed governed fixture catalog 覆盖范围，判断是否需要为更多 playbook、terminal state、approval behavior 或 writeback target family 增加 fixture。该阶段优先 review/documentation，除非审查发现明确高价值缺失 fixture。
 
 ### Phase 0. 冻结方向
 

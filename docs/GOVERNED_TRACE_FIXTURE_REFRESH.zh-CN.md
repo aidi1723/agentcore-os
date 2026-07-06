@@ -12,6 +12,8 @@ This workflow is intentionally manual. The builder command prints fixture JSON t
 
 If `npm run trace:fixtures --silent` fails, first read [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md) to identify whether the failure is playbook drift, stale fixture metadata, or an unsafe candidate fixture.
 
+For local and CI-style gate policy, see [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md).
+
 ## 2. Hard Boundaries
 
 Do not add automation that bypasses review:

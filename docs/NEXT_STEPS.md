@@ -67,6 +67,8 @@ Completed in the current controlled runtime line:
 - Governed trace fixture replay contract guide for replay invariant interpretation, diagnostics reference, and maintainer failure triage.
 - Human-readable governed trace fixture replay summary command.
 - Synthetic validation/replay failure fixtures, failure exit harness coverage, and a replay contract failure fixture matrix mapping failures to source factories/tests and maintainer actions.
+- Governed fixture refresh review checklist for candidate fixture replacement decisions.
+- Governed trace fixture CI gate guide for local, fixture-refresh, and CI-style command usage.
 
 Current verification baseline:
 
@@ -457,6 +459,34 @@ Outcome:
 - Maintainers now have a single checklist from candidate fixture generation to replacement decision.
 - Unsafe candidates are rejected at the source instead of being hand-edited into committed fixture JSON.
 
+## Completed. Fixture Replay CI Gate Documentation
+
+Why:
+
+- Fixture replay had JSON and human-readable health commands plus a manual refresh checklist.
+- Maintainers still needed one place to decide which command belongs in local, fixture-refresh, and CI-style gates.
+- The project needed to keep the stable automation contract separate from human-readable summary output.
+
+Delivered:
+
+- Added `docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md`.
+- Documented `trace:fixtures` as the stable JSON automation command.
+- Documented `trace:fixtures:summary` as local human triage over the same report, not a parseable automation contract.
+- Documented `trace:fixture:build` as a manual refresh-workflow command only.
+- Linked the gate guide from the replay contract, refresh workflow, and documentation index.
+
+Primary files:
+
+- `docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md`
+- `docs/GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md`
+- `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`
+- `docs/DOCUMENTATION_INDEX.zh-CN.md`
+
+Outcome:
+
+- Local and CI-style fixture replay gate usage is now explicit.
+- Automation is pointed at JSON output; humans are pointed at summary output.
+
 ## Completed. Governed Trace Fixture Builder CLI
 
 Why:
@@ -676,20 +706,20 @@ Outcome:
 - Report and summary tests now cover both validation failures and replay drift failures.
 - Maintainers can see validation-layer diagnostics in the same report/summary surfaces.
 
-## Recommended Next. Fixture Replay CI Gate Documentation
+## Recommended Next. Fixture Replay Catalog Expansion Review
 
 Why:
 
-- Fixture replay now has JSON and human-readable health commands plus a manual refresh checklist.
-- The next gap is documenting how those commands should be used as local and CI-style gates.
-- This should stay documentation-first unless the review exposes a missing script or package command.
+- Sales and support currently have committed governed fixtures.
+- Before adding more replay machinery, the project should review whether additional controlled playbooks or edge-case governed traces deserve committed fixtures.
+- This should stay review/documentation-first unless a real missing fixture is identified.
 
 Suggested scope:
 
-- Document when to run `npm run trace:fixtures --silent` versus `npm run trace:fixtures:summary --silent`.
-- Define local pre-commit, CI-style, and fixture-refresh gate expectations.
-- Clarify which command output is stable for automation and which output is for human triage.
-- Keep implementation unchanged unless the documentation review exposes a real missing gate.
+- Inventory current committed fixture catalog coverage.
+- Identify candidate fixture gaps by playbook, terminal state, approval behavior, and writeback target family.
+- Decide whether catalog expansion is needed now or should wait until more controlled playbooks exist.
+- Keep implementation unchanged unless review exposes a high-value missing fixture.
 
 ## Completed. Support Runtime Console Record Focus
 

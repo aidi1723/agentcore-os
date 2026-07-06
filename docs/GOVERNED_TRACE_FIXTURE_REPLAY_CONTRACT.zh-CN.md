@@ -8,6 +8,8 @@ Last updated: 2026-07-06
 
 它是 `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md` 的配套文档。Refresh guide 说明如何生成和替换 fixture；本文档说明 replay gate 为什么失败，以及失败后应该先改 playbook、刷新 fixture，还是拒绝 artifact source。
 
+For local and CI-style command usage, see [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md).
+
 ## 2. Hard Boundaries
 
 Fixture replay 是纯 metadata 校验：

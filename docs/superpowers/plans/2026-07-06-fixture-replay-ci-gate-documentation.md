@@ -34,7 +34,7 @@
 **Files:**
 - Create: `docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md`
 
-- [ ] **Step 1: Add purpose and boundaries**
+- [x] **Step 1: Add purpose and boundaries**
 
 Create:
 
@@ -65,7 +65,7 @@ Fixture replay gates are metadata gates only:
 - no automatic fixture refresh.
 ```
 
-- [ ] **Step 2: Add command roles**
+- [x] **Step 2: Add command roles**
 
 Add:
 
@@ -81,7 +81,7 @@ Add:
 Automation should consume only `trace:fixtures` JSON. Summary text can change for readability.
 ```
 
-- [ ] **Step 3: Add local and refresh gates**
+- [x] **Step 3: Add local and refresh gates**
 
 Add:
 
@@ -118,7 +118,7 @@ Do not replace committed fixture JSON until the candidate passes the refresh rev
 After replacement, `trace:fixtures` must be green before committing.
 ```
 
-- [ ] **Step 4: Add CI-style gate, failure path, and output stability**
+- [x] **Step 4: Add CI-style gate, failure path, and output stability**
 
 Add:
 
@@ -182,7 +182,7 @@ Green gates do not prove LLM output quality, tool behavior, runtime store state,
 - Modify: `docs/GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md`
 - Modify: `docs/DOCUMENTATION_INDEX.zh-CN.md`
 
-- [ ] **Step 1: Link from replay contract**
+- [x] **Step 1: Link from replay contract**
 
 Add near the purpose/source context:
 
@@ -190,7 +190,7 @@ Add near the purpose/source context:
 For local and CI-style command usage, see [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md).
 ```
 
-- [ ] **Step 2: Link from refresh workflow**
+- [x] **Step 2: Link from refresh workflow**
 
 Add near verification sections:
 
@@ -198,7 +198,7 @@ Add near verification sections:
 For local and CI-style gate policy, see [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md).
 ```
 
-- [ ] **Step 3: Link from documentation index**
+- [x] **Step 3: Link from documentation index**
 
 Add under internal engineering:
 
@@ -214,7 +214,7 @@ Add under internal engineering:
 - Modify: `docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md`
 - Modify: `memory/2026-07-06.md`
 
-- [ ] **Step 1: Update changelog**
+- [x] **Step 1: Update changelog**
 
 Add:
 
@@ -226,7 +226,7 @@ Add:
 - Documented local development, fixture refresh, and CI-style gate sequences without adding new CI automation.
 ```
 
-- [ ] **Step 2: Update next steps**
+- [x] **Step 2: Update next steps**
 
 Add completed Phase 10s and set next phase:
 
@@ -241,7 +241,7 @@ Scope:
 - Keep expansion review documentation-first unless a real missing fixture is identified.
 ```
 
-- [ ] **Step 3: Update controlled runtime manual**
+- [x] **Step 3: Update controlled runtime manual**
 
 Add progress:
 
@@ -255,7 +255,7 @@ Set next phase to:
 Phase 10t. Fixture Replay Catalog Expansion Review
 ```
 
-- [ ] **Step 4: Update local memory**
+- [x] **Step 4: Update local memory**
 
 Append:
 
@@ -276,7 +276,7 @@ Do not stage `memory/2026-07-06.md`.
 - Verify docs and existing gates.
 - Commit tracked documentation updates only.
 
-- [ ] **Step 1: Run fixture replay gates**
+- [x] **Step 1: Run fixture replay gates**
 
 Run:
 
@@ -292,7 +292,7 @@ trace:fixtures reports ok=true, total=2, passed=2, failed=0.
 trace:fixtures:summary prints Status: OK.
 ```
 
-- [ ] **Step 2: Run full regression gates**
+- [x] **Step 2: Run full regression gates**
 
 Run:
 
@@ -310,7 +310,7 @@ Expected:
 All commands exit 0. Lint/build may still show the existing <img> warning in src/__tests__/components/ShellUI.test.tsx.
 ```
 
-- [ ] **Step 3: Commit docs completion**
+- [x] **Step 3: Commit docs completion**
 
 Stage only:
 

@@ -249,6 +249,12 @@
 - Split refresh review into source identity, redaction, playbook contract, approval state, writeback identity, failure triage, sensitive search, and replacement diff gates.
 - Cross-linked candidate failure triage to the replay contract failure fixture matrix.
 
+### Fixture Replay CI Gate Documentation
+
+- Added a governed trace fixture CI gate guide documenting command roles for `trace:fixtures`, `trace:fixtures:summary`, and `trace:fixture:build`.
+- Clarified that automation should consume stable JSON from `trace:fixtures`, while summary output remains human-readable triage.
+- Documented local development, fixture refresh, and CI-style gate sequences without adding new CI automation.
+
 ### Runtime Console Trace Landing
 
 - Added `GET /api/runtime/executor/controlled-runs` so the Runtime Console can load recent controlled playbook runs.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Bot,
   BriefcaseBusiness,
@@ -28,7 +28,7 @@ import {
 import { addRuntimeEventListener, RuntimeEventNames } from "@/lib/runtime-events";
 import type { PlaybookAction } from "@/lib/playbooks";
 import { defaultSettings, loadSettings, saveSettings, type InterfaceLanguage } from "@/lib/settings";
-import { requestOpenApp } from "@/lib/ui-events";
+import { requestOpenApp, type IndustryHubPrefill } from "@/lib/ui-events";
 import {
   industrySolutionStarters,
   runIndustrySolutionStarterActions,
@@ -473,6 +473,35 @@ export function IndustryHubAppWindow({
     };
   }, []);
 
+  const focusWorkflowRun = useCallback(
+    (detail?: IndustryHubPrefill | null) => {
+      const workflowRunId = detail?.workflowRunId?.trim();
+      const scenarioId = detail?.scenarioId?.trim();
+      const runs = getWorkflowRuns();
+      const run =
+        (workflowRunId ? runs.find((item) => item.id === workflowRunId) ?? null : null) ??
+        (scenarioId ? runs.find((item) => item.scenarioId === scenarioId) ?? null : null);
+      if (!run) {
+        showToast("未找到对应 workflow run", "error");
+        return;
+      }
+      const role = workspaceRoleDesks.find((item) => item.scenarioId === run.scenarioId);
+      if (role) {
+        setSelectedRoleId(role.id);
+      }
+      const scenario = getWorkspaceScenario(run.scenarioId);
+      const industry = industries.find(
+        (item) => mapIndustryToWorkspaceIndustry(item.id) === scenario?.industryId,
+      );
+      if (industry) {
+        setIndustryId(industry.id);
+      }
+      setWorkflowRuns(runs);
+      showToast("已定位 workflow run", "ok");
+    },
+    [showToast],
+  );
+
   useEffect(() => {
     const sync = () => setWorkflowRuns(getWorkflowRuns());
     sync();
@@ -483,6 +512,14 @@ export function IndustryHubAppWindow({
       window.removeEventListener("storage", sync);
     };
   }, []);
+
+  useEffect(() => {
+    const onPrefill = (event: Event) => {
+      focusWorkflowRun((event as CustomEvent<IndustryHubPrefill>).detail);
+    };
+    window.addEventListener("openclaw:industry-hub-prefill", onPrefill);
+    return () => window.removeEventListener("openclaw:industry-hub-prefill", onPrefill);
+  }, [focusWorkflowRun]);
 
   const bundles = useMemo(() => listBundlesByIndustry(industryId), [industryId]);
   const selectedBundle = useMemo(

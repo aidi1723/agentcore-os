@@ -13,7 +13,7 @@ export type ControlledRunAssetLandingSummary = {
   assetId?: string;
   sourceKey?: string;
   workflowRunId?: string;
-  appId?: "deal_desk" | "knowledge_vault";
+  appId?: "deal_desk" | "knowledge_vault" | "industry_hub" | "publisher";
 };
 
 export type ControlledRunStepConsoleSummary = {
@@ -66,15 +66,21 @@ export type ControlledRunConsoleFilters = {
   query: string;
 };
 
-const ASSET_LABELS: Record<string, string> = {
+const LANDING_LABELS: Record<string, string> = {
+  workflow_run: "Workflow run",
+  draft: "Draft",
   sales_asset: "Sales asset",
   knowledge_asset: "Knowledge asset",
 };
 
-const ASSET_APP_IDS: Record<string, ControlledRunAssetLandingSummary["appId"]> = {
+const LANDING_APP_IDS: Record<string, ControlledRunAssetLandingSummary["appId"]> = {
+  workflow_run: "industry_hub",
+  draft: "publisher",
   sales_asset: "deal_desk",
   knowledge_asset: "knowledge_vault",
 };
+
+const LANDING_TARGETS = new Set(Object.keys(LANDING_LABELS));
 
 function titleForStep(run: ControlledExecutionRunRecord, stepId: string) {
   return run.plan.steps.find((step) => step.id === stepId)?.title ?? stepId;
@@ -84,16 +90,16 @@ function buildAssetLandings(
   receipts: ControlledWritebackReceipt[],
 ): ControlledRunAssetLandingSummary[] {
   return receipts
-    .filter((receipt) => receipt.target === "sales_asset" || receipt.target === "knowledge_asset")
+    .filter((receipt) => LANDING_TARGETS.has(receipt.target))
     .map((receipt) => ({
       target: receipt.target,
-      label: ASSET_LABELS[receipt.target] ?? receipt.target,
+      label: LANDING_LABELS[receipt.target] ?? receipt.target,
       detail: receipt.summary,
       ok: receipt.ok,
       assetId: receipt.assetId,
       sourceKey: receipt.sourceKey,
       workflowRunId: receipt.workflowRunId,
-      appId: ASSET_APP_IDS[receipt.target],
+      appId: LANDING_APP_IDS[receipt.target],
     }));
 }
 

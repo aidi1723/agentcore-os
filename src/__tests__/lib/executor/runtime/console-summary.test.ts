@@ -66,9 +66,11 @@ function makeRun(): ControlledExecutionRunRecord {
         writebackReceipts: [
           {
             target: "workflow_run",
-            ok: false,
-            summary: "Skipped unsupported writeback target workflow_run",
+            ok: true,
+            summary: "Wrote workflow run workflow-1 as completed",
             writtenAt: 160,
+            sourceKey: "controlled-run:run-console-1:workflow_run",
+            workflowRunId: "workflow-1",
           },
         ],
       },
@@ -88,7 +90,17 @@ function makeRun(): ControlledExecutionRunRecord {
           feedback: "ok",
           approver: "local_user",
         },
-        writebackReceipts: [],
+        writebackReceipts: [
+          {
+            target: "draft",
+            ok: true,
+            summary: "Wrote draft controlled-draft:workflow-1",
+            writtenAt: 190,
+            assetId: "controlled-draft:workflow-1",
+            sourceKey: "controlled-run:run-console-1:draft",
+            workflowRunId: "workflow-1",
+          },
+        ],
       },
       {
         stepId: "writeback",
@@ -133,14 +145,34 @@ describe("buildControlledRunConsoleSummary", () => {
     expect(summary.failedSteps).toBe(0);
     expect(summary.approvalCount).toBe(1);
     expect(summary.auditEventCount).toBe(0);
-    expect(summary.writebackReceiptCount).toBe(3);
+    expect(summary.writebackReceiptCount).toBe(4);
     expect(summary.assetLandings).toEqual([
+      {
+        target: "workflow_run",
+        label: "Workflow run",
+        detail: "Wrote workflow run workflow-1 as completed",
+        ok: true,
+        sourceKey: "controlled-run:run-console-1:workflow_run",
+        workflowRunId: "workflow-1",
+        appId: "industry_hub",
+      },
+      {
+        target: "draft",
+        label: "Draft",
+        detail: "Wrote draft controlled-draft:workflow-1",
+        ok: true,
+        assetId: "controlled-draft:workflow-1",
+        sourceKey: "controlled-run:run-console-1:draft",
+        workflowRunId: "workflow-1",
+        appId: "publisher",
+      },
       {
         target: "sales_asset",
         label: "Sales asset",
         detail: "Wrote sales asset controlled-sales-asset:workflow-1 for workflow workflow-1",
         ok: true,
         assetId: "controlled-sales-asset:workflow-1",
+        sourceKey: undefined,
         workflowRunId: "workflow-1",
         appId: "deal_desk",
       },
@@ -173,6 +205,7 @@ describe("buildControlledRunConsoleSummary", () => {
       id: "human_review",
       approvalState: "approved",
       approvalFeedback: "ok",
+      receiptCount: 1,
     });
     expect(summary.steps[2].writebackReceipts.map((receipt) => receipt.target)).toEqual([
       "sales_asset",
@@ -273,6 +306,14 @@ describe("buildControlledRunConsoleSummary", () => {
     awaitingRun.state = "awaiting_approval";
     awaitingRun.playbookId = "support-playbook";
     awaitingRun.plan = { ...awaitingRun.plan, goal: "Support follow-up" };
+    awaitingRun.steps[0] = {
+      ...awaitingRun.steps[0],
+      writebackReceipts: [],
+    };
+    awaitingRun.steps[1] = {
+      ...awaitingRun.steps[1],
+      writebackReceipts: [],
+    };
     awaitingRun.steps[2] = {
       ...awaitingRun.steps[2],
       writebackReceipts: [
@@ -314,6 +355,20 @@ describe("buildControlledRunConsoleSummary", () => {
       filterControlledRunConsoleSummaries([completed, awaiting], {
         state: "all",
         query: "controlled-knowledge-asset:run-console-1",
+      }).map((summary) => summary.id),
+    ).toEqual(["run-console-1"]);
+
+    expect(
+      filterControlledRunConsoleSummaries([completed, awaiting], {
+        state: "all",
+        query: "controlled-draft:workflow-1",
+      }).map((summary) => summary.id),
+    ).toEqual(["run-console-1"]);
+
+    expect(
+      filterControlledRunConsoleSummaries([completed, awaiting], {
+        state: "all",
+        query: "Workflow run",
       }).map((summary) => summary.id),
     ).toEqual(["run-console-1"]);
   });

@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Local Release Handoff Gate
+
+- Added `npm run release:handoff:check`, a full local handoff gate that aggregates open-source hygiene, delivery readiness, controlled runtime tests, core workflow regressions, lint, build, and `git diff --check`.
+- The gate emits machine-readable JSON with `releaseClaim: "local_release_handoff_ready"`, `productionReady: false`, and `publishingPerformed: false`.
+- The gate performs no publishing, tagging, artifact upload, installer packaging, or GitHub Release creation.
+- Added release handoff helper coverage and included it in `test:controlled-runtime`.
+
 ### Open Source Hygiene Gate
 
 - Added `npm run release:hygiene:check`, a local read-only open-source hygiene gate for public handoff checks.

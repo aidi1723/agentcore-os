@@ -82,22 +82,30 @@ Recommended:
 ## 6) Final local verification
 
 ```bash
-npm run release:hygiene:check
-npm run delivery:ready:check
-npm run test:controlled-runtime
-npm run test:core-workflows
-npm run lint
-npm run build
+npm run release:handoff:check
 git status
 ```
 
 Confirm:
 
+- `release:handoff:check` reports `releaseClaim: "local_release_handoff_ready"`
+- `release:handoff:check` reports `productionReady: false`
+- `release:handoff:check` reports `publishingPerformed: false`
 - `release:hygiene:check` reports `ok: true` and `productionReady: false`
 - secret pattern review results are warning-only and still require human review
 - public docs say local delivery demo ready, not production ready
 - `delivery:ready:check` reports `releaseClaim: "local_delivery_demo_ready"`
 - `delivery:ready:check` reports `productionReady: false`
+
+`release:handoff:check` aggregates:
+
+- `npm run release:hygiene:check`
+- `npm run delivery:ready:check`
+- `npm run test:controlled-runtime`
+- `npm run test:core-workflows`
+- `npm run lint`
+- `npm run build`
+- `git diff --check`
 
 ## 6.1) Command-line release sanity
 

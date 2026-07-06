@@ -25,9 +25,9 @@
 
 ## Task 1: Failing Release Handoff Tests
 
-- [ ] Create `src/__tests__/scripts/release-handoff-check-script.test.ts`.
+- [x] Create `src/__tests__/scripts/release-handoff-check-script.test.ts`.
 
-- [ ] Import planned helpers from the missing script:
+- [x] Import planned helpers from the missing script:
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -39,7 +39,7 @@ import {
 } from "../../../scripts/release-handoff/check-release-handoff.mjs";
 ```
 
-- [ ] Add a success test:
+- [x] Add a success test:
 
 ```ts
 it("returns local handoff ready when all checks pass", () => {
@@ -74,7 +74,7 @@ it("returns local handoff ready when all checks pass", () => {
 });
 ```
 
-- [ ] Add a failure test:
+- [x] Add a failure test:
 
 ```ts
 it("fails closed and stops after the first failing check", () => {
@@ -116,7 +116,7 @@ it("fails closed and stops after the first failing check", () => {
 });
 ```
 
-- [ ] Add duration and command-order assertion:
+- [x] Add duration and command-order assertion:
 
 ```ts
 it("records command strings and durations", () => {
@@ -141,7 +141,7 @@ it("records command strings and durations", () => {
 });
 ```
 
-- [ ] Add missing status and truncation tests:
+- [x] Add missing status and truncation tests:
 
 ```ts
 it("treats a missing numeric process status as failure", () => {
@@ -171,7 +171,7 @@ it("truncates failed stdout and stderr excerpts", () => {
 });
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 npm test -- src/__tests__/scripts/release-handoff-check-script.test.ts
@@ -181,9 +181,9 @@ Expected: fail because `scripts/release-handoff/check-release-handoff.mjs` does 
 
 ## Task 2: Implement Release Handoff Script
 
-- [ ] Create `scripts/release-handoff/check-release-handoff.mjs`.
+- [x] Create `scripts/release-handoff/check-release-handoff.mjs`.
 
-- [ ] Add imports and constants:
+- [x] Add imports and constants:
 
 ```js
 import { spawnSync } from "node:child_process";
@@ -193,7 +193,7 @@ export const RELEASE_HANDOFF_COMMAND = "release:handoff:check";
 export const RELEASE_HANDOFF_CLAIM = "local_release_handoff_ready";
 ```
 
-- [ ] Add default checks:
+- [x] Add default checks:
 
 ```js
 export const DEFAULT_RELEASE_HANDOFF_CHECKS = [
@@ -242,7 +242,7 @@ export const DEFAULT_RELEASE_HANDOFF_CHECKS = [
 ];
 ```
 
-- [ ] Add runner and excerpt helpers:
+- [x] Add runner and excerpt helpers:
 
 ```js
 export function runReleaseHandoffSubprocess(check) {
@@ -260,7 +260,7 @@ export function excerptText(value, maxLength = 600) {
 }
 ```
 
-- [ ] Add check evaluator:
+- [x] Add check evaluator:
 
 ```js
 function evaluateCheck(check, rawResult, durationMs, excerptLength) {
@@ -286,7 +286,7 @@ function evaluateCheck(check, rawResult, durationMs, excerptLength) {
 }
 ```
 
-- [ ] Add report builder:
+- [x] Add report builder:
 
 ```js
 export function buildReleaseHandoffReport({
@@ -333,7 +333,7 @@ export function buildReleaseHandoffReport({
 }
 ```
 
-- [ ] Add CLI main:
+- [x] Add CLI main:
 
 ```js
 function main() {
@@ -352,7 +352,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 }
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 npm test -- src/__tests__/scripts/release-handoff-check-script.test.ts
@@ -362,20 +362,20 @@ Expected: pass.
 
 ## Task 3: Wire Package Script And Controlled Runtime Coverage
 
-- [ ] Modify `package.json` scripts:
+- [x] Modify `package.json` scripts:
 
 ```json
 "release:handoff:check": "node scripts/release-handoff/check-release-handoff.mjs"
 ```
 
-- [ ] Add the new test file to `test:controlled-runtime` after
+- [x] Add the new test file to `test:controlled-runtime` after
   `release-hygiene-check-script.test.ts`:
 
 ```text
 src/__tests__/scripts/release-handoff-check-script.test.ts
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 npm test -- src/__tests__/scripts/release-handoff-check-script.test.ts
@@ -389,52 +389,52 @@ Expected:
 
 ## Task 4: Documentation And Maintenance Log
 
-- [ ] Update `README.md`.
+- [x] Update `README.md`.
 
 Add `release:handoff:check` to the common scripts list as the full local
 handoff gate. Make clear that it does not publish or claim production readiness.
 
-- [ ] Update `docs/OPEN_SOURCE_CHECKLIST.md`.
+- [x] Update `docs/OPEN_SOURCE_CHECKLIST.md`.
 
 Add `npm run release:handoff:check` to final local verification and explain that
 it aggregates hygiene, delivery readiness, regression, lint, build, and diff
 checks.
 
-- [ ] Update `docs/PUBLIC_RELEASE.md` and `docs/PUBLIC_RELEASE.zh-CN.md`.
+- [x] Update `docs/PUBLIC_RELEASE.md` and `docs/PUBLIC_RELEASE.zh-CN.md`.
 
 Add a short section or paragraph for the full local handoff gate after the
 hygiene gate. State that it performs no publishing.
 
-- [ ] Update `docs/NEXT_STEPS.md`.
+- [x] Update `docs/NEXT_STEPS.md`.
 
 Add Local Release Handoff Gate to the completed baseline and update the current
 verification baseline. After verification, update the controlled-runtime test
 file/test count.
 
-- [ ] Update `CHANGELOG.md`.
+- [x] Update `CHANGELOG.md`.
 
 Add an Unreleased bullet for `release:handoff:check`.
 
-- [ ] Create or update `memory/2026-07-07.md`.
+- [x] Create or update `memory/2026-07-07.md`.
 
 Record spec, plan, TDD evidence, implementation, verification, and next
 recommended phase.
 
 ## Task 5: Final Verification And Commit
 
-- [ ] Run targeted verification:
+- [x] Run targeted verification:
 
 ```bash
 npm test -- src/__tests__/scripts/release-handoff-check-script.test.ts
 ```
 
-- [ ] Run full local handoff verification:
+- [x] Run full local handoff verification:
 
 ```bash
 npm run release:handoff:check
 ```
 
-- [ ] Run post-handoff verification:
+- [x] Run post-handoff verification:
 
 ```bash
 npm run test:controlled-runtime
@@ -453,7 +453,7 @@ Expected:
 - lint/build may keep the existing `<img>` warning in
   `src/__tests__/components/ShellUI.test.tsx`.
 
-- [ ] Commit:
+- [x] Commit:
 
 ```bash
 git add scripts/release-handoff/check-release-handoff.mjs \

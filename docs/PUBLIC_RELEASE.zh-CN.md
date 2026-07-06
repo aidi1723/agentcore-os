@@ -92,18 +92,45 @@ npm run release:hygiene:check
 }
 ```
 
+## 完整本地交付前门禁
+
+当仓库准备进入最终本地交付前检查时，运行完整 handoff gate：
+
+```bash
+npm run release:handoff:check
+```
+
+该命令聚合：
+
+- `npm run release:hygiene:check`
+- `npm run delivery:ready:check`
+- `npm run test:controlled-runtime`
+- `npm run test:core-workflows`
+- `npm run lint`
+- `npm run build`
+- `git diff --check`
+
+成功输出必须包含：
+
+```json
+{
+  "releaseClaim": "local_release_handoff_ready",
+  "productionReady": false,
+  "publishingPerformed": false
+}
+```
+
+这个门禁不会发布、打 tag、上传 artifact、打包安装器或创建 GitHub Release。
+
 ## 完整发布前验证
 
 公开发布说明、外部演示或交付前，建议运行：
 
 ```bash
-npm run release:hygiene:check
-npm run delivery:ready:check
-npm run test:controlled-runtime
-npm run test:core-workflows
-npm run lint
-npm run build
+npm run release:handoff:check
 ```
+
+如果聚合门禁失败，需要复现具体子命令时，再按 JSON 输出里的 failed check 单独运行对应命令。
 
 人工浏览器证据仍需单独确认：
 

@@ -92,18 +92,48 @@ Successful output must include:
 }
 ```
 
+## Full Local Handoff Gate
+
+Use the full local handoff gate when the repository is ready for a final local
+handoff check:
+
+```bash
+npm run release:handoff:check
+```
+
+This command aggregates:
+
+- `npm run release:hygiene:check`;
+- `npm run delivery:ready:check`;
+- `npm run test:controlled-runtime`;
+- `npm run test:core-workflows`;
+- `npm run lint`;
+- `npm run build`;
+- `git diff --check`.
+
+Successful output must include:
+
+```json
+{
+  "releaseClaim": "local_release_handoff_ready",
+  "productionReady": false,
+  "publishingPerformed": false
+}
+```
+
+This gate performs no publishing, tagging, uploading, installer packaging, or
+GitHub Release creation.
+
 ## Full Verification
 
 Before a public release announcement or handoff, run:
 
 ```bash
-npm run release:hygiene:check
-npm run delivery:ready:check
-npm run test:controlled-runtime
-npm run test:core-workflows
-npm run lint
-npm run build
+npm run release:handoff:check
 ```
+
+If the aggregate gate fails and the failed child command needs to be reproduced
+directly, run the reported child command from the JSON output.
 
 Manual browser evidence remains separate:
 

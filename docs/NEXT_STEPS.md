@@ -85,6 +85,7 @@ Completed in the current controlled runtime line:
 - Delivery Release Gate Hardening: `npm run delivery:ready:check` now aggregates the fast local delivery demo, governed fixture, fixture summary, and retention preview gates into one JSON readiness report while keeping `productionReady: false`.
 - Public Release Boundary Alignment: public release and open-source docs now describe the current Controlled Skill / Playbook Runtime boundary, local delivery demo readiness, and the `delivery:ready:check` gate without claiming production readiness.
 - Open Source Hygiene Gate: `npm run release:hygiene:check` now provides a local read-only repository hygiene gate for required public docs, GPLv3+ package metadata, tracked artifact paths, public release boundary wording, and warning-only secret pattern review.
+- Local Release Handoff Gate: `npm run release:handoff:check` now aggregates repository hygiene, delivery readiness, controlled-runtime regression, core workflow regression, lint, build, and `git diff --check` into one local handoff JSON report while keeping `productionReady: false` and `publishingPerformed: false`.
 
 Current verification baseline:
 
@@ -94,6 +95,7 @@ npm run delivery:demo:check
 npm run trace:fixtures --silent
 npm run trace:fixtures:summary --silent
 npm run trace:retention:preview -- --max-age-days 30 --min-terminal-runs 20
+npm run release:handoff:check
 npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
@@ -104,9 +106,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 42 test files.
-- 217 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, and release hygiene gate helper coverage.
+- 43 test files.
+- 222 tests.
+- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, and release handoff gate helper coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -199,6 +201,40 @@ npm run release:hygiene:check
 - This gate complements `delivery:ready:check`.
 - It does not replace full regression, lint, build, browser smoke, or human secret review.
 - It does not claim production readiness.
+
+## Completed. Local Release Handoff Gate
+
+Why:
+
+- After hygiene and delivery readiness gates were split cleanly, the final local handoff checklist still lived as several manual commands.
+- Maintainers needed one repeatable command that runs the complete local verification baseline without performing publication.
+
+Delivered:
+
+- Added `scripts/release-handoff/check-release-handoff.mjs`.
+- Added `npm run release:handoff:check`.
+- The command runs:
+  - `npm run release:hygiene:check`;
+  - `npm run delivery:ready:check`;
+  - `npm run test:controlled-runtime`;
+  - `npm run test:core-workflows`;
+  - `npm run lint`;
+  - `npm run build`;
+  - `git diff --check`.
+- The command emits machine-readable JSON with `releaseClaim: "local_release_handoff_ready"`, `productionReady: false`, and `publishingPerformed: false`.
+- The command stops after the first hard failure and includes command, exit code, duration, and stdout/stderr excerpts for the failed check.
+- Added helper coverage for success, command order, duration reporting, first-failure stop, missing process status, and excerpt truncation.
+- Added [Local Release Handoff Gate spec](superpowers/specs/2026-07-07-local-release-handoff-gate-design.md) and [implementation plan](superpowers/plans/2026-07-07-local-release-handoff-gate.md).
+
+Outcome:
+
+- Public handoff now has a single full local verification command:
+
+```bash
+npm run release:handoff:check
+```
+
+- This gate does not publish, tag, upload artifacts, package installers, create GitHub Releases, run browser smoke, or claim production readiness.
 
 ## Completed. Runtime UI Delivery Polish
 

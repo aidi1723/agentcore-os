@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-07-07
 
+### Production Verification Gate
+
+- Added `npm run release:production-verification:gate:check -- --gate <path>`, a local read-only production verification gate after the external-write execution gate.
+- Added a tracked example gate at `docs/release-execution-gates/example-production-verification-gate.json`.
+- The gate validates green external-write gate evidence, verification plan metadata, post-action checks, monitoring readiness, incident/rollback readiness, ordered local command evidence, credential boundary, and verification-only boundaries.
+- The gate keeps `productionReady: false`, `publishingPerformed: false`, and `verificationOnly: true`; it does not execute production verification, release actions, connector calls, external writes, store writes, use credentials, or claim production readiness.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ### External-Write Execution Gate
 
 - Added `npm run release:external-write:gate:check -- --gate <path>`, a local read-only external-write execution gate after the deployment execution gate.

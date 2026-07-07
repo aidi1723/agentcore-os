@@ -169,6 +169,7 @@ User / Trigger
 - `npm run release:artifact-upload:gate:check -- --gate <path>` 本地只读 artifact upload execution gate，要求 tag creation gate green、artifact upload request、artifact identity review、checksum/provenance policy、ordered command evidence、rollback/monitoring/credential boundary 完整，并保持 gate-only：不创建 artifact、不计算 checksum、不上传、不创建 release、不部署、不写 store、不使用凭证、不宣称 production ready。
 - `npm run release:deployment:gate:check -- --gate <path>` 本地只读 deployment execution gate，要求 artifact upload gate green、deployment request、environment review、pre-deployment checks、ordered command evidence、rollback/monitoring/credential boundary 完整，并保持 gate-only：不部署、不外部写入、不写 store、不使用凭证、不宣称 production ready。
 - `npm run release:external-write:gate:check -- --gate <path>` 本地只读 external-write execution gate，要求 deployment gate green、external write request、external system review、idempotency policy、ordered command evidence、rollback/monitoring/credential boundary 完整，并保持 gate-only：不调用 connector、不执行外部写入、不写 store、不使用凭证、不宣称 production ready。
+- `npm run release:production-verification:gate:check -- --gate <path>` 本地只读 production verification gate，要求 external-write gate green、verification plan、post-action checks、monitoring readiness、incident/rollback readiness、ordered command evidence、credential boundary 完整，并保持 verification-only：不执行生产验证、不执行发布动作、不调用 connector、不外部写入、不写 store、不使用凭证、不宣称 production ready。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 
@@ -178,7 +179,7 @@ User / Trigger
 - 核心 controlled runtime 已成型，playbook lifecycle 已有第一层合同、本地 review diagnostic、deprecated replacement 合同、proposal gate、migration plan gate、handoff checklist、delivery candidate gate、production release policy gate、production release approval packet gate、release execution planning gate、package build execution gate、tag creation execution gate、artifact upload execution gate 和 deployment execution gate，但原始“固定 agent 执行步骤、让结果可控”的全部设计目标尚未完全生产化闭环。
 - 尚未宣称 production ready。
 - 当前 controlled-runtime 里程碑已经具备本地收尾门禁。
-- 下一阶段继续 **Production Verification / Release Execution Approval Boundary**，从已建立的 external-write gate 边界补齐生产验证、最终执行批准、统一 policy、真实 replay、authoring UI 和生产运维准备。
+- 下一阶段继续 **Release Execution Approval Boundary**，从已建立的 production verification gate 边界补齐最终执行批准、统一 policy、真实 replay、authoring UI 和生产运维准备。
 
 仍未完成：
 
@@ -192,7 +193,7 @@ User / Trigger
 - replay sandbox catalog CI summary 已通过 `npm run replay:sandbox:fixtures` 实现为 compact JSON 命令。
 - replay sandbox failure diagnostics taxonomy 已把 contract bridge failure、sandbox artifact failure 和 guarantee violation 固定为稳定 `failureKind` / `guaranteeErrors` 输出。
 - replay sandbox failure harness direct modes 已覆盖 contract、sandbox 和 guarantee failures。
-- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review、Trace Operations maintenance slices、Control Chain closeout gate、本地 mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff gate、candidate fixture review gate、fixture replacement handoff gate、post-replacement evidence gate、release handoff review gate、handoff summary gate、delivery candidate gate、production release policy gate、production release approval packet gate、release execution planning gate、package build execution gate、tag creation execution gate、artifact upload execution gate、deployment execution gate 与 external-write execution gate 已完成；因此下一阶段应继续 production verification / release execution approval boundary，仍不能直接刷新 fixture、跑真实工具 replay、扩大外部写回范围、打包上传、部署或宣称生产就绪。
+- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review、Trace Operations maintenance slices、Control Chain closeout gate、本地 mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff gate、candidate fixture review gate、fixture replacement handoff gate、post-replacement evidence gate、release handoff review gate、handoff summary gate、delivery candidate gate、production release policy gate、production release approval packet gate、release execution planning gate、package build execution gate、tag creation execution gate、artifact upload execution gate、deployment execution gate、external-write execution gate 与 production verification gate 已完成；因此下一阶段应继续 release execution approval boundary，仍不能直接刷新 fixture、跑真实工具 replay、扩大外部写回范围、打包上传、部署或宣称生产就绪。
 
 ## 6. 文档体系
 

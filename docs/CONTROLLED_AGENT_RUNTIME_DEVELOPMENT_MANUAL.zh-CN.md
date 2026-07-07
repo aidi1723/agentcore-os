@@ -529,7 +529,21 @@ npm run release:external-write:gate:check -- --gate <path>
 
 `commandEvidence` 必须严格按 `release:deployment:gate:check`、`release:hygiene:check`、`test:controlled-runtime`、`test:core-workflows`、`lint`、`build`、`git diff --check` 的顺序记录，并且每条命令都要 `ok: true`、`exitCode: 0` 和非空 `recordedAt`。`externalWriteRequest` 只能声明匹配 `targetVersion` 的 write command，并保持 `writePathPolicy: "blocked_until_operator_execution_approval"`；`externalSystemReview` 必须确认 target system、write scope、payload、idempotency 和 rollback target；`idempotencyPolicy` 必须声明 idempotency key、duplicate handling 和 retry policy，但该 gate 不能执行幂等检查。
 
-它保持 `productionReady: false`、`publishingPerformed: false`、`gateOnly: true`。它不调用 connector、不执行外部写入、不写 store、不使用凭证、不部署、不宣称 production ready；它只是把 future external write 的 target、payload、幂等性、rollback、monitoring 和 no-external-write-performed 边界变成结构化、本地可审计的 external-write gate。下一步是 production verification / release execution approval boundary，但仍不能直接发布、部署、外部写入或使用凭证。
+它保持 `productionReady: false`、`publishingPerformed: false`、`gateOnly: true`。它不调用 connector、不执行外部写入、不写 store、不使用凭证、不部署、不宣称 production ready；它只是把 future external write 的 target、payload、幂等性、rollback、monitoring 和 no-external-write-performed 边界变成结构化、本地可审计的 external-write gate。后续 production verification gate 已作为独立 gate 接续，真实发布、部署、外部写入和生产验证仍保持阻断。
+
+### 5.3.16 Production Verification Gate
+
+命令：
+
+```bash
+npm run release:production-verification:gate:check -- --gate <path>
+```
+
+该命令读取本地 gate JSON，复用 external-write gate checker，并要求引用的 external-write gate report 为 green、gate-only、未发布、未生产就绪。gate 必须声明 `gateId`、`externalWriteGatePath`、`owner`、`recordedAt`、`targetVersion`、`releaseAction: "production_verification"`、`externalWriteGateResult`、`verificationPlan`、`postActionChecks`、`monitoringReadiness`、`incidentRollbackReadiness`、`commandEvidence`、`credentialBoundary`、`verificationDecision`、`verificationBoundary` 和 `approvalStatus: "production_verification_gate_review"`。
+
+`commandEvidence` 必须严格按 `release:external-write:gate:check`、`release:hygiene:check`、`test:controlled-runtime`、`test:core-workflows`、`lint`、`build`、`git diff --check` 的顺序记录，并且每条命令都要 `ok: true`、`exitCode: 0` 和非空 `recordedAt`。`verificationPlan` 只能声明匹配 `targetVersion` 的 verification command intent，并保持 `verificationPathPolicy: "blocked_until_operator_execution_approval"`；`postActionChecks` 必须声明 deployment health、external write verification、artifact availability 和 rollback verification，但该 gate 不能执行这些检查；`monitoringReadiness` 与 `incidentRollbackReadiness` 必须声明 owner、alert/dashboard、incident handoff、rollback trigger 和 escalation path。
+
+它保持 `productionReady: false`、`publishingPerformed: false`、`verificationOnly: true`。它不执行生产验证、不执行发布动作、不调用 connector、不外部写入、不写 store、不使用凭证、不宣称 production ready；它只是把 post-action verification、monitoring、incident、rollback 和 no-production-verification-executed 边界变成结构化、本地可审计的 production verification gate。下一步是 release execution approval boundary，但仍不能直接发布、部署、外部写入、执行生产验证或使用凭证。
 
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
@@ -759,13 +773,13 @@ type ControlledPlaybookStep = {
 - governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
 - 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
 - Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
-- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary、delivery candidate、production release policy、production release approval packet、release execution planning、package build execution gate、tag creation execution gate、artifact upload execution gate、deployment execution gate 和 external-write execution gate 已有只读门禁，但还没有 production verification、最终 release execution approval、统一 policy/guardrail hardening 或生产化发布执行。
+- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary、delivery candidate、production release policy、production release approval packet、release execution planning、package build execution gate、tag creation execution gate、artifact upload execution gate、deployment execution gate、external-write execution gate 和 production verification gate 已有只读门禁，但还没有最终 release execution approval、统一 policy/guardrail hardening 或生产化发布执行。
 
 因此下一阶段默认进入：
 
-**Production Verification / Release Execution Approval Boundary**
+**Release Execution Approval Boundary**
 
-目标是在 external-write gate 边界之上，补齐生产验证和最终执行批准的独立合同，继续把执行前置条件、rollback、monitoring、凭证禁用、post-action verification 和 no-production-ready claim 写成可审计合同。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不打 tag、不打包、不上传、不部署、不外部写入、不使用凭证、不宣称 production ready。
+目标是在 production verification gate 边界之上，补齐最终执行批准的独立合同，继续把执行前置条件、rollback、monitoring、凭证禁用、post-action verification 和 no-production-ready claim 写成可审计合同。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不打 tag、不打包、不上传、不部署、不外部写入、不使用凭证、不宣称 production ready。
 
 ### Phase 0. 冻结方向
 

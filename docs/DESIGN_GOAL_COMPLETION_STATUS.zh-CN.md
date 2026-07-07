@@ -9,7 +9,7 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 当前状态应表述为：
 
 - **核心控制 runtime 已建立**：固定 playbook、受限工具、人工审批、durable trace、resume / retry、approved writeback、Runtime Console、governed fixture replay、local delivery / release handoff gates 已经具备。
-- **当前 controlled-runtime 里程碑可以本地收尾，但完整设计目标尚未生产化闭环**：playbook authoring/versioning/deprecation 已有 proposal、migration plan、maintenance sequence、sequence evidence、freshness/doctor、maintenance readiness、mutation approval、mutation dry-run、handoff、project closeout gate、mutation preflight、本地 manifest-based mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff gate、candidate fixture review gate 和 fixture replacement handoff gate；但还没有产品化 authoring UI、post-replacement evidence gate、发布审批；统一 policy/guardrail、完整 replay gate、真实外部 connector 写回和生产级运维仍需继续硬化。
+- **当前 controlled-runtime 里程碑可以本地收尾，但完整设计目标尚未生产化闭环**：playbook authoring/versioning/deprecation 已有 proposal、migration plan、maintenance sequence、sequence evidence、freshness/doctor、maintenance readiness、mutation approval、mutation dry-run、handoff、project closeout gate、mutation preflight、本地 manifest-based mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff gate、candidate fixture review gate、fixture replacement handoff gate 和 post-replacement evidence gate；但还没有产品化 authoring UI、release handoff review integration、发布审批；统一 policy/guardrail、完整 replay gate、真实外部 connector 写回和生产级运维仍需继续硬化。
 - **当前优先级不是继续做壳，也不是改做普通 skill**：下一阶段要补齐控制链路、稳定性、效率、精准性和维护路径。
 
 ## 已完成的设计目标
@@ -45,13 +45,14 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 | Playbook lifecycle mutation fixture refresh handoff gate | `npm run playbook:lifecycle:mutation:fixture-refresh:handoff:check -- --handoff <path>` 会在 post-apply evidence green 后检查目标 playbook、目标 governed fixture id、人工 refresh review checklist、rollback notes 和 handoff-only 边界；它只允许进入人工 fixture refresh review，不生成候选 fixture、不替换 committed fixture、不发布、不宣称 production ready。 |
 | Playbook lifecycle mutation candidate fixture review gate | `npm run playbook:lifecycle:mutation:candidate-fixture:review:check -- --review <path>` 会在 fixture refresh handoff green 后检查候选 fixture validation/replay、catalog fixture target、目标 playbook、敏感标记、人工 review evidence 和 no-replacement 边界；它只允许进入人工 committed fixture replacement review，不生成或替换 fixture、不发布、不宣称 production ready。 |
 | Playbook lifecycle mutation fixture replacement handoff gate | `npm run playbook:lifecycle:mutation:fixture-replacement:handoff:check -- --handoff <path>` 会在 candidate fixture review green 后检查目标/path 对齐、committed fixture path scope、rollback evidence、post-replacement validation plan 和 handoff-only 边界；它只允许进入人工 committed fixture replacement，不替换 fixture、不发布、不宣称 production ready。 |
+| Playbook lifecycle mutation post-replacement evidence gate | `npm run playbook:lifecycle:mutation:post-replacement:evidence:check -- --evidence <path>` 会在人工 committed fixture replacement 后检查 replacement summary、handoff/fixture/runtime/core/diff evidence 和 no-publish/no-production 边界；它不替换 fixture、不运行命令、不发布、不宣称 production ready。 |
 
 ## 尚未完全达成的目标
 
 | 缺口 | 影响 | 下一步处理 |
 | --- | --- | --- |
-| 控制链路已具备当前里程碑收尾门禁 | `npm run project:closeout:check` 已把 control audit、maintenance readiness、mutation dry-run 与 local delivery readiness 聚合为当前 controlled-runtime 里程碑的最终本地只读收尾信号。 | 当前里程碑可收尾；下一阶段从 post-replacement evidence gate、authoring UI、统一 policy、真实 replay、connector 写回和生产运维准备开始。 |
-| mutation executor 已有本地写入边界，但未生产化 | `npm run playbook:lifecycle:mutation:executor:preview` / `apply` 已支持 manifest、fresh preflight、dry-run 目标对齐、当前 hash、next content hash 和显式确认；apply 仅替换本地 registered playbook 文件，且已有 post-apply sequence / evidence / fixture refresh handoff / candidate fixture review / fixture replacement handoff gate 约束后续审计顺序、记录与人工 refresh 交接。 | 下一阶段补齐 post-replacement evidence gate 和产品化 authoring/versioning 流程。 |
+| 控制链路已具备当前里程碑收尾门禁 | `npm run project:closeout:check` 已把 control audit、maintenance readiness、mutation dry-run 与 local delivery readiness 聚合为当前 controlled-runtime 里程碑的最终本地只读收尾信号。 | 当前里程碑可收尾；下一阶段从 release handoff review integration、authoring UI、统一 policy、真实 replay、connector 写回和生产运维准备开始。 |
+| mutation executor 已有本地写入边界，但未生产化 | `npm run playbook:lifecycle:mutation:executor:preview` / `apply` 已支持 manifest、fresh preflight、dry-run 目标对齐、当前 hash、next content hash 和显式确认；apply 仅替换本地 registered playbook 文件，且已有 post-apply sequence / evidence / fixture refresh handoff / candidate fixture review / fixture replacement handoff / post-replacement evidence gate 约束后续审计顺序、记录与人工 refresh 交接。 | 下一阶段补齐 release handoff review integration 和产品化 authoring/versioning 流程。 |
 | playbook 声明与写回落点可能漂移 | 执行能跑，但 `resultAssets` 等声明可能没有覆盖真实 writeback targets，影响精准性和维护判断。 | 已审计写回目标与 resultAssets 对齐，失败时 fail closed。 |
 | playbook lifecycle 仍未产品化 | 当前已有 status/owner/review/changePolicy、本地复审诊断、deprecated replacement 合同、proposal gate、migration plan gate、sequence gate、sequence evidence/freshness gate 和 handoff checklist，但还没有完整 authoring UI、版本迁移器和 deprecation flow。 | 下一阶段扩展 authoring/versioning/deprecation workflow。 |
 | policy / guardrail 分散 | 工具策略、失败策略、审批策略存在，但还未形成统一 policy layer。 | 下一阶段把审计结果作为 policy hardening 输入。 |
@@ -61,7 +62,7 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 
 ## 下一阶段目标
 
-下一阶段继续 **Productionization Preparation**，重点从本地 mutation executor、post-apply sequence、post-apply evidence、fixture refresh handoff、candidate fixture review 与 fixture replacement handoff 边界扩展到 post-replacement evidence gate、统一 policy/guardrail、真实 replay、authoring UI、connector 写回和生产运维准备。
+下一阶段继续 **Productionization Preparation**，重点从本地 mutation executor、post-apply sequence、post-apply evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff 与 post-replacement evidence 边界扩展到 release handoff review integration、统一 policy/guardrail、真实 replay、authoring UI、connector 写回和生产运维准备。
 
 目标不是新增 playbook，而是让现有 playbook 的执行合同更稳定：
 

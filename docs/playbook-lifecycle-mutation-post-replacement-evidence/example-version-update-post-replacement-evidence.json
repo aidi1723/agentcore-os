@@ -1,0 +1,88 @@
+{
+  "evidenceId": "post-replacement-evidence-sales-pipeline-v1",
+  "replacementHandoffPath": "docs/playbook-lifecycle-mutation-fixture-replacement-handoffs/example-version-update-fixture-replacement-handoff.json",
+  "owner": "agentcore-runtime-maintainers",
+  "recordedAt": "2026-07-07T10:10:00Z",
+  "replacementSummary": {
+    "committedFixtureReplacementPerformed": true,
+    "catalogFixtureId": "sales-pipeline-governed",
+    "targetPlaybookId": "sales-pipeline-v1",
+    "candidateFixturePath": "src/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json",
+    "committedFixturePath": "src/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json",
+    "replacementReviewedInGitDiff": true,
+    "rollbackAvailable": true,
+    "rollbackNotes": [
+      "Revert the committed fixture JSON replacement if governed fixture validation fails.",
+      "Do not publish or claim readiness until release handoff review is separately green."
+    ]
+  },
+  "commandResults": [
+    {
+      "command": "npm run playbook:lifecycle:mutation:fixture-replacement:handoff:check -- --handoff docs/playbook-lifecycle-mutation-fixture-replacement-handoffs/example-version-update-fixture-replacement-handoff.json",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:10:01Z",
+      "fixtureReplacementHandoff": "fixture_replacement_handoff_green",
+      "handoffOnly": true,
+      "productionReady": false,
+      "publishingPerformed": false
+    },
+    {
+      "command": "npm run trace:fixtures --silent",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:10:02Z",
+      "fixtureGate": "governed_fixtures_green"
+    },
+    {
+      "command": "npm run trace:fixtures:summary --silent",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:10:03Z",
+      "fixtureSummaryGate": "governed_fixture_summary_green"
+    },
+    {
+      "command": "npm run test:controlled-runtime",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:10:04Z",
+      "testFiles": 89,
+      "tests": 457
+    },
+    {
+      "command": "npm run test:core-workflows",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:10:05Z",
+      "coreWorkflowGate": "core_workflows_green"
+    },
+    {
+      "command": "git diff --check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:10:06Z",
+      "diffCheck": "git_diff_check_green"
+    }
+  ],
+  "replacementHandoffResult": {
+    "ok": true,
+    "handoffOnly": true,
+    "productionReady": false,
+    "publishingPerformed": false
+  },
+  "postReplacementBoundary": {
+    "evidenceOnly": true,
+    "fixtureRefreshPerformed": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "publishingPerformed": false,
+    "productionReady": false,
+    "readinessClaimed": false
+  },
+  "approvalStatus": "post_replacement_fixture_evidence",
+  "notes": [
+    "This tracked example records deterministic post-replacement evidence for the current committed sales fixture.",
+    "The checker does not replace fixture JSON or run validation commands.",
+    "Publishing and production readiness remain blocked."
+  ]
+}

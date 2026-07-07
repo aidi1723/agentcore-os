@@ -393,6 +393,16 @@ npm run playbook:lifecycle:mutation:fixture-replacement:handoff:check -- --hando
 
 它保持 `productionReady: false`、`publishingPerformed: false`、`handoffOnly: true`。它不替换 committed fixture、不生成候选 fixture、不刷新 fixture、不运行 catalog/test/lint/build 命令、不写 store、不调用外部 connector、不发布 release；它只是把 candidate review 之后是否可以进入人工 committed fixture replacement 变成结构化、本地可审计的 handoff contract。下一步可以在人工替换后定义 post-replacement evidence gate。
 
+当前新增的 lifecycle mutation post-replacement fixture evidence gate 是：
+
+```bash
+npm run playbook:lifecycle:mutation:post-replacement:evidence:check -- --evidence <path>
+```
+
+该命令读取本地 evidence JSON 和其引用的 fixture replacement handoff JSON，并复用 fixture replacement handoff checker。evidence 必须声明 replacement summary，且 `catalogFixtureId`、`targetPlaybookId`、`candidateFixturePath` 和 `committedFixturePath` 必须与 handoff 对齐；它还必须记录人工 committed fixture replacement 已发生、git diff review 已完成、rollback 仍可用。`commandResults` 必须严格按 handoff check、`trace:fixtures --silent`、`trace:fixtures:summary --silent`、`test:controlled-runtime`、`test:core-workflows`、`git diff --check` 的顺序记录，并且每条命令都要 `ok: true`、`exitCode: 0` 和非空 `recordedAt`。
+
+它保持 `productionReady: false`、`publishingPerformed: false`、`evidenceOnly: true`。它不替换 committed fixture、不生成候选 fixture、不刷新 fixture、不运行 catalog/test/lint/build 命令、不写 store、不调用外部 connector、不发布 release；它只是把人工替换后的 fixture/runtime/core/diff evidence 变成结构化、本地可审计的证据门。下一步可以在此基础上定义 release handoff review integration，但仍不能宣称 production ready。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine
@@ -621,13 +631,13 @@ type ControlledPlaybookStep = {
 - governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
 - 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
 - Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
-- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review 和 fixture replacement handoff 已有只读门禁，但还没有 post-replacement evidence gate 或生产化发布审批。
+- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff 和 post-replacement evidence 已有只读门禁，但还没有 release handoff review integration 或生产化发布审批。
 
 因此下一阶段默认进入：
 
 **Productionization Preparation**
 
-目标是在本地 mutation executor、post-apply sequence、post-apply evidence、fixture refresh handoff、candidate fixture review 与 fixture replacement handoff 边界之上补齐 post-replacement evidence gate、统一 policy/guardrail、fixture/replay depth、authoring/lifecycle 和生产运维准备。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不宣称 production ready。
+目标是在本地 mutation executor、post-apply sequence、post-apply evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff 与 post-replacement evidence 边界之上补齐 release handoff review integration、统一 policy/guardrail、fixture/replay depth、authoring/lifecycle 和生产运维准备。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不宣称 production ready。
 
 ### Phase 0. 冻结方向
 
@@ -1220,7 +1230,7 @@ npm run test:core-workflows
 - sales/support playbook / validator / schema / step input。
 - controlled run store、approval store、controlled execution、step executor、workflow bridge。
 - durable resume、failed-step retry runtime、retry route、controlled run list / detail route。
-- client stream recovery、Runtime Console retry UI wiring、runtime cockpit summary、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route、Runtime Console governed trace copy、retention prune safety、governed trace fixture validation、fixture replay/catalog/summary/failure harness、playbook lifecycle change proposal / migration plan / maintenance sequence / sequence evidence / freshness / doctor / maintenance readiness / mutation approval / dry-run / preflight / executor / post-apply / fixture refresh handoff / candidate fixture review / fixture replacement handoff gates、replay sandbox contracts、no-side-effect replay sandbox prototype、fixture-to-contract bridge、replay sandbox catalog report、replay sandbox catalog CI summary、replay sandbox failure diagnostics taxonomy、replay sandbox direct failure harness modes 和 idempotency。
+- client stream recovery、Runtime Console retry UI wiring、runtime cockpit summary、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route、Runtime Console governed trace copy、retention prune safety、governed trace fixture validation、fixture replay/catalog/summary/failure harness、playbook lifecycle change proposal / migration plan / maintenance sequence / sequence evidence / freshness / doctor / maintenance readiness / mutation approval / dry-run / preflight / executor / post-apply / fixture refresh handoff / candidate fixture review / fixture replacement handoff / post-replacement evidence gates、replay sandbox contracts、no-side-effect replay sandbox prototype、fixture-to-contract bridge、replay sandbox catalog report、replay sandbox catalog CI summary、replay sandbox failure diagnostics taxonomy、replay sandbox direct failure harness modes 和 idempotency。
 
 Fixture replay 失败时，先通过 [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md#6-failure-fixture-matrix) 的 failure fixture matrix 分类。只有确认失败属于 intentional playbook drift 或 stale committed fixture 后，才进入 fixture refresh；validation failure、redaction failure、missing stable writeback metadata 或 harness behavior failure 必须先修源头，不允许直接手工改 fixture JSON。
 

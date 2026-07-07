@@ -361,7 +361,17 @@ npm run playbook:lifecycle:mutation:post-apply:evidence:check -- --evidence <pat
 
 该命令读取本地 evidence JSON、其引用的 post-apply sequence JSON 和 sequence 引用的 apply report JSON。它会先复用 post-apply sequence checker，只有 sequence green 后才继续验证已记录的 command results。evidence 必须严格按 sequence 顺序记录 `playbook:control:audit`、`playbook:lifecycle:handoff`、`trace:fixtures --silent`、`trace:fixtures:summary --silent`、`test:controlled-runtime`、`test:core-workflows` 和 `git diff --check`，每条命令都必须 `ok: true`、`exitCode: 0` 且有 `recordedAt`。
 
-它还要求 control audit / handoff / fixture / fixture summary / controlled-runtime / core-workflows / diff check 的专用 metadata 都存在，并要求 `postApplyAuditBoundary` 保持未刷新 fixture、未写 store、未外部写入、未发布、未宣称 production ready。它保持 `productionReady: false`、`publishingPerformed: false`、`evidenceOnly: true`。它不执行命令、不刷新 fixture、不写 store、不调用外部 connector、不发布 release；它只是把 apply 后的审计执行证据变成结构化、本地可审计的 evidence contract。下一步可以在此基础上定义 fixture refresh handoff gate。
+它还要求 control audit / handoff / fixture / fixture summary / controlled-runtime / core-workflows / diff check 的专用 metadata 都存在，并要求 `postApplyAuditBoundary` 保持未刷新 fixture、未写 store、未外部写入、未发布、未宣称 production ready。它保持 `productionReady: false`、`publishingPerformed: false`、`evidenceOnly: true`。它不执行命令、不刷新 fixture、不写 store、不调用外部 connector、不发布 release；它只是把 apply 后的审计执行证据变成结构化、本地可审计的 evidence contract。
+
+当前新增的 lifecycle mutation fixture refresh handoff gate 是：
+
+```bash
+npm run playbook:lifecycle:mutation:fixture-refresh:handoff:check -- --handoff <path>
+```
+
+该命令读取本地 handoff JSON、其引用的 post-apply evidence JSON、post-apply sequence JSON 和 apply report JSON。它会复用 post-apply sequence / evidence checker，只有 evidence green、`readyForFixtureRefreshHandoff: true`、`evidenceOnly: true` 且没有 production / publishing claim 时才继续验证 handoff。handoff 必须声明目标 playbook、至少一个目标 governed fixture id、完整人工 review checklist、rollback notes，并要求 `handoffBoundary` 保持 `handoffOnly: true`、未生成 candidate fixture、未替换 committed fixture、未刷新 fixture、未写 store、未外部写入、未发布、未宣称 production ready。
+
+它保持 `productionReady: false`、`publishingPerformed: false`、`handoffOnly: true`。它不生成候选 fixture、不替换 committed fixture、不执行 builder、不刷新 fixture、不写 store、不调用外部 connector、不发布 release；它只是把 green post-apply evidence 之后能否进入人工 fixture refresh review 变成结构化、本地可审计的 handoff contract。下一步可以在此基础上定义 candidate fixture review validation。
 
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
@@ -591,13 +601,13 @@ type ControlledPlaybookStep = {
 - governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
 - 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
 - Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
-- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence 和 evidence 已有只读门禁，但还没有 rollback evidence、fixture refresh handoff 或生产化发布审批。
+- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence 和 fixture refresh handoff 已有只读门禁，但还没有 rollback evidence、candidate fixture review validation 或生产化发布审批。
 
 因此下一阶段默认进入：
 
 **Productionization Preparation**
 
-目标是在本地 mutation executor、post-apply sequence 与 post-apply evidence 边界之上补齐 rollback evidence、fixture refresh handoff、统一 policy/guardrail、fixture/replay depth、authoring/lifecycle 和生产运维准备。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不宣称 production ready。
+目标是在本地 mutation executor、post-apply sequence、post-apply evidence 与 fixture refresh handoff 边界之上补齐 rollback evidence、candidate fixture review validation、统一 policy/guardrail、fixture/replay depth、authoring/lifecycle 和生产运维准备。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不宣称 production ready。
 
 ### Phase 0. 冻结方向
 

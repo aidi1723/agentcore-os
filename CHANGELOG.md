@@ -131,6 +131,8 @@
 - The post-apply sequence gate validates a completed local apply report and requires control audit, lifecycle handoff, governed fixture checks, controlled runtime tests, core workflow tests, and `git diff --check` in exact order before fixture refresh, publishing, or readiness claims.
 - Added `npm run playbook:lifecycle:mutation:post-apply:evidence:check -- --evidence <path>`, a read-only post-apply audit evidence gate that validates recorded command results for the declared sequence.
 - The post-apply evidence gate requires all seven recorded post-apply commands to be green and keeps fixture refresh, store writes, external writes, publishing, and production-ready claims blocked until a separate fixture refresh handoff exists.
+- Added `npm run playbook:lifecycle:mutation:fixture-refresh:handoff:check -- --handoff <path>`, a read-only fixture refresh handoff gate after green post-apply audit evidence.
+- The fixture refresh handoff gate validates target playbook alignment, intended governed fixture ids, manual review checklist coverage, rollback notes, and handoff-only boundaries before candidate fixture generation.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
 - The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
 - `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.

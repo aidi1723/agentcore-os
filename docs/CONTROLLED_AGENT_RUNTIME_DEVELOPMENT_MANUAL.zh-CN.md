@@ -503,7 +503,19 @@ npm run release:artifact-upload:gate:check -- --gate <path>
 
 `commandEvidence` 必须严格按 `release:tag-creation:gate:check`、`release:hygiene:check`、`test:controlled-runtime`、`test:core-workflows`、`lint`、`build`、`git diff --check` 的顺序记录，并且每条命令都要 `ok: true`、`exitCode: 0` 和非空 `recordedAt`。`artifactUploadRequest` 只能声明匹配 `targetVersion` 的 artifact name、artifact type、source artifact path、upload destination、upload command 和 upload path policy；`artifactIdentityReview` 必须确认 artifact name/version、artifact type、source path scope、destination 和 release tag linkage；`checksumProvenancePolicy` 必须声明 checksum/provenance required，但该 gate 不能创建 checksum 或 provenance。
 
-它保持 `productionReady: false`、`publishingPerformed: false`、`gateOnly: true`。它不创建 artifact、不计算 checksum、不创建 provenance、不上传 artifact、不创建 release、不部署、不写 store、不调用外部 connector、不使用凭证、不宣称 production ready；它只是把 artifact upload 的执行前检查、artifact identity、checksum/provenance policy、upload destination、rollback、monitoring 和 no-upload-performed 边界变成结构化、本地可审计的 artifact upload gate。下一步是 deployment execution gate design，但仍不能直接发布或部署。
+它保持 `productionReady: false`、`publishingPerformed: false`、`gateOnly: true`。它不创建 artifact、不计算 checksum、不创建 provenance、不上传 artifact、不创建 release、不部署、不写 store、不调用外部 connector、不使用凭证、不宣称 production ready；它只是把 artifact upload 的执行前检查、artifact identity、checksum/provenance policy、upload destination、rollback、monitoring 和 no-upload-performed 边界变成结构化、本地可审计的 artifact upload gate。该边界现在由 deployment execution gate 承接，但仍不能直接发布或部署。
+
+当前新增的 deployment execution gate 是：
+
+```bash
+npm run release:deployment:gate:check -- --gate <path>
+```
+
+该命令读取本地 gate JSON，复用 artifact upload gate checker，并要求引用的 artifact upload gate report 为 green、gate-only、未发布、未生产就绪。gate 必须声明 `gateId`、`artifactUploadGatePath`、`owner`、`recordedAt`、`targetVersion`、`releaseAction: "deployment"`、`artifactUploadGateResult`、`deploymentRequest`、`deploymentEnvironmentReview`、`preDeploymentChecks`、`commandEvidence`、`rollbackPlan`、`monitoringPlan`、`credentialBoundary`、`deploymentDecision`、`deploymentBoundary` 和 `approvalStatus: "deployment_execution_gate_review"`。
+
+`commandEvidence` 必须严格按 `release:artifact-upload:gate:check`、`release:hygiene:check`、`test:controlled-runtime`、`test:core-workflows`、`lint`、`build`、`git diff --check` 的顺序记录，并且每条命令都要 `ok: true`、`exitCode: 0` 和非空 `recordedAt`。`deploymentRequest` 只能声明匹配 `targetVersion` 的 deployment command 和 deployment artifact，并保持 `deploymentStrategy: "manual_operator_triggered"` 与 `deploymentPathPolicy: "blocked_until_operator_execution_approval"`；`deploymentEnvironmentReview` 必须确认 environment、target、artifact release linkage、rollback window 和 maintenance window；`preDeploymentChecks` 必须声明 health/config/migration/smoke path，但该 gate 不能执行这些检查。
+
+它保持 `productionReady: false`、`publishingPerformed: false`、`gateOnly: true`。它不部署、不外部写入、不写 store、不调用外部 connector、不使用凭证、不宣称 production ready；它只是把 deployment 的执行前检查、environment review、pre-deployment checks、rollback、monitoring 和 no-deploy-performed 边界变成结构化、本地可审计的 deployment gate。下一步是 external-write execution gate design，但仍不能直接发布、部署或外部写入。
 
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
@@ -733,13 +745,13 @@ type ControlledPlaybookStep = {
 - governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
 - 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
 - Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
-- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary、delivery candidate、production release policy、production release approval packet、release execution planning、package build execution gate、tag creation execution gate 和 artifact upload execution gate 已有只读门禁，但还没有实际 deployment/external-write execution gates、部署验证、统一 policy/guardrail hardening 或生产化发布执行。
+- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary、delivery candidate、production release policy、production release approval packet、release execution planning、package build execution gate、tag creation execution gate、artifact upload execution gate 和 deployment execution gate 已有只读门禁，但还没有实际 external-write execution gate、部署验证、统一 policy/guardrail hardening 或生产化发布执行。
 
 因此下一阶段默认进入：
 
-**Deployment Execution Gate Design**
+**External-Write Execution Gate Design**
 
-目标是在 artifact upload gate 边界之上，补齐 deployment execution gate，再继续 external writes 的独立 execution gate 设计，继续把执行前置条件、rollback、monitoring、凭证禁用和 no-production-ready claim 写成可审计合同。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不打 tag、不打包、不上传、不部署、不使用凭证、不宣称 production ready。
+目标是在 deployment gate 边界之上，补齐 external writes 的独立 execution gate 设计，继续把执行前置条件、rollback、monitoring、凭证禁用和 no-production-ready claim 写成可审计合同。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不打 tag、不打包、不上传、不部署、不外部写入、不使用凭证、不宣称 production ready。
 
 ### Phase 0. 冻结方向
 

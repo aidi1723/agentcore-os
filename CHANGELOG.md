@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-07-07
 
+### Deployment Execution Gate
+
+- Added `npm run release:deployment:gate:check -- --gate <path>`, a local read-only deployment execution gate after the artifact upload execution gate.
+- Added a tracked example gate at `docs/release-execution-gates/example-deployment-gate.json`.
+- The gate validates green artifact upload gate evidence, deployment request metadata, deployment environment review, pre-deployment checks, ordered local command evidence, rollback plan, monitoring plan, credential boundary, and gate-only deployment boundaries.
+- The gate keeps `productionReady: false`, `publishingPerformed: false`, and `gateOnly: true`; it does not deploy, perform external writes, write stores, call external connectors, use credentials, or claim production readiness.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ### Artifact Upload Execution Gate
 
 - Added `npm run release:artifact-upload:gate:check -- --gate <path>`, a local read-only artifact upload execution gate after the tag creation execution gate.

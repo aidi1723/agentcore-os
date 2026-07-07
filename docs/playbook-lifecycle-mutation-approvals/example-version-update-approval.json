@@ -1,0 +1,27 @@
+{
+  "approvalId": "approval-sales-pipeline-v1-review",
+  "evidencePath": "docs/playbook-lifecycle-sequence-evidence/example-version-update-evidence.json",
+  "approver": "agentcore-runtime-maintainers",
+  "approvedAt": "2026-07-07T03:10:00Z",
+  "decision": "approved",
+  "approvalScope": "playbook_lifecycle_mutation",
+  "readiness": {
+    "command": "npm run playbook:lifecycle:maintenance:ready -- --evidence docs/playbook-lifecycle-sequence-evidence/example-version-update-evidence.json",
+    "status": "ready_for_lifecycle_maintenance",
+    "readyForLifecycleMaintenance": true,
+    "productionReady": false,
+    "publishingPerformed": false,
+    "readinessOnly": true
+  },
+  "mutationBoundary": {
+    "mutationApproved": true,
+    "executionPerformed": false,
+    "fixtureRefreshPerformed": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "publishingPerformed": false,
+    "allowedTargets": [
+      "registered_playbook_contract"
+    ]
+  }
+}

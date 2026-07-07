@@ -284,6 +284,16 @@ npm run playbook:lifecycle:maintenance:ready -- --evidence <path>
 
 这仍然不执行建议命令、不生成 evidence、不批准、不执行、不应用迁移；它只是把 catalog handoff 与 evidence readiness 合并成一个本地维护准入判断。
 
+当前新增的 lifecycle mutation approval receipt gate 是：
+
+```bash
+npm run playbook:lifecycle:mutation:approval:check -- --approval <path>
+```
+
+该命令读取本地 approval JSON，并用其中的 `evidencePath` 重新运行 `playbook:lifecycle:maintenance:ready` helper。只有当前 readiness green、approval receipt 的 `decision` 为 `approved`、`approvalScope` 为 `playbook_lifecycle_mutation`，且内嵌 readiness summary 与 mutation boundary 都保持非生产边界时，才会输出 `approvedForLifecycleMutation: true`。它支持 `--now <iso-or-date>` 和 `--current-commit <commit>`，保持 `productionReady: false`、`publishingPerformed: false`、`approvalOnly: true`。
+
+这仍然不执行迁移、不修改 registered playbooks、不刷新 fixtures、不写 store、不调用外部 connector、不发布；它只是把 readiness green 之后的人类批准变成结构化、本地可审计的 approval receipt。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine

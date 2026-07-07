@@ -1,6 +1,6 @@
 # 可控 Agent Runtime 开发手册
 
-Last updated: 2026-07-07
+Last updated: 2026-07-08
 
 ## 1. 项目新定位
 
@@ -559,6 +559,18 @@ npm run release:execution-approval:check -- --approval <path>
 
 它保持 `productionReady: false`、`publishingPerformed: false`、`approvalBoundaryOnly: true`。它不批准或执行发布动作、不执行生产验证、不调用 connector、不外部写入、不写 store、不使用凭证、不宣称 production ready；它只是把 final operator approval requirements、release action authorization 和 no-release-execution-approved 边界变成结构化、本地可审计的 release execution approval boundary。后续如果进入 post-execution evidence boundary，也必须基于明确的人类/operator 外部执行记录，而不能由 checker 自行执行。
 
+当前新增的 production release completion evidence boundary 是：
+
+```bash
+npm run release:completion:evidence:check -- --evidence <path>
+```
+
+该命令读取本地 evidence JSON，复用 release execution approval boundary checker，并要求引用的 approval boundary report 为 green、approval-boundary-only、未发布、未生产就绪。evidence 必须声明 `evidenceId`、`releaseExecutionApprovalPath`、`owner`、`recordedAt`、`targetVersion`、`evidenceScope: "production_release_completion_evidence"`、`evidenceMode`、`releaseExecutionApprovalResult`、`operatorExecutionSummary`、`releaseActionEvidence`、`credentialUseEvidence`、`postExecutionVerification`、`monitoringEvidence`、`rollbackEvidence`、`auditTrail`、`completionBoundary` 和 `completionStatus`。
+
+`evidenceMode` 支持两种：`example_schema_only` 只验证 schema 和边界，不宣称生产发布完成；`operator_recorded_actual_execution` 只在 package build、tag creation、artifact upload、deployment、external writes、production verification、凭证使用、生产验证、监控、回滚和审计证据全部 green 时，才输出 `releaseCompletionClaim: "production_release_completed_by_operator_evidence"`。仓库内 tracked example 是 `example_schema_only`，因此保持 `productionReleaseCompleted: false`、`productionReady: false` 和 `publishingPerformed: false`。
+
+该 checker 本身仍不发布、不打 tag、不打包、不上传、不部署、不调用 connector、不执行外部写入、不写 store、不运行生产验证、不使用凭证。它只验证人工/operator 在 checker 外部执行后的结构化 evidence packet。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine
@@ -787,13 +799,13 @@ type ControlledPlaybookStep = {
 - governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
 - 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
 - Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
-- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary、delivery candidate、production release policy、production release approval packet、release execution planning、package build execution gate、tag creation execution gate、artifact upload execution gate、deployment execution gate、external-write execution gate、production verification gate 和 release execution approval boundary 已有只读门禁，但还没有 post-execution evidence boundary、统一 policy/guardrail hardening 或生产化发布执行。
+- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary、delivery candidate、production release policy、production release approval packet、release execution planning、package build execution gate、tag creation execution gate、artifact upload execution gate、deployment execution gate、external-write execution gate、production verification gate、release execution approval boundary 和 production release completion evidence boundary 已有只读门禁，但还没有 release closeout operations evidence、统一 policy/guardrail hardening 或生产化运维闭环。
 
 因此下一阶段默认进入：
 
-**Post-Execution Evidence Boundary 准备**
+**Production Closeout / Operations Evidence Hardening**
 
-目标是在 release execution approval boundary 边界之上，补齐人工执行后证据的独立合同，继续把执行记录、artifact/tag/deploy/external-write evidence、rollback、monitoring、凭证禁用和 no-production-ready claim 写成可审计合同。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不打 tag、不打包、不上传、不部署、不外部写入、不使用凭证、不宣称 production ready。
+目标是在 production release completion evidence boundary 之上，补齐 release closeout 报告、生产运维 runbook、事故/回滚证据和长期监控证据。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不打 tag、不打包、不上传、不部署、不外部写入、不使用凭证；真实 production ready 只能来自 operator-recorded actual execution evidence 和后续 closeout evidence，而不是 checker 自行执行。
 
 ### Phase 0. 冻结方向
 

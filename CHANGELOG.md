@@ -1,5 +1,16 @@
 # AgentCore OS Changelog
 
+## Unreleased - 2026-07-08
+
+### Production Release Completion Evidence Boundary
+
+- Added `npm run release:completion:evidence:check -- --evidence <path>`, a local post-execution production release completion evidence checker after the release execution approval boundary.
+- Added a tracked schema-only example evidence packet at `docs/release-completion-evidence/example-production-release-completion-evidence.json`.
+- The checker validates green release execution approval boundary evidence, owner identity, release action evidence, credential use evidence, post-execution verification, monitoring, rollback, audit trail, and checker no-side-effect boundaries.
+- The checker supports `example_schema_only` evidence without claiming production completion, and `operator_recorded_actual_execution` evidence for real operator-recorded completion packets.
+- The tracked example keeps `productionReleaseCompleted: false`, `productionReady: false`, and `publishingPerformed: false`; the checker itself does not publish, tag, package, upload, deploy, perform external writes, run production verification, or use credentials.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ## Unreleased - 2026-07-07
 
 ### Release Execution Approval Boundary

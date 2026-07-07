@@ -1,0 +1,147 @@
+{
+  "evidenceId": "production-release-completion-evidence-2026-07-08",
+  "releaseExecutionApprovalPath": "docs/release-execution-approvals/example-release-execution-approval-boundary.json",
+  "owner": {
+    "id": "agentcore-release-operators",
+    "name": "AgentCore Release Operators",
+    "role": "production_release_completion_evidence_reviewer"
+  },
+  "recordedAt": "2026-07-08T11:00:00Z",
+  "targetVersion": "1.3.0",
+  "evidenceScope": "production_release_completion_evidence",
+  "evidenceMode": "example_schema_only",
+  "releaseExecutionApprovalResult": {
+    "ok": true,
+    "approvalBoundaryOnly": true,
+    "releaseExecutionApprovalClaim": "release_execution_approval_boundary_defined",
+    "productionReady": false,
+    "publishingPerformed": false
+  },
+  "operatorExecutionSummary": {
+    "executedBy": "example-only",
+    "executionWindow": "example-only",
+    "changeTicket": "example-only",
+    "allActionsCompleted": false,
+    "noUnauthorizedActions": true
+  },
+  "releaseActionEvidence": {
+    "packageBuild": {
+      "action": "packageBuild",
+      "performed": false,
+      "ok": false,
+      "executedBy": "example-only",
+      "executedAt": "2026-07-08T10:00:00Z",
+      "commandOrProcedure": "example package build procedure",
+      "evidenceRef": "example-only",
+      "rollbackAvailable": true,
+      "monitoringLinked": true
+    },
+    "tagCreation": {
+      "action": "tagCreation",
+      "performed": false,
+      "ok": false,
+      "executedBy": "example-only",
+      "executedAt": "2026-07-08T10:00:00Z",
+      "commandOrProcedure": "example tag creation procedure",
+      "evidenceRef": "example-only",
+      "rollbackAvailable": true,
+      "monitoringLinked": true
+    },
+    "artifactUpload": {
+      "action": "artifactUpload",
+      "performed": false,
+      "ok": false,
+      "executedBy": "example-only",
+      "executedAt": "2026-07-08T10:00:00Z",
+      "commandOrProcedure": "example artifact upload procedure",
+      "evidenceRef": "example-only",
+      "rollbackAvailable": true,
+      "monitoringLinked": true
+    },
+    "deployment": {
+      "action": "deployment",
+      "performed": false,
+      "ok": false,
+      "executedBy": "example-only",
+      "executedAt": "2026-07-08T10:00:00Z",
+      "commandOrProcedure": "example deployment procedure",
+      "evidenceRef": "example-only",
+      "rollbackAvailable": true,
+      "monitoringLinked": true
+    },
+    "externalWrites": {
+      "action": "externalWrites",
+      "performed": false,
+      "ok": false,
+      "executedBy": "example-only",
+      "executedAt": "2026-07-08T10:00:00Z",
+      "commandOrProcedure": "example external write procedure",
+      "evidenceRef": "example-only",
+      "rollbackAvailable": true,
+      "monitoringLinked": true
+    },
+    "productionVerification": {
+      "action": "productionVerification",
+      "performed": false,
+      "ok": false,
+      "executedBy": "example-only",
+      "executedAt": "2026-07-08T10:00:00Z",
+      "commandOrProcedure": "example production verification procedure",
+      "evidenceRef": "example-only",
+      "rollbackAvailable": true,
+      "monitoringLinked": true
+    }
+  },
+  "credentialUseEvidence": {
+    "credentialsUsedByOperator": false,
+    "checkerUsedCredentials": false,
+    "credentialApprovalRef": "example-only",
+    "credentialScope": "example-only",
+    "secretMaterialRecorded": false,
+    "redactionPolicyApplied": true
+  },
+  "postExecutionVerification": {
+    "performed": false,
+    "ok": false,
+    "verifiedBy": "example-only",
+    "verifiedAt": "2026-07-08T11:10:00Z",
+    "evidenceRef": "example-only",
+    "acceptanceCriteriaMet": false
+  },
+  "monitoringEvidence": {
+    "dashboardLinked": false,
+    "alertingConfirmed": false,
+    "monitoringOwner": "example-only",
+    "observationWindow": "example-only"
+  },
+  "rollbackEvidence": {
+    "rollbackPlanLinked": true,
+    "rollbackOwner": "example-only",
+    "rollbackWindowDeclared": true,
+    "rollbackNotRequiredReason": "Example evidence only."
+  },
+  "auditTrail": {
+    "immutableEvidenceRefs": [
+      "example-only"
+    ],
+    "operatorNotesRecorded": true,
+    "reviewerNotesRecorded": true
+  },
+  "completionBoundary": {
+    "completionEvidenceOnly": true,
+    "checkerExecutedReleaseActions": false,
+    "checkerUsedCredentials": false,
+    "checkerPerformedExternalWrites": false,
+    "checkerDeployed": false,
+    "checkerCreatedTags": false,
+    "checkerUploadedArtifacts": false,
+    "checkerBuiltPackages": false,
+    "checkerRanProductionVerification": false
+  },
+  "completionStatus": "example_schema_only",
+  "notes": [
+    "This packet validates the production release completion evidence schema only.",
+    "It does not prove that package build, tag creation, artifact upload, deployment, external writes, or production verification were performed.",
+    "Replace evidenceMode with operator_recorded_actual_execution and attach real operator evidence only after manual production execution outside this checker."
+  ]
+}

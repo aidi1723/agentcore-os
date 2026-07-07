@@ -1,6 +1,6 @@
 # Next Steps
 
-Last updated: 2026-07-07
+Last updated: 2026-07-08
 
 This document is the execution backlog for the current `main` branch. It is narrower than the public roadmap and should be treated as the default work queue for engineering sessions.
 
@@ -133,6 +133,7 @@ Completed in the current controlled runtime line:
 - External-Write Execution Gate: `npm run release:external-write:gate:check -- --gate <path>` validates green deployment gate evidence, external write request metadata, external system review, idempotency policy, command evidence, rollback plan, monitoring plan, credential boundary, and gate-only non-production boundaries.
 - Production Verification Gate: `npm run release:production-verification:gate:check -- --gate <path>` validates green external-write gate evidence, production verification plan metadata, post-action checks, monitoring readiness, incident/rollback readiness, command evidence, credential boundary, and verification-only non-production boundaries.
 - Release Execution Approval Boundary: `npm run release:execution-approval:check -- --approval <path>` validates green production verification gate evidence, final operator approval requirements, execution readiness review, release action authorization, command evidence, credential boundary, and approval-boundary-only non-production boundaries.
+- Production Release Completion Evidence Boundary: `npm run release:completion:evidence:check -- --evidence <path>` validates green release execution approval boundary evidence plus post-execution action, credential, verification, monitoring, rollback, audit, and checker no-side-effect evidence. The tracked example is schema-only and keeps `productionReleaseCompleted: false`.
 - Sales Playbook Result Asset Alignment: `sales-pipeline-v1.resultAssets` now declares `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`, matching its actual durable writeback targets.
 
 Current verification baseline:
@@ -195,9 +196,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 117 test files.
-- 603 tests.
-- Includes sales/support playbook validation, playbook lifecycle/control-chain/default guardrail/deprecated replacement audit coverage, playbook lifecycle review diagnostic coverage, playbook lifecycle handoff checklist coverage, playbook lifecycle change proposal contract coverage, playbook lifecycle migration plan contract coverage, playbook lifecycle maintenance sequence contract coverage, playbook lifecycle sequence evidence contract coverage, playbook lifecycle sequence evidence freshness/provenance coverage, playbook lifecycle sequence evidence doctor coverage, playbook lifecycle maintenance readiness coverage, playbook lifecycle mutation approval coverage, playbook lifecycle mutation dry-run coverage, playbook lifecycle mutation preflight coverage, playbook lifecycle mutation executor boundary coverage, playbook lifecycle mutation post-apply sequence coverage, playbook lifecycle mutation post-apply evidence coverage, playbook lifecycle mutation fixture refresh handoff coverage, playbook lifecycle mutation candidate fixture review coverage, playbook lifecycle mutation fixture replacement handoff coverage, playbook lifecycle mutation post-replacement evidence coverage, playbook lifecycle mutation release handoff review coverage, playbook lifecycle mutation handoff summary coverage, delivery candidate readiness coverage, production release policy coverage, production release approval packet coverage, release execution planning coverage, package build gate coverage, tag creation gate coverage, artifact upload gate coverage, deployment gate coverage, external-write gate coverage, production verification gate coverage, release execution approval boundary coverage, project closeout readiness coverage, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, delivery candidate gate helper coverage, production release policy helper coverage, production release approval packet helper coverage, release execution plan helper coverage, package build gate helper coverage, tag creation gate helper coverage, artifact upload gate helper coverage, deployment gate helper coverage, external-write gate helper coverage, production verification gate helper coverage, release execution approval helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
+- 119 test files.
+- 613 tests.
+- Includes sales/support playbook validation, playbook lifecycle/control-chain/default guardrail/deprecated replacement audit coverage, playbook lifecycle review diagnostic coverage, playbook lifecycle handoff checklist coverage, playbook lifecycle change proposal contract coverage, playbook lifecycle migration plan contract coverage, playbook lifecycle maintenance sequence contract coverage, playbook lifecycle sequence evidence contract coverage, playbook lifecycle sequence evidence freshness/provenance coverage, playbook lifecycle sequence evidence doctor coverage, playbook lifecycle maintenance readiness coverage, playbook lifecycle mutation approval coverage, playbook lifecycle mutation dry-run coverage, playbook lifecycle mutation preflight coverage, playbook lifecycle mutation executor boundary coverage, playbook lifecycle mutation post-apply sequence coverage, playbook lifecycle mutation post-apply evidence coverage, playbook lifecycle mutation fixture refresh handoff coverage, playbook lifecycle mutation candidate fixture review coverage, playbook lifecycle mutation fixture replacement handoff coverage, playbook lifecycle mutation post-replacement evidence coverage, playbook lifecycle mutation release handoff review coverage, playbook lifecycle mutation handoff summary coverage, delivery candidate readiness coverage, production release policy coverage, production release approval packet coverage, release execution planning coverage, package build gate coverage, tag creation gate coverage, artifact upload gate coverage, deployment gate coverage, external-write gate coverage, production verification gate coverage, release execution approval boundary coverage, production release completion evidence coverage, project closeout readiness coverage, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, delivery candidate gate helper coverage, production release policy helper coverage, production release approval packet helper coverage, release execution plan helper coverage, package build gate helper coverage, tag creation gate helper coverage, artifact upload gate helper coverage, deployment gate helper coverage, external-write gate helper coverage, production verification gate helper coverage, release execution approval helper coverage, production release completion evidence helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -370,7 +371,7 @@ npm run release:package-build:gate:check -- --gate docs/release-execution-gates/
 
 - This gate does not run the recorded commands itself.
 - This gate does not run `desktop:package`, create artifacts, publish, tag, upload artifacts, deploy, call external connectors, use credentials, or claim production readiness.
-- This gap is now covered through `release:execution-approval:check`; the next concrete gap is post-execution evidence boundary design.
+- This gap is now covered through `release:completion:evidence:check`; the next concrete gap is production closeout / operations evidence hardening.
 
 ## Completed. Tag Creation Execution Gate
 
@@ -404,7 +405,7 @@ npm run release:tag-creation:gate:check -- --gate docs/release-execution-gates/e
 
 - This gate does not run the recorded commands itself.
 - This gate does not run `git tag`, push tags, create releases, upload artifacts, deploy, call external connectors, use credentials, or claim production readiness.
-- This gap is now covered through `release:execution-approval:check`; the next concrete gap is post-execution evidence boundary design.
+- This gap is now covered through `release:completion:evidence:check`; the next concrete gap is production closeout / operations evidence hardening.
 
 ## Completed. Artifact Upload Execution Gate
 
@@ -438,7 +439,7 @@ npm run release:artifact-upload:gate:check -- --gate docs/release-execution-gate
 
 - This gate does not run the recorded commands itself.
 - This gate does not create artifacts, compute checksums, create provenance, upload artifacts, create releases, deploy, call external connectors, write stores, use credentials, or claim production readiness.
-- This gap is now covered through `release:execution-approval:check`; the next concrete gap is post-execution evidence boundary design.
+- This gap is now covered through `release:completion:evidence:check`; the next concrete gap is production closeout / operations evidence hardening.
 
 ## Completed. Deployment Execution Gate
 
@@ -472,7 +473,7 @@ npm run release:deployment:gate:check -- --gate docs/release-execution-gates/exa
 
 - This gate does not run the recorded commands itself.
 - This gate does not deploy, perform external writes, write stores, call external connectors, use credentials, or claim production readiness.
-- This gap is now covered through `release:execution-approval:check`; the next concrete gap is post-execution evidence boundary design.
+- This gap is now covered through `release:completion:evidence:check`; the next concrete gap is production closeout / operations evidence hardening.
 
 ## Completed. External-Write Execution Gate
 
@@ -506,7 +507,7 @@ npm run release:external-write:gate:check -- --gate docs/release-execution-gates
 
 - This gate does not run the recorded commands itself.
 - This gate does not call connectors, perform external writes, write stores, use credentials, deploy, or claim production readiness.
-- This gap is now covered through `release:execution-approval:check`; the next concrete gap is post-execution evidence boundary design.
+- This gap is now covered through `release:completion:evidence:check`; the next concrete gap is production closeout / operations evidence hardening.
 
 ## Completed. Production Verification Gate
 
@@ -540,7 +541,7 @@ npm run release:production-verification:gate:check -- --gate docs/release-execut
 
 - This gate does not run the recorded commands itself.
 - This gate does not execute production verification, release actions, connector calls, external writes, store writes, use credentials, or claim production readiness.
-- This gap is now covered by `release:execution-approval:check`; the next concrete gap is post-execution evidence boundary design, still requiring explicit human/operator execution evidence and still outside this checker.
+- This gap is now covered by `release:completion:evidence:check`; the next concrete gap is production closeout / operations evidence hardening, still requiring explicit human/operator execution evidence and still outside this checker.
 
 ## Completed. Release Execution Approval Boundary
 
@@ -574,7 +575,40 @@ npm run release:execution-approval:check -- --approval docs/release-execution-ap
 
 - This boundary does not run the recorded commands itself.
 - This boundary does not approve or execute release actions, production verification, connector calls, external writes, store writes, credential use, or production readiness claims.
-- Next concrete gap: post-execution evidence boundary design, still requiring explicit human/operator execution evidence outside this checker.
+- This gap is now covered by `release:completion:evidence:check`; next concrete gap: production closeout / operations evidence hardening, still requiring explicit human/operator execution evidence outside this checker.
+
+## Completed. Production Release Completion Evidence Boundary
+
+Why:
+
+- The release execution approval boundary was green, but the project still needed a post-execution evidence checker that can validate externally recorded human/operator release completion evidence without performing release actions itself.
+- The checker needed to distinguish schema-only example evidence from actual operator-recorded production completion evidence.
+
+Delivered:
+
+- Added `src/lib/executor/playbooks/production-release-completion-evidence.ts`.
+- Added `scripts/release-execution/check-production-release-completion-evidence.mjs`.
+- Added `npm run release:completion:evidence:check`.
+- Added `docs/release-completion-evidence/example-production-release-completion-evidence.json`.
+- The command validates:
+  - green release execution approval boundary evidence;
+  - owner identity and `production_release_completion_evidence` scope;
+  - `example_schema_only` evidence without production completion claims;
+  - `operator_recorded_actual_execution` evidence only when release action evidence is complete and green;
+  - credential use evidence, post-execution verification, monitoring evidence, rollback evidence, audit trail, and checker no-side-effect boundary.
+- The tracked example emits `productionReleaseCompleted: false`, `productionReady: false`, `publishingPerformed: false`, and `schemaExampleOnly: true`.
+- Added helper coverage for schema-only success, actual operator evidence success, invalid release execution approval evidence, over-claimed example evidence, missing actual action evidence, argument parsing, invalid JSON, and CLI result generation.
+- Added [Production Release Completion Evidence Boundary spec](superpowers/specs/2026-07-08-production-release-completion-evidence-boundary-design.md) and [implementation plan](superpowers/plans/2026-07-08-production-release-completion-evidence-boundary.md).
+
+Outcome:
+
+```bash
+npm run release:completion:evidence:check -- --evidence docs/release-completion-evidence/example-production-release-completion-evidence.json
+```
+
+- This checker does not run recorded commands itself.
+- This checker does not publish, tag, package, upload, deploy, call connectors, perform external writes, write stores, run production verification, or use credentials.
+- Actual production completion can only be validated from a separate `operator_recorded_actual_execution` evidence packet after manual/operator execution outside this checker.
 
 ## Completed. Delivery Release Gate Hardening
 
@@ -1972,13 +2006,13 @@ Outcome:
 - Current branch has proceeded through the command-level delivery smoke path and browser evidence sweep.
 - It can be described as local delivery demo ready, but not as a production-ready release.
 
-## Recommended Next. Post-Execution Evidence Boundary
+## Recommended Next. Production Closeout / Operations Evidence Hardening
 
 Suggested scope:
 
-- Use `npm run release:execution-approval:check -- --approval docs/release-execution-approvals/example-release-execution-approval-boundary.json` as the current approval-boundary baseline before drafting post-execution evidence boundaries.
-- Create a separate post-execution evidence boundary that can validate externally recorded human/operator execution evidence without running publish, tag, package, upload, deploy, connector, external-write, store-write, credential, or production verification commands itself.
-- Keep actual external writes, credential use, deployment verification, and production readiness claims disabled unless later explicit human/operator execution evidence exists and is separately verified.
+- Use `npm run release:completion:evidence:check -- --evidence docs/release-completion-evidence/example-production-release-completion-evidence.json` as the current schema-only completion evidence baseline.
+- Add release closeout / operations evidence checks that can validate operator-recorded production completion evidence, incident/rollback posture, monitoring observation windows, and release closeout notes without running publish, tag, package, upload, deploy, connector, external-write, store-write, credential, or production verification commands itself.
+- Keep actual external writes, credential use, deployment verification, and production readiness claims disabled unless explicit `operator_recorded_actual_execution` evidence exists and is separately verified.
 - Continue hardening the unified policy/guardrail layer so tool, approval, failure, writeback, release, and deployment rules are not spread across unrelated validators.
 - Define the next replay-depth increment for per-playbook contract verification without executing real tools.
 - Prepare productized authoring/versioning/deprecation UI only after release action boundaries remain explicit.

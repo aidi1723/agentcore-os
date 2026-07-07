@@ -144,6 +144,7 @@ User / Trigger
 - `npm run playbook:lifecycle:sequence:check -- --sequence <path>` 本地只读 maintenance sequence gate，检查 proposal check、migration plan check、handoff、fixture gate 和 controlled runtime test 是否按顺序声明，并保持 no-mutation / no-publish policy。
 - `npm run playbook:lifecycle:sequence:evidence:check -- --evidence <path>` 本地只读 sequence evidence gate，检查已记录 evidence 是否覆盖 sequence 顺序、green command results、handoff/fixture/runtime 证据以及 no-mutation / no-publish summaries。
 - `npm run playbook:lifecycle:sequence:evidence:freshness:check -- --evidence <path>` 本地只读 sequence evidence freshness/provenance gate，检查 source commit、sequence digest 和 max-age freshness。
+- `npm run playbook:lifecycle:sequence:evidence:doctor -- --evidence <path>` 本地只读 sequence evidence doctor，归类 freshness/provenance 状态并给出下一步本地命令。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 

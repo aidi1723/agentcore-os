@@ -264,6 +264,16 @@ npm run playbook:lifecycle:sequence:evidence:freshness:check -- --evidence <path
 
 这仍然不执行命令、不生成 evidence、不批准、不执行、不应用迁移；它只是防止 stale evidence 或不匹配的 sequence digest 被用于 playbook lifecycle 维护判断。
 
+当前新增的 lifecycle sequence evidence doctor 是：
+
+```bash
+npm run playbook:lifecycle:sequence:evidence:doctor -- --evidence <path>
+```
+
+该命令复用 freshness checker 作为唯一校验来源，并把结果归类为 `fresh_evidence`、`missing_evidence`、`invalid_evidence`、`invalid_provenance`、`sequence_digest_mismatch`、`source_commit_mismatch`、`future_recorded_at`、`stale_evidence` 或 `invalid_recorded_at`。输出包含 `nextCommand` 与 `nextAction`，但不会执行建议命令。它保持 `productionReady: false`、`publishingPerformed: false`、`diagnosticOnly: true`。
+
+这仍然不执行命令、不生成 evidence、不批准、不执行、不应用迁移；它只是把 freshness/provenance findings 变成维护者可直接处理的诊断状态。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine

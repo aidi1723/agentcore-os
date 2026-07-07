@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-07-07
 
+### External-Write Execution Gate
+
+- Added `npm run release:external-write:gate:check -- --gate <path>`, a local read-only external-write execution gate after the deployment execution gate.
+- Added a tracked example gate at `docs/release-execution-gates/example-external-write-gate.json`.
+- The gate validates green deployment gate evidence, external write request metadata, external system review, idempotency policy, ordered local command evidence, rollback plan, monitoring plan, credential boundary, and gate-only external write boundaries.
+- The gate keeps `productionReady: false`, `publishingPerformed: false`, and `gateOnly: true`; it does not call connectors, perform external writes, write stores, use credentials, deploy, or claim production readiness.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ### Deployment Execution Gate
 
 - Added `npm run release:deployment:gate:check -- --gate <path>`, a local read-only deployment execution gate after the artifact upload execution gate.

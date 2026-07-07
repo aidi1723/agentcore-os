@@ -128,6 +128,9 @@ Completed in the current controlled runtime line:
 - Release Execution Planning Gates: `npm run release:execution-plan:check -- --plan <path>` validates green production approval evidence, ordered command evidence, packaging/tag/upload/deployment/external-write planned actions, rollback plan, monitoring plan, credential boundary, and planning-only non-production boundaries.
 - Package Build Execution Gate: `npm run release:package-build:gate:check -- --gate <path>` validates green release execution plan evidence, package build request metadata, source/supply-chain review, command evidence, rollback plan, monitoring plan, artifact handling, credential boundary, and gate-only non-production boundaries.
 - Tag Creation Execution Gate: `npm run release:tag-creation:gate:check -- --gate <path>` validates green package build gate evidence, tag request metadata, tag policy review, source commit evidence, release-note linkage, command evidence, rollback plan, monitoring plan, credential boundary, and gate-only non-production boundaries.
+- Artifact Upload Execution Gate: `npm run release:artifact-upload:gate:check -- --gate <path>` validates green tag creation gate evidence, artifact upload request metadata, artifact identity review, checksum/provenance policy, upload destination policy, command evidence, rollback plan, monitoring plan, credential boundary, and gate-only non-production boundaries.
+- Deployment Execution Gate: `npm run release:deployment:gate:check -- --gate <path>` validates green artifact upload gate evidence, deployment request metadata, deployment environment review, pre-deployment checks, command evidence, rollback plan, monitoring plan, credential boundary, and gate-only non-production boundaries.
+- External-Write Execution Gate: `npm run release:external-write:gate:check -- --gate <path>` validates green deployment gate evidence, external write request metadata, external system review, idempotency policy, command evidence, rollback plan, monitoring plan, credential boundary, and gate-only non-production boundaries.
 - Sales Playbook Result Asset Alignment: `sales-pipeline-v1.resultAssets` now declares `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`, matching its actual durable writeback targets.
 
 Current verification baseline:
@@ -362,7 +365,7 @@ npm run release:package-build:gate:check -- --gate docs/release-execution-gates/
 
 - This gate does not run the recorded commands itself.
 - This gate does not run `desktop:package`, create artifacts, publish, tag, upload artifacts, deploy, call external connectors, use credentials, or claim production readiness.
-- This gap is now covered by `release:tag-creation:gate:check`, `release:artifact-upload:gate:check`, and `release:deployment:gate:check`; the next concrete gap is external-write execution gate design.
+- This gap is now covered by `release:tag-creation:gate:check`, `release:artifact-upload:gate:check`, `release:deployment:gate:check`, and `release:external-write:gate:check`; the next concrete gap is production verification / release execution approval boundary design.
 
 ## Completed. Tag Creation Execution Gate
 
@@ -396,7 +399,7 @@ npm run release:tag-creation:gate:check -- --gate docs/release-execution-gates/e
 
 - This gate does not run the recorded commands itself.
 - This gate does not run `git tag`, push tags, create releases, upload artifacts, deploy, call external connectors, use credentials, or claim production readiness.
-- This gap is now covered by `release:artifact-upload:gate:check` and `release:deployment:gate:check`; the next concrete gap is external-write execution gate design.
+- This gap is now covered by `release:artifact-upload:gate:check`, `release:deployment:gate:check`, and `release:external-write:gate:check`; the next concrete gap is production verification / release execution approval boundary design.
 
 ## Completed. Artifact Upload Execution Gate
 
@@ -430,7 +433,7 @@ npm run release:artifact-upload:gate:check -- --gate docs/release-execution-gate
 
 - This gate does not run the recorded commands itself.
 - This gate does not create artifacts, compute checksums, create provenance, upload artifacts, create releases, deploy, call external connectors, write stores, use credentials, or claim production readiness.
-- This gap is now covered by `release:deployment:gate:check`; the next concrete gap is external-write execution gate design.
+- This gap is now covered by `release:deployment:gate:check` and `release:external-write:gate:check`; the next concrete gap is production verification / release execution approval boundary design.
 
 ## Completed. Deployment Execution Gate
 
@@ -464,7 +467,41 @@ npm run release:deployment:gate:check -- --gate docs/release-execution-gates/exa
 
 - This gate does not run the recorded commands itself.
 - This gate does not deploy, perform external writes, write stores, call external connectors, use credentials, or claim production readiness.
-- Next concrete gap: external-write execution gate design.
+- This gap is now covered by `release:external-write:gate:check`; the next concrete gap is production verification / release execution approval boundary design.
+
+## Completed. External-Write Execution Gate
+
+Why:
+
+- The deployment gate was green, but the project still needed an external-write-specific gate before any connector call, platform CLI write, API write, or store write could be considered.
+- The gate needed to keep external-write review separate from connector calls, credential use, store writes, deployment verification, and production readiness claims.
+
+Delivered:
+
+- Added `src/lib/executor/playbooks/external-write-execution-gate.ts`.
+- Added `scripts/release-execution/check-external-write-gate.mjs`.
+- Added `npm run release:external-write:gate:check`.
+- Added `docs/release-execution-gates/example-external-write-gate.json`.
+- The command validates:
+  - green deployment gate evidence;
+  - external write request metadata for the `v1.3.0` release metadata target;
+  - external system review for target system, write scope, payload, idempotency, and rollback target;
+  - idempotency policy requiring idempotency key, duplicate handling, and retry policy while proving the gate does not execute idempotency checks;
+  - ordered command evidence for deployment gate, release hygiene, controlled-runtime, core workflows, lint, build, and `git diff --check`;
+  - rollback plan, monitoring plan, credential boundary, external write decision, and gate-only external write boundary.
+- The command emits machine-readable JSON with `externalWriteGateClaim: "external_write_execution_gate_defined"`, `productionReady: false`, `publishingPerformed: false`, and `gateOnly: true`.
+- Added helper coverage for success, invalid deployment gate evidence, blocked write path enforcement, idempotency boundary breach, over-authorized external write decision, command evidence drift, argument parsing, invalid JSON, and CLI result generation.
+- Added [External-Write Execution Gate spec](superpowers/specs/2026-07-07-external-write-execution-gate-design.md) and [implementation plan](superpowers/plans/2026-07-07-external-write-execution-gate.md).
+
+Outcome:
+
+```bash
+npm run release:external-write:gate:check -- --gate docs/release-execution-gates/example-external-write-gate.json
+```
+
+- This gate does not run the recorded commands itself.
+- This gate does not call connectors, perform external writes, write stores, use credentials, deploy, or claim production readiness.
+- Next concrete gap: production verification / release execution approval boundary design.
 
 ## Completed. Delivery Release Gate Hardening
 
@@ -1862,13 +1899,14 @@ Outcome:
 - Current branch has proceeded through the command-level delivery smoke path and browser evidence sweep.
 - It can be described as local delivery demo ready, but not as a production-ready release.
 
-## Recommended Next. External-Write Execution Gate Design
+## Recommended Next. Production Verification / Release Execution Approval Boundary
 
 Suggested scope:
 
-- Use `npm run release:deployment:gate:check -- --gate docs/release-execution-gates/example-deployment-gate.json` as the current deployment baseline before drafting external-write execution gates.
-- Create a local read-only external-write gate that validates target systems, write intents, idempotency policy, rollback notes, monitoring notes, credential boundary, and no-external-write-performed boundary.
-- Keep actual external writes, credential use, and production readiness claims disabled unless later separate execution gates are approved and verified.
+- Use `npm run release:external-write:gate:check -- --gate docs/release-execution-gates/example-external-write-gate.json` as the current external-write baseline before drafting production verification and final execution approval boundaries.
+- Create a local read-only production verification gate that validates post-action verification requirements, monitoring readiness, rollback readiness, incident ownership, and no-production-ready-claim boundary.
+- Create a separate release execution approval boundary that records final operator approval requirements without executing publish, tag, package, upload, deploy, connector, external-write, store-write, or credential actions.
+- Keep actual external writes, credential use, deployment verification, and production readiness claims disabled unless later separate execution gates are approved and verified.
 - Continue hardening the unified policy/guardrail layer so tool, approval, failure, writeback, release, and deployment rules are not spread across unrelated validators.
 - Define the next replay-depth increment for per-playbook contract verification without executing real tools.
 - Prepare productized authoring/versioning/deprecation UI only after release action boundaries remain explicit.

@@ -1,0 +1,59 @@
+{
+  "evidenceId": "example-sales-pipeline-v1-review-evidence",
+  "sequencePath": "docs/playbook-lifecycle-maintenance-sequences/example-version-update-sequence.json",
+  "owner": "agentcore-runtime-maintainers",
+  "recordedAt": "2026-07-07T02:30:00Z",
+  "commandResults": [
+    {
+      "command": "npm run playbook:lifecycle:change:check -- --proposal docs/playbook-lifecycle-change-proposals/example-version-update-proposal.json",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T02:30:01Z"
+    },
+    {
+      "command": "npm run playbook:lifecycle:migration:plan:check -- --plan docs/playbook-lifecycle-migration-plans/example-version-update-plan.json",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T02:30:02Z"
+    },
+    {
+      "command": "npm run playbook:lifecycle:handoff",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T02:30:03Z",
+      "handoffOnly": true,
+      "productionReady": false,
+      "publishingPerformed": false
+    },
+    {
+      "command": "npm run trace:fixtures --silent",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T02:30:04Z",
+      "fixtureGate": "governed_fixtures_green"
+    },
+    {
+      "command": "npm run test:controlled-runtime",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T02:30:05Z",
+      "testFiles": 63,
+      "tests": 323
+    }
+  ],
+  "sequenceResult": {
+    "ok": true,
+    "sequenceOnly": true,
+    "productionReady": false,
+    "publishingPerformed": false
+  },
+  "mutationSummary": {
+    "performed": false,
+    "changedPaths": []
+  },
+  "publishingSummary": {
+    "performed": false,
+    "targets": []
+  },
+  "approvalStatus": "evidence_only"
+}

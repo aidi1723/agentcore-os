@@ -142,6 +142,7 @@ User / Trigger
 - `npm run playbook:lifecycle:change:check -- --proposal <path>` 本地只读 proposal-intake gate，检查 playbook lifecycle 变更提案是否声明 spec/plan、必需命令、fixture expectation 和 deprecation metadata。
 - `npm run playbook:lifecycle:migration:plan:check -- --plan <path>` 本地只读 migration planning gate，检查 playbook lifecycle 迁移计划是否声明 linked proposal、planned changes、rollback、fixture review、必需命令和 no-mutation policy。
 - `npm run playbook:lifecycle:sequence:check -- --sequence <path>` 本地只读 maintenance sequence gate，检查 proposal check、migration plan check、handoff、fixture gate 和 controlled runtime test 是否按顺序声明，并保持 no-mutation / no-publish policy。
+- `npm run playbook:lifecycle:sequence:evidence:check -- --evidence <path>` 本地只读 sequence evidence gate，检查已记录 evidence 是否覆盖 sequence 顺序、green command results、handoff/fixture/runtime 证据以及 no-mutation / no-publish summaries。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 

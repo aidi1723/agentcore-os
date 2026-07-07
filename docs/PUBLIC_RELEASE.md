@@ -219,6 +219,19 @@ run the full handoff gate, generate snapshots, mutate evidence, publish, upload,
 tag, package installers, create GitHub Releases, run browser smoke, or claim
 production readiness.
 
+To audit the recent local evidence window before handoff review, run:
+
+```bash
+npm run release:handoff:evidence:audit
+```
+
+The audit command is read-only. It reuses the checked snapshot index, summarizes
+successful, failed, invalid, invalid-JSON, and full-commit-covered evidence, and
+returns findings plus next-command guidance. It does not run the full handoff
+gate, generate snapshots, mutate evidence, publish, upload, tag, package
+installers, create GitHub Releases, run browser smoke, or claim production
+readiness.
+
 ## Full Verification
 
 Before a public release announcement or handoff, run:
@@ -231,6 +244,7 @@ npm run release:handoff:snapshot:index -- --check --limit 5
 npm run release:handoff:evidence:check
 npm run release:handoff:evidence:doctor
 npm run release:handoff:evidence:status
+npm run release:handoff:evidence:audit
 ```
 
 If the aggregate gate fails and the failed child command needs to be reproduced

@@ -189,6 +189,14 @@ npm run release:handoff:evidence:status
 
 该 status 命令是只读的。它聚合已有 doctor 和 snapshot index helper，并报告 `readyForLocalHandoffEvidence`；如果 doctor 报告里存在完整 commit 字段，也会一起透传。它不会运行完整 handoff gate、不会生成 snapshot、不会修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
 
+如果需要在交付审查前审计最近的本地 evidence 窗口，可以运行：
+
+```bash
+npm run release:handoff:evidence:audit
+```
+
+该 audit 命令是只读的。它复用 checked snapshot index，汇总成功、失败、无效、invalid JSON 以及完整 commit 覆盖情况，并返回 findings 和下一条本地命令建议。它不会运行完整 handoff gate、不会生成 snapshot、不会修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
+
 ## 完整发布前验证
 
 公开发布说明、外部演示或交付前，建议运行：
@@ -201,6 +209,7 @@ npm run release:handoff:snapshot:index -- --check --limit 5
 npm run release:handoff:evidence:check
 npm run release:handoff:evidence:doctor
 npm run release:handoff:evidence:status
+npm run release:handoff:evidence:audit
 ```
 
 如果聚合门禁失败，需要复现具体子命令时，再按 JSON 输出里的 failed check 单独运行对应命令。

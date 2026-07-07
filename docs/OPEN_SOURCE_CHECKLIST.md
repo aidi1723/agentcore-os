@@ -88,6 +88,7 @@ npm run release:handoff:snapshot:index -- --check --limit 5
 npm run release:handoff:evidence:check
 npm run release:handoff:evidence:doctor
 npm run release:handoff:evidence:status
+npm run release:handoff:evidence:audit
 git status
 ```
 
@@ -104,6 +105,7 @@ Confirm:
 - `release:handoff:evidence:check` confirms the newest local evidence snapshot validates and matches current `HEAD`, preferring full-SHA matching for new evidence and falling back to short-SHA matching for old snapshots
 - `release:handoff:evidence:doctor` diagnoses missing, invalid, failed, stale, git-unavailable, or fresh evidence using the same full-first commit comparison and suggests the next local command without running it
 - `release:handoff:evidence:status` reports `readyForLocalHandoffEvidence: true` only when the latest evidence is fresh and the checked recent snapshot index passes, and it exposes full commit fields from the doctor report when available
+- `release:handoff:evidence:audit` summarizes the recent local evidence window, reports failed/invalid/invalid-JSON evidence and full commit coverage, and suggests the next local command without running it
 - `release:hygiene:check` reports `ok: true` and `productionReady: false`
 - secret pattern review results are warning-only and still require human review
 - public docs say local delivery demo ready, not production ready
@@ -148,6 +150,12 @@ evidence, publish, upload, tag, package, or claim production readiness.
 `release:handoff:evidence:status` is read-only. It aggregates the existing
 doctor and checked snapshot index helpers into one status report; it does not
 run the full handoff gate, generate snapshots, mutate evidence, publish, upload,
+tag, package, or claim production readiness.
+
+`release:handoff:evidence:audit` is read-only. It audits a recent snapshot
+window with the checked snapshot index, summarizes evidence health and full
+commit coverage, and emits findings plus next-command guidance; it does not run
+the full handoff gate, generate snapshots, mutate evidence, publish, upload,
 tag, package, or claim production readiness.
 
 ## 6.1) Command-line release sanity

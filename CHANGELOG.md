@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Release Handoff Evidence Audit
+
+- Added `npm run release:handoff:evidence:audit`, a local read-only cross-snapshot audit for recent handoff evidence.
+- The audit summarizes successful, failed, invalid, invalid-JSON, full-commit-covered, and missing-full-commit snapshots by reusing the checked snapshot index.
+- The command emits findings and next-command guidance without running the handoff gate, generating snapshots, mutating evidence, publishing, tagging, uploading, packaging, creating GitHub Releases, running browser smoke, or claiming production readiness.
+- Added audit coverage and included it in `test:controlled-runtime`.
+
 ### Release Handoff Evidence Commit Hardening
 
 - New `release:handoff:snapshot` evidence records `git.commitFull` alongside the existing short `git.commit` value.

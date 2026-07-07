@@ -226,6 +226,7 @@ npm run test:stability
 - `npm run release:handoff:evidence:check`：只读确认最新本地 handoff evidence 已校验且匹配当前 `HEAD`；新证据优先用完整 SHA `snapshot.git.commitFull` 对比，旧证据回退 `snapshot.git.commit` 短 SHA；过期时重新生成 snapshot，不自动修改 evidence
 - `npm run release:handoff:evidence:doctor`：只读诊断最新 handoff evidence 是否缺失、无效、失败、过期或最新，并输出下一条建议命令；诊断使用同一套完整 SHA 优先、短 SHA 兼容规则；只建议、不自动生成或发布 evidence
 - `npm run release:handoff:evidence:status`：只读汇总 doctor 和最近 snapshot index 校验结果，报告本地 handoff evidence 是否可用于交付复核，并透传完整 SHA 诊断字段；不运行 handoff gate、不生成 snapshot、不发布
+- `npm run release:handoff:evidence:audit`：只读审计最近 handoff evidence 快照窗口，汇总成功、失败、无效、invalid JSON 和完整 SHA 覆盖情况，并建议下一条本地命令；不运行 handoff gate、不生成或修改 snapshot、不发布
 - `npm run test:stability`：运行核心回归 + lint + build 的稳定性门禁
 - `npm run desktop:smoke-test-sidecar`：运行桌面 sidecar HTTP 主链路烟测
 - `npm run lint`：运行 lint

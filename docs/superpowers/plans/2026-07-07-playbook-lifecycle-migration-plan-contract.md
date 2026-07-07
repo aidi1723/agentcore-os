@@ -16,29 +16,29 @@
 - Create: `src/__tests__/lib/executor/playbooks/lifecycle-migration-plan.test.ts`
 - Create: `src/__tests__/scripts/playbook-lifecycle-migration-plan-script.test.ts`
 
-- [ ] Add a helper test proving a valid version update migration plan passes.
-- [ ] Add a helper test proving missing required commands fail closed.
-- [ ] Add a helper test proving invalid referenced proposals fail closed.
-- [ ] Add a helper test proving mutation policies other than `no_mutation_until_plan_approved` fail closed.
-- [ ] Add CLI tests for missing `--plan`, invalid JSON, valid plan, and invalid plan exit codes.
-- [ ] Run targeted tests and confirm they fail before implementation.
+- [x] Add a helper test proving a valid version update migration plan passes.
+- [x] Add a helper test proving missing required commands fail closed.
+- [x] Add a helper test proving invalid referenced proposals fail closed.
+- [x] Add a helper test proving mutation policies other than `no_mutation_until_plan_approved` fail closed.
+- [x] Add CLI tests for missing `--plan`, invalid JSON, valid plan, and invalid plan exit codes.
+- [x] Run targeted tests and confirm they fail before implementation.
 
 ### Task 2: Migration Plan Validator
 
 **Files:**
 - Create: `src/lib/executor/playbooks/lifecycle-migration-plan.ts`
 
-- [ ] Export `PLAYBOOK_LIFECYCLE_MIGRATION_PLAN_COMMAND`.
-- [ ] Add plan, fixture review, finding, and report types.
-- [ ] Validate required string fields.
-- [ ] Validate `migrationType`.
-- [ ] Validate linked proposal report.
-- [ ] Validate proposal and migration plan alignment.
-- [ ] Validate required command coverage.
-- [ ] Validate planned changes and rollback plan.
-- [ ] Validate fixture review expectations for new/version changes.
-- [ ] Validate mutation policy.
-- [ ] Preserve local, read-only, non-production metadata.
+- [x] Export `PLAYBOOK_LIFECYCLE_MIGRATION_PLAN_COMMAND`.
+- [x] Add plan, fixture review, finding, and report types.
+- [x] Validate required string fields.
+- [x] Validate `migrationType`.
+- [x] Validate linked proposal report.
+- [x] Validate proposal and migration plan alignment.
+- [x] Validate required command coverage.
+- [x] Validate planned changes and rollback plan.
+- [x] Validate fixture review expectations for new/version changes.
+- [x] Validate mutation policy.
+- [x] Preserve local, read-only, non-production metadata.
 
 ### Task 3: CLI, Example Plan, And Package Script
 
@@ -47,13 +47,13 @@
 - Create: `docs/playbook-lifecycle-migration-plans/example-version-update-plan.json`
 - Modify: `package.json`
 
-- [ ] Parse `--plan <path>` and `--compact`.
-- [ ] Read and parse the migration plan JSON.
-- [ ] Read and parse the referenced proposal JSON.
-- [ ] Validate the referenced proposal with existing proposal checker semantics.
-- [ ] Add a tracked example migration plan JSON that references the example proposal.
-- [ ] Add `npm run playbook:lifecycle:migration:plan:check`.
-- [ ] Add helper and script tests to `test:controlled-runtime`.
+- [x] Parse `--plan <path>` and `--compact`.
+- [x] Read and parse the migration plan JSON.
+- [x] Read and parse the referenced proposal JSON.
+- [x] Validate the referenced proposal with existing proposal checker semantics.
+- [x] Add a tracked example migration plan JSON that references the example proposal.
+- [x] Add `npm run playbook:lifecycle:migration:plan:check`.
+- [x] Add helper and script tests to `test:controlled-runtime`.
 
 ### Task 4: Docs And Records
 
@@ -66,16 +66,16 @@
 - Modify: `docs/PROJECT_FRAMEWORK.zh-CN.md`
 - Modify: `memory/2026-07-07.md`
 
-- [ ] Document `playbook:lifecycle:migration:plan:check` as a local migration planning gate.
-- [ ] Record that this does not mutate playbooks, fixtures, stores, external connectors, or release evidence.
-- [ ] Update the controlled runtime test count after verification.
+- [x] Document `playbook:lifecycle:migration:plan:check` as a local migration planning gate.
+- [x] Record that this does not mutate playbooks, fixtures, stores, external connectors, or release evidence.
+- [x] Update the controlled runtime test count after verification.
 
 ### Task 5: Verification
 
-- [ ] `npm test -- src/__tests__/lib/executor/playbooks/lifecycle-migration-plan.test.ts src/__tests__/scripts/playbook-lifecycle-migration-plan-script.test.ts`
-- [ ] `npm run playbook:lifecycle:migration:plan:check -- --plan docs/playbook-lifecycle-migration-plans/example-version-update-plan.json`
-- [ ] `npm run test:controlled-runtime`
-- [ ] `npm run test:core-workflows`
-- [ ] `npm run lint`
-- [ ] `npm run build`
-- [ ] `git diff --check`
+- [x] `npm test -- src/__tests__/lib/executor/playbooks/lifecycle-migration-plan.test.ts src/__tests__/scripts/playbook-lifecycle-migration-plan-script.test.ts`
+- [x] `npm run playbook:lifecycle:migration:plan:check -- --plan docs/playbook-lifecycle-migration-plans/example-version-update-plan.json`
+- [x] `npm run test:controlled-runtime`
+- [x] `npm run test:core-workflows`
+- [x] `npm run lint`
+- [x] `npm run build`
+- [x] `git diff --check`

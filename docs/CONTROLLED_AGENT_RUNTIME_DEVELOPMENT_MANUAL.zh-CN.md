@@ -224,6 +224,16 @@ npm run playbook:lifecycle:change:check -- --proposal <path>
 
 这仍然不批准 playbook 变更，也不修改 registered playbooks、fixtures、stores、release evidence 或外部系统；它只是把 authoring/versioning/deprecation 的入口从口头约定变成结构化、本地可审计的 proposal contract。
 
+当前新增的 lifecycle migration plan gate 是：
+
+```bash
+npm run playbook:lifecycle:migration:plan:check -- --plan <path>
+```
+
+该命令读取本地 JSON migration plan，并读取其引用的 proposal JSON。它会先复用 proposal checker 语义确认 proposal green，再检查 `planId`、`proposalPath`、`migrationType`、`fromPlaybookId`、`toPlaybookId`、`plannedChanges`、`rollbackPlan`、`fixtureReview`、`requiredCommands` 和 `mutationPolicy`。`mutationPolicy` 必须是 `no_mutation_until_plan_approved`。它保持 `productionReady: false`、`publishingPerformed: false`、`planOnly: true`。
+
+这仍然不批准、不执行、不应用迁移；它只是把 proposal 之后、真实 playbook / fixture 变更之前的迁移规划变成结构化、本地可审计的合同。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine

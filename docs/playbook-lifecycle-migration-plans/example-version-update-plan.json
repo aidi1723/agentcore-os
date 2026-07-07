@@ -1,0 +1,31 @@
+{
+  "planId": "example-sales-pipeline-v1-review-plan",
+  "proposalPath": "docs/playbook-lifecycle-change-proposals/example-version-update-proposal.json",
+  "migrationType": "version_update",
+  "fromPlaybookId": "sales-pipeline-v1",
+  "toPlaybookId": "sales-pipeline-v1",
+  "owner": "agentcore-runtime-maintainers",
+  "plannedChanges": [
+    "Review lifecycle metadata and fixture expectations before editing the registered playbook.",
+    "Run the local lifecycle handoff gate before any future playbook contract mutation."
+  ],
+  "rollbackPlan": [
+    "Revert the future playbook contract commit if control audit or fixture replay fails.",
+    "Rerun lifecycle handoff before retrying the migration."
+  ],
+  "requiredCommands": [
+    "npm run playbook:lifecycle:change:check -- --proposal docs/playbook-lifecycle-change-proposals/example-version-update-proposal.json",
+    "npm run playbook:lifecycle:handoff",
+    "npm run trace:fixtures --silent",
+    "npm run test:controlled-runtime"
+  ],
+  "fixtureReview": {
+    "expectedFixtureIds": ["sales-pipeline-governed"],
+    "refreshRequired": false,
+    "notes": [
+      "This example does not refresh or mutate committed fixtures.",
+      "A real migration must document fixture review before changing playbook contracts."
+    ]
+  },
+  "mutationPolicy": "no_mutation_until_plan_approved"
+}

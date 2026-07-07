@@ -137,13 +137,14 @@ User / Trigger
 - governed trace fixture builder、fixture replay runner、fixture catalog、catalog report、JSON summary、人读 summary、failure harness 和 builder CLI。
 - fixture refresh workflow、replay contract、CI gate guide、catalog coverage guide、operational runbook。
 - `npm run playbook:control:audit` 本地只读控制链路审计，覆盖 playbook lifecycle、catalog、schema、tool boundary、approval gate、failure policy、writeback/result asset alignment、default runtime guardrails 和 fixture coverage。
+- `npm run playbook:lifecycle:review` 本地只读 lifecycle 复审诊断，覆盖 active playbook 的 next review due / overdue 维护信号。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 
 当前状态：
 
 - 已达到 **local delivery demo ready**。
-- 核心 controlled runtime 已成型，playbook lifecycle 已有第一层合同，但原始“固定 agent 执行步骤、让结果可控”的全部设计目标尚未完全闭环。
+- 核心 controlled runtime 已成型，playbook lifecycle 已有第一层合同和本地 review diagnostic，但原始“固定 agent 执行步骤、让结果可控”的全部设计目标尚未完全闭环。
 - 尚未宣称 production ready。
 - 下一阶段默认进入 **Control Chain Hardening**。
 

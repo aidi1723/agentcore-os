@@ -54,7 +54,7 @@ AgentCore OS 当前要做的是第三种：
 
 - **已达到 local delivery demo ready**：可以通过本地 seed/check 和浏览器路径演示 Home -> Runtime Console -> controlled run -> asset landing -> governed trace copy。
 - **已建立控制链路审计入口**：`npm run playbook:control:audit` 会本地只读审计 registered playbooks 的生命周期、步骤、schema、工具、审批、失败策略、写回目标、默认 runtime guardrails 和 governed fixture coverage，并保持 `productionReady: false`。
-- **尚未完全达到全部设计目标**：核心 runtime 已经成型，playbook lifecycle 已有第一层合同；但完整 authoring UI/versioning/deprecation flow、统一 policy/guardrail、真实 replay、外部 connector 写回和生产级运维仍需继续硬化。
+- **尚未完全达到全部设计目标**：核心 runtime 已经成型，playbook lifecycle 已有第一层合同和本地 review diagnostic；但完整 authoring UI/versioning/deprecation flow、统一 policy/guardrail、真实 replay、外部 connector 写回和生产级运维仍需继续硬化。
 - **尚未宣称 production ready**：真实 replay、长期 retention / cleanup、生产级运维边界仍需继续硬化。
 - **下一阶段默认是 Control Chain Hardening**：继续强化 playbook 控制链路、policy/guardrail、fixture/replay depth 和维护路径，不继续扩大 UI 壳或新增普通 skill。
 
@@ -221,6 +221,7 @@ npm run test:stability
 - `npm run delivery:demo:check`：验证本地交付演示数据和 governed trace 脱敏边界
 - `npm run delivery:ready:check`：快速本地交付门禁，聚合 demo check、governed fixture、fixture summary 和 retention preview，只声明 `local_delivery_demo_ready`
 - `npm run playbook:control:audit`：本地只读 playbook 控制链路审计，检查 registered playbooks 的生命周期、控制合同、默认 runtime guardrails 和 fixture coverage
+- `npm run playbook:lifecycle:review`：本地只读 playbook 生命周期复审诊断，检查 active playbooks 是否达到 `lastReviewedAt + reviewCadenceDays`，只输出维护信号
 - `npm run release:hygiene:check`：本地开源卫生门禁，检查必备治理文档、GPLv3+ 元数据、tracked artifact 路径和公开发布边界，不声明 production ready
 - `npm run release:handoff:check`：完整本地交付前门禁，聚合 hygiene、delivery readiness、controlled runtime 测试、core workflow、lint、build 和 `git diff --check`；不发布、不打 tag、不打包安装器，只声明 `local_release_handoff_ready`
 - `npm run release:handoff:snapshot`：运行完整 handoff gate，并把门禁结果与 git 上下文写入本地 `output/release-handoff/` JSON 证据；新证据同时保留短 SHA `snapshot.git.commit` 和完整 SHA `snapshot.git.commitFull`；不发布、不上传、不打 tag，生成文件默认不提交

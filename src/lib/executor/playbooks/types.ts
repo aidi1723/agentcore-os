@@ -15,6 +15,19 @@ export type ControlledPlaybookWriteTarget =
   | "support_asset"
   | "knowledge_asset";
 
+export type ControlledPlaybookLifecycleStatus =
+  | "active"
+  | "experimental"
+  | "deprecated";
+
+export type ControlledPlaybookLifecycle = {
+  status: ControlledPlaybookLifecycleStatus;
+  owner: string;
+  lastReviewedAt: string;
+  reviewCadenceDays: number;
+  changePolicy: "spec_plan_tdd_fixture_required";
+};
+
 export type ControlledPlaybookSchema = {
   type: "object";
   required?: string[];
@@ -49,6 +62,7 @@ export type ControlledPlaybook = {
   title: string;
   scenarioId: string;
   version: string;
+  lifecycle: ControlledPlaybookLifecycle;
   triggerTypes: ControlledPlaybookTriggerType[];
   steps: ControlledPlaybookStep[];
   resultAssets: string[];

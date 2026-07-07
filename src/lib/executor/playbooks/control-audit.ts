@@ -1,5 +1,6 @@
 import type {
   ControlledPlaybook,
+  ControlledPlaybookLifecycle,
   ControlledPlaybookWriteTarget,
 } from "@/lib/executor/playbooks/types";
 import { DEFAULT_GUARDRAILS, validatePlan } from "@/lib/executor/guardrails";
@@ -38,6 +39,7 @@ export type PlaybookControlAuditItem = {
   approvalSteps: number;
   writeTargets: ControlledPlaybookWriteTarget[];
   fixtureIds: string[];
+  lifecycle?: ControlledPlaybookLifecycle;
   guardrails: {
     planValid: boolean;
     maxSteps: number;
@@ -124,6 +126,18 @@ function collectWriteTargets(playbook: ControlledPlaybook) {
   return Array.from(new Set(targets));
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function hasValidLifecycleStatus(status: unknown) {
+  return status === "active" || status === "experimental" || status === "deprecated";
+}
+
+function hasIsoDate(value: unknown) {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
 function auditPlaybookContract(
   playbook: ControlledPlaybook,
   fixtureIds: string[],
@@ -141,6 +155,7 @@ function auditPlaybookContract(
     approvalSteps: playbook.steps.filter((step) => step.requiresApproval).length,
     writeTargets: collectWriteTargets(playbook),
     fixtureIds,
+    ...(playbook.lifecycle ? { lifecycle: playbook.lifecycle } : {}),
     guardrails: {
       planValid: guardrailValidation.valid,
       maxSteps: DEFAULT_GUARDRAILS.maxSteps,
@@ -166,6 +181,7 @@ function auditPlaybookFindings(
   const declaredResultAssets = new Set(playbook.resultAssets);
   const seenStepIds = new Set<string>();
   const guardedTools = new Set(DEFAULT_GUARDRAILS.requireApprovalFor);
+  const lifecycle = playbook.lifecycle;
 
   if (!playbook.id.trim()) {
     findings.push(finding("missing_playbook_id", "Playbook id is required."));
@@ -192,6 +208,65 @@ function auditPlaybookFindings(
         { playbookId: playbook.id },
       ),
     );
+  }
+
+  if (!isRecord(lifecycle)) {
+    findings.push(
+      finding(
+        "missing_lifecycle_metadata",
+        `Playbook ${playbook.id} must declare lifecycle metadata.`,
+        { playbookId: playbook.id },
+      ),
+    );
+  } else {
+    if (!hasValidLifecycleStatus(lifecycle.status)) {
+      findings.push(
+        finding(
+          "invalid_lifecycle_metadata",
+          `Playbook ${playbook.id} lifecycle.status must be active, experimental, or deprecated.`,
+          { playbookId: playbook.id },
+        ),
+      );
+    }
+    if (typeof lifecycle.owner !== "string" || lifecycle.owner.trim().length === 0) {
+      findings.push(
+        finding(
+          "invalid_lifecycle_metadata",
+          `Playbook ${playbook.id} lifecycle.owner must be non-empty.`,
+          { playbookId: playbook.id },
+        ),
+      );
+    }
+    if (!hasIsoDate(lifecycle.lastReviewedAt)) {
+      findings.push(
+        finding(
+          "invalid_lifecycle_metadata",
+          `Playbook ${playbook.id} lifecycle.lastReviewedAt must be YYYY-MM-DD.`,
+          { playbookId: playbook.id },
+        ),
+      );
+    }
+    if (
+      !Number.isInteger(lifecycle.reviewCadenceDays) ||
+      lifecycle.reviewCadenceDays <= 0
+    ) {
+      findings.push(
+        finding(
+          "invalid_lifecycle_metadata",
+          `Playbook ${playbook.id} lifecycle.reviewCadenceDays must be a positive integer.`,
+          { playbookId: playbook.id },
+        ),
+      );
+    }
+    if (lifecycle.changePolicy !== "spec_plan_tdd_fixture_required") {
+      findings.push(
+        finding(
+          "invalid_lifecycle_metadata",
+          `Playbook ${playbook.id} lifecycle.changePolicy must be spec_plan_tdd_fixture_required.`,
+          { playbookId: playbook.id },
+        ),
+      );
+    }
   }
 
   for (const error of validation.errors) {

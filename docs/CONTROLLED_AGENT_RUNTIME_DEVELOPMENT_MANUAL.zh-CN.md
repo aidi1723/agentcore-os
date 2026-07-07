@@ -130,7 +130,7 @@ LLM 可以生成建议、草稿和结构化内容，但不能成为默认流程�
 
 **固定 playbook runtime 已经成为主线，但设计目标还没有完全闭环。**
 
-当前已完成固定 playbook、validator、approval、durable trace、resume/retry、approved writeback、governed fixture replay、Runtime Console 和本地交付门禁。后续第一优先级不再是证明方向，而是继续硬化控制链路：统一审计 playbook 合同、补强 policy/guardrail、提升 replay depth、完善 authoring/lifecycle 和生产运维边界。
+当前已完成固定 playbook、validator、approval、durable trace、resume/retry、approved writeback、governed fixture replay、Runtime Console、本地交付门禁和第一层 playbook lifecycle contract。后续第一优先级不再是证明方向，而是继续硬化控制链路：统一审计 playbook 合同、补强 policy/guardrail、提升 replay depth、把 lifecycle contract 扩展成完整 authoring/versioning/deprecation flow，并完善生产运维边界。
 
 ## 5. 目标架构
 
@@ -176,7 +176,17 @@ User / Trigger
 npm run playbook:control:audit
 ```
 
-该命令会检查 registered controlled playbooks 的 catalog 唯一性、step schema、tool boundary、approval gate、failure policy、writeback/result asset alignment、default runtime guardrails 和 governed fixture coverage。它只做审计，不执行工具、不写 store、不写资产、不刷新 fixture、不发布 release、不宣称 production ready。
+该命令会检查 registered controlled playbooks 的 lifecycle metadata、catalog 唯一性、step schema、tool boundary、approval gate、failure policy、writeback/result asset alignment、default runtime guardrails 和 governed fixture coverage。它只做审计，不执行工具、不写 store、不写资产、不刷新 fixture、不发布 release、不宣称 production ready。
+
+每条 registered playbook 必须声明：
+
+- `lifecycle.status`：`active`、`experimental` 或 `deprecated`；
+- `lifecycle.owner`：维护责任人或团队；
+- `lifecycle.lastReviewedAt`：`YYYY-MM-DD`；
+- `lifecycle.reviewCadenceDays`：正整数；
+- `lifecycle.changePolicy`：当前固定为 `spec_plan_tdd_fixture_required`。
+
+这只是 lifecycle contract 的第一层，不等于已经完成 playbook authoring UI、版本迁移、废弃流程或发布审批。
 
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 

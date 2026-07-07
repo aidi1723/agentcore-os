@@ -15,6 +15,13 @@ export const supportResolutionPlaybook: ControlledPlaybook = {
   title: "Support Resolution Controlled Runtime",
   scenarioId: "support-ops",
   version: "1.0.0",
+  lifecycle: {
+    status: "active",
+    owner: "agentcore-runtime-maintainers",
+    lastReviewedAt: "2026-07-07",
+    reviewCadenceDays: 180,
+    changePolicy: "spec_plan_tdd_fixture_required",
+  },
   triggerTypes: ["inbound_message", "manual"],
   resultAssets: ["support_asset", "knowledge_asset", "draft", "workflow_run"],
   steps: [

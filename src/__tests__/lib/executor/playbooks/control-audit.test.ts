@@ -64,6 +64,22 @@ describe("auditControlledPlaybookCatalog", () => {
         guardedTools: ["file_write", "code_execute"],
       },
     ]);
+    expect(report.items.map((item) => item.lifecycle)).toEqual([
+      {
+        status: "active",
+        owner: "agentcore-runtime-maintainers",
+        lastReviewedAt: "2026-07-07",
+        reviewCadenceDays: 180,
+        changePolicy: "spec_plan_tdd_fixture_required",
+      },
+      {
+        status: "active",
+        owner: "agentcore-runtime-maintainers",
+        lastReviewedAt: "2026-07-07",
+        reviewCadenceDays: 180,
+        changePolicy: "spec_plan_tdd_fixture_required",
+      },
+    ]);
   });
 
   it("fails when a playbook writes to a target that is missing from resultAssets", () => {
@@ -210,5 +226,87 @@ describe("auditControlledPlaybookCatalog", () => {
       message:
         "Playbook sales-pipeline-v1 step qualify calls guarded tool file_write but does not declare approval.",
     });
+  });
+
+  it("fails when lifecycle metadata is missing", () => {
+    const playbookWithoutLifecycle = {
+      ...salesPipelinePlaybook,
+      lifecycle: undefined,
+    } as unknown as ControlledPlaybook;
+
+    const report = auditControlledPlaybookCatalog({
+      playbooks: [playbookWithoutLifecycle],
+      fixtureCatalog: [{ id: "sales-pipeline-governed", playbookId: "sales-pipeline-v1" }],
+      fixtureCatalogReport: {
+        ok: true,
+        total: 1,
+        passed: 1,
+        failed: 0,
+      },
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.findings).toContainEqual({
+      code: "missing_lifecycle_metadata",
+      severity: "error",
+      playbookId: "sales-pipeline-v1",
+      message: "Playbook sales-pipeline-v1 must declare lifecycle metadata.",
+    });
+  });
+
+  it("fails when lifecycle metadata is malformed", () => {
+    const playbookWithBadLifecycle = {
+      ...salesPipelinePlaybook,
+      lifecycle: {
+        status: "unknown",
+        owner: "",
+        lastReviewedAt: "07-07-2026",
+        reviewCadenceDays: 0,
+        changePolicy: "ad_hoc",
+      },
+    } as unknown as ControlledPlaybook;
+
+    const report = auditControlledPlaybookCatalog({
+      playbooks: [playbookWithBadLifecycle],
+      fixtureCatalog: [{ id: "sales-pipeline-governed", playbookId: "sales-pipeline-v1" }],
+      fixtureCatalogReport: {
+        ok: true,
+        total: 1,
+        passed: 1,
+        failed: 0,
+      },
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "invalid_lifecycle_metadata",
+          playbookId: "sales-pipeline-v1",
+          message: "Playbook sales-pipeline-v1 lifecycle.status must be active, experimental, or deprecated.",
+        }),
+        expect.objectContaining({
+          code: "invalid_lifecycle_metadata",
+          playbookId: "sales-pipeline-v1",
+          message: "Playbook sales-pipeline-v1 lifecycle.owner must be non-empty.",
+        }),
+        expect.objectContaining({
+          code: "invalid_lifecycle_metadata",
+          playbookId: "sales-pipeline-v1",
+          message: "Playbook sales-pipeline-v1 lifecycle.lastReviewedAt must be YYYY-MM-DD.",
+        }),
+        expect.objectContaining({
+          code: "invalid_lifecycle_metadata",
+          playbookId: "sales-pipeline-v1",
+          message: "Playbook sales-pipeline-v1 lifecycle.reviewCadenceDays must be a positive integer.",
+        }),
+        expect.objectContaining({
+          code: "invalid_lifecycle_metadata",
+          playbookId: "sales-pipeline-v1",
+          message:
+            "Playbook sales-pipeline-v1 lifecycle.changePolicy must be spec_plan_tdd_fixture_required.",
+        }),
+      ]),
+    );
   });
 });

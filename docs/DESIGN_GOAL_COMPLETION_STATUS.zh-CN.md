@@ -9,7 +9,7 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 当前状态应表述为：
 
 - **核心控制 runtime 已建立**：固定 playbook、受限工具、人工审批、durable trace、resume / retry、approved writeback、Runtime Console、governed fixture replay、local delivery / release handoff gates 已经具备。
-- **设计目标尚未完全闭环**：playbook authoring/lifecycle、统一 policy/guardrail、完整 replay gate、真实外部 connector 写回、生产级运维和 per-playbook 控制链路审计仍需继续硬化。
+- **设计目标尚未完全闭环**：playbook authoring/versioning/deprecation、统一 policy/guardrail、完整 replay gate、真实外部 connector 写回和生产级运维仍需继续硬化。
 - **当前优先级不是继续做壳，也不是改做普通 skill**：下一阶段要补齐控制链路、稳定性、效率、精准性和维护路径。
 
 ## 已完成的设计目标
@@ -24,13 +24,15 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 | approved writeback | sales/support/knowledge/workflow/draft 等 server-backed writeback 已接入受控链路。 |
 | fixture replay | committed governed fixtures 覆盖当前 registered playbooks，并有 no-side-effect replay gates。 |
 | 本地交付证据 | delivery ready、release handoff、evidence snapshot/status/audit 等本地门禁已具备。 |
+| Playbook lifecycle 第一层合同 | registered playbooks 已声明 lifecycle metadata，`playbook:control:audit` 会 fail closed 检查缺失或非法生命周期字段。 |
 
 ## 尚未完全达成的目标
 
 | 缺口 | 影响 | 下一步处理 |
 | --- | --- | --- |
-| 控制链路缺少统一 playbook 审计门 | 单个 validator / fixture replay 已存在，但原先没有一条命令汇总检查 playbook 合同、工具、审批、写回、guardrails、fixture coverage。 | 已新增并继续强化 `npm run playbook:control:audit`。 |
-| playbook 声明与写回落点可能漂移 | 执行能跑，但 `resultAssets` 等声明可能没有覆盖真实 writeback targets，影响精准性和维护判断。 | 审计写回目标与 resultAssets 对齐，失败时 fail closed。 |
+| 控制链路审计还需进入维护工作流 | `npm run playbook:control:audit` 已能汇总检查 playbook 合同、工具、审批、写回、lifecycle、guardrails、fixture coverage，但还没有形成 authoring/versioning/deprecation 的完整维护流。 | 下一阶段把审计结果作为 playbook 维护和版本变更的默认入口。 |
+| playbook 声明与写回落点可能漂移 | 执行能跑，但 `resultAssets` 等声明可能没有覆盖真实 writeback targets，影响精准性和维护判断。 | 已审计写回目标与 resultAssets 对齐，失败时 fail closed。 |
+| playbook lifecycle 还只是合同层 | 当前已有 status/owner/review/changePolicy，但还没有完整 authoring UI、版本迁移和 deprecation flow。 | 下一阶段扩展 authoring/versioning/deprecation workflow。 |
 | policy / guardrail 分散 | 工具策略、失败策略、审批策略存在，但还未形成统一 policy layer。 | 下一阶段把审计结果作为 policy hardening 输入。 |
 | replay 仍是 metadata-only | 当前 fixture replay 不执行真实工具、不调用 API、不写 store，适合合同回归，不等于真实 replay。 | 继续推进 no-side-effect sandbox 到更完整的 per-playbook replay gate。 |
 | UI 仍是操作面，不是完整 authoring console | Runtime Console 可查看、审批、恢复、打开资产，但 playbook authoring/lifecycle 尚未产品化。 | 后续先做 operator diagnostics，再评估 authoring UI。 |
@@ -38,7 +40,7 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 
 ## 下一阶段目标
 
-下一阶段默认进入 **Playbook Control Audit / Control Chain Hardening**。
+下一阶段继续进入 **Control Chain Hardening**，重点从审计门扩展到 playbook authoring/versioning/deprecation 维护流。
 
 目标不是新增 playbook，而是让现有 playbook 的执行合同更稳定：
 

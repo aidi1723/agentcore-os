@@ -16,6 +16,13 @@ export const salesPipelinePlaybook: ControlledPlaybook = {
   title: "Sales Pipeline Controlled Runtime",
   scenarioId: "sales-pipeline",
   version: "1.0.0",
+  lifecycle: {
+    status: "active",
+    owner: "agentcore-runtime-maintainers",
+    lastReviewedAt: "2026-07-07",
+    reviewCadenceDays: 180,
+    changePolicy: "spec_plan_tdd_fixture_required",
+  },
   triggerTypes: ["inbound_message", "schedule", "web_form", "manual"],
   resultAssets: ["sales_asset", "knowledge_asset", "draft", "workflow_run"],
   steps: [

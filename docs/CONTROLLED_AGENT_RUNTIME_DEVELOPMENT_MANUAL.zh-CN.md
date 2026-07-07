@@ -324,6 +324,25 @@ npm run playbook:lifecycle:mutation:preflight:check -- --evidence <path> --dry-r
 
 这仍然不执行迁移、不修改 registered playbooks、不刷新 fixtures、不写 store、不调用外部 connector、不发布；它只是把真实 mutation executor 前的人工实现审查条件变成结构化、本地可审计的 preflight gate。
 
+当前新增的 lifecycle mutation executor boundary 是：
+
+```bash
+npm run playbook:lifecycle:mutation:executor:preview -- --manifest <path> --evidence <path> --dry-run <path>
+npm run playbook:lifecycle:mutation:executor:apply -- --manifest <path> --evidence <path> --dry-run <path> --confirm-apply
+```
+
+preview 会读取 manifest，重新跑 preflight，并校验：
+
+- manifest embedded preflight 与 fresh preflight 都为 green；
+- `dryRunPath` 与 CLI 输入一致；
+- target 只能位于 `src/lib/executor/playbooks/`，且必须出现在 dry-run `plannedTargets` 的 `update_contract` target set 中；
+- operation 当前只能是 `replace_file`；
+- 当前文件 SHA-256 必须等于 `expectedCurrentSha256`；
+- `nextContent` SHA-256 必须等于 `nextContentSha256`；
+- execution boundary 必须保持 executor-only，且不刷新 fixture、不写 store、不外部写入、不发布、不宣称 production ready。
+
+apply 只有在 `--confirm-apply` 明确存在时才会写入，并且只写 manifest 中通过校验的本地 registered playbook 文件。它仍然不是 fixture refresh、runtime replay、store write、external connector write、release publishing 或 production operation。apply 之后必须重新运行 control audit、governed fixture / replay gates 和后续 release/handoff gates，不能直接宣称交付或生产可用。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine
@@ -552,12 +571,13 @@ type ControlledPlaybookStep = {
 - governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
 - 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
 - Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
+- 本地 mutation executor 已有 manifest preview/apply 边界，但还没有 rollback evidence、fixture refresh handoff、post-apply audit sequencing 或生产化发布审批。
 
 因此下一阶段默认进入：
 
-**Control Chain Hardening**
+**Productionization Preparation**
 
-目标是继续强化 playbook 控制链路、policy/guardrail、fixture/replay depth、authoring/lifecycle 和维护诊断路径。该阶段仍不恢复 raw governed artifact payload、不直接修改 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release。
+目标是在本地 mutation executor 边界之上补齐 rollback evidence、fixture refresh handoff、post-apply audit sequencing、统一 policy/guardrail、fixture/replay depth、authoring/lifecycle 和生产运维准备。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不宣称 production ready。
 
 ### Phase 0. 冻结方向
 

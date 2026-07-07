@@ -124,6 +124,9 @@
 - The closeout gate classifies current controlled-runtime milestone items as closed locally and defers real mutation execution, authoring UI, unified policy, deeper real replay, external connector writeback, and production operations to the next phase.
 - Added `npm run playbook:lifecycle:mutation:preflight:check -- --evidence <path> --dry-run <path>`, a local read-only Productionization Preparation gate before any real mutation executor work.
 - The preflight gate requires project closeout green, mutation dry-run green, approval green, scoped `update_contract` targets, and dry-run-only execution boundaries while keeping `productionReady: false`.
+- Added `npm run playbook:lifecycle:mutation:executor:preview -- --manifest <path> --evidence <path> --dry-run <path>` and `npm run playbook:lifecycle:mutation:executor:apply -- --manifest <path> --evidence <path> --dry-run <path> --confirm-apply`, a local manifest-based mutation executor boundary for registered playbook contract file replacements.
+- The executor reruns preflight, validates manifest schema, dry-run-declared target scope, current target SHA-256, next content SHA-256, and executor-only side-effect boundaries; preview is read-only, and apply refuses to write without explicit confirmation.
+- Added `docs/playbook-lifecycle-mutation-manifests/example-version-update-manifest.json` as a tracked safe preview manifest for `sales-pipeline-v1`.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
 - The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
 - `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.

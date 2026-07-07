@@ -1,0 +1,47 @@
+{
+  "handoffId": "fixture-replacement-handoff-sales-pipeline-v1",
+  "owner": "agentcore-runtime-maintainers",
+  "candidateReviewPath": "docs/playbook-lifecycle-mutation-candidate-fixture-reviews/example-version-update-candidate-fixture-review.json",
+  "catalogFixtureId": "sales-pipeline-governed",
+  "targetPlaybookId": "sales-pipeline-v1",
+  "candidateFixturePath": "src/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json",
+  "committedFixturePath": "src/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json",
+  "replacementReason": "Prepare explicit manual committed fixture replacement after candidate review.",
+  "rollbackEvidence": {
+    "priorCommittedFixtureReviewed": true,
+    "replacementDiffReviewPlanned": true,
+    "scopedRestorePath": true,
+    "restorePlanDocumented": true,
+    "rollbackNotes": [
+      "If post-replacement validation fails, revert only the committed governed fixture JSON change before retrying review.",
+      "Do not publish or claim readiness until a separate post-replacement evidence gate is green."
+    ]
+  },
+  "postReplacementValidationPlan": {
+    "governedFixtureCatalogGate": true,
+    "fixtureSummaryGate": true,
+    "controlledRuntimeGate": true,
+    "coreWorkflowGate": true,
+    "diffCheckGate": true,
+    "postReplacementEvidenceRequired": true
+  },
+  "replacementBoundary": {
+    "handoffOnly": true,
+    "committedFixtureReplacementPerformed": false,
+    "candidateFixtureGenerated": false,
+    "fixtureRefreshPerformed": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "publishingPerformed": false,
+    "productionReady": false
+  },
+  "replacementPolicy": "manual_replacement_requires_post_replacement_evidence",
+  "publishingPolicy": "no_publish_or_release",
+  "productionPolicy": "no_production_ready_claim",
+  "approvalStatus": "fixture_replacement_handoff_only",
+  "notes": [
+    "This handoff does not replace committed fixture JSON.",
+    "Manual replacement remains a maintainer action reviewed through git diff.",
+    "Publishing and production readiness remain blocked."
+  ]
+}

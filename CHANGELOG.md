@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-07-07
 
+### Artifact Upload Execution Gate
+
+- Added `npm run release:artifact-upload:gate:check -- --gate <path>`, a local read-only artifact upload execution gate after the tag creation execution gate.
+- Added a tracked example gate at `docs/release-execution-gates/example-artifact-upload-gate.json`.
+- The gate validates green tag creation gate evidence, artifact upload request metadata, artifact identity review, checksum/provenance policy, ordered local command evidence, rollback plan, monitoring plan, credential boundary, and gate-only artifact upload boundaries.
+- The gate keeps `productionReady: false`, `publishingPerformed: false`, and `gateOnly: true`; it does not create artifacts, compute checksums, create provenance, upload artifacts, create releases, deploy, call external connectors, write stores, use credentials, or claim production readiness.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ### Tag Creation Execution Gate
 
 - Added `npm run release:tag-creation:gate:check -- --gate <path>`, a local read-only tag creation execution gate after the package build execution gate.

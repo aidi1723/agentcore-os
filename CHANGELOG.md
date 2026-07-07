@@ -104,6 +104,14 @@
 
 ## Unreleased
 
+### Playbook Control Audit
+
+- Added `npm run playbook:control:audit`, a local read-only control-chain audit for registered controlled playbooks.
+- The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
+- Aligned `sales-pipeline-v1.resultAssets` with its actual durable writebacks by declaring `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`.
+- Added control-audit helper and CLI coverage to `test:controlled-runtime`.
+- Added `docs/DESIGN_GOAL_COMPLETION_STATUS.zh-CN.md` to record that the core runtime is established but the original design goals are not yet fully complete.
+
 ### Release Handoff Evidence Audit
 
 - Added `npm run release:handoff:evidence:audit`, a local read-only cross-snapshot audit for recent handoff evidence.

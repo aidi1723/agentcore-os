@@ -95,6 +95,9 @@ Completed in the current controlled runtime line:
 - Release Handoff Evidence Commit Hardening: new handoff snapshots now record `git.commitFull` alongside the existing short `git.commit`, and freshness / doctor / status checks prefer full-SHA matching while preserving short-SHA fallback for older local evidence.
 - Release Handoff Evidence Audit: `npm run release:handoff:evidence:audit` now provides a read-only cross-snapshot audit summary for recent local handoff evidence, including failed/invalid/invalid-JSON counts and full commit evidence coverage.
 - Release Handoff Retry Stability: server-backed list state now honors explicit local/test retry timings below `100ms` while keeping production defaults unchanged, reducing flake risk in the core workflow child gate.
+- Design Goal Completion Status: the project is recorded as a Controlled Skill / Playbook Runtime with the core control runtime mostly implemented, but not yet fully complete against the original design goal.
+- Playbook Control Audit: `npm run playbook:control:audit` now provides a local read-only control-chain audit for registered playbooks, covering catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
+- Sales Playbook Result Asset Alignment: `sales-pipeline-v1.resultAssets` now declares `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`, matching its actual durable writeback targets.
 
 Current verification baseline:
 
@@ -112,6 +115,7 @@ npm run release:handoff:evidence:check
 npm run release:handoff:evidence:doctor
 npm run release:handoff:evidence:status
 npm run release:handoff:evidence:audit
+npm run playbook:control:audit
 npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
@@ -122,9 +126,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 50 test files.
-- 256 tests.
-- Includes sales/support playbook validation, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
+- 53 test files.
+- 276 tests.
+- Includes sales/support playbook validation, playbook control-chain audit coverage, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -1527,15 +1531,16 @@ Outcome:
 - Current branch has proceeded through the command-level delivery smoke path and browser evidence sweep.
 - It can be described as local delivery demo ready, but not as a production-ready release.
 
-## Recommended Next. Trace Operations Hardening
+## Recommended Next. Control Chain Hardening
 
 Suggested scope:
 
-- Tighten raw trace retention and artifact handoff discipline.
-- Align release checklist wording around local delivery demo readiness versus production readiness.
-- Keep fixture refresh stop conditions explicit.
-- Keep browser evidence repeatable without committing temporary screenshots.
-- Do not add real replay, new playbooks, route calls, store writes, or external system mutations in this phase.
+- Promote `npm run playbook:control:audit` into the default maintainer path before playbook changes.
+- Harden the policy/guardrail layer so tool, approval, failure, and writeback rules are expressed consistently instead of spread across validators.
+- Define the next replay-depth increment for per-playbook contract verification without executing real tools.
+- Prepare a playbook lifecycle path for authoring, review, fixture update, and deprecation.
+- Keep release checklist wording aligned around local delivery demo readiness versus production readiness.
+- Do not add real replay, new playbooks, route calls, external system mutations, or broad UI redesign in this phase.
 
 ## Completed. Support Runtime Console Record Focus
 

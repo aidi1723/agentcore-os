@@ -1,6 +1,6 @@
 # AgentCore OS 项目框架总纲
 
-Last updated: 2026-07-06
+Last updated: 2026-07-07
 
 ## 1. 本次大改的结论
 
@@ -136,14 +136,16 @@ User / Trigger
 - governed trace artifact、local trace artifact route、Runtime Console 脱敏 trace copy。
 - governed trace fixture builder、fixture replay runner、fixture catalog、catalog report、JSON summary、人读 summary、failure harness 和 builder CLI。
 - fixture refresh workflow、replay contract、CI gate guide、catalog coverage guide、operational runbook。
+- `npm run playbook:control:audit` 本地只读控制链路审计，覆盖 playbook catalog、schema、tool boundary、approval gate、failure policy、writeback/result asset alignment 和 fixture coverage。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 
 当前状态：
 
 - 已达到 **local delivery demo ready**。
+- 核心 controlled runtime 已成型，但原始“固定 agent 执行步骤、让结果可控”的设计目标尚未完全闭环。
 - 尚未宣称 production ready。
-- 下一阶段默认进入 **Trace Operations Hardening**。
+- 下一阶段默认进入 **Control Chain Hardening**。
 
 仍未完成：
 
@@ -157,7 +159,7 @@ User / Trigger
 - replay sandbox catalog CI summary 已通过 `npm run replay:sandbox:fixtures` 实现为 compact JSON 命令。
 - replay sandbox failure diagnostics taxonomy 已把 contract bridge failure、sandbox artifact failure 和 guarantee violation 固定为稳定 `failureKind` / `guaranteeErrors` 输出。
 - replay sandbox failure harness direct modes 已覆盖 contract、sandbox 和 guarantee failures。
-- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep 与 Post-Delivery Fixture / Playbook Expansion Review 已完成；因此下一阶段应先做 Trace Operations Hardening，仍不能直接写真实工具 replay。
+- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review 与 Trace Operations maintenance slices 已完成；因此下一阶段应先做 Control Chain Hardening，仍不能直接写真实工具 replay 或扩大外部写回范围。
 
 ## 6. 文档体系
 

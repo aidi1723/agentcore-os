@@ -7,6 +7,12 @@ describe("salesPipelinePlaybook", () => {
   it("defines the stable first controlled runtime workflow", () => {
     expect(salesPipelinePlaybook.id).toBe("sales-pipeline-v1");
     expect(salesPipelinePlaybook.scenarioId).toBe("sales-pipeline");
+    expect(salesPipelinePlaybook.resultAssets).toEqual([
+      "sales_asset",
+      "knowledge_asset",
+      "draft",
+      "workflow_run",
+    ]);
     expect(salesPipelinePlaybook.steps.map((step) => step.id)).toEqual([
       "intake",
       "qualify",

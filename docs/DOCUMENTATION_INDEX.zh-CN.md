@@ -2,31 +2,32 @@
 
 这是当前 `v1.3.0` 稳定版对外发布对应的中文入口页。
 
-> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-06，Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture And Playbook Expansion Review 和 Runtime UI Delivery Polish Closeout 已完成；当前下一阶段是 Trace Operations Hardening。后续开发请先阅读项目框架总纲、可控 Runtime 开发手册、Roadmap、Next Steps、交付演示路径、浏览器证据、UI 收尾、交付后扩展复核、governed trace 运维文档和 real replay / sandbox 边界文档。
+> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-07，核心控制 runtime 已成型，但尚未完全达到全部设计目标；当前下一阶段是 Control Chain Hardening。后续开发请先阅读项目框架总纲、设计目标完成状态、可控 Runtime 开发手册、Roadmap、Next Steps、交付演示路径、浏览器证据、UI 收尾、交付后扩展复核、governed trace 运维文档和 real replay / sandbox 边界文档。
 
 ## 建议阅读顺序
 
 1. [README](../README.md)
 2. [项目框架总纲](PROJECT_FRAMEWORK.zh-CN.md)
 3. [可控 Agent Runtime 开发手册](CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
-4. [架构说明](ARCHITECTURE.md)
-5. [路线图](ROADMAP.md)
-6. [当前执行 backlog](NEXT_STEPS.md)
-7. [Runtime Console Delivery Readiness Audit](RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md)
-8. [Delivery Demo Smoke Path](DELIVERY_DEMO_SMOKE_PATH.zh-CN.md)
-9. [Browser Evidence And Release Readiness Sweep](BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md)
-10. [Runtime UI Delivery Polish Closeout](RUNTIME_UI_DELIVERY_POLISH_CLOSEOUT.zh-CN.md)
-11. [Post-Delivery Fixture And Playbook Expansion Review](POST_DELIVERY_FIXTURE_PLAYBOOK_EXPANSION_REVIEW.zh-CN.md)
-12. [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
-13. [Real Replay Boundary Design](REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
-14. [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
-15. [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
-16. [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
-17. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
-18. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
-19. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
-20. [快速开始](GETTING_STARTED.md)
-21. [用户指南（中文）](USER_GUIDE.zh-CN.md)
+4. [设计目标完成状态](DESIGN_GOAL_COMPLETION_STATUS.zh-CN.md)
+5. [架构说明](ARCHITECTURE.md)
+6. [路线图](ROADMAP.md)
+7. [当前执行 backlog](NEXT_STEPS.md)
+8. [Runtime Console Delivery Readiness Audit](RUNTIME_CONSOLE_DELIVERY_READINESS_AUDIT.zh-CN.md)
+9. [Delivery Demo Smoke Path](DELIVERY_DEMO_SMOKE_PATH.zh-CN.md)
+10. [Browser Evidence And Release Readiness Sweep](BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md)
+11. [Runtime UI Delivery Polish Closeout](RUNTIME_UI_DELIVERY_POLISH_CLOSEOUT.zh-CN.md)
+12. [Post-Delivery Fixture And Playbook Expansion Review](POST_DELIVERY_FIXTURE_PLAYBOOK_EXPANSION_REVIEW.zh-CN.md)
+13. [Governed Trace Operational Runbook](GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
+14. [Real Replay Boundary Design](REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
+15. [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
+16. [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
+17. [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
+18. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
+19. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
+20. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
+21. [快速开始](GETTING_STARTED.md)
+22. [用户指南（中文）](USER_GUIDE.zh-CN.md)
 
 ## 对外分发
 
@@ -41,6 +42,7 @@
 ## 其他核心文档
 
 - [项目框架总纲](PROJECT_FRAMEWORK.zh-CN.md)
+- [设计目标完成状态](DESIGN_GOAL_COMPLETION_STATUS.zh-CN.md)
 - [可控 Agent Runtime 开发手册](CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
 - [架构说明](ARCHITECTURE.md)
 - [路线图](ROADMAP.md)

@@ -17,7 +17,7 @@ export const salesPipelinePlaybook: ControlledPlaybook = {
   scenarioId: "sales-pipeline",
   version: "1.0.0",
   triggerTypes: ["inbound_message", "schedule", "web_form", "manual"],
-  resultAssets: ["sales_asset", "knowledge_asset"],
+  resultAssets: ["sales_asset", "knowledge_asset", "draft", "workflow_run"],
   steps: [
     {
       id: "intake",

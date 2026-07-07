@@ -1,6 +1,6 @@
 # 可控 Agent Runtime 开发手册
 
-Last updated: 2026-07-06
+Last updated: 2026-07-07
 
 ## 1. 项目新定位
 
@@ -128,9 +128,9 @@ LLM 可以生成建议、草稿和结构化内容，但不能成为默认流程�
 
 当前最大问题：
 
-**固定 workflow stage 和 LLM planner 并存，主执行链还没有把固定 playbook 作为唯一权威步骤来源。**
+**固定 playbook runtime 已经成为主线，但设计目标还没有完全闭环。**
 
-因此后续第一优先级不是加能力，而是收口控制权。
+当前已完成固定 playbook、validator、approval、durable trace、resume/retry、approved writeback、governed fixture replay、Runtime Console 和本地交付门禁。后续第一优先级不再是证明方向，而是继续硬化控制链路：统一审计 playbook 合同、补强 policy/guardrail、提升 replay depth、完善 authoring/lifecycle 和生产运维边界。
 
 ## 5. 目标架构
 
@@ -169,6 +169,14 @@ User / Trigger
 - 禁止用户请求覆盖系统步骤。
 
 如果验证失败，runtime 应拒绝执行，而不是让模型“修一修”继续跑。
+
+当前新增的本地只读控制链路审计命令是：
+
+```bash
+npm run playbook:control:audit
+```
+
+该命令会检查 registered controlled playbooks 的 catalog 唯一性、step schema、tool boundary、approval gate、failure policy、writeback/result asset alignment 和 governed fixture coverage。它只做审计，不执行工具、不写 store、不写资产、不刷新 fixture、不发布 release、不宣称 production ready。
 
 ### 5.4 Runtime State Machine
 
@@ -399,9 +407,9 @@ type ControlledPlaybookStep = {
 
 因此下一阶段默认进入：
 
-**Trace Operations Hardening**
+**Control Chain Hardening**
 
-目标是继续强化 governed trace / fixture / retention 的维护路径。该阶段仍不恢复 raw governed artifact payload、不直接修改 committed fixture JSON、不执行真实工具、不调用 route、不读写 runtime store、不写资产。
+目标是继续强化 playbook 控制链路、policy/guardrail、fixture/replay depth、authoring/lifecycle 和维护诊断路径。该阶段仍不恢复 raw governed artifact payload、不直接修改 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release。
 
 ### Phase 0. 冻结方向
 

@@ -148,6 +148,7 @@ User / Trigger
 - `npm run playbook:lifecycle:maintenance:ready -- --evidence <path>` 本地只读 maintenance readiness gate，聚合 lifecycle handoff 与 sequence evidence doctor。
 - `npm run playbook:lifecycle:mutation:approval:check -- --approval <path>` 本地只读 mutation approval receipt gate，检查 readiness green 后的结构化批准回执和 no-execution / no-write / no-publish 边界。
 - `npm run playbook:lifecycle:mutation:dry-run:check -- --dry-run <path>` 本地只读 mutation dry-run gate，检查批准后的拟变更 playbook target、fixture impact 和 dry-run-only 边界。
+- `npm run project:closeout:check -- --evidence <path> --dry-run <path>` 本地只读 controlled-runtime 收尾门禁，聚合 control audit、maintenance readiness、mutation dry-run 和 delivery readiness，明确当前里程碑可收尾但不等于 production ready。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 
@@ -156,7 +157,8 @@ User / Trigger
 - 已达到 **local delivery demo ready**。
 - 核心 controlled runtime 已成型，playbook lifecycle 已有第一层合同、本地 review diagnostic、deprecated replacement 合同、proposal gate、migration plan gate 和 handoff checklist，但原始“固定 agent 执行步骤、让结果可控”的全部设计目标尚未完全闭环。
 - 尚未宣称 production ready。
-- 下一阶段默认进入 **Control Chain Hardening**。
+- 当前 controlled-runtime 里程碑已经具备本地收尾门禁。
+- 下一阶段默认进入 **Productionization Preparation**。
 
 仍未完成：
 
@@ -170,7 +172,7 @@ User / Trigger
 - replay sandbox catalog CI summary 已通过 `npm run replay:sandbox:fixtures` 实现为 compact JSON 命令。
 - replay sandbox failure diagnostics taxonomy 已把 contract bridge failure、sandbox artifact failure 和 guarantee violation 固定为稳定 `failureKind` / `guaranteeErrors` 输出。
 - replay sandbox failure harness direct modes 已覆盖 contract、sandbox 和 guarantee failures。
-- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review 与 Trace Operations maintenance slices 已完成；因此下一阶段应先做 Control Chain Hardening，仍不能直接写真实工具 replay 或扩大外部写回范围。
+- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review、Trace Operations maintenance slices 与 Control Chain closeout gate 已完成；因此下一阶段应进入生产化准备，仍不能直接绕过只读门禁写真实工具 replay 或扩大外部写回范围。
 
 ## 6. 文档体系
 

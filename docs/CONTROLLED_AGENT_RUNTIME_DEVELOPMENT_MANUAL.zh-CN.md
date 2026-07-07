@@ -304,6 +304,16 @@ npm run playbook:lifecycle:mutation:dry-run:check -- --dry-run <path>
 
 这仍然不执行迁移、不修改 registered playbooks、不刷新 fixtures、不写 store、不调用外部 connector、不发布；它只是把批准后的拟变更目标和副作用边界变成结构化、本地可审计的 dry-run contract。
 
+当前新增的 project closeout readiness gate 是：
+
+```bash
+npm run project:closeout:check -- --evidence <path> --dry-run <path>
+```
+
+该命令聚合 `playbook:control:audit`、`playbook:lifecycle:maintenance:ready`、`playbook:lifecycle:mutation:dry-run:check` 和 `delivery:ready:check`。只有 playbook 合同审计、维护准入、mutation dry-run 与本地 delivery readiness 全部 green，且没有任何子门禁宣称 production readiness 或 publishing，才会输出 `readyForCurrentMilestoneCloseout: true`。它支持 `--now <iso-or-date>`、`--current-commit <commit>` 和 `--compact`，保持 `productionReady: false`、`publishingPerformed: false`、`closeoutOnly: true`。
+
+该门禁会把当前 controlled-runtime 里程碑中已经闭合的部分写成 machine-readable JSON，同时把 `real_mutation_executor`、`authoring_versioning_deprecation_ui`、`unified_policy_guardrail_layer`、`deeper_real_replay`、`external_connector_writeback` 和 `production_operations` 明确标记为 `deferred_next_phase`。它不执行迁移、不修改 registered playbooks、不刷新 fixtures、不写 store、不调用外部 connector、不发布、不打 tag、不上传 artifact、不宣称 production ready。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine

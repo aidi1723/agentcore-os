@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-07-07
 
+### Release Execution Approval Boundary
+
+- Added `npm run release:execution-approval:check -- --approval <path>`, a local read-only release execution approval boundary after the production verification gate.
+- Added a tracked example approval boundary at `docs/release-execution-approvals/example-release-execution-approval-boundary.json`.
+- The boundary validates green production verification gate evidence, final operator approval requirements, execution readiness review, ordered local command evidence, release action authorization, credential boundary, and approval-boundary-only behavior.
+- The boundary keeps `productionReady: false`, `publishingPerformed: false`, and `approvalBoundaryOnly: true`; it does not approve or execute publishing, tag creation, package builds, uploads, deployment, production verification, connector calls, external writes, store writes, credentials, or production readiness claims.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ### Production Verification Gate
 
 - Added `npm run release:production-verification:gate:check -- --gate <path>`, a local read-only production verification gate after the external-write execution gate.

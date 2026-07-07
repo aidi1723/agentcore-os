@@ -314,6 +314,16 @@ npm run project:closeout:check -- --evidence <path> --dry-run <path>
 
 该门禁会把当前 controlled-runtime 里程碑中已经闭合的部分写成 machine-readable JSON，同时把 `real_mutation_executor`、`authoring_versioning_deprecation_ui`、`unified_policy_guardrail_layer`、`deeper_real_replay`、`external_connector_writeback` 和 `production_operations` 明确标记为 `deferred_next_phase`。它不执行迁移、不修改 registered playbooks、不刷新 fixtures、不写 store、不调用外部 connector、不发布、不打 tag、不上传 artifact、不宣称 production ready。
 
+当前新增的 lifecycle mutation preflight gate 是：
+
+```bash
+npm run playbook:lifecycle:mutation:preflight:check -- --evidence <path> --dry-run <path>
+```
+
+该命令是 Productionization Preparation 的第一步，会重新运行 `project:closeout:check` 与 `playbook:lifecycle:mutation:dry-run:check` helper，并读取 dry-run JSON 的 planned targets。只有 closeout green、dry-run green、approval green、至少一个 `registered_playbook_contract` target 使用 `operation: "update_contract"`、所有 target path 都限制在 `src/lib/executor/playbooks/`，且 dry-run execution boundary 仍然保持 no mutation / no fixture refresh / no store writes / no external writes / no publishing / no production readiness，才会输出 `readyForLifecycleMutationPreflight: true`。
+
+这仍然不执行迁移、不修改 registered playbooks、不刷新 fixtures、不写 store、不调用外部 connector、不发布；它只是把真实 mutation executor 前的人工实现审查条件变成结构化、本地可审计的 preflight gate。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine

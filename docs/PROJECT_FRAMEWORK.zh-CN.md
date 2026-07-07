@@ -149,6 +149,7 @@ User / Trigger
 - `npm run playbook:lifecycle:mutation:approval:check -- --approval <path>` 本地只读 mutation approval receipt gate，检查 readiness green 后的结构化批准回执和 no-execution / no-write / no-publish 边界。
 - `npm run playbook:lifecycle:mutation:dry-run:check -- --dry-run <path>` 本地只读 mutation dry-run gate，检查批准后的拟变更 playbook target、fixture impact 和 dry-run-only 边界。
 - `npm run project:closeout:check -- --evidence <path> --dry-run <path>` 本地只读 controlled-runtime 收尾门禁，聚合 control audit、maintenance readiness、mutation dry-run 和 delivery readiness，明确当前里程碑可收尾但不等于 production ready。
+- `npm run playbook:lifecycle:mutation:preflight:check -- --evidence <path> --dry-run <path>` 本地只读 Productionization Preparation preflight，要求 closeout、dry-run、approval、target scope 与 no-side-effect boundary 全绿后，才允许进入真实 mutation executor 的人工实现审查。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 

@@ -10,7 +10,7 @@
     {
       "kind": "registered_playbook_contract",
       "path": "src/lib/executor/playbooks/sales-pipeline.ts",
-      "operation": "review_only"
+      "operation": "update_contract"
     }
   ],
   "fixtureImpact": {

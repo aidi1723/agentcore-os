@@ -112,6 +112,7 @@ Completed in the current controlled runtime line:
 - Playbook Lifecycle Mutation Approval Gate: `npm run playbook:lifecycle:mutation:approval:check -- --approval <path>` now validates a structured human approval receipt after maintenance readiness while preserving no-execution, no-write, no-fixture-refresh, and no-publish boundaries.
 - Playbook Lifecycle Mutation Dry-Run Gate: `npm run playbook:lifecycle:mutation:dry-run:check -- --dry-run <path>` now validates approved proposed mutation targets, fixture impact, and dry-run-only side-effect boundaries before any registered playbook edit.
 - Project Closeout Readiness Gate: `npm run project:closeout:check -- --evidence <path> --dry-run <path>` now aggregates playbook control audit, lifecycle maintenance readiness, lifecycle mutation dry-run, and delivery readiness into one local closeout report while keeping `productionReady: false` and classifying real mutation, authoring UI, unified policy, real replay, external connector writeback, and production operations as next-phase work.
+- Playbook Lifecycle Mutation Preflight Gate: `npm run playbook:lifecycle:mutation:preflight:check -- --evidence <path> --dry-run <path>` now starts Productionization Preparation by requiring closeout green, mutation dry-run green, approval green, scoped `update_contract` targets, and no-side-effect dry-run boundaries before any real mutation executor work.
 - Sales Playbook Result Asset Alignment: `sales-pipeline-v1.resultAssets` now declares `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`, matching its actual durable writeback targets.
 
 Current verification baseline:
@@ -143,6 +144,7 @@ npm run playbook:lifecycle:maintenance:ready -- --evidence docs/playbook-lifecyc
 npm run playbook:lifecycle:mutation:approval:check -- --approval docs/playbook-lifecycle-mutation-approvals/example-version-update-approval.json --now 2026-07-07T03:00:00Z --current-commit 4e2b1e138987f7725f2d835c1ab738ec343d7027
 npm run playbook:lifecycle:mutation:dry-run:check -- --dry-run docs/playbook-lifecycle-mutation-dry-runs/example-version-update-dry-run.json --now 2026-07-07T03:00:00Z --current-commit 4e2b1e138987f7725f2d835c1ab738ec343d7027
 npm run project:closeout:check -- --evidence docs/playbook-lifecycle-sequence-evidence/example-version-update-evidence.json --dry-run docs/playbook-lifecycle-mutation-dry-runs/example-version-update-dry-run.json --now 2026-07-07T03:00:00Z --current-commit 4e2b1e138987f7725f2d835c1ab738ec343d7027
+npm run playbook:lifecycle:mutation:preflight:check -- --evidence docs/playbook-lifecycle-sequence-evidence/example-version-update-evidence.json --dry-run docs/playbook-lifecycle-mutation-dry-runs/example-version-update-dry-run.json --now 2026-07-07T03:00:00Z --current-commit 4e2b1e138987f7725f2d835c1ab738ec343d7027
 npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
@@ -153,9 +155,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 75 test files.
-- 384 tests.
-- Includes sales/support playbook validation, playbook lifecycle/control-chain/default guardrail/deprecated replacement audit coverage, playbook lifecycle review diagnostic coverage, playbook lifecycle handoff checklist coverage, playbook lifecycle change proposal contract coverage, playbook lifecycle migration plan contract coverage, playbook lifecycle maintenance sequence contract coverage, playbook lifecycle sequence evidence contract coverage, playbook lifecycle sequence evidence freshness/provenance coverage, playbook lifecycle sequence evidence doctor coverage, playbook lifecycle maintenance readiness coverage, playbook lifecycle mutation approval coverage, playbook lifecycle mutation dry-run coverage, project closeout readiness coverage, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
+- 77 test files.
+- 393 tests.
+- Includes sales/support playbook validation, playbook lifecycle/control-chain/default guardrail/deprecated replacement audit coverage, playbook lifecycle review diagnostic coverage, playbook lifecycle handoff checklist coverage, playbook lifecycle change proposal contract coverage, playbook lifecycle migration plan contract coverage, playbook lifecycle maintenance sequence contract coverage, playbook lifecycle sequence evidence contract coverage, playbook lifecycle sequence evidence freshness/provenance coverage, playbook lifecycle sequence evidence doctor coverage, playbook lifecycle maintenance readiness coverage, playbook lifecycle mutation approval coverage, playbook lifecycle mutation dry-run coverage, playbook lifecycle mutation preflight coverage, project closeout readiness coverage, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -1558,19 +1560,17 @@ Outcome:
 - Current branch has proceeded through the command-level delivery smoke path and browser evidence sweep.
 - It can be described as local delivery demo ready, but not as a production-ready release.
 
-## Recommended Next. Control Chain Hardening
+## Recommended Next. Productionization Preparation
 
 Suggested scope:
 
-- Promote `npm run playbook:control:audit` into the default maintainer path before playbook changes.
+- Use `npm run playbook:lifecycle:mutation:preflight:check` as the default gate before designing or running a real mutation executor.
+- Define the real mutation executor write boundary, rollback boundary, and fixture refresh handoff only after preflight stays green.
 - Continue hardening the policy/guardrail layer beyond the shared default policy source so tool, approval, failure, and writeback rules are expressed consistently instead of spread across validators.
 - Define the next replay-depth increment for per-playbook contract verification without executing real tools.
-- Prepare a playbook lifecycle path for authoring, review, fixture update, and deprecation.
-- Extend the new lifecycle contract into a full authoring/versioning/deprecation workflow before adding more business playbooks.
-- Promote lifecycle review diagnostics into the default maintainer sequence before playbook version changes.
-- Use `npm run playbook:lifecycle:handoff` as the local version/deprecation handoff checklist before any real deprecated playbook is registered; future work can extend it toward migration planning only after the no-mutation contract remains stable.
+- Prepare productized authoring/versioning/deprecation UI only after the mutation executor boundary is explicit.
 - Keep release checklist wording aligned around local delivery demo readiness versus production readiness.
-- Do not add real replay, new playbooks, route calls, external system mutations, or broad UI redesign in this phase.
+- Do not mutate registered playbooks, refresh fixtures, call external systems, publish, tag, upload artifacts, or claim production readiness until a separate executor implementation is approved and verified.
 
 ## Completed. Support Runtime Console Record Focus
 

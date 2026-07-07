@@ -38,12 +38,14 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 | Playbook lifecycle mutation approval gate | `npm run playbook:lifecycle:mutation:approval:check -- --approval <path>` 会检查 readiness green 后的结构化批准回执，并确认未执行迁移、未刷新 fixture、未写 store、未发布。 |
 | Playbook lifecycle mutation dry-run gate | `npm run playbook:lifecycle:mutation:dry-run:check -- --dry-run <path>` 会检查批准后的拟变更 playbook target、fixture impact 和 dry-run-only 边界。 |
 | Project closeout readiness gate | `npm run project:closeout:check -- --evidence <path> --dry-run <path>` 会聚合 control audit、maintenance readiness、mutation dry-run 和 delivery readiness，给出当前 controlled-runtime 里程碑可收尾结论，同时保持 `productionReady: false` 并列出下一阶段延期项。 |
+| Playbook lifecycle mutation preflight gate | `npm run playbook:lifecycle:mutation:preflight:check -- --evidence <path> --dry-run <path>` 会在真实 mutation executor 前聚合 closeout、dry-run、approval、target scope 和 dry-run-only 边界，只允许进入人工 mutation executor 实现审查。 |
 
 ## 尚未完全达成的目标
 
 | 缺口 | 影响 | 下一步处理 |
 | --- | --- | --- |
 | 控制链路已具备当前里程碑收尾门禁 | `npm run project:closeout:check` 已把 control audit、maintenance readiness、mutation dry-run 与 local delivery readiness 聚合为当前 controlled-runtime 里程碑的最终本地只读收尾信号。 | 当前里程碑可收尾；下一阶段从真实 mutation executor、authoring UI、统一 policy、真实 replay、connector 写回和生产运维准备开始。 |
+| 真实 mutation executor 仍未实现 | `npm run playbook:lifecycle:mutation:preflight:check` 已把真实 mutation executor 前的准入条件固定下来，但它仍然不改 playbook、不刷新 fixture、不写 store。 | 下一阶段可以在 preflight green 的前提下设计真实 mutation executor 的受控写入/回滚边界。 |
 | playbook 声明与写回落点可能漂移 | 执行能跑，但 `resultAssets` 等声明可能没有覆盖真实 writeback targets，影响精准性和维护判断。 | 已审计写回目标与 resultAssets 对齐，失败时 fail closed。 |
 | playbook lifecycle 仍未产品化 | 当前已有 status/owner/review/changePolicy、本地复审诊断、deprecated replacement 合同、proposal gate、migration plan gate、sequence gate、sequence evidence/freshness gate 和 handoff checklist，但还没有完整 authoring UI、版本迁移器和 deprecation flow。 | 下一阶段扩展 authoring/versioning/deprecation workflow。 |
 | policy / guardrail 分散 | 工具策略、失败策略、审批策略存在，但还未形成统一 policy layer。 | 下一阶段把审计结果作为 policy hardening 输入。 |

@@ -1,0 +1,105 @@
+{
+  "summaryId": "handoff-summary-sales-pipeline-v1",
+  "releaseHandoffReviewPath": "docs/playbook-lifecycle-mutation-release-handoff-reviews/example-version-update-release-handoff-review.json",
+  "owner": "agentcore-runtime-maintainers",
+  "recordedAt": "2026-07-07T10:45:00Z",
+  "handoffSummary": {
+    "targetPlaybookId": "sales-pipeline-v1",
+    "lifecycleMutationStatus": "local_mutation_reviewed",
+    "evidenceChainStatus": "release_handoff_review_green",
+    "localReleaseClaim": "local_release_handoff_ready",
+    "maintainerDecision": "ready_for_non_production_handoff_review",
+    "nextBoundary": "unified_policy_or_authoring_hardening"
+  },
+  "commandSummary": [
+    {
+      "command": "npm run playbook:lifecycle:mutation:release-handoff:review:check -- --review docs/playbook-lifecycle-mutation-release-handoff-reviews/example-version-update-release-handoff-review.json",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:45:01Z",
+      "gate": "release_handoff_review_green"
+    },
+    {
+      "command": "npm run test:controlled-runtime",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:45:02Z",
+      "testFiles": 93,
+      "tests": 481
+    },
+    {
+      "command": "npm run test:core-workflows",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:45:03Z",
+      "gate": "core_workflows_green"
+    },
+    {
+      "command": "npm run lint",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:45:04Z",
+      "warningCount": 1,
+      "knownWarnings": [
+        "existing <img> warning in ShellUI.test.tsx"
+      ]
+    },
+    {
+      "command": "npm run build",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:45:05Z",
+      "warningCount": 1,
+      "knownWarnings": [
+        "existing <img> warning in ShellUI.test.tsx"
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:45:06Z",
+      "gate": "git_diff_check_green"
+    }
+  ],
+  "riskSummary": {
+    "productionReady": false,
+    "publishingApproved": false,
+    "externalWritesApproved": false,
+    "deferredItems": [
+      "unified policy/guardrail hardening",
+      "real replay depth",
+      "authoring UI"
+    ]
+  },
+  "rollbackSummary": {
+    "rollbackAvailable": true,
+    "rollbackNotes": [
+      "Revert the local mutation and regenerate review evidence if summary checks fail."
+    ]
+  },
+  "releaseHandoffReviewResult": {
+    "ok": true,
+    "reviewOnly": true,
+    "productionReady": false,
+    "publishingPerformed": false
+  },
+  "handoffSummaryBoundary": {
+    "summaryOnly": true,
+    "commandsExecutedByChecker": false,
+    "snapshotGeneratedByChecker": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "publishingPerformed": false,
+    "tagCreated": false,
+    "packageBuilt": false,
+    "uploadPerformed": false,
+    "productionReady": false,
+    "readinessClaimed": false
+  },
+  "approvalStatus": "handoff_summary_review",
+  "notes": [
+    "This summary is a local non-production maintainer handoff summary only.",
+    "The checker validates recorded summary evidence and does not run release commands or generate snapshots."
+  ]
+}

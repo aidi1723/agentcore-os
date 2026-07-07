@@ -159,6 +159,7 @@ User / Trigger
 - `npm run playbook:lifecycle:mutation:fixture-replacement:handoff:check -- --handoff <path>` 本地只读 fixture replacement handoff gate，要求 candidate fixture review green、目标/path 对齐、committed fixture path 限定在 governed fixtures、rollback evidence 完整、post-replacement validation plan 完整，并保持不替换 committed fixture、不刷新 fixture、不发布、不宣称 production ready。
 - `npm run playbook:lifecycle:mutation:post-replacement:evidence:check -- --evidence <path>` 本地只读 post-replacement fixture evidence gate，要求 fixture replacement handoff green、replacement summary 对齐、handoff/fixture/runtime/core/diff command evidence 全部 green，并保持不运行命令、不替换 fixture、不发布、不宣称 production ready。
 - `npm run playbook:lifecycle:mutation:release-handoff:review:check -- --review <path>` 本地只读 release handoff review gate，要求 post-replacement evidence green、release handoff/check/snapshot/status/audit/diff command evidence 全部 green、reviewer acceptance 和 rollback notes 完整，并保持不运行 release 命令、不生成 snapshot、不发布、不宣称 production ready。
+- `npm run playbook:lifecycle:mutation:handoff:summary:check -- --summary <path>` 本地只读 handoff summary gate，要求 release handoff review green、维护者 summary、命令 summary、risk/deferred items、rollback notes 完整，并保持不运行命令、不生成 snapshot、不发布、不宣称 production ready。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 
@@ -168,7 +169,7 @@ User / Trigger
 - 核心 controlled runtime 已成型，playbook lifecycle 已有第一层合同、本地 review diagnostic、deprecated replacement 合同、proposal gate、migration plan gate 和 handoff checklist，但原始“固定 agent 执行步骤、让结果可控”的全部设计目标尚未完全闭环。
 - 尚未宣称 production ready。
 - 当前 controlled-runtime 里程碑已经具备本地收尾门禁。
-- 下一阶段继续 **Productionization Preparation**，从已建立的本地 mutation executor、post-apply sequence、post-apply evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence 与 release handoff review 边界补齐统一 policy、真实 replay、authoring UI、handoff summary hardening 和生产运维准备。
+- 下一阶段继续 **Productionization Preparation**，从已建立的本地 mutation executor、post-apply sequence、post-apply evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review 与 handoff summary 边界补齐统一 policy、真实 replay、authoring UI 和生产运维准备。
 
 仍未完成：
 
@@ -182,7 +183,7 @@ User / Trigger
 - replay sandbox catalog CI summary 已通过 `npm run replay:sandbox:fixtures` 实现为 compact JSON 命令。
 - replay sandbox failure diagnostics taxonomy 已把 contract bridge failure、sandbox artifact failure 和 guarantee violation 固定为稳定 `failureKind` / `guaranteeErrors` 输出。
 - replay sandbox failure harness direct modes 已覆盖 contract、sandbox 和 guarantee failures。
-- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review、Trace Operations maintenance slices、Control Chain closeout gate、本地 mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff gate、candidate fixture review gate、fixture replacement handoff gate、post-replacement evidence gate 与 release handoff review gate 已完成；因此下一阶段应继续生产化准备，仍不能直接刷新 fixture、跑真实工具 replay、扩大外部写回范围或宣称生产就绪。
+- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review、Trace Operations maintenance slices、Control Chain closeout gate、本地 mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff gate、candidate fixture review gate、fixture replacement handoff gate、post-replacement evidence gate、release handoff review gate 与 handoff summary gate 已完成；因此下一阶段应继续生产化准备，仍不能直接刷新 fixture、跑真实工具 replay、扩大外部写回范围或宣称生产就绪。
 
 ## 6. 文档体系
 

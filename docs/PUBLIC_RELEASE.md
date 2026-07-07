@@ -133,8 +133,8 @@ npm run release:handoff:snapshot
 ```
 
 This command runs `release:handoff:check`, parses its JSON report, captures git
-branch / commit / short status context, and writes a timestamped JSON snapshot
-under:
+branch / short commit / full commit / short status context, and writes a
+timestamped JSON snapshot under:
 
 ```text
 output/release-handoff/
@@ -163,7 +163,8 @@ npm run release:handoff:snapshot:check -- <snapshot.json>
 The validator is read-only. It checks the snapshot schema, embedded
 `release:handoff:check` report shape, and release boundary fields such as
 `productionReady: false`, `publishingPerformed: false`, and
-`evidenceOnly: true`.
+`evidenceOnly: true`. Old short-only snapshots remain valid; when
+`git.commitFull` is present, it must be a non-empty string.
 
 To review recent local evidence without manually locating timestamped files,
 run:
@@ -184,9 +185,11 @@ npm run release:handoff:evidence:check
 ```
 
 This freshness command is read-only. It validates the newest snapshot and
-compares `snapshot.git.commit` with current `HEAD`. If it fails because the
-snapshot is stale, rerun the handoff gate and generate a new snapshot; do not
-edit evidence in place.
+compares it with current `HEAD`. New snapshots prefer full-SHA comparison via
+`snapshot.git.commitFull`; old local snapshots without that field fall back to
+short `snapshot.git.commit` comparison. If it fails because the snapshot is
+stale, rerun the handoff gate and generate a new snapshot; do not edit evidence
+in place.
 
 To diagnose the newest evidence state and get the next local command without
 running it, use:
@@ -197,9 +200,10 @@ npm run release:handoff:evidence:doctor
 
 The doctor command is read-only. It reports whether evidence is missing,
 invalid, failed, stale, blocked by git access, or fresh, then returns
-`nextCommand` and `nextAction` guidance. It does not create evidence, mutate
-evidence, publish, upload, tag, package installers, create GitHub Releases, run
-browser smoke, or claim production readiness.
+`nextCommand` and `nextAction` guidance. It uses the same full-SHA first,
+short-SHA fallback comparison as the freshness gate. It does not create
+evidence, mutate evidence, publish, upload, tag, package installers, create
+GitHub Releases, run browser smoke, or claim production readiness.
 
 To review the latest evidence diagnosis and checked recent snapshot index in
 one report, run:
@@ -209,9 +213,10 @@ npm run release:handoff:evidence:status
 ```
 
 The status command is read-only. It aggregates existing doctor and snapshot
-index helpers and reports `readyForLocalHandoffEvidence`; it does not run the
-full handoff gate, generate snapshots, mutate evidence, publish, upload, tag,
-package installers, create GitHub Releases, run browser smoke, or claim
+index helpers and reports `readyForLocalHandoffEvidence`. When available, the
+compact doctor report includes both short and full commit fields. It does not
+run the full handoff gate, generate snapshots, mutate evidence, publish, upload,
+tag, package installers, create GitHub Releases, run browser smoke, or claim
 production readiness.
 
 ## Full Verification

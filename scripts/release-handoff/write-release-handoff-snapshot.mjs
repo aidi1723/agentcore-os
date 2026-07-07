@@ -60,6 +60,7 @@ function runGitContextCommand(name) {
   const commands = {
     branch: ["git", ["branch", "--show-current"]],
     commit: ["git", ["rev-parse", "--short", "HEAD"]],
+    commitFull: ["git", ["rev-parse", "HEAD"]],
     status: ["git", ["status", "--short"]],
   };
   const command = commands[name];
@@ -97,6 +98,10 @@ function splitGitStatus(stdout) {
 function collectGitContext(gitRunner) {
   const branch = requireSuccessfulResult(gitRunner("branch"), "git branch");
   const commit = requireSuccessfulResult(gitRunner("commit"), "git commit");
+  const commitFull = requireSuccessfulResult(
+    gitRunner("commitFull"),
+    "git full commit",
+  );
   const status = requireSuccessfulResult(gitRunner("status"), "git status");
   const statusShort = splitGitStatus(status);
   const summary = parseGitStatusSummary(statusShort);
@@ -104,6 +109,7 @@ function collectGitContext(gitRunner) {
   return {
     branch: branch.trim(),
     commit: commit.trim(),
+    commitFull: commitFull.trim(),
     ...summary,
     statusShort,
   };

@@ -130,7 +130,7 @@ npm run release:handoff:check
 npm run release:handoff:snapshot
 ```
 
-该命令会运行 `release:handoff:check`，解析它的 JSON 报告，记录 git branch、commit 和 short status 上下文，并把带时间戳的 JSON 快照写入：
+该命令会运行 `release:handoff:check`，解析它的 JSON 报告，记录 git branch、短 commit、完整 commit 和 short status 上下文，并把带时间戳的 JSON 快照写入：
 
 ```text
 output/release-handoff/
@@ -155,7 +155,7 @@ output/release-handoff/
 npm run release:handoff:snapshot:check -- <snapshot.json>
 ```
 
-该 validator 会检查 snapshot schema、内嵌 `release:handoff:check` 报告结构，以及 `productionReady: false`、`publishingPerformed: false`、`evidenceOnly: true` 等发布边界字段。它不会发布、上传、打 tag、打包或修改 evidence 文件。
+该 validator 会检查 snapshot schema、内嵌 `release:handoff:check` 报告结构，以及 `productionReady: false`、`publishingPerformed: false`、`evidenceOnly: true` 等发布边界字段。旧的短 SHA snapshot 仍然有效；如果存在 `git.commitFull`，它必须是非空字符串。它不会发布、上传、打 tag、打包或修改 evidence 文件。
 
 如果需要复核最近的本地证据，而不是手工查找带时间戳的文件，可以运行：
 
@@ -171,7 +171,7 @@ npm run release:handoff:snapshot:index -- --check --limit 5
 npm run release:handoff:evidence:check
 ```
 
-该 freshness 命令是只读的。它会校验最新 snapshot，并比较 `snapshot.git.commit` 与当前 `HEAD`。如果失败原因是 evidence 过期，应重新运行 handoff gate 并生成新的 snapshot，不应直接修改 evidence 文件。
+该 freshness 命令是只读的。它会校验最新 snapshot，并比较它与当前 `HEAD`。新的 snapshot 会优先使用完整 SHA `snapshot.git.commitFull` 对比；没有该字段的旧本地 snapshot 会回退到短 SHA `snapshot.git.commit` 对比。如果失败原因是 evidence 过期，应重新运行 handoff gate 并生成新的 snapshot，不应直接修改 evidence 文件。
 
 如果需要诊断最新 evidence 状态，并获得下一条本地命令建议，可以运行：
 
@@ -179,7 +179,7 @@ npm run release:handoff:evidence:check
 npm run release:handoff:evidence:doctor
 ```
 
-该 doctor 命令是只读的。它会判断 evidence 是缺失、无效、失败、过期、git 不可读，还是已经匹配当前 `HEAD`，并返回 `nextCommand` 和 `nextAction`。它不会执行建议命令，不会创建 evidence、修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
+该 doctor 命令是只读的。它会判断 evidence 是缺失、无效、失败、过期、git 不可读，还是已经匹配当前 `HEAD`，并返回 `nextCommand` 和 `nextAction`。它使用与 freshness gate 相同的完整 SHA 优先、短 SHA 兼容对比规则。它不会执行建议命令，不会创建 evidence、修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
 
 如果需要把最新 evidence 诊断和最近 snapshot index 校验汇总成一份报告，可以运行：
 
@@ -187,7 +187,7 @@ npm run release:handoff:evidence:doctor
 npm run release:handoff:evidence:status
 ```
 
-该 status 命令是只读的。它聚合已有 doctor 和 snapshot index helper，并报告 `readyForLocalHandoffEvidence`；它不会运行完整 handoff gate、不会生成 snapshot、不会修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
+该 status 命令是只读的。它聚合已有 doctor 和 snapshot index helper，并报告 `readyForLocalHandoffEvidence`；如果 doctor 报告里存在完整 commit 字段，也会一起透传。它不会运行完整 handoff gate、不会生成 snapshot、不会修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
 
 ## 完整发布前验证
 

@@ -33,6 +33,7 @@ const successfulSnapshot = {
     checks: [{ name: "build", ok: true }],
   },
 };
+const fullCommit = "abcdef0123456789abcdef0123456789abcdef01";
 
 function createMemoryFs(files: Record<string, string>) {
   return {
@@ -46,15 +47,19 @@ function createMemoryFs(files: Record<string, string>) {
 
 describe("release handoff evidence doctor script", () => {
   it("reports fresh evidence with the freshness gate as the next hard check", () => {
+    const fullSnapshot = {
+      ...successfulSnapshot,
+      git: { ...successfulSnapshot.git, commitFull: fullCommit },
+    };
     const fs = createMemoryFs({
-      "output/release-handoff/latest.json": JSON.stringify(successfulSnapshot),
+      "output/release-handoff/latest.json": JSON.stringify(fullSnapshot),
     });
 
     const result = doctorReleaseHandoffEvidence({
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: "abcdef0\n", stderr: "" }),
+      gitRunner: () => ({ status: 0, stdout: `${fullCommit}\n`, stderr: "" }),
     });
 
     expect(result).toMatchObject({
@@ -67,7 +72,9 @@ describe("release handoff evidence doctor script", () => {
         severity: "info",
         snapshotPath: "output/release-handoff/latest.json",
         snapshotCommit: "abcdef0",
+        snapshotCommitFull: fullCommit,
         currentCommit: "abcdef0",
+        currentCommitFull: fullCommit,
         nextCommand: "npm run release:handoff:evidence:check",
         productionReady: false,
         publishingPerformed: false,
@@ -75,6 +82,31 @@ describe("release handoff evidence doctor script", () => {
         releaseClaim: "local_release_handoff_ready",
       },
     });
+  });
+
+  it("reports fresh evidence for old short-only snapshots using the current commit prefix", () => {
+    const fs = createMemoryFs({
+      "output/release-handoff/latest.json": JSON.stringify(successfulSnapshot),
+    });
+
+    const result = doctorReleaseHandoffEvidence({
+      snapshotDir: "output/release-handoff",
+      listFiles: fs.listFiles,
+      readFile: fs.readFile,
+      gitRunner: () => ({ status: 0, stdout: `${fullCommit}\n`, stderr: "" }),
+    });
+
+    expect(result).toMatchObject({
+      exitCode: 0,
+      report: {
+        ok: true,
+        status: "fresh_evidence",
+        snapshotCommit: "abcdef0",
+        currentCommit: "abcdef0",
+        currentCommitFull: fullCommit,
+      },
+    });
+    expect(result.report).not.toHaveProperty("snapshotCommitFull");
   });
 
   it("reports missing evidence with snapshot creation guidance", () => {
@@ -213,7 +245,11 @@ describe("release handoff evidence doctor script", () => {
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: "new2222\n", stderr: "" }),
+      gitRunner: () => ({
+        status: 0,
+        stdout: "new22223456789abcdef0123456789abcdef01\n",
+        stderr: "",
+      }),
     });
 
     expect(result).toMatchObject({
@@ -224,6 +260,42 @@ describe("release handoff evidence doctor script", () => {
         severity: "error",
         snapshotCommit: "old1111",
         currentCommit: "new2222",
+        currentCommitFull: "new22223456789abcdef0123456789abcdef01",
+        nextCommand: "npm run release:handoff:snapshot",
+      },
+    });
+  });
+
+  it("reports stale evidence when full snapshot commit differs even if short commit matches", () => {
+    const staleFullSnapshot = {
+      ...successfulSnapshot,
+      git: {
+        ...successfulSnapshot.git,
+        commit: "abcdef0",
+        commitFull: "abcdef0000000000000000000000000000000000",
+      },
+    };
+    const fs = createMemoryFs({
+      "output/release-handoff/latest.json": JSON.stringify(staleFullSnapshot),
+    });
+
+    const result = doctorReleaseHandoffEvidence({
+      snapshotDir: "output/release-handoff",
+      listFiles: fs.listFiles,
+      readFile: fs.readFile,
+      gitRunner: () => ({ status: 0, stdout: `${fullCommit}\n`, stderr: "" }),
+    });
+
+    expect(result).toMatchObject({
+      exitCode: 1,
+      report: {
+        ok: false,
+        status: "stale_evidence",
+        severity: "error",
+        snapshotCommit: "abcdef0",
+        snapshotCommitFull: "abcdef0000000000000000000000000000000000",
+        currentCommit: "abcdef0",
+        currentCommitFull: fullCommit,
         nextCommand: "npm run release:handoff:snapshot",
       },
     });

@@ -97,6 +97,19 @@ describe("release handoff snapshot check script", () => {
     expect(result.report.failures).toContain("productionReady must be false");
   });
 
+  it("validates git.commitFull when present", () => {
+    const invalid = {
+      ...successfulSnapshot,
+      git: { ...successfulSnapshot.git, commitFull: 123 },
+    };
+    const result = validateReleaseHandoffSnapshot(invalid, "bad-full.json");
+
+    expect(result.exitCode).toBe(1);
+    expect(result.report.failures).toContain(
+      "git.commitFull must be a non-empty string when present",
+    );
+  });
+
   it("fails failed snapshots that expose a release claim", () => {
     const invalid = {
       ...successfulSnapshot,

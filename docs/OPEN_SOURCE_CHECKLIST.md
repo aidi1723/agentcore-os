@@ -98,11 +98,12 @@ Confirm:
 - `release:handoff:check` reports `publishingPerformed: false`
 - `release:handoff:snapshot` writes local evidence under `output/release-handoff/`
 - `release:handoff:snapshot` reports `evidenceOnly: true`
+- new `release:handoff:snapshot` evidence records both short `git.commit` and full `git.commitFull`
 - `release:handoff:snapshot:check -- <snapshot.json>` validates the local evidence schema and release boundary
 - `release:handoff:snapshot:index -- --check --limit 5` lists and validates recent local evidence without creating, mutating, or publishing evidence
-- `release:handoff:evidence:check` confirms the newest local evidence snapshot validates and matches current `HEAD`
-- `release:handoff:evidence:doctor` diagnoses missing, invalid, failed, stale, git-unavailable, or fresh evidence and suggests the next local command without running it
-- `release:handoff:evidence:status` reports `readyForLocalHandoffEvidence: true` only when the latest evidence is fresh and the checked recent snapshot index passes
+- `release:handoff:evidence:check` confirms the newest local evidence snapshot validates and matches current `HEAD`, preferring full-SHA matching for new evidence and falling back to short-SHA matching for old snapshots
+- `release:handoff:evidence:doctor` diagnoses missing, invalid, failed, stale, git-unavailable, or fresh evidence using the same full-first commit comparison and suggests the next local command without running it
+- `release:handoff:evidence:status` reports `readyForLocalHandoffEvidence: true` only when the latest evidence is fresh and the checked recent snapshot index passes, and it exposes full commit fields from the doctor report when available
 - `release:hygiene:check` reports `ok: true` and `productionReady: false`
 - secret pattern review results are warning-only and still require human review
 - public docs say local delivery demo ready, not production ready
@@ -120,8 +121,10 @@ Confirm:
 - `git diff --check`
 
 `release:handoff:snapshot` preserves the handoff JSON and git context for local
-review only. Snapshot files under `output/release-handoff/` are not published
-release artifacts and should not be committed by default.
+review only. New snapshots retain the existing short `git.commit` and also
+record full `git.commitFull` evidence. Snapshot files under
+`output/release-handoff/` are not published release artifacts and should not be
+committed by default.
 
 `release:handoff:snapshot:check` is read-only. It validates one local snapshot
 file and does not publish, upload, tag, package, or modify evidence.
@@ -132,9 +135,10 @@ create evidence, mutate evidence, publish, upload, tag, package, or claim
 production readiness.
 
 `release:handoff:evidence:check` is read-only. It validates the newest local
-snapshot and compares `snapshot.git.commit` with current `HEAD`; if it reports
-stale evidence, rerun the handoff gate and generate a new snapshot rather than
-editing evidence in place.
+snapshot and compares it with current `HEAD`. New snapshots use full
+`snapshot.git.commitFull` matching; old short-only snapshots fall back to
+`snapshot.git.commit`. If it reports stale evidence, rerun the handoff gate and
+generate a new snapshot rather than editing evidence in place.
 
 `release:handoff:evidence:doctor` is read-only. It diagnoses the newest local
 snapshot state and returns `status`, `severity`, `nextCommand`, and

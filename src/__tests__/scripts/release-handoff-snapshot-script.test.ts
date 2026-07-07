@@ -14,6 +14,7 @@ const passingReport = {
   publishingPerformed: false,
   checks: [{ name: "release_hygiene_check", ok: true, exitCode: 0 }],
 };
+const fullCommit = "abcdef0123456789abcdef0123456789abcdef01";
 
 describe("release handoff snapshot script", () => {
   it("writes a local evidence snapshot for a passing handoff report", () => {
@@ -29,6 +30,9 @@ describe("release handoff snapshot script", () => {
       gitRunner: (name: string) => {
         if (name === "branch") return { status: 0, stdout: "main\n", stderr: "" };
         if (name === "commit") return { status: 0, stdout: "abcdef0\n", stderr: "" };
+        if (name === "commitFull") {
+          return { status: 0, stdout: `${fullCommit}\n`, stderr: "" };
+        }
         return { status: 0, stdout: "?? output/\n", stderr: "" };
       },
       writeFile: (path: string, data: string) => writes.push({ path, data }),
@@ -60,6 +64,7 @@ describe("release handoff snapshot script", () => {
       git: {
         branch: "main",
         commit: "abcdef0",
+        commitFull: fullCommit,
         dirty: true,
         hasTrackedChanges: false,
         hasUntrackedFiles: true,
@@ -132,6 +137,7 @@ describe("release handoff snapshot script", () => {
       git: {
         branch: "main",
         commit: "abcdef0",
+        commitFull: fullCommit,
         dirty: false,
         hasTrackedChanges: false,
         hasUntrackedFiles: false,

@@ -92,6 +92,7 @@ Completed in the current controlled runtime line:
 - Release Handoff Evidence Freshness: `npm run release:handoff:evidence:check` now confirms the newest local evidence snapshot validates and matches current `HEAD` without creating, mutating, or publishing evidence.
 - Release Handoff Evidence Doctor: `npm run release:handoff:evidence:doctor` now diagnoses missing, invalid, failed, stale, git-unavailable, or fresh local handoff evidence and suggests the next local command without creating, mutating, or publishing evidence.
 - Release Handoff Evidence Status: `npm run release:handoff:evidence:status` now aggregates the latest evidence doctor and checked recent snapshot index into one read-only handoff evidence status report without running the handoff gate, generating snapshots, mutating evidence, or publishing.
+- Release Handoff Evidence Commit Hardening: new handoff snapshots now record `git.commitFull` alongside the existing short `git.commit`, and freshness / doctor / status checks prefer full-SHA matching while preserving short-SHA fallback for older local evidence.
 - Release Handoff Retry Stability: server-backed list state now honors explicit local/test retry timings below `100ms` while keeping production defaults unchanged, reducing flake risk in the core workflow child gate.
 
 Current verification baseline:

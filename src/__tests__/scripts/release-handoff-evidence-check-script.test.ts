@@ -33,6 +33,7 @@ const successfulSnapshot = {
     checks: [{ name: "build", ok: true }],
   },
 };
+const fullCommit = "abcdef0123456789abcdef0123456789abcdef01";
 
 function createMemoryFs(files: Record<string, string>) {
   return {
@@ -46,15 +47,19 @@ function createMemoryFs(files: Record<string, string>) {
 
 describe("release handoff evidence freshness script", () => {
   it("passes when the newest snapshot validates and matches current commit", () => {
+    const fullSnapshot = {
+      ...successfulSnapshot,
+      git: { ...successfulSnapshot.git, commitFull: fullCommit },
+    };
     const fs = createMemoryFs({
-      "output/release-handoff/latest.json": JSON.stringify(successfulSnapshot),
+      "output/release-handoff/latest.json": JSON.stringify(fullSnapshot),
     });
 
     const result = checkReleaseHandoffEvidence({
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: "abcdef0\n", stderr: "" }),
+      gitRunner: () => ({ status: 0, stdout: `${fullCommit}\n`, stderr: "" }),
     });
 
     expect(result).toMatchObject({
@@ -64,7 +69,9 @@ describe("release handoff evidence freshness script", () => {
         command: RELEASE_HANDOFF_EVIDENCE_CHECK_COMMAND,
         snapshotPath: "output/release-handoff/latest.json",
         snapshotCommit: "abcdef0",
+        snapshotCommitFull: fullCommit,
         currentCommit: "abcdef0",
+        currentCommitFull: fullCommit,
         fresh: true,
         productionReady: false,
         publishingPerformed: false,
@@ -75,6 +82,65 @@ describe("release handoff evidence freshness script", () => {
           exitCode: 0,
           snapshotOk: true,
         },
+      },
+    });
+  });
+
+  it("passes old short-only snapshots by comparing against the current commit prefix", () => {
+    const fs = createMemoryFs({
+      "output/release-handoff/latest.json": JSON.stringify(successfulSnapshot),
+    });
+
+    const result = checkReleaseHandoffEvidence({
+      snapshotDir: "output/release-handoff",
+      listFiles: fs.listFiles,
+      readFile: fs.readFile,
+      gitRunner: () => ({ status: 0, stdout: `${fullCommit}\n`, stderr: "" }),
+    });
+
+    expect(result).toMatchObject({
+      exitCode: 0,
+      report: {
+        ok: true,
+        snapshotCommit: "abcdef0",
+        currentCommit: "abcdef0",
+        currentCommitFull: fullCommit,
+        fresh: true,
+      },
+    });
+    expect(result.report).not.toHaveProperty("snapshotCommitFull");
+  });
+
+  it("fails when the full snapshot commit is stale even if the short commit matches", () => {
+    const staleFullSnapshot = {
+      ...successfulSnapshot,
+      git: {
+        ...successfulSnapshot.git,
+        commit: "abcdef0",
+        commitFull: "abcdef0000000000000000000000000000000000",
+      },
+    };
+    const fs = createMemoryFs({
+      "output/release-handoff/latest.json": JSON.stringify(staleFullSnapshot),
+    });
+
+    const result = checkReleaseHandoffEvidence({
+      snapshotDir: "output/release-handoff",
+      listFiles: fs.listFiles,
+      readFile: fs.readFile,
+      gitRunner: () => ({ status: 0, stdout: `${fullCommit}\n`, stderr: "" }),
+    });
+
+    expect(result).toMatchObject({
+      exitCode: 1,
+      report: {
+        ok: false,
+        snapshotCommit: "abcdef0",
+        snapshotCommitFull: "abcdef0000000000000000000000000000000000",
+        currentCommit: "abcdef0",
+        currentCommitFull: fullCommit,
+        fresh: false,
+        failure: "snapshot commit does not match current commit",
       },
     });
   });
@@ -92,7 +158,11 @@ describe("release handoff evidence freshness script", () => {
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: "new2222\n", stderr: "" }),
+      gitRunner: () => ({
+        status: 0,
+        stdout: "new22223456789abcdef0123456789abcdef01\n",
+        stderr: "",
+      }),
     });
 
     expect(result).toMatchObject({
@@ -101,6 +171,7 @@ describe("release handoff evidence freshness script", () => {
         ok: false,
         snapshotCommit: "old1111",
         currentCommit: "new2222",
+        currentCommitFull: "new22223456789abcdef0123456789abcdef01",
         fresh: false,
         failure: "snapshot commit does not match current commit",
       },

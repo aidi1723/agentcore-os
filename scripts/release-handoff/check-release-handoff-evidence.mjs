@@ -70,7 +70,7 @@ function findNewestSnapshotPath({ snapshotDir, listFiles, readFile }) {
 }
 
 function runGitCommit() {
-  return spawnSync("git", ["rev-parse", "--short", "HEAD"], {
+  return spawnSync("git", ["rev-parse", "HEAD"], {
     cwd: process.cwd(),
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
@@ -88,6 +88,37 @@ function readCurrentCommit(gitRunner) {
     throw new Error("git rev-parse returned an empty commit");
   }
   return commit;
+}
+
+function shortCommit(commit, length = 7) {
+  const normalizedLength = Number.isInteger(length) && length > 0 ? length : 7;
+  return String(commit ?? "").slice(0, normalizedLength);
+}
+
+function buildCommitComparison({ snapshot, currentCommitFull }) {
+  const snapshotCommit = snapshot?.git?.commit;
+  const snapshotCommitFull = snapshot?.git?.commitFull;
+  const currentCommit = shortCommit(
+    currentCommitFull,
+    String(snapshotCommit ?? "").length || 7,
+  );
+  const usesFullCommit =
+    typeof snapshotCommitFull === "string" && snapshotCommitFull.length > 0;
+  const fresh = usesFullCommit
+    ? snapshotCommitFull === currentCommitFull
+    : snapshotCommit === currentCommit;
+  const comparison = {
+    fresh,
+    snapshotCommit,
+    currentCommit,
+    currentCommitFull,
+  };
+
+  if (usesFullCommit) {
+    comparison.snapshotCommitFull = snapshotCommitFull;
+  }
+
+  return comparison;
 }
 
 function buildBaseReport(snapshotDir) {
@@ -151,10 +182,14 @@ export function checkReleaseHandoffEvidence({
 
   const snapshot = JSON.parse(readFile(snapshotPath));
   const snapshotCommit = snapshot?.git?.commit;
+  const snapshotCommitFull = snapshot?.git?.commitFull;
   const reportWithSnapshot = {
     ...base,
     snapshotPath,
     snapshotCommit,
+    ...(typeof snapshotCommitFull === "string" && snapshotCommitFull.length > 0
+      ? { snapshotCommitFull }
+      : {}),
     validation: validationSummary(validation),
   };
 
@@ -168,9 +203,9 @@ export function checkReleaseHandoffEvidence({
     };
   }
 
-  let currentCommit;
+  let currentCommitFull;
   try {
-    currentCommit = readCurrentCommit(gitRunner);
+    currentCommitFull = readCurrentCommit(gitRunner);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return {
@@ -182,11 +217,12 @@ export function checkReleaseHandoffEvidence({
     };
   }
 
-  const fresh = snapshotCommit === currentCommit;
+  const comparison = buildCommitComparison({ snapshot, currentCommitFull });
+  const { fresh } = comparison;
   const report = {
     ...reportWithSnapshot,
+    ...comparison,
     ok: fresh,
-    currentCommit,
     fresh,
   };
 

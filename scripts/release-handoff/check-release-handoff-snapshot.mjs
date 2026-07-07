@@ -62,6 +62,12 @@ function validateGitShape(git, failures) {
   if (!isObject(git)) return;
   pushIf(failures, typeof git.branch !== "string", "git.branch must be a string");
   pushIf(failures, typeof git.commit !== "string", "git.commit must be a string");
+  pushIf(
+    failures,
+    hasOwn(git, "commitFull") &&
+      (typeof git.commitFull !== "string" || git.commitFull.length === 0),
+    "git.commitFull must be a non-empty string when present",
+  );
   pushIf(failures, typeof git.dirty !== "boolean", "git.dirty must be boolean");
   pushIf(
     failures,

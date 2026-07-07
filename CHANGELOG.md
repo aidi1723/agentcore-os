@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Release Handoff Evidence Commit Hardening
+
+- New `release:handoff:snapshot` evidence records `git.commitFull` alongside the existing short `git.commit` value.
+- Snapshot validation accepts old short-only evidence and validates `git.commitFull` when present.
+- Evidence freshness, doctor, and status checks now prefer full-SHA matching for new evidence and fall back to short-SHA matching for old local snapshots.
+- The hardening remains local-only and performs no publishing, tagging, uploading, installer packaging, GitHub Release creation, browser smoke, or production-readiness claim.
+
 ### Release Handoff Evidence Status
 
 - Added `npm run release:handoff:evidence:status`, a local read-only status summary for handoff evidence review.

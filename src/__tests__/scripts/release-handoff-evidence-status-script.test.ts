@@ -33,6 +33,7 @@ const successfulSnapshot = {
     checks: [{ name: "build", ok: true }],
   },
 };
+const fullCommit = "abcdef0123456789abcdef0123456789abcdef01";
 
 function createMemoryFs(files: Record<string, string>) {
   return {
@@ -46,8 +47,12 @@ function createMemoryFs(files: Record<string, string>) {
 
 describe("release handoff evidence status script", () => {
   it("reports ready when doctor is fresh and checked index passes", () => {
+    const fullSnapshot = {
+      ...successfulSnapshot,
+      git: { ...successfulSnapshot.git, commitFull: fullCommit },
+    };
     const fs = createMemoryFs({
-      "output/release-handoff/latest.json": JSON.stringify(successfulSnapshot),
+      "output/release-handoff/latest.json": JSON.stringify(fullSnapshot),
     });
 
     const result = buildReleaseHandoffEvidenceStatus({
@@ -55,7 +60,7 @@ describe("release handoff evidence status script", () => {
       limit: 5,
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: "abcdef0\n", stderr: "" }),
+      gitRunner: () => ({ status: 0, stdout: `${fullCommit}\n`, stderr: "" }),
     });
 
     expect(result).toMatchObject({
@@ -74,6 +79,10 @@ describe("release handoff evidence status script", () => {
           exitCode: 0,
           status: "fresh_evidence",
           snapshotPath: "output/release-handoff/latest.json",
+          snapshotCommit: "abcdef0",
+          snapshotCommitFull: fullCommit,
+          currentCommit: "abcdef0",
+          currentCommitFull: fullCommit,
         },
         index: {
           exitCode: 0,

@@ -234,6 +234,16 @@ npm run playbook:lifecycle:migration:plan:check -- --plan <path>
 
 这仍然不批准、不执行、不应用迁移；它只是把 proposal 之后、真实 playbook / fixture 变更之前的迁移规划变成结构化、本地可审计的合同。
 
+当前新增的 lifecycle maintenance sequence gate 是：
+
+```bash
+npm run playbook:lifecycle:sequence:check -- --sequence <path>
+```
+
+该命令读取本地 JSON sequence，并读取其引用的 proposal JSON 与 migration plan JSON。它会复用 proposal checker 和 migration plan checker 语义，确认 proposal / plan green、`proposalPath` 与 `migrationPlanPath` 对齐，并检查 `orderedCommands` 是否严格按以下顺序声明：`playbook:lifecycle:change:check`、`playbook:lifecycle:migration:plan:check`、`playbook:lifecycle:handoff`、`trace:fixtures --silent`、`test:controlled-runtime`。它还要求 `handoffExpectation`、`fixtureExpectation`、`runtimeTestExpectation`、`mutationPolicy` 和 `publishingPolicy` 保持明确边界。它保持 `productionReady: false`、`publishingPerformed: false`、`sequenceOnly: true`。
+
+这仍然不执行命令、不批准、不执行、不应用迁移；它只是把 proposal / migration plan / handoff / fixture / runtime regression 的维护顺序变成结构化、本地可审计的 sequence contract。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine
@@ -1055,12 +1065,12 @@ npm run test:core-workflows
 
 `test:controlled-runtime` 是第一阶段的最小门禁，覆盖 sales playbook、plan validator、显式 controlled plan 执行和 workflow runner 请求收口。
 
-截至 2026-07-06，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 36 个测试文件、191 个测试，包括：
+截至 2026-07-07，`test:controlled-runtime` 已扩展为 controlled runtime 主线回归，覆盖 63 个测试文件、323 个测试，包括：
 
 - sales/support playbook / validator / schema / step input。
 - controlled run store、approval store、controlled execution、step executor、workflow bridge。
 - durable resume、failed-step retry runtime、retry route、controlled run list / detail route。
-- client stream recovery、Runtime Console retry UI wiring、runtime cockpit summary、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route、Runtime Console governed trace copy、retention prune safety、governed trace fixture validation、fixture replay/catalog/summary/failure harness、replay sandbox contracts、no-side-effect replay sandbox prototype、fixture-to-contract bridge、replay sandbox catalog report、replay sandbox catalog CI summary、replay sandbox failure diagnostics taxonomy、replay sandbox direct failure harness modes 和 idempotency。
+- client stream recovery、Runtime Console retry UI wiring、runtime cockpit summary、record-level asset lookup、Deal Desk focus、Knowledge Vault focus、workflow/draft writeback、workflow/draft deep links、support asset writeback、support FAQ writeback、trace governance redaction、trace artifact route、Runtime Console governed trace copy、retention prune safety、governed trace fixture validation、fixture replay/catalog/summary/failure harness、playbook lifecycle change proposal / migration plan / maintenance sequence gates、replay sandbox contracts、no-side-effect replay sandbox prototype、fixture-to-contract bridge、replay sandbox catalog report、replay sandbox catalog CI summary、replay sandbox failure diagnostics taxonomy、replay sandbox direct failure harness modes 和 idempotency。
 
 Fixture replay 失败时，先通过 [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md#6-failure-fixture-matrix) 的 failure fixture matrix 分类。只有确认失败属于 intentional playbook drift 或 stale committed fixture 后，才进入 fixture refresh；validation failure、redaction failure、missing stable writeback metadata 或 harness behavior failure 必须先修源头，不允许直接手工改 fixture JSON。
 

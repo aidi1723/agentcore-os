@@ -1,0 +1,22 @@
+{
+  "sequenceId": "example-sales-pipeline-v1-review-sequence",
+  "owner": "agentcore-runtime-maintainers",
+  "proposalPath": "docs/playbook-lifecycle-change-proposals/example-version-update-proposal.json",
+  "migrationPlanPath": "docs/playbook-lifecycle-migration-plans/example-version-update-plan.json",
+  "orderedCommands": [
+    "npm run playbook:lifecycle:change:check -- --proposal docs/playbook-lifecycle-change-proposals/example-version-update-proposal.json",
+    "npm run playbook:lifecycle:migration:plan:check -- --plan docs/playbook-lifecycle-migration-plans/example-version-update-plan.json",
+    "npm run playbook:lifecycle:handoff",
+    "npm run trace:fixtures --silent",
+    "npm run test:controlled-runtime"
+  ],
+  "handoffExpectation": "ready_for_lifecycle_handoff",
+  "fixtureExpectation": "governed_fixtures_green",
+  "runtimeTestExpectation": "controlled_runtime_green",
+  "mutationPolicy": "no_mutation_until_sequence_green",
+  "publishingPolicy": "no_publish_or_release",
+  "notes": [
+    "This example does not execute the declared commands.",
+    "A real lifecycle maintenance sequence must pass before registered playbooks or fixtures are changed."
+  ]
+}

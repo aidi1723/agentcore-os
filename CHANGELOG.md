@@ -113,6 +113,7 @@
 - Added `npm run playbook:lifecycle:handoff`, a local read-only version/deprecation handoff checklist that aggregates playbook control audit and lifecycle review status without executing migrations, mutating fixtures, publishing, or claiming production readiness.
 - Added `npm run playbook:lifecycle:change:check -- --proposal <path>`, a local read-only proposal-intake gate for playbook lifecycle changes, plus a tracked example proposal JSON.
 - Added `npm run playbook:lifecycle:migration:plan:check -- --plan <path>`, a local read-only migration planning gate for playbook lifecycle changes, plus a tracked example migration plan JSON.
+- Added `npm run playbook:lifecycle:sequence:check -- --sequence <path>`, a local read-only maintenance sequence gate for playbook lifecycle changes, plus a tracked example sequence JSON.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
 - The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
 - `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.

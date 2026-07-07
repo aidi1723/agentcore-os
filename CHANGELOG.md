@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-07-07
 
+### Release Execution Planning Gates
+
+- Added `npm run release:execution-plan:check -- --plan <path>`, a local read-only release execution planning gate after the production release approval packet.
+- Added a tracked example execution plan at `docs/release-execution-plans/example-release-execution-plan.json`.
+- The gate validates green production approval evidence, ordered approval/policy/runtime/core/lint/build/diff command evidence, planned action metadata for packaging/tag/upload/deployment/external writes, rollback plan, monitoring plan, credential boundary, and planning-only execution boundaries.
+- The gate keeps `productionReady: false`, `publishingPerformed: false`, and `planningOnly: true`; it does not publish, tag, package, upload artifacts, deploy, call external connectors, use credentials, or claim production readiness.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ### Production Release Approval Packet
 
 - Added `npm run release:production-approval:check -- --approval <path>`, a local read-only production release approval packet gate after the production release policy gate.

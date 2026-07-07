@@ -55,5 +55,11 @@
     "performed": false,
     "targets": []
   },
-  "approvalStatus": "evidence_only"
+  "approvalStatus": "evidence_only",
+  "provenance": {
+    "sourceCommit": "4e2b1e1",
+    "sourceCommitFull": "4e2b1e138987f7725f2d835c1ab738ec343d7027",
+    "sequenceDigest": "617b2adbdbfa4732396d1738d1ac3eb5ec133f152a73654c6efe5c307d329ee6",
+    "maxAgeHours": 24
+  }
 }

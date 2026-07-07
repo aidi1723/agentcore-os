@@ -254,6 +254,16 @@ npm run playbook:lifecycle:sequence:evidence:check -- --evidence <path>
 
 这仍然不执行命令、不生成 evidence、不批准、不执行、不应用迁移；它只是把已记录的 lifecycle maintenance evidence 变成结构化、本地可审计的合同。
 
+当前新增的 lifecycle sequence evidence freshness gate 是：
+
+```bash
+npm run playbook:lifecycle:sequence:evidence:freshness:check -- --evidence <path>
+```
+
+该命令读取本地 JSON evidence，并复用 sequence evidence checker。它会计算被引用 sequence 文件的 SHA-256 digest，读取当前 git commit，检查 evidence 的 `provenance.sourceCommit` / `sourceCommitFull`、`provenance.sequenceDigest` 和 `provenance.maxAgeHours`，并拒绝晚于审计时间 `now` 的 `recordedAt`。它支持 `--now <iso-date>` 和 `--current-commit <commit>`，用于固定示例和审计复现。它保持 `productionReady: false`、`publishingPerformed: false`、`freshnessOnly: true`。
+
+这仍然不执行命令、不生成 evidence、不批准、不执行、不应用迁移；它只是防止 stale evidence 或不匹配的 sequence digest 被用于 playbook lifecycle 维护判断。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine

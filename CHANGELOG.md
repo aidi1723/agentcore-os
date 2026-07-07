@@ -115,6 +115,7 @@
 - Added `npm run playbook:lifecycle:migration:plan:check -- --plan <path>`, a local read-only migration planning gate for playbook lifecycle changes, plus a tracked example migration plan JSON.
 - Added `npm run playbook:lifecycle:sequence:check -- --sequence <path>`, a local read-only maintenance sequence gate for playbook lifecycle changes, plus a tracked example sequence JSON.
 - Added `npm run playbook:lifecycle:sequence:evidence:check -- --evidence <path>`, a local read-only maintenance sequence evidence gate for playbook lifecycle changes, plus a tracked example evidence JSON.
+- Added `npm run playbook:lifecycle:sequence:evidence:freshness:check -- --evidence <path>`, a local read-only freshness/provenance gate for lifecycle sequence evidence.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
 - The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
 - `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.

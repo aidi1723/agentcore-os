@@ -32,14 +32,15 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 | Playbook lifecycle migration plan gate | `npm run playbook:lifecycle:migration:plan:check -- --plan <path>` 会检查迁移计划的 proposal linkage、planned changes、rollback、fixture review、必需命令和 no-mutation policy。 |
 | Playbook lifecycle maintenance sequence gate | `npm run playbook:lifecycle:sequence:check -- --sequence <path>` 会检查 proposal check、migration plan check、lifecycle handoff、fixture gate 和 controlled runtime test 是否按顺序声明，并保持 no-mutation / no-publish policy。 |
 | Playbook lifecycle sequence evidence gate | `npm run playbook:lifecycle:sequence:evidence:check -- --evidence <path>` 会检查已记录 evidence 是否覆盖 sequence 声明的命令顺序、green 状态、handoff/fixture/runtime 证据和 no-mutation / no-publish summaries。 |
+| Playbook lifecycle sequence evidence freshness gate | `npm run playbook:lifecycle:sequence:evidence:freshness:check -- --evidence <path>` 会检查已记录 evidence 的 source commit、sequence digest 和 max-age freshness，避免 stale evidence 被用于维护判断。 |
 
 ## 尚未完全达成的目标
 
 | 缺口 | 影响 | 下一步处理 |
 | --- | --- | --- |
-| 控制链路审计还需进入维护工作流 | `npm run playbook:control:audit`、`npm run playbook:lifecycle:change:check`、`npm run playbook:lifecycle:migration:plan:check`、`npm run playbook:lifecycle:sequence:check`、`npm run playbook:lifecycle:sequence:evidence:check` 和 `npm run playbook:lifecycle:handoff` 已能覆盖 proposal intake、migration planning、ordered maintenance declaration、recorded evidence contract、playbook 合同、工具、审批、写回、lifecycle、guardrails、fixture coverage 与复审状态，但还没有形成 authoring/versioning/deprecation 的完整产品化维护流。 | 下一阶段把 proposal gate、migration plan gate、sequence gate、evidence gate 和 handoff checklist 作为 playbook 维护和版本变更的默认入口，再扩展真实迁移执行边界。 |
+| 控制链路审计还需进入维护工作流 | `npm run playbook:control:audit`、`npm run playbook:lifecycle:change:check`、`npm run playbook:lifecycle:migration:plan:check`、`npm run playbook:lifecycle:sequence:check`、`npm run playbook:lifecycle:sequence:evidence:check`、`npm run playbook:lifecycle:sequence:evidence:freshness:check` 和 `npm run playbook:lifecycle:handoff` 已能覆盖 proposal intake、migration planning、ordered maintenance declaration、recorded evidence contract、freshness/provenance、playbook 合同、工具、审批、写回、lifecycle、guardrails、fixture coverage 与复审状态，但还没有形成 authoring/versioning/deprecation 的完整产品化维护流。 | 下一阶段把 proposal gate、migration plan gate、sequence gate、evidence/freshness gate 和 handoff checklist 作为 playbook 维护和版本变更的默认入口，再扩展真实迁移执行边界。 |
 | playbook 声明与写回落点可能漂移 | 执行能跑，但 `resultAssets` 等声明可能没有覆盖真实 writeback targets，影响精准性和维护判断。 | 已审计写回目标与 resultAssets 对齐，失败时 fail closed。 |
-| playbook lifecycle 仍未产品化 | 当前已有 status/owner/review/changePolicy、本地复审诊断、deprecated replacement 合同、proposal gate、migration plan gate、sequence gate、sequence evidence gate 和 handoff checklist，但还没有完整 authoring UI、版本迁移器和 deprecation flow。 | 下一阶段扩展 authoring/versioning/deprecation workflow。 |
+| playbook lifecycle 仍未产品化 | 当前已有 status/owner/review/changePolicy、本地复审诊断、deprecated replacement 合同、proposal gate、migration plan gate、sequence gate、sequence evidence/freshness gate 和 handoff checklist，但还没有完整 authoring UI、版本迁移器和 deprecation flow。 | 下一阶段扩展 authoring/versioning/deprecation workflow。 |
 | policy / guardrail 分散 | 工具策略、失败策略、审批策略存在，但还未形成统一 policy layer。 | 下一阶段把审计结果作为 policy hardening 输入。 |
 | replay 仍是 metadata-only | 当前 fixture replay 不执行真实工具、不调用 API、不写 store，适合合同回归，不等于真实 replay。 | 继续推进 no-side-effect sandbox 到更完整的 per-playbook replay gate。 |
 | UI 仍是操作面，不是完整 authoring console | Runtime Console 可查看、审批、恢复、打开资产，但 playbook authoring/lifecycle 尚未产品化。 | 后续先做 operator diagnostics，再评估 authoring UI。 |

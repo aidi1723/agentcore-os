@@ -123,6 +123,7 @@ Completed in the current controlled runtime line:
 - Playbook Lifecycle Mutation Release Handoff Review Gate: `npm run playbook:lifecycle:mutation:release-handoff:review:check -- --review <path>` validates green post-replacement evidence, local release handoff/check/snapshot/status/audit/diff evidence, reviewer acceptance, rollback notes, and review-only non-production boundaries.
 - Playbook Lifecycle Mutation Handoff Summary Gate: `npm run playbook:lifecycle:mutation:handoff:summary:check -- --summary <path>` validates green release handoff review, maintainer summary fields, command summary metadata, risk/deferred-item posture, rollback notes, and summary-only non-production boundaries.
 - Delivery Candidate Hardening: `npm run delivery:candidate:check -- --candidate <path>` validates green handoff summary evidence, local delivery readiness, recorded regression/lint/build/diff evidence, documentation alignment, rollback notes, and candidate-only non-production boundaries.
+- Production Release Policy Hardening: `npm run release:production-policy:check -- --policy <path>` validates green delivery candidate evidence, ordered command evidence, packaging/tag/upload/deployment/external-write/monitoring/rollback policy sections, risk posture, rollback notes, and policy-only non-production boundaries.
 - Sales Playbook Result Asset Alignment: `sales-pipeline-v1.resultAssets` now declares `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`, matching its actual durable writeback targets.
 
 Current verification baseline:
@@ -165,6 +166,7 @@ npm run playbook:lifecycle:mutation:post-replacement:evidence:check -- --evidenc
 npm run playbook:lifecycle:mutation:release-handoff:review:check -- --review docs/playbook-lifecycle-mutation-release-handoff-reviews/example-version-update-release-handoff-review.json
 npm run playbook:lifecycle:mutation:handoff:summary:check -- --summary docs/playbook-lifecycle-mutation-handoff-summaries/example-version-update-handoff-summary.json
 npm run delivery:candidate:check -- --candidate docs/delivery-candidates/example-local-delivery-candidate.json
+npm run release:production-policy:check -- --policy docs/release-policies/example-production-release-policy.json
 npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
@@ -175,9 +177,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 97 test files.
-- 503 tests.
-- Includes sales/support playbook validation, playbook lifecycle/control-chain/default guardrail/deprecated replacement audit coverage, playbook lifecycle review diagnostic coverage, playbook lifecycle handoff checklist coverage, playbook lifecycle change proposal contract coverage, playbook lifecycle migration plan contract coverage, playbook lifecycle maintenance sequence contract coverage, playbook lifecycle sequence evidence contract coverage, playbook lifecycle sequence evidence freshness/provenance coverage, playbook lifecycle sequence evidence doctor coverage, playbook lifecycle maintenance readiness coverage, playbook lifecycle mutation approval coverage, playbook lifecycle mutation dry-run coverage, playbook lifecycle mutation preflight coverage, playbook lifecycle mutation executor boundary coverage, playbook lifecycle mutation post-apply sequence coverage, playbook lifecycle mutation post-apply evidence coverage, playbook lifecycle mutation fixture refresh handoff coverage, playbook lifecycle mutation candidate fixture review coverage, playbook lifecycle mutation fixture replacement handoff coverage, playbook lifecycle mutation post-replacement evidence coverage, playbook lifecycle mutation release handoff review coverage, playbook lifecycle mutation handoff summary coverage, delivery candidate readiness coverage, project closeout readiness coverage, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, delivery candidate gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
+- 99 test files.
+- 513 tests.
+- Includes sales/support playbook validation, playbook lifecycle/control-chain/default guardrail/deprecated replacement audit coverage, playbook lifecycle review diagnostic coverage, playbook lifecycle handoff checklist coverage, playbook lifecycle change proposal contract coverage, playbook lifecycle migration plan contract coverage, playbook lifecycle maintenance sequence contract coverage, playbook lifecycle sequence evidence contract coverage, playbook lifecycle sequence evidence freshness/provenance coverage, playbook lifecycle sequence evidence doctor coverage, playbook lifecycle maintenance readiness coverage, playbook lifecycle mutation approval coverage, playbook lifecycle mutation dry-run coverage, playbook lifecycle mutation preflight coverage, playbook lifecycle mutation executor boundary coverage, playbook lifecycle mutation post-apply sequence coverage, playbook lifecycle mutation post-apply evidence coverage, playbook lifecycle mutation fixture refresh handoff coverage, playbook lifecycle mutation candidate fixture review coverage, playbook lifecycle mutation fixture replacement handoff coverage, playbook lifecycle mutation post-replacement evidence coverage, playbook lifecycle mutation release handoff review coverage, playbook lifecycle mutation handoff summary coverage, delivery candidate readiness coverage, production release policy coverage, project closeout readiness coverage, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, delivery candidate gate helper coverage, production release policy helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -216,7 +218,41 @@ npm run delivery:candidate:check -- --candidate docs/delivery-candidates/example
 
 - This gate does not run full regression/lint/build/diff commands itself.
 - This gate does not publish, tag, package installers, upload artifacts, deploy, call external connectors, or claim production readiness.
-- Next concrete gap: production release policy hardening, including packaging/tag/upload boundaries, deployment validation, monitoring, and rollback operations.
+- Next concrete gap: production release approval packet, still separated from packaging, tag creation, artifact upload, deployment, external writes, and production readiness claims.
+
+## Completed. Production Release Policy Hardening
+
+Why:
+
+- The local delivery candidate gate was green, but the project still needed a structured production release policy review before any release action could be considered.
+- The gate needed to keep policy definition separate from publishing, tag creation, packaging, artifact upload, deployment, credential use, and production readiness claims.
+
+Delivered:
+
+- Added `src/lib/executor/playbooks/production-release-policy.ts`.
+- Added `scripts/release-policy/check-production-release-policy.mjs`.
+- Added `npm run release:production-policy:check`.
+- Added `docs/release-policies/example-production-release-policy.json`.
+- The command validates:
+  - green delivery candidate evidence;
+  - ordered command evidence for delivery candidate, release hygiene, controlled-runtime, core workflows, lint, build, and `git diff --check`;
+  - production release policy identity and ownership;
+  - packaging, tag creation, artifact upload, deployment, external writes, monitoring, and rollback policy sections;
+  - risk summary, rollback summary, and release boundary fields;
+  - policy-only no-production/no-publish/no-tag/no-package/no-upload/no-deploy/no-credential-use boundaries.
+- The command emits machine-readable JSON with `policyClaim: "production_release_policy_defined"`, `productionReady: false`, `publishingPerformed: false`, and `policyOnly: true`.
+- Added helper coverage for success, invalid delivery candidate evidence, command evidence order, executed release actions, release boundary violations, argument parsing, invalid JSON, and CLI result generation.
+- Added [Production Release Policy Hardening spec](superpowers/specs/2026-07-07-production-release-policy-hardening-design.md) and [implementation plan](superpowers/plans/2026-07-07-production-release-policy-hardening.md).
+
+Outcome:
+
+```bash
+npm run release:production-policy:check -- --policy docs/release-policies/example-production-release-policy.json
+```
+
+- This gate does not run the recorded commands itself.
+- This gate does not publish, tag, package installers, upload artifacts, deploy, call external connectors, use credentials, or claim production readiness.
+- Next concrete gap: production release approval packet, still non-executing until a separate operator decision explicitly approves release actions.
 
 ## Completed. Delivery Release Gate Hardening
 
@@ -1614,19 +1650,16 @@ Outcome:
 - Current branch has proceeded through the command-level delivery smoke path and browser evidence sweep.
 - It can be described as local delivery demo ready, but not as a production-ready release.
 
-## Recommended Next. Productionization Preparation
+## Recommended Next. Production Release Approval Packet
 
 Suggested scope:
 
-- Use `npm run playbook:lifecycle:mutation:executor:preview` as the default gate before any local playbook contract replacement.
-- Treat `npm run playbook:lifecycle:mutation:executor:apply -- --confirm-apply` as a maintainer-only local file replacement boundary, not a release, fixture refresh, store write, connector write, or production operation.
-- Define unified policy/guardrail hardening next.
-- Next concrete gap: unified policy and authoring workflow hardening, so green handoff summary evidence cannot be treated as production readiness or publication authority.
-- Continue hardening the policy/guardrail layer beyond the shared default policy source so tool, approval, failure, and writeback rules are expressed consistently instead of spread across validators.
+- Use `npm run release:production-policy:check -- --policy docs/release-policies/example-production-release-policy.json` as the current policy baseline before drafting any approval packet.
+- Create a local read-only approval packet checker that validates reviewer identity, approval scope, expiry, rollback owner, monitoring owner, and explicit release-action decisions.
+- Keep packaging, tag creation, artifact upload, deployment, external writes, credential use, and production readiness claims disabled unless a later, separate execution gate is approved and verified.
+- Continue hardening the unified policy/guardrail layer so tool, approval, failure, writeback, release, and deployment rules are not spread across unrelated validators.
 - Define the next replay-depth increment for per-playbook contract verification without executing real tools.
-- Prepare productized authoring/versioning/deprecation UI only after the mutation executor boundary is explicit.
-- Keep release checklist wording aligned around local delivery demo readiness versus production readiness.
-- Do not refresh fixtures, call external systems, publish, tag, upload artifacts, or claim production readiness until separate post-apply audit, replay, and release gates are approved and verified.
+- Prepare productized authoring/versioning/deprecation UI only after release approval and policy boundaries remain explicit.
 
 ## Completed. Support Runtime Console Record Focus
 

@@ -431,7 +431,19 @@ npm run delivery:candidate:check -- --candidate <path>
 
 该命令读取本地 candidate JSON，复用 handoff summary checker 和 delivery readiness checker。candidate 必须声明 local delivery candidate claim、source handoff claim、目标里程碑和 next boundary；`commandEvidence` 必须严格按 handoff summary、`delivery:ready:check`、`test:controlled-runtime`、`test:core-workflows`、`lint`、`build`、`git diff --check` 的顺序记录，并且每条命令都要 `ok: true`、`exitCode: 0` 和非空 `recordedAt`。
 
-它保持 `productionReady: false`、`publishingPerformed: false`、`candidateOnly: true`。它不运行完整回归/lint/build/diff 命令、不生成 snapshot、不写 store、不调用外部 connector、不发布 release、不打 tag、不打包、不上传 artifact、不宣称 production ready；它只是把 handoff summary、delivery readiness、回归/build 证据、文档对齐、risk/deferred items 和 rollback notes 变成结构化、本地可审计的 local delivery candidate gate。下一步进入 production release policy hardening，但仍不能直接发布。
+它保持 `productionReady: false`、`publishingPerformed: false`、`candidateOnly: true`。它不运行完整回归/lint/build/diff 命令、不生成 snapshot、不写 store、不调用外部 connector、不发布 release、不打 tag、不打包、不上传 artifact、不宣称 production ready；它只是把 handoff summary、delivery readiness、回归/build 证据、文档对齐、risk/deferred items 和 rollback notes 变成结构化、本地可审计的 local delivery candidate gate。后续由 production release policy gate 和 approval packet 继续承接，但仍不能直接发布。
+
+当前新增的 production release policy gate 是：
+
+```bash
+npm run release:production-policy:check -- --policy <path>
+```
+
+该命令读取本地 policy JSON，复用 delivery candidate checker，并要求引用的 delivery candidate report 为 green、candidate-only、未发布、未生产就绪。policy 必须声明 `policyId`、`deliveryCandidatePath`、`owner`、`recordedAt`、`productionReleasePolicy`、`commandEvidence`、`policySections`、`riskSummary`、`rollbackSummary`、`deliveryCandidateResult`、`releaseBoundary` 和 `approvalStatus: "production_release_policy_review"`。
+
+`commandEvidence` 必须严格按 `delivery:candidate:check`、`release:hygiene:check`、`test:controlled-runtime`、`test:core-workflows`、`lint`、`build`、`git diff --check` 的顺序记录，并且每条命令都要 `ok: true`、`exitCode: 0` 和非空 `recordedAt`。`policySections` 必须覆盖 packaging、tag creation、artifact upload、deployment、external writes、monitoring 和 rollback；发布动作类 section 必须 `approvalRequired: true`、`approved: false`、`executed: false`、`policyDocumented: true`。
+
+它保持 `productionReady: false`、`publishingPerformed: false`、`policyOnly: true`。它不运行命令、不发布、不打 tag、不打包、不上传 artifact、不部署、不写 store、不调用外部 connector、不使用凭证、不宣称 production ready；它只是把 delivery candidate 之后的生产发布策略、风险、rollback 和非执行边界变成结构化、本地可审计的 policy review gate。下一步是 production release approval packet，但仍不能直接发布。
 
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
@@ -661,13 +673,13 @@ type ControlledPlaybookStep = {
 - governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
 - 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
 - Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
-- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary 和 delivery candidate 已有只读门禁，但还没有 production release policy、packaging/tag/upload、部署验证、统一 policy/guardrail hardening 或生产化发布审批。
+- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary、delivery candidate 和 production release policy 已有只读门禁，但还没有 production release approval packet、实际 packaging/tag/upload/deploy 执行门禁、部署验证、统一 policy/guardrail hardening 或生产化发布审批。
 
 因此下一阶段默认进入：
 
-**Production Release Policy Hardening**
+**Production Release Approval Packet**
 
-目标是在本地 mutation executor、post-apply sequence、post-apply evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary 与 delivery candidate 边界之上补齐 production release policy、packaging/tag/upload policy、部署验证、统一 policy/guardrail、fixture/replay depth、authoring/lifecycle 和生产运维准备。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不宣称 production ready。
+目标是在 delivery candidate 与 production release policy 边界之上补齐结构化人工发布批准包，明确 reviewer、approval scope、expiry、rollback owner、monitoring owner、packaging/tag/upload/deploy/external-write 决策和下一步执行前置条件。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不打 tag、不打包、不上传、不部署、不使用凭证、不宣称 production ready。
 
 ### Phase 0. 冻结方向
 

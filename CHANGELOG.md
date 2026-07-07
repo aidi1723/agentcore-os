@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-07-07
 
+### Production Release Policy Hardening
+
+- Added `npm run release:production-policy:check -- --policy <path>`, a local read-only production release policy gate after the local delivery candidate gate.
+- Added a tracked example policy packet at `docs/release-policies/example-production-release-policy.json`.
+- The gate validates green delivery candidate evidence, ordered local command evidence, packaging/tag/upload/deployment/external-write/monitoring/rollback policy sections, risk posture, rollback notes, and policy-only release boundaries.
+- The gate keeps `productionReady: false`, `publishingPerformed: false`, and `policyOnly: true`; it does not publish, tag, package, upload artifacts, deploy, call external connectors, use credentials, or claim production readiness.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ### Delivery Candidate Hardening
 
 - Added `npm run delivery:candidate:check -- --candidate <path>`, a local read-only delivery candidate gate that validates green handoff summary evidence, local delivery readiness, recorded regression/lint/build/diff evidence, documentation alignment, rollback notes, and no-production/no-publish boundaries.

@@ -9,7 +9,7 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 当前状态应表述为：
 
 - **核心控制 runtime 已建立**：固定 playbook、受限工具、人工审批、durable trace、resume / retry、approved writeback、Runtime Console、governed fixture replay、local delivery / release handoff gates 已经具备。
-- **当前 controlled-runtime 里程碑可以进入 local delivery candidate 状态，但完整设计目标尚未生产化闭环**：playbook authoring/versioning/deprecation 已有 proposal、migration plan、maintenance sequence、sequence evidence、freshness/doctor、maintenance readiness、mutation approval、mutation dry-run、handoff、project closeout gate、mutation preflight、本地 manifest-based mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff gate、candidate fixture review gate、fixture replacement handoff gate、post-replacement evidence gate、release handoff review gate、handoff summary gate 和 delivery candidate gate；但还没有产品化 authoring UI、发布审批、打包/tag/upload policy；统一 policy/guardrail、完整 replay gate、真实外部 connector 写回和生产级运维仍需继续硬化。
+- **当前 controlled-runtime 里程碑可以进入 local delivery candidate 和 production release policy review 状态，但完整设计目标尚未生产化闭环**：playbook authoring/versioning/deprecation 已有 proposal、migration plan、maintenance sequence、sequence evidence、freshness/doctor、maintenance readiness、mutation approval、mutation dry-run、handoff、project closeout gate、mutation preflight、本地 manifest-based mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff gate、candidate fixture review gate、fixture replacement handoff gate、post-replacement evidence gate、release handoff review gate、handoff summary gate、delivery candidate gate 和 production release policy gate；但还没有产品化 authoring UI、发布审批包、实际打包/tag/upload/deploy gate；统一 policy/guardrail、完整 replay gate、真实外部 connector 写回和生产级运维仍需继续硬化。
 - **当前优先级不是继续做壳，也不是改做普通 skill**：下一阶段要补齐控制链路、稳定性、效率、精准性和维护路径。
 
 ## 已完成的设计目标
@@ -49,12 +49,13 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 | Playbook lifecycle mutation release handoff review gate | `npm run playbook:lifecycle:mutation:release-handoff:review:check -- --review <path>` 会在 post-replacement evidence green 后检查 release handoff、snapshot、status、audit 和 diff review evidence；它不运行 release 命令、不生成 snapshot、不发布、不宣称 production ready。 |
 | Playbook lifecycle mutation handoff summary gate | `npm run playbook:lifecycle:mutation:handoff:summary:check -- --summary <path>` 会在 release handoff review green 后检查维护者摘要、命令摘要、risk/deferred items、rollback notes 和 no-publish/no-production 边界；它不运行命令、不生成 snapshot、不发布、不宣称 production ready。 |
 | Delivery candidate gate | `npm run delivery:candidate:check -- --candidate <path>` 会在 handoff summary green 后检查 delivery readiness、controlled-runtime、core-workflows、lint、build、diff、文档对齐、risk/deferred items、rollback notes 和 no-publish/no-production 边界；它不运行完整命令、不发布、不打 tag、不打包、不上传、不宣称 production ready。 |
+| Production release policy gate | `npm run release:production-policy:check -- --policy <path>` 会在 delivery candidate green 后检查生产发布策略包、ordered command evidence、packaging/tag/upload/deployment/external writes/monitoring/rollback 策略、risk posture 和 policy-only 边界；它不运行命令、不发布、不打 tag、不打包、不上传、不部署、不使用凭证、不宣称 production ready。 |
 
 ## 尚未完全达成的目标
 
 | 缺口 | 影响 | 下一步处理 |
 | --- | --- | --- |
-| 控制链路已具备本地交付候选门禁 | `npm run delivery:candidate:check` 已把 handoff summary、delivery readiness、controlled-runtime、core-workflows、lint、build、diff 与文档对齐聚合为本地只读交付候选信号。 | 当前可描述为 local delivery candidate；下一阶段从 production release policy、packaging/tag/upload、部署验证、authoring UI、统一 policy、真实 replay、connector 写回和生产运维准备开始。 |
+| 控制链路已具备本地交付候选和生产发布策略门禁 | `npm run delivery:candidate:check` 已把 handoff summary、delivery readiness、controlled-runtime、core-workflows、lint、build、diff 与文档对齐聚合为本地只读交付候选信号；`npm run release:production-policy:check` 已把候选结果、命令证据、发布策略和 rollback 边界聚合成只读 policy review 信号。 | 当前可描述为 local delivery candidate with production release policy defined；下一阶段从 production release approval packet、实际 packaging/tag/upload/deploy 前置批准、authoring UI、统一 policy、真实 replay、connector 写回和生产运维准备开始。 |
 | mutation executor 已有本地写入边界，但未生产化 | `npm run playbook:lifecycle:mutation:executor:preview` / `apply` 已支持 manifest、fresh preflight、dry-run 目标对齐、当前 hash、next content hash 和显式确认；apply 仅替换本地 registered playbook 文件，且已有 post-apply sequence / evidence / fixture refresh handoff / candidate fixture review / fixture replacement handoff / post-replacement evidence / release handoff review / handoff summary / delivery candidate gate 约束后续审计顺序、记录与人工 review 交接。 | 下一阶段补齐产品化 authoring/versioning 流程、统一 policy 和生产发布策略。 |
 | playbook 声明与写回落点可能漂移 | 执行能跑，但 `resultAssets` 等声明可能没有覆盖真实 writeback targets，影响精准性和维护判断。 | 已审计写回目标与 resultAssets 对齐，失败时 fail closed。 |
 | playbook lifecycle 仍未产品化 | 当前已有 status/owner/review/changePolicy、本地复审诊断、deprecated replacement 合同、proposal gate、migration plan gate、sequence gate、sequence evidence/freshness gate 和 handoff checklist，但还没有完整 authoring UI、版本迁移器和 deprecation flow。 | 下一阶段扩展 authoring/versioning/deprecation workflow。 |
@@ -65,7 +66,7 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 
 ## 下一阶段目标
 
-下一阶段继续 **Production Release Policy Hardening**，重点从本地 mutation executor、post-apply sequence、post-apply evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary 与 delivery candidate 边界扩展到生产发布策略、packaging/tag/upload policy、部署验证、统一 policy/guardrail、真实 replay、authoring UI、connector 写回和生产运维准备。
+下一阶段继续 **Production Release Approval Packet**，重点从 delivery candidate 与 production release policy 边界扩展到结构化人工发布批准包，明确 packaging、tag creation、artifact upload、deployment、external writes、monitoring 和 rollback 的审批责任、执行前置条件、禁止项和下一步命令。
 
 目标不是新增 playbook，而是让现有 playbook 的执行合同更稳定：
 

@@ -1,0 +1,46 @@
+{
+  "ok": true,
+  "command": "playbook:lifecycle:mutation:executor",
+  "mode": "apply",
+  "productionReady": false,
+  "publishingPerformed": false,
+  "mutationExecutorOnly": true,
+  "readyForLifecycleMutationExecutor": true,
+  "status": "mutation_apply_complete",
+  "manifest": {
+    "manifestId": "mutation-manifest-sales-pipeline-v1-review",
+    "dryRunPath": "docs/playbook-lifecycle-mutation-dry-runs/example-version-update-dry-run.json",
+    "targetPlaybookId": "sales-pipeline-v1"
+  },
+  "dryRunPath": "docs/playbook-lifecycle-mutation-dry-runs/example-version-update-dry-run.json",
+  "summary": {
+    "findings": 0,
+    "targets": 1,
+    "mutatedTargets": 1
+  },
+  "checks": {
+    "preflightOk": true,
+    "dryRunPathAligned": true,
+    "executionBoundaryOk": true,
+    "targetScopeOk": true,
+    "targetsDeclaredByDryRun": true,
+    "currentHashesOk": true,
+    "nextContentHashesOk": true,
+    "applyConfirmationOk": true
+  },
+  "executionBoundary": {
+    "mutationExecutorOnly": true,
+    "previewOnly": false,
+    "applyConfirmationRequired": true,
+    "applyConfirmed": true,
+    "mutationPerformed": true,
+    "fixtureRefreshPerformed": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "publishingPerformed": false,
+    "productionReady": false
+  },
+  "findings": [],
+  "exampleOnly": true,
+  "exampleNote": "Contract fixture for post-apply audit sequence validation. Real applies must save their own executor output before running the post-apply sequence gate."
+}

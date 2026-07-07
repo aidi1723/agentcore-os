@@ -2,7 +2,7 @@
 
 这是当前 `v1.3.0` 稳定版对外发布对应的中文入口页。
 
-> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-07，当前 controlled-runtime 里程碑已有本地 closeout gate 与 manifest-based mutation executor preview/apply 边界，可收尾但不等于 production ready；Productionization Preparation 下一步要补 rollback evidence、fixture refresh handoff、post-apply audit sequencing、authoring UI、统一 policy、real replay、connector 写回和生产运维。后续开发请先阅读项目框架总纲、设计目标完成状态、可控 Runtime 开发手册、Roadmap、Next Steps、交付演示路径、浏览器证据、UI 收尾、交付后扩展复核、governed trace 运维文档和 real replay / sandbox 边界文档。
+> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-07，当前 controlled-runtime 里程碑已有本地 closeout gate、manifest-based mutation executor preview/apply 边界和 post-apply sequence gate，可收尾但不等于 production ready；Productionization Preparation 下一步要补 rollback evidence、post-apply audit evidence validation、fixture refresh handoff、authoring UI、统一 policy、real replay、connector 写回和生产运维。后续开发请先阅读项目框架总纲、设计目标完成状态、可控 Runtime 开发手册、Roadmap、Next Steps、交付演示路径、浏览器证据、UI 收尾、交付后扩展复核、governed trace 运维文档和 real replay / sandbox 边界文档。
 
 ## 建议阅读顺序
 

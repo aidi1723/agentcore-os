@@ -343,6 +343,16 @@ preview 会读取 manifest，重新跑 preflight，并校验：
 
 apply 只有在 `--confirm-apply` 明确存在时才会写入，并且只写 manifest 中通过校验的本地 registered playbook 文件。它仍然不是 fixture refresh、runtime replay、store write、external connector write、release publishing 或 production operation。apply 之后必须重新运行 control audit、governed fixture / replay gates 和后续 release/handoff gates，不能直接宣称交付或生产可用。
 
+当前新增的 lifecycle mutation post-apply sequence gate 是：
+
+```bash
+npm run playbook:lifecycle:mutation:post-apply:sequence:check -- --sequence <path>
+```
+
+该命令读取本地 sequence JSON 和其引用的 apply report。只有 apply report 明确来自 `playbook:lifecycle:mutation:executor` 的 `apply` 模式，状态为 `mutation_apply_complete`，已确认执行本地 mutation，且仍保持不刷新 fixture、不写 store、不外部写入、不发布、不宣称 production ready 时，sequence 才能继续通过。sequence 必须严格声明后续命令顺序：`npm run playbook:control:audit`、`npm run playbook:lifecycle:handoff`、`npm run trace:fixtures --silent`、`npm run trace:fixtures:summary --silent`、`npm run test:controlled-runtime`、`npm run test:core-workflows`、`git diff --check`。
+
+它保持 `productionReady: false`、`publishingPerformed: false`、`sequenceOnly: true`。它不执行这些命令、不生成 post-apply evidence、不刷新 fixture、不写 store、不调用外部 connector、不发布 release；它只是把 apply 之后到 fixture refresh / release handoff 之前的审计顺序变成结构化、本地可审计的 sequence contract。下一步需要补齐 post-apply audit evidence validation，让实际运行结果和该 sequence 对齐。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine
@@ -571,13 +581,13 @@ type ControlledPlaybookStep = {
 - governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
 - 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
 - Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
-- 本地 mutation executor 已有 manifest preview/apply 边界，但还没有 rollback evidence、fixture refresh handoff、post-apply audit sequencing 或生产化发布审批。
+- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence 已有只读声明门禁，但还没有 rollback evidence、post-apply audit evidence validation、fixture refresh handoff 或生产化发布审批。
 
 因此下一阶段默认进入：
 
 **Productionization Preparation**
 
-目标是在本地 mutation executor 边界之上补齐 rollback evidence、fixture refresh handoff、post-apply audit sequencing、统一 policy/guardrail、fixture/replay depth、authoring/lifecycle 和生产运维准备。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不宣称 production ready。
+目标是在本地 mutation executor 与 post-apply sequence 边界之上补齐 rollback evidence、post-apply audit evidence validation、fixture refresh handoff、统一 policy/guardrail、fixture/replay depth、authoring/lifecycle 和生产运维准备。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不宣称 production ready。
 
 ### Phase 0. 冻结方向
 

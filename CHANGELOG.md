@@ -127,6 +127,8 @@
 - Added `npm run playbook:lifecycle:mutation:executor:preview -- --manifest <path> --evidence <path> --dry-run <path>` and `npm run playbook:lifecycle:mutation:executor:apply -- --manifest <path> --evidence <path> --dry-run <path> --confirm-apply`, a local manifest-based mutation executor boundary for registered playbook contract file replacements.
 - The executor reruns preflight, validates manifest schema, dry-run-declared target scope, current target SHA-256, next content SHA-256, and executor-only side-effect boundaries; preview is read-only, and apply refuses to write without explicit confirmation.
 - Added `docs/playbook-lifecycle-mutation-manifests/example-version-update-manifest.json` as a tracked safe preview manifest for `sales-pipeline-v1`.
+- Added `npm run playbook:lifecycle:mutation:post-apply:sequence:check -- --sequence <path>`, a read-only post-apply audit sequence gate after lifecycle mutation executor apply.
+- The post-apply sequence gate validates a completed local apply report and requires control audit, lifecycle handoff, governed fixture checks, controlled runtime tests, core workflow tests, and `git diff --check` in exact order before fixture refresh, publishing, or readiness claims.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
 - The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
 - `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.

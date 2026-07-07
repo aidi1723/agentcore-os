@@ -1,0 +1,33 @@
+{
+  "sequenceId": "post-apply-sequence-sales-pipeline-v1-review",
+  "owner": "agentcore-runtime-maintainers",
+  "applyReportPath": "docs/playbook-lifecycle-mutation-apply-reports/example-version-update-apply-report.json",
+  "manifestPath": "docs/playbook-lifecycle-mutation-manifests/example-version-update-manifest.json",
+  "dryRunPath": "docs/playbook-lifecycle-mutation-dry-runs/example-version-update-dry-run.json",
+  "targetPlaybookId": "sales-pipeline-v1",
+  "orderedCommands": [
+    "npm run playbook:control:audit",
+    "npm run playbook:lifecycle:handoff",
+    "npm run trace:fixtures --silent",
+    "npm run trace:fixtures:summary --silent",
+    "npm run test:controlled-runtime",
+    "npm run test:core-workflows",
+    "git diff --check"
+  ],
+  "applyExpectation": "mutation_apply_complete",
+  "controlAuditExpectation": "playbook_control_audit_green",
+  "handoffExpectation": "ready_for_lifecycle_handoff",
+  "fixtureExpectation": "governed_fixtures_green",
+  "fixtureSummaryExpectation": "governed_fixture_summary_green",
+  "runtimeTestExpectation": "controlled_runtime_green",
+  "coreWorkflowExpectation": "core_workflows_green",
+  "diffCheckExpectation": "git_diff_check_green",
+  "fixtureRefreshPolicy": "no_fixture_refresh_until_post_apply_audit_green",
+  "publishingPolicy": "no_publish_or_release",
+  "productionPolicy": "no_production_ready_claim",
+  "notes": [
+    "This checker declares the required post-apply audit order only.",
+    "It does not execute commands, refresh fixtures, publish, or claim production readiness.",
+    "For real applies, replace applyReportPath with the saved stdout from that apply run."
+  ]
+}

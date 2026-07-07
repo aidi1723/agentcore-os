@@ -467,7 +467,19 @@ npm run release:execution-plan:check -- --plan <path>
 
 `commandEvidence` 必须严格按 `release:production-approval:check`、`release:production-policy:check`、`test:controlled-runtime`、`test:core-workflows`、`lint`、`build`、`git diff --check` 的顺序记录，并且每条命令都要 `ok: true`、`exitCode: 0` 和非空 `recordedAt`。`plannedActions` 必须覆盖 packaging、tag creation、artifact upload、deployment 和 external writes；每个 action 必须声明 owner、execution gate、command intent、rollback step、monitoring step，并保持 `executed: false`、`approvedForExecution: false`、`credentialUseAllowed: false` 和 `productionReadinessClaimed: false`。
 
-它保持 `productionReady: false`、`publishingPerformed: false`、`planningOnly: true`。它不运行命令、不发布、不打 tag、不打包、不上传 artifact、不部署、不写 store、不调用外部 connector、不使用凭证、不宣称 production ready；它只是把 approval packet 之后的 release action planning、rollback、monitoring、credential boundary 和 planning-only 边界变成结构化、本地可审计的 execution plan。下一步是 individual release execution gate design，但仍不能直接发布。
+它保持 `productionReady: false`、`publishingPerformed: false`、`planningOnly: true`。它不运行命令、不发布、不打 tag、不打包、不上传 artifact、不部署、不写 store、不调用外部 connector、不使用凭证、不宣称 production ready；它只是把 approval packet 之后的 release action planning、rollback、monitoring、credential boundary 和 planning-only 边界变成结构化、本地可审计的 execution plan。该边界现在由 package build execution gate 承接，但仍不能直接发布。
+
+当前新增的 package build execution gate 是：
+
+```bash
+npm run release:package-build:gate:check -- --gate <path>
+```
+
+该命令读取本地 gate JSON，复用 release execution plan checker，并要求引用的 execution plan report 为 green、planning-only、未发布、未生产就绪。gate 必须声明 `gateId`、`executionPlanPath`、`owner`、`recordedAt`、`targetVersion`、`releaseAction: "packaging"`、`releaseExecutionPlanResult`、`packageBuildRequest`、`sourceReview`、`commandEvidence`、`rollbackPlan`、`monitoringPlan`、`artifactHandling`、`credentialBoundary`、`packageBuildDecision`、`packageBuildBoundary` 和 `approvalStatus: "package_build_execution_gate_review"`。
+
+`commandEvidence` 必须严格按 `release:execution-plan:check`、`release:hygiene:check`、`test:controlled-runtime`、`test:core-workflows`、`lint`、`build`、`git diff --check` 的顺序记录，并且每条命令都要 `ok: true`、`exitCode: 0` 和非空 `recordedAt`。`packageBuildRequest` 只能声明 `npm run desktop:package`，不能执行；`sourceReview` 必须确认 license、package scripts、lockfile、dependency provenance 和 tracked artifact boundary 已复核；`artifactHandling` 必须保持 artifact/checksum/upload 都未创建。
+
+它保持 `productionReady: false`、`publishingPerformed: false`、`gateOnly: true`。它不运行 `desktop:package`、不创建 artifact、不发布、不打 tag、不上传 artifact、不部署、不写 store、不调用外部 connector、不使用凭证、不宣称 production ready；它只是把 package build 的执行前检查、供应链复核、artifact handling、rollback、monitoring 和 gate-only 边界变成结构化、本地可审计的 package build gate。下一步是 tag creation execution gate design，但仍不能直接发布。
 
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
@@ -697,13 +709,13 @@ type ControlledPlaybookStep = {
 - governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
 - 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
 - Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
-- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary、delivery candidate、production release policy、production release approval packet 和 release execution planning 已有只读门禁，但还没有实际 package build/tag creation/artifact upload/deployment/external-write execution gates、部署验证、统一 policy/guardrail hardening 或生产化发布执行。
+- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary、delivery candidate、production release policy、production release approval packet、release execution planning 和 package build execution gate 已有只读门禁，但还没有实际 tag creation/artifact upload/deployment/external-write execution gates、部署验证、统一 policy/guardrail hardening 或生产化发布执行。
 
 因此下一阶段默认进入：
 
-**Individual Release Execution Gate Design**
+**Tag Creation Execution Gate Design**
 
-目标是在 release execution plan 边界之上，把 package build、tag creation、artifact upload、deployment 和 external writes 拆成独立 execution gate 设计，继续把执行前置条件、rollback、monitoring、凭证禁用和 no-production-ready claim 写成可审计合同。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不打 tag、不打包、不上传、不部署、不使用凭证、不宣称 production ready。
+目标是在 package build gate 边界之上，补齐 tag creation execution gate，再继续 artifact upload、deployment 和 external writes 的独立 execution gate 设计，继续把执行前置条件、rollback、monitoring、凭证禁用和 no-production-ready claim 写成可审计合同。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不打 tag、不打包、不上传、不部署、不使用凭证、不宣称 production ready。
 
 ### Phase 0. 冻结方向
 

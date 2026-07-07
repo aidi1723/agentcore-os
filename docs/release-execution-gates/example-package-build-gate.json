@@ -1,0 +1,145 @@
+{
+  "gateId": "package-build-gate-2026-07-07",
+  "executionPlanPath": "docs/release-execution-plans/example-release-execution-plan.json",
+  "owner": {
+    "id": "agentcore-release-maintainers",
+    "name": "AgentCore Release Maintainers",
+    "role": "package_build_gate_reviewer"
+  },
+  "recordedAt": "2026-07-07T14:00:00Z",
+  "targetVersion": "1.3.0",
+  "releaseAction": "packaging",
+  "releaseExecutionPlanResult": {
+    "ok": true,
+    "planningOnly": true,
+    "executionPlanClaim": "release_execution_plan_defined",
+    "productionReady": false,
+    "publishingPerformed": false
+  },
+  "packageBuildRequest": {
+    "packageCommand": "npm run desktop:package",
+    "packageTarget": "desktop",
+    "artifactType": "desktop_installer",
+    "outputPathPolicy": "blocked_until_operator_execution_approval",
+    "buildEnvironment": "local maintainer workstation"
+  },
+  "sourceReview": {
+    "licenseReviewed": true,
+    "packageScriptsReviewed": true,
+    "lockfileReviewed": true,
+    "dependencyProvenanceReviewed": true,
+    "trackedArtifactBoundaryReviewed": true
+  },
+  "commandEvidence": [
+    {
+      "command": "npm run release:execution-plan:check -- --plan docs/release-execution-plans/example-release-execution-plan.json",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T14:00:01Z",
+      "gate": "release_execution_plan_green"
+    },
+    {
+      "command": "npm run release:hygiene:check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T14:00:02Z",
+      "gate": "release_hygiene_green"
+    },
+    {
+      "command": "npm run test:controlled-runtime",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T14:00:03Z",
+      "testFiles": 105,
+      "tests": 543
+    },
+    {
+      "command": "npm run test:core-workflows",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T14:00:04Z",
+      "gate": "core_workflows_green"
+    },
+    {
+      "command": "npm run lint",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T14:00:05Z",
+      "warningCount": 1,
+      "knownWarnings": [
+        "existing <img> warning in ShellUI.test.tsx"
+      ]
+    },
+    {
+      "command": "npm run build",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T14:00:06Z",
+      "warningCount": 1,
+      "knownWarnings": [
+        "existing <img> warning in ShellUI.test.tsx"
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T14:00:07Z",
+      "gate": "git_diff_check_green"
+    }
+  ],
+  "rollbackPlan": {
+    "owner": "agentcore-release-maintainers",
+    "documented": true,
+    "rollbackCommandDeclared": true,
+    "executed": false
+  },
+  "monitoringPlan": {
+    "owner": "agentcore-runtime-maintainers",
+    "documented": true,
+    "smokeTestDeclared": true,
+    "executed": false
+  },
+  "artifactHandling": {
+    "artifactPathDeclared": true,
+    "artifactCreated": false,
+    "artifactUploaded": false,
+    "checksumCreated": false,
+    "retentionPolicyDocumented": true
+  },
+  "credentialBoundary": {
+    "credentialsRequiredForGate": false,
+    "credentialsUsed": false,
+    "credentialUseApproved": false,
+    "secretMaterialRecorded": false
+  },
+  "packageBuildDecision": {
+    "decision": "blocked_until_operator_execution_approval",
+    "executionApproved": false,
+    "executionPerformed": false,
+    "executionGateRequired": true,
+    "credentialUseAllowed": false,
+    "productionReadinessClaimed": false
+  },
+  "packageBuildBoundary": {
+    "gateOnly": true,
+    "commandsExecutedByChecker": false,
+    "packageBuilt": false,
+    "artifactsCreated": false,
+    "publishingPerformed": false,
+    "tagCreated": false,
+    "uploadPerformed": false,
+    "deploymentPerformed": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "credentialsUsed": false,
+    "productionReady": false,
+    "productionReadinessClaimed": false
+  },
+  "approvalStatus": "package_build_execution_gate_review",
+  "notes": [
+    "This package build gate is local and read-only.",
+    "It documents package build execution prerequisites but does not approve or execute package builds.",
+    "Package build, artifact creation, upload, tag creation, deployment, external writes, credential use, and production readiness claims remain blocked until separate execution approval."
+  ]
+}

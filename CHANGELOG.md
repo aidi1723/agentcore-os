@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-07-07
 
+### Package Build Execution Gate
+
+- Added `npm run release:package-build:gate:check -- --gate <path>`, a local read-only package build execution gate after the release execution planning gate.
+- Added a tracked example gate at `docs/release-execution-gates/example-package-build-gate.json`.
+- The gate validates green release execution plan evidence, package build request metadata, source/supply-chain review, ordered local command evidence, rollback plan, monitoring plan, artifact handling, credential boundary, and gate-only package build boundaries.
+- The gate keeps `productionReady: false`, `publishingPerformed: false`, and `gateOnly: true`; it does not run `desktop:package`, create artifacts, publish, tag, upload, deploy, call external connectors, use credentials, or claim production readiness.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ### Release Execution Planning Gates
 
 - Added `npm run release:execution-plan:check -- --plan <path>`, a local read-only release execution planning gate after the production release approval packet.

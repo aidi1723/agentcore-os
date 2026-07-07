@@ -130,7 +130,7 @@ LLM 可以生成建议、草稿和结构化内容，但不能成为默认流程�
 
 **固定 playbook runtime 已经成为主线，但设计目标还没有完全闭环。**
 
-当前已完成固定 playbook、validator、approval、durable trace、resume/retry、approved writeback、governed fixture replay、Runtime Console、本地交付门禁、第一层 playbook lifecycle contract、本地 lifecycle review diagnostic 和 deprecated replacement contract。后续第一优先级不再是证明方向，而是继续硬化控制链路：统一审计 playbook 合同、补强 policy/guardrail、提升 replay depth、把 lifecycle contract 扩展成完整 authoring/versioning/deprecation flow，并完善生产运维边界。
+当前已完成固定 playbook、validator、approval、durable trace、resume/retry、approved writeback、governed fixture replay、Runtime Console、本地交付门禁、第一层 playbook lifecycle contract、本地 lifecycle review diagnostic、deprecated replacement contract 和 lifecycle handoff checklist。后续第一优先级不再是证明方向，而是继续硬化控制链路：统一审计 playbook 合同、补强 policy/guardrail、提升 replay depth、把 lifecycle contract 扩展成完整 authoring/versioning/deprecation flow，并完善生产运维边界。
 
 ## 5. 目标架构
 
@@ -203,6 +203,16 @@ npm run playbook:lifecycle:review
 该命令只读检查 `active` playbook 的 `lastReviewedAt + reviewCadenceDays`，输出 `nextReviewDueAt`、`daysUntilReviewDue` 和到期 findings。到期或过期时退出非零；正常时保持 `productionReady: false`、`publishingPerformed: false` 和 `diagnosticOnly: true`。可用 `--now YYYY-MM-DD` 做确定性维护检查。
 
 这仍然不是 authoring UI、版本迁移、废弃流程或发布审批；它只是把 lifecycle metadata 转成可执行的本地维护信号。
+
+当前新增的 version / deprecation handoff checklist 命令是：
+
+```bash
+npm run playbook:lifecycle:handoff
+```
+
+该命令本地只读聚合 `playbook:control:audit` 与 `playbook:lifecycle:review` 的判断，输出 `readyForLifecycleHandoff`、control audit / lifecycle review check status、active / experimental / deprecated playbook 数量，以及已声明的 deprecated replacement chains。它支持 `--now YYYY-MM-DD` 和 `--compact`，并保持 `productionReady: false`、`publishingPerformed: false`、`handoffOnly: true`。
+
+这仍然不是 authoring UI、版本迁移器、自动 deprecation flow、fixture refresh、发布审批或生产门禁；它只是把现有合同门聚合成维护者在 playbook version/deprecation handoff 前必须先看的本地检查清单。
 
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 

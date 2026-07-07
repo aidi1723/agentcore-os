@@ -101,6 +101,7 @@ Completed in the current controlled runtime line:
 - Playbook Lifecycle Contract: every registered controlled playbook now declares lifecycle metadata (`status`, `owner`, `lastReviewedAt`, `reviewCadenceDays`, and `changePolicy`), and `playbook:control:audit` fails closed on missing or malformed lifecycle metadata.
 - Playbook Lifecycle Review Diagnostic: `npm run playbook:lifecycle:review` now reports active registered playbooks whose `lastReviewedAt + reviewCadenceDays` is due or overdue, while keeping output local, read-only, and non-production.
 - Playbook Deprecated Lifecycle Contract: deprecated playbooks must now declare `deprecatedAt`, `deprecationReason`, and a registered `replacementPlaybookId`; `playbook:control:audit` fails closed when that replacement chain is missing, self-referential, or unregistered.
+- Playbook Lifecycle Handoff Checklist: `npm run playbook:lifecycle:handoff` now aggregates control audit and lifecycle review into one local version/deprecation handoff signal, including lifecycle status counts and deprecated replacement chains, without adding authoring UI, migrations, fixture mutation, publishing, or production-readiness claims.
 - Sales Playbook Result Asset Alignment: `sales-pipeline-v1.resultAssets` now declares `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`, matching its actual durable writeback targets.
 
 Current verification baseline:
@@ -121,6 +122,7 @@ npm run release:handoff:evidence:status
 npm run release:handoff:evidence:audit
 npm run playbook:control:audit
 npm run playbook:lifecycle:review
+npm run playbook:lifecycle:handoff
 npm run release:hygiene:check
 npm run delivery:ready:check
 npm run test:controlled-runtime
@@ -131,9 +133,9 @@ npm run build
 
 Current `test:controlled-runtime` coverage:
 
-- 55 test files.
-- 289 tests.
-- Includes sales/support playbook validation, playbook lifecycle/control-chain/default guardrail/deprecated replacement audit coverage, playbook lifecycle review diagnostic coverage, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
+- 57 test files.
+- 297 tests.
+- Includes sales/support playbook validation, playbook lifecycle/control-chain/default guardrail/deprecated replacement audit coverage, playbook lifecycle review diagnostic coverage, playbook lifecycle handoff checklist coverage, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
 Known current lint/build note:
@@ -1546,7 +1548,7 @@ Suggested scope:
 - Prepare a playbook lifecycle path for authoring, review, fixture update, and deprecation.
 - Extend the new lifecycle contract into a full authoring/versioning/deprecation workflow before adding more business playbooks.
 - Promote lifecycle review diagnostics into the default maintainer sequence before playbook version changes.
-- Use the deprecated replacement contract as the base for a future migration/handoff checklist before any real deprecated playbook is registered.
+- Use `npm run playbook:lifecycle:handoff` as the local version/deprecation handoff checklist before any real deprecated playbook is registered; future work can extend it toward migration planning only after the no-mutation contract remains stable.
 - Keep release checklist wording aligned around local delivery demo readiness versus production readiness.
 - Do not add real replay, new playbooks, route calls, external system mutations, or broad UI redesign in this phase.
 

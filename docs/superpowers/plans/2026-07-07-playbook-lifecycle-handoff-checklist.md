@@ -16,23 +16,23 @@
 - Create: `src/__tests__/lib/executor/playbooks/lifecycle-handoff.test.ts`
 - Create: `src/__tests__/scripts/playbook-lifecycle-handoff-script.test.ts`
 
-- [ ] Add a helper test proving current registered reports are ready for lifecycle handoff.
-- [ ] Add a helper test proving due lifecycle review findings block handoff.
-- [ ] Add a helper test proving deprecated replacement chains are summarized when present.
-- [ ] Add CLI argument parsing tests for default, `--compact`, and `--now`.
-- [ ] Add CLI result tests for current catalog and deterministic due-review failure.
-- [ ] Run targeted tests and confirm they fail before implementation.
+- [x] Add a helper test proving current registered reports are ready for lifecycle handoff.
+- [x] Add a helper test proving due lifecycle review findings block handoff.
+- [x] Add a helper test proving deprecated replacement chains are summarized when present.
+- [x] Add CLI argument parsing tests for default, `--compact`, and `--now`.
+- [x] Add CLI result tests for current catalog and deterministic due-review failure.
+- [x] Run targeted tests and confirm they fail before implementation.
 
 ### Task 2: Handoff Helper
 
 **Files:**
 - Create: `src/lib/executor/playbooks/lifecycle-handoff.ts`
 
-- [ ] Export `PLAYBOOK_LIFECYCLE_HANDOFF_COMMAND`.
-- [ ] Add report, check, finding, and deprecated replacement summary types.
-- [ ] Build readiness from `controlAudit.ok && lifecycleReview.ok`.
-- [ ] Add findings for non-green control audit and non-green lifecycle review.
-- [ ] Preserve read-only, local, non-production metadata.
+- [x] Export `PLAYBOOK_LIFECYCLE_HANDOFF_COMMAND`.
+- [x] Add report, check, finding, and deprecated replacement summary types.
+- [x] Build readiness from `controlAudit.ok && lifecycleReview.ok`.
+- [x] Add findings for non-green control audit and non-green lifecycle review.
+- [x] Preserve read-only, local, non-production metadata.
 
 ### Task 3: CLI And Package Script
 
@@ -40,11 +40,11 @@
 - Create: `scripts/playbooks/check-playbook-lifecycle-handoff.mjs`
 - Modify: `package.json`
 
-- [ ] Parse `--compact` and `--now YYYY-MM-DD`.
-- [ ] Build control audit from registered playbooks and governed fixture catalog.
-- [ ] Build lifecycle review from registered playbooks.
-- [ ] Add `npm run playbook:lifecycle:handoff`.
-- [ ] Add helper and script tests to `test:controlled-runtime`.
+- [x] Parse `--compact` and `--now YYYY-MM-DD`.
+- [x] Build control audit from registered playbooks and governed fixture catalog.
+- [x] Build lifecycle review from registered playbooks.
+- [x] Add `npm run playbook:lifecycle:handoff`.
+- [x] Add helper and script tests to `test:controlled-runtime`.
 
 ### Task 4: Docs And Records
 
@@ -57,17 +57,17 @@
 - Modify: `docs/PROJECT_FRAMEWORK.zh-CN.md`
 - Modify: `memory/2026-07-07.md`
 
-- [ ] Document `playbook:lifecycle:handoff` as the local version/deprecation handoff checklist.
-- [ ] Record that this aggregates existing gates and does not add authoring UI, migration execution, fixture mutation, publishing, or production readiness.
-- [ ] Update the controlled runtime test count after verification.
+- [x] Document `playbook:lifecycle:handoff` as the local version/deprecation handoff checklist.
+- [x] Record that this aggregates existing gates and does not add authoring UI, migration execution, fixture mutation, publishing, or production readiness.
+- [x] Update the controlled runtime test count after verification.
 
 ### Task 5: Verification
 
-- [ ] `npm test -- src/__tests__/lib/executor/playbooks/lifecycle-handoff.test.ts src/__tests__/scripts/playbook-lifecycle-handoff-script.test.ts`
-- [ ] `npm run playbook:lifecycle:handoff`
-- [ ] `npm run playbook:lifecycle:handoff -- --now 2027-01-03 --compact`
-- [ ] `npm run test:controlled-runtime`
-- [ ] `npm run test:core-workflows`
-- [ ] `npm run lint`
-- [ ] `npm run build`
-- [ ] `git diff --check`
+- [x] `npm test -- src/__tests__/lib/executor/playbooks/lifecycle-handoff.test.ts src/__tests__/scripts/playbook-lifecycle-handoff-script.test.ts`
+- [x] `npm run playbook:lifecycle:handoff`
+- [x] `npm run playbook:lifecycle:handoff -- --now 2027-01-03 --compact`
+- [x] `npm run test:controlled-runtime`
+- [x] `npm run test:core-workflows`
+- [x] `npm run lint`
+- [x] `npm run build`
+- [x] `git diff --check`

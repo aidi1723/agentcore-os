@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-07-07
 
+### Tag Creation Execution Gate
+
+- Added `npm run release:tag-creation:gate:check -- --gate <path>`, a local read-only tag creation execution gate after the package build execution gate.
+- Added a tracked example gate at `docs/release-execution-gates/example-tag-creation-gate.json`.
+- The gate validates green package build gate evidence, tag request metadata, tag policy review, source commit evidence, ordered local command evidence, release-note linkage, rollback plan, monitoring plan, credential boundary, and gate-only tag creation boundaries.
+- The gate keeps `productionReady: false`, `publishingPerformed: false`, and `gateOnly: true`; it does not run `git tag`, push tags, create releases, upload artifacts, deploy, call external connectors, use credentials, or claim production readiness.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ### Package Build Execution Gate
 
 - Added `npm run release:package-build:gate:check -- --gate <path>`, a local read-only package build execution gate after the release execution planning gate.

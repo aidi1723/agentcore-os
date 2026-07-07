@@ -1,0 +1,153 @@
+{
+  "gateId": "tag-creation-gate-2026-07-07",
+  "packageBuildGatePath": "docs/release-execution-gates/example-package-build-gate.json",
+  "owner": {
+    "id": "agentcore-release-maintainers",
+    "name": "AgentCore Release Maintainers",
+    "role": "tag_creation_gate_reviewer"
+  },
+  "recordedAt": "2026-07-07T15:00:00Z",
+  "targetVersion": "1.3.0",
+  "releaseAction": "tag_creation",
+  "packageBuildGateResult": {
+    "ok": true,
+    "gateOnly": true,
+    "packageBuildGateClaim": "package_build_execution_gate_defined",
+    "productionReady": false,
+    "publishingPerformed": false
+  },
+  "tagRequest": {
+    "tagName": "v1.3.0",
+    "targetCommit": "838f561",
+    "sourceBranch": "main",
+    "tagType": "annotated",
+    "tagMessagePolicy": "version_and_release_summary_required"
+  },
+  "tagPolicyReview": {
+    "tagNameMatchesVersion": true,
+    "annotatedTagRequired": true,
+    "changelogLinkageReviewed": true,
+    "releaseNotesLinkageReviewed": true,
+    "existingTagChecked": true,
+    "tagCollisionFound": false
+  },
+  "sourceCommitEvidence": {
+    "targetCommitRecorded": true,
+    "sourceBranchRecorded": true,
+    "workingTreeDiffGateRecorded": true,
+    "currentBranchPolicy": "main_branch_head_at_gate_recording"
+  },
+  "commandEvidence": [
+    {
+      "command": "npm run release:package-build:gate:check -- --gate docs/release-execution-gates/example-package-build-gate.json",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T15:00:01Z",
+      "gate": "package_build_gate_green"
+    },
+    {
+      "command": "npm run release:hygiene:check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T15:00:02Z",
+      "gate": "release_hygiene_green"
+    },
+    {
+      "command": "npm run test:controlled-runtime",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T15:00:03Z",
+      "testFiles": 107,
+      "tests": 553
+    },
+    {
+      "command": "npm run test:core-workflows",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T15:00:04Z",
+      "gate": "core_workflows_green"
+    },
+    {
+      "command": "npm run lint",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T15:00:05Z",
+      "warningCount": 1,
+      "knownWarnings": [
+        "existing <img> warning in ShellUI.test.tsx"
+      ]
+    },
+    {
+      "command": "npm run build",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T15:00:06Z",
+      "warningCount": 1,
+      "knownWarnings": [
+        "existing <img> warning in ShellUI.test.tsx"
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T15:00:07Z",
+      "gate": "git_diff_check_green"
+    }
+  ],
+  "releaseNotesLinkage": {
+    "changelogUpdated": true,
+    "releaseNotesDrafted": true,
+    "releaseNotesPath": "CHANGELOG.md",
+    "targetVersionMentioned": true
+  },
+  "rollbackPlan": {
+    "owner": "agentcore-release-maintainers",
+    "documented": true,
+    "deleteLocalTagCommandDeclared": true,
+    "deleteRemoteTagCommandDeclared": true,
+    "executed": false
+  },
+  "monitoringPlan": {
+    "owner": "agentcore-runtime-maintainers",
+    "documented": true,
+    "tagVerificationDeclared": true,
+    "executed": false
+  },
+  "credentialBoundary": {
+    "credentialsRequiredForGate": false,
+    "credentialsUsed": false,
+    "credentialUseApproved": false,
+    "secretMaterialRecorded": false
+  },
+  "tagCreationDecision": {
+    "decision": "blocked_until_operator_execution_approval",
+    "tagCreationApproved": false,
+    "tagCreated": false,
+    "tagPushApproved": false,
+    "tagPushPerformed": false,
+    "executionGateRequired": true,
+    "credentialUseAllowed": false,
+    "productionReadinessClaimed": false
+  },
+  "tagCreationBoundary": {
+    "gateOnly": true,
+    "commandsExecutedByChecker": false,
+    "tagCreated": false,
+    "tagPushed": false,
+    "releaseCreated": false,
+    "artifactsUploaded": false,
+    "deploymentPerformed": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "credentialsUsed": false,
+    "productionReady": false,
+    "productionReadinessClaimed": false
+  },
+  "approvalStatus": "tag_creation_execution_gate_review",
+  "notes": [
+    "This tag creation gate is local and read-only.",
+    "It documents tag creation prerequisites but does not approve or execute git tag or git push commands.",
+    "Tag creation, tag push, release creation, artifact upload, deployment, external writes, credential use, and production readiness claims remain blocked until separate execution approval."
+  ]
+}

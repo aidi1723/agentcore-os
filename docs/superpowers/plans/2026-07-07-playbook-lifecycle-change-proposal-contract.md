@@ -16,25 +16,25 @@
 - Create: `src/__tests__/lib/executor/playbooks/lifecycle-change-proposal.test.ts`
 - Create: `src/__tests__/scripts/playbook-lifecycle-change-proposal-script.test.ts`
 
-- [ ] Add a helper test proving a valid version update proposal passes.
-- [ ] Add a helper test proving missing required commands fail closed.
-- [ ] Add a helper test proving deprecation proposals require `replacementPlaybookId` and `deprecatedAt`.
-- [ ] Add CLI tests for missing `--proposal`, invalid JSON, valid proposal, and invalid proposal exit codes.
-- [ ] Run targeted tests and confirm they fail before implementation.
+- [x] Add a helper test proving a valid version update proposal passes.
+- [x] Add a helper test proving missing required commands fail closed.
+- [x] Add a helper test proving deprecation proposals require `replacementPlaybookId` and `deprecatedAt`.
+- [x] Add CLI tests for missing `--proposal`, invalid JSON, valid proposal, and invalid proposal exit codes.
+- [x] Run targeted tests and confirm they fail before implementation.
 
 ### Task 2: Proposal Validator
 
 **Files:**
 - Create: `src/lib/executor/playbooks/lifecycle-change-proposal.ts`
 
-- [ ] Export `PLAYBOOK_LIFECYCLE_CHANGE_PROPOSAL_COMMAND`.
-- [ ] Add proposal, finding, and report types.
-- [ ] Validate required string fields.
-- [ ] Validate `changeType`.
-- [ ] Validate required command coverage.
-- [ ] Validate fixture expectations for new/version changes.
-- [ ] Validate deprecation-specific metadata.
-- [ ] Preserve local, read-only, non-production metadata.
+- [x] Export `PLAYBOOK_LIFECYCLE_CHANGE_PROPOSAL_COMMAND`.
+- [x] Add proposal, finding, and report types.
+- [x] Validate required string fields.
+- [x] Validate `changeType`.
+- [x] Validate required command coverage.
+- [x] Validate fixture expectations for new/version changes.
+- [x] Validate deprecation-specific metadata.
+- [x] Preserve local, read-only, non-production metadata.
 
 ### Task 3: CLI And Package Script
 
@@ -43,12 +43,12 @@
 - Create: `docs/playbook-lifecycle-change-proposals/example-version-update-proposal.json`
 - Modify: `package.json`
 
-- [ ] Parse `--proposal <path>` and `--compact`.
-- [ ] Read and parse the proposal JSON.
-- [ ] Check referenced `specPath` and `planPath` relative to the current working directory.
-- [ ] Add a tracked example proposal JSON that references this phase spec and plan.
-- [ ] Add `npm run playbook:lifecycle:change:check`.
-- [ ] Add helper and script tests to `test:controlled-runtime`.
+- [x] Parse `--proposal <path>` and `--compact`.
+- [x] Read and parse the proposal JSON.
+- [x] Check referenced `specPath` and `planPath` relative to the current working directory.
+- [x] Add a tracked example proposal JSON that references this phase spec and plan.
+- [x] Add `npm run playbook:lifecycle:change:check`.
+- [x] Add helper and script tests to `test:controlled-runtime`.
 
 ### Task 4: Docs And Records
 
@@ -61,16 +61,16 @@
 - Modify: `docs/PROJECT_FRAMEWORK.zh-CN.md`
 - Modify: `memory/2026-07-07.md`
 
-- [ ] Document `playbook:lifecycle:change:check` as a local proposal-intake gate.
-- [ ] Record that this does not mutate playbooks, fixtures, stores, external connectors, or release evidence.
-- [ ] Update the controlled runtime test count after verification.
+- [x] Document `playbook:lifecycle:change:check` as a local proposal-intake gate.
+- [x] Record that this does not mutate playbooks, fixtures, stores, external connectors, or release evidence.
+- [x] Update the controlled runtime test count after verification.
 
 ### Task 5: Verification
 
-- [ ] `npm test -- src/__tests__/lib/executor/playbooks/lifecycle-change-proposal.test.ts src/__tests__/scripts/playbook-lifecycle-change-proposal-script.test.ts`
-- [ ] `npm run playbook:lifecycle:change:check -- --proposal docs/playbook-lifecycle-change-proposals/example-version-update-proposal.json`
-- [ ] `npm run test:controlled-runtime`
-- [ ] `npm run test:core-workflows`
-- [ ] `npm run lint`
-- [ ] `npm run build`
-- [ ] `git diff --check`
+- [x] `npm test -- src/__tests__/lib/executor/playbooks/lifecycle-change-proposal.test.ts src/__tests__/scripts/playbook-lifecycle-change-proposal-script.test.ts`
+- [x] `npm run playbook:lifecycle:change:check -- --proposal docs/playbook-lifecycle-change-proposals/example-version-update-proposal.json`
+- [x] `npm run test:controlled-runtime`
+- [x] `npm run test:core-workflows`
+- [x] `npm run lint`
+- [x] `npm run build`
+- [x] `git diff --check`

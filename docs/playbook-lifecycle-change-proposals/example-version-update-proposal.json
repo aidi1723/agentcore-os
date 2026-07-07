@@ -1,0 +1,20 @@
+{
+  "proposalId": "example-sales-pipeline-v1-review",
+  "changeType": "version_update",
+  "playbookId": "sales-pipeline-v1",
+  "owner": "agentcore-runtime-maintainers",
+  "reason": "Example proposal contract for a future governed sales pipeline lifecycle review. This file is documentation and test input only.",
+  "specPath": "docs/superpowers/specs/2026-07-07-playbook-lifecycle-change-proposal-contract-design.md",
+  "planPath": "docs/superpowers/plans/2026-07-07-playbook-lifecycle-change-proposal-contract.md",
+  "requiredCommands": [
+    "npm run playbook:control:audit",
+    "npm run playbook:lifecycle:handoff",
+    "npm run trace:fixtures --silent",
+    "npm run test:controlled-runtime"
+  ],
+  "expectedFixtureIds": ["sales-pipeline-governed"],
+  "riskNotes": [
+    "This example does not mutate a registered playbook.",
+    "A real version update still needs a dedicated spec, plan, TDD evidence, fixture review, and lifecycle handoff."
+  ]
+}

@@ -53,8 +53,8 @@ AgentCore OS 当前要做的是第三种：
 当前项目状态：
 
 - **已达到 local delivery demo ready**：可以通过本地 seed/check 和浏览器路径演示 Home -> Runtime Console -> controlled run -> asset landing -> governed trace copy。
-- **已建立控制链路审计与 lifecycle handoff 入口**：`npm run playbook:control:audit` 会本地只读审计 registered playbooks 的生命周期、步骤、schema、工具、审批、失败策略、写回目标、默认 runtime guardrails 和 governed fixture coverage；`npm run playbook:lifecycle:handoff` 会聚合 control audit 与 lifecycle review，给出本地 version/deprecation handoff readiness，并保持 `productionReady: false`。
-- **尚未完全达到全部设计目标**：核心 runtime 已经成型，playbook lifecycle 已有第一层合同、本地 review diagnostic、deprecated replacement 合同和 handoff checklist；但完整 authoring UI/versioning flow、真实迁移器、统一 policy/guardrail、真实 replay、外部 connector 写回和生产级运维仍需继续硬化。
+- **已建立控制链路审计、proposal intake 与 lifecycle handoff 入口**：`npm run playbook:control:audit` 会本地只读审计 registered playbooks 的生命周期、步骤、schema、工具、审批、失败策略、写回目标、默认 runtime guardrails 和 governed fixture coverage；`npm run playbook:lifecycle:change:check` 会检查 playbook lifecycle 变更提案是否具备 spec/plan/TDD/fixture/handoff 命令声明；`npm run playbook:lifecycle:handoff` 会聚合 control audit 与 lifecycle review，给出本地 version/deprecation handoff readiness，并保持 `productionReady: false`。
+- **尚未完全达到全部设计目标**：核心 runtime 已经成型，playbook lifecycle 已有第一层合同、本地 review diagnostic、deprecated replacement 合同、proposal intake gate 和 handoff checklist；但完整 authoring UI/versioning flow、真实迁移器、统一 policy/guardrail、真实 replay、外部 connector 写回和生产级运维仍需继续硬化。
 - **尚未宣称 production ready**：真实 replay、长期 retention / cleanup、生产级运维边界仍需继续硬化。
 - **下一阶段默认是 Control Chain Hardening**：继续强化 playbook 控制链路、policy/guardrail、fixture/replay depth 和维护路径，不继续扩大 UI 壳或新增普通 skill。
 
@@ -223,6 +223,7 @@ npm run test:stability
 - `npm run playbook:control:audit`：本地只读 playbook 控制链路审计，检查 registered playbooks 的生命周期、控制合同、默认 runtime guardrails 和 fixture coverage
 - `npm run playbook:lifecycle:review`：本地只读 playbook 生命周期复审诊断，检查 active playbooks 是否达到 `lastReviewedAt + reviewCadenceDays`，只输出维护信号
 - `npm run playbook:lifecycle:handoff`：本地只读 version/deprecation handoff checklist，聚合 control audit 与 lifecycle review，汇总 active/experimental/deprecated 数量和 deprecated replacement chains；不执行迁移、不改 fixture、不发布、不宣称 production ready
+- `npm run playbook:lifecycle:change:check -- --proposal <path>`：本地只读 playbook lifecycle change proposal gate，检查提案 JSON 的 spec/plan、必需命令、fixture expectation 和 deprecation metadata；不修改 playbook、不刷新 fixture、不执行迁移
 - `npm run release:hygiene:check`：本地开源卫生门禁，检查必备治理文档、GPLv3+ 元数据、tracked artifact 路径和公开发布边界，不声明 production ready
 - `npm run release:handoff:check`：完整本地交付前门禁，聚合 hygiene、delivery readiness、controlled runtime 测试、core workflow、lint、build 和 `git diff --check`；不发布、不打 tag、不打包安装器，只声明 `local_release_handoff_ready`
 - `npm run release:handoff:snapshot`：运行完整 handoff gate，并把门禁结果与 git 上下文写入本地 `output/release-handoff/` JSON 证据；新证据同时保留短 SHA `snapshot.git.commit` 和完整 SHA `snapshot.git.commitFull`；不发布、不上传、不打 tag，生成文件默认不提交

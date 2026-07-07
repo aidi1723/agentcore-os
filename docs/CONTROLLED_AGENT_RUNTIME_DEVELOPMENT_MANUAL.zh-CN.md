@@ -214,6 +214,16 @@ npm run playbook:lifecycle:handoff
 
 这仍然不是 authoring UI、版本迁移器、自动 deprecation flow、fixture refresh、发布审批或生产门禁；它只是把现有合同门聚合成维护者在 playbook version/deprecation handoff 前必须先看的本地检查清单。
 
+当前新增的 lifecycle change proposal gate 是：
+
+```bash
+npm run playbook:lifecycle:change:check -- --proposal <path>
+```
+
+该命令读取本地 JSON proposal，检查 `proposalId`、`changeType`、`playbookId`、`owner`、`reason`、`specPath`、`planPath`、`requiredCommands`、`expectedFixtureIds` 和 deprecation metadata。它要求 proposal 声明 `playbook:control:audit`、`playbook:lifecycle:handoff`、`trace:fixtures --silent` 和 `test:controlled-runtime`，并确认 spec/plan 文件存在。它保持 `productionReady: false`、`publishingPerformed: false`、`proposalOnly: true`。
+
+这仍然不批准 playbook 变更，也不修改 registered playbooks、fixtures、stores、release evidence 或外部系统；它只是把 authoring/versioning/deprecation 的入口从口头约定变成结构化、本地可审计的 proposal contract。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine

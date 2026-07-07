@@ -111,6 +111,7 @@
 - Added `npm run playbook:lifecycle:review`, a local read-only lifecycle review diagnostic that fails closed when active playbooks are due or overdue for review.
 - Added deprecated playbook lifecycle audit coverage requiring `deprecatedAt`, `deprecationReason`, and a registered `replacementPlaybookId`.
 - Added `npm run playbook:lifecycle:handoff`, a local read-only version/deprecation handoff checklist that aggregates playbook control audit and lifecycle review status without executing migrations, mutating fixtures, publishing, or claiming production readiness.
+- Added `npm run playbook:lifecycle:change:check -- --proposal <path>`, a local read-only proposal-intake gate for playbook lifecycle changes, plus a tracked example proposal JSON.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
 - The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
 - `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.

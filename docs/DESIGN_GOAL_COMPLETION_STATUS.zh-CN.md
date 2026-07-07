@@ -9,7 +9,7 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 当前状态应表述为：
 
 - **核心控制 runtime 已建立**：固定 playbook、受限工具、人工审批、durable trace、resume / retry、approved writeback、Runtime Console、governed fixture replay、local delivery / release handoff gates 已经具备。
-- **设计目标尚未完全闭环**：playbook authoring/versioning/deprecation 已有本地 handoff checklist，但还没有产品化 authoring UI、迁移器或发布审批；统一 policy/guardrail、完整 replay gate、真实外部 connector 写回和生产级运维仍需继续硬化。
+- **设计目标尚未完全闭环**：playbook authoring/versioning/deprecation 已有本地 proposal gate 和 handoff checklist，但还没有产品化 authoring UI、迁移器或发布审批；统一 policy/guardrail、完整 replay gate、真实外部 connector 写回和生产级运维仍需继续硬化。
 - **当前优先级不是继续做壳，也不是改做普通 skill**：下一阶段要补齐控制链路、稳定性、效率、精准性和维护路径。
 
 ## 已完成的设计目标
@@ -28,14 +28,15 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 | Playbook lifecycle review 诊断 | `npm run playbook:lifecycle:review` 会检查 active playbook 是否达到复审日期，并在 due / overdue 时 fail closed。 |
 | Deprecated replacement 合同 | deprecated playbook 必须声明 `deprecatedAt`、`deprecationReason` 和已注册 `replacementPlaybookId`，否则 `playbook:control:audit` fail closed。 |
 | Playbook lifecycle handoff checklist | `npm run playbook:lifecycle:handoff` 会聚合 control audit 与 lifecycle review，汇总 lifecycle status counts 和 deprecated replacement chains，作为 version/deprecation handoff 前的本地只读门禁。 |
+| Playbook lifecycle change proposal gate | `npm run playbook:lifecycle:change:check -- --proposal <path>` 会检查结构化变更提案的 spec/plan、必需命令、fixture expectation 和 deprecation metadata。 |
 
 ## 尚未完全达成的目标
 
 | 缺口 | 影响 | 下一步处理 |
 | --- | --- | --- |
-| 控制链路审计还需进入维护工作流 | `npm run playbook:control:audit` 和 `npm run playbook:lifecycle:handoff` 已能汇总检查 playbook 合同、工具、审批、写回、lifecycle、guardrails、fixture coverage 与复审状态，但还没有形成 authoring/versioning/deprecation 的完整产品化维护流。 | 下一阶段把 handoff checklist 作为 playbook 维护和版本变更的默认入口，再扩展 migration planning。 |
+| 控制链路审计还需进入维护工作流 | `npm run playbook:control:audit`、`npm run playbook:lifecycle:change:check` 和 `npm run playbook:lifecycle:handoff` 已能覆盖 proposal intake、playbook 合同、工具、审批、写回、lifecycle、guardrails、fixture coverage 与复审状态，但还没有形成 authoring/versioning/deprecation 的完整产品化维护流。 | 下一阶段把 proposal gate 和 handoff checklist 作为 playbook 维护和版本变更的默认入口，再扩展 migration planning。 |
 | playbook 声明与写回落点可能漂移 | 执行能跑，但 `resultAssets` 等声明可能没有覆盖真实 writeback targets，影响精准性和维护判断。 | 已审计写回目标与 resultAssets 对齐，失败时 fail closed。 |
-| playbook lifecycle 仍未产品化 | 当前已有 status/owner/review/changePolicy、本地复审诊断、deprecated replacement 合同和 handoff checklist，但还没有完整 authoring UI、版本迁移器和 deprecation flow。 | 下一阶段扩展 authoring/versioning/deprecation workflow。 |
+| playbook lifecycle 仍未产品化 | 当前已有 status/owner/review/changePolicy、本地复审诊断、deprecated replacement 合同、proposal gate 和 handoff checklist，但还没有完整 authoring UI、版本迁移器和 deprecation flow。 | 下一阶段扩展 authoring/versioning/deprecation workflow。 |
 | policy / guardrail 分散 | 工具策略、失败策略、审批策略存在，但还未形成统一 policy layer。 | 下一阶段把审计结果作为 policy hardening 输入。 |
 | replay 仍是 metadata-only | 当前 fixture replay 不执行真实工具、不调用 API、不写 store，适合合同回归，不等于真实 replay。 | 继续推进 no-side-effect sandbox 到更完整的 per-playbook replay gate。 |
 | UI 仍是操作面，不是完整 authoring console | Runtime Console 可查看、审批、恢复、打开资产，但 playbook authoring/lifecycle 尚未产品化。 | 后续先做 operator diagnostics，再评估 authoring UI。 |

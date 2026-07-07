@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-07-07
 
+### Production Release Approval Packet
+
+- Added `npm run release:production-approval:check -- --approval <path>`, a local read-only production release approval packet gate after the production release policy gate.
+- Added a tracked example approval packet at `docs/release-approvals/example-production-release-approval.json`.
+- The gate validates green production policy evidence, reviewer identity, approval scope, expiry, rollback owner, monitoring owner, release-action decisions, risk acceptance, and approval-packet-only boundaries.
+- The gate keeps `productionReady: false`, `publishingPerformed: false`, and `approvalPacketOnly: true`; it does not publish, tag, package, upload artifacts, deploy, call external connectors, use credentials, or claim production readiness.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ### Production Release Policy Hardening
 
 - Added `npm run release:production-policy:check -- --policy <path>`, a local read-only production release policy gate after the local delivery candidate gate.

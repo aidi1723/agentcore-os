@@ -68,8 +68,8 @@ function validPolicy() {
         ok: true,
         exitCode: 0,
         recordedAt: "2026-07-07T11:30:03Z",
-        testFiles: 97,
-        tests: 503,
+        testFiles: 101,
+        tests: 523,
       },
       {
         command: "npm run test:core-workflows",

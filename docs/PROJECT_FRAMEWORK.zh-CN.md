@@ -162,16 +162,17 @@ User / Trigger
 - `npm run playbook:lifecycle:mutation:handoff:summary:check -- --summary <path>` 本地只读 handoff summary gate，要求 release handoff review green、维护者 summary、命令 summary、risk/deferred items、rollback notes 完整，并保持不运行命令、不生成 snapshot、不发布、不宣称 production ready。
 - `npm run delivery:candidate:check -- --candidate <path>` 本地只读 delivery candidate gate，要求 handoff summary green、delivery readiness green、完整回归/lint/build/diff 证据 green、文档对齐、risk/rollback 完整，并保持不运行完整命令、不发布、不打 tag、不打包、不上传、不宣称 production ready。
 - `npm run release:production-policy:check -- --policy <path>` 本地只读 production release policy gate，要求 delivery candidate green、ordered command evidence green、packaging/tag/upload/deployment/external writes/monitoring/rollback policy sections 完整、risk/rollback 边界完整，并保持 policy-only：不发布、不打 tag、不打包、不上传、不部署、不使用凭证、不宣称 production ready。
+- `npm run release:production-approval:check -- --approval <path>` 本地只读 production release approval packet gate，要求 production policy green、reviewer/scope/expiry/rollback owner/monitoring owner/release action decisions 完整，并保持 approval-packet-only：不发布、不打 tag、不打包、不上传、不部署、不使用凭证、不宣称 production ready。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 
 当前状态：
 
 - 已达到 **local delivery demo ready**。
-- 核心 controlled runtime 已成型，playbook lifecycle 已有第一层合同、本地 review diagnostic、deprecated replacement 合同、proposal gate、migration plan gate、handoff checklist、delivery candidate gate 和 production release policy gate，但原始“固定 agent 执行步骤、让结果可控”的全部设计目标尚未完全生产化闭环。
+- 核心 controlled runtime 已成型，playbook lifecycle 已有第一层合同、本地 review diagnostic、deprecated replacement 合同、proposal gate、migration plan gate、handoff checklist、delivery candidate gate、production release policy gate 和 production release approval packet gate，但原始“固定 agent 执行步骤、让结果可控”的全部设计目标尚未完全生产化闭环。
 - 尚未宣称 production ready。
 - 当前 controlled-runtime 里程碑已经具备本地收尾门禁。
-- 下一阶段继续 **Production Release Approval Packet**，从已建立的 delivery candidate 与 production release policy 边界补齐人工发布批准包、打包/tag/upload/deploy 前置批准、部署验证、统一 policy、真实 replay、authoring UI 和生产运维准备。
+- 下一阶段继续 **Release Execution Planning Gates**，从已建立的 production release approval packet 边界补齐 packaging/tag/upload/deploy/external-write execution planning gates、部署验证、统一 policy、真实 replay、authoring UI 和生产运维准备。
 
 仍未完成：
 
@@ -185,7 +186,7 @@ User / Trigger
 - replay sandbox catalog CI summary 已通过 `npm run replay:sandbox:fixtures` 实现为 compact JSON 命令。
 - replay sandbox failure diagnostics taxonomy 已把 contract bridge failure、sandbox artifact failure 和 guarantee violation 固定为稳定 `failureKind` / `guaranteeErrors` 输出。
 - replay sandbox failure harness direct modes 已覆盖 contract、sandbox 和 guarantee failures。
-- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review、Trace Operations maintenance slices、Control Chain closeout gate、本地 mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff gate、candidate fixture review gate、fixture replacement handoff gate、post-replacement evidence gate、release handoff review gate、handoff summary gate、delivery candidate gate 与 production release policy gate 已完成；因此下一阶段应继续 production release approval packet，仍不能直接刷新 fixture、跑真实工具 replay、扩大外部写回范围、打包上传、部署或宣称生产就绪。
+- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review、Trace Operations maintenance slices、Control Chain closeout gate、本地 mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff gate、candidate fixture review gate、fixture replacement handoff gate、post-replacement evidence gate、release handoff review gate、handoff summary gate、delivery candidate gate、production release policy gate 与 production release approval packet gate 已完成；因此下一阶段应继续 release execution planning gates，仍不能直接刷新 fixture、跑真实工具 replay、扩大外部写回范围、打包上传、部署或宣称生产就绪。
 
 ## 6. 文档体系
 

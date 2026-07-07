@@ -139,6 +139,8 @@
 - The fixture replacement handoff gate validates candidate review linkage, target/path alignment, scoped committed fixture path, rollback evidence, post-replacement validation plan, and handoff-only boundaries before manual committed fixture replacement.
 - Added `npm run playbook:lifecycle:mutation:post-replacement:evidence:check -- --evidence <path>`, a read-only post-replacement fixture evidence gate after manual committed fixture replacement.
 - The post-replacement evidence gate validates fixture replacement handoff linkage, replacement summary alignment, ordered fixture/runtime/core/diff command evidence, rollback readiness, and no-publish/no-production boundaries before release handoff review.
+- Added `npm run playbook:lifecycle:mutation:release-handoff:review:check -- --review <path>`, a read-only release handoff review gate after green post-replacement evidence.
+- The release handoff review gate validates post-replacement evidence linkage, ordered local release handoff/check/snapshot/status/audit/diff command evidence, reviewer acceptance, rollback notes, and no-publish/no-production boundaries before any separate delivery review.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
 - The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
 - `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.

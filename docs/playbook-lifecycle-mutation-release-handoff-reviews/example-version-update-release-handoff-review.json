@@ -1,0 +1,97 @@
+{
+  "reviewId": "release-handoff-review-sales-pipeline-v1",
+  "postReplacementEvidencePath": "docs/playbook-lifecycle-mutation-post-replacement-evidence/example-version-update-post-replacement-evidence.json",
+  "owner": "agentcore-runtime-maintainers",
+  "recordedAt": "2026-07-07T10:30:00Z",
+  "reviewSummary": {
+    "postReplacementEvidenceAccepted": true,
+    "releaseHandoffEvidenceAccepted": true,
+    "rollbackAvailable": true,
+    "rollbackNotes": [
+      "Revert the local playbook mutation commit and regenerate handoff evidence if release handoff review fails."
+    ],
+    "nextBoundary": "local_release_handoff_review_only"
+  },
+  "commandResults": [
+    {
+      "command": "npm run playbook:lifecycle:mutation:post-replacement:evidence:check -- --evidence docs/playbook-lifecycle-mutation-post-replacement-evidence/example-version-update-post-replacement-evidence.json",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:30:01Z",
+      "postReplacementEvidence": "post_replacement_fixture_evidence_green",
+      "evidenceOnly": true,
+      "productionReady": false,
+      "publishingPerformed": false
+    },
+    {
+      "command": "npm run release:handoff:check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:30:02Z",
+      "releaseClaim": "local_release_handoff_ready",
+      "productionReady": false,
+      "publishingPerformed": false
+    },
+    {
+      "command": "npm run release:handoff:snapshot",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:30:03Z",
+      "snapshotEvidence": "release_handoff_snapshot_written",
+      "evidenceOnly": true,
+      "productionReady": false,
+      "publishingPerformed": false
+    },
+    {
+      "command": "npm run release:handoff:evidence:status",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:30:04Z",
+      "readyForLocalHandoffEvidence": true,
+      "evidenceOnly": true,
+      "productionReady": false,
+      "publishingPerformed": false
+    },
+    {
+      "command": "npm run release:handoff:evidence:audit",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:30:05Z",
+      "releaseHandoffEvidenceAudit": "release_handoff_evidence_audit_green",
+      "evidenceOnly": true,
+      "productionReady": false,
+      "publishingPerformed": false
+    },
+    {
+      "command": "git diff --check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T10:30:06Z",
+      "diffCheck": "git_diff_check_green"
+    }
+  ],
+  "postReplacementEvidenceResult": {
+    "ok": true,
+    "evidenceOnly": true,
+    "productionReady": false,
+    "publishingPerformed": false
+  },
+  "releaseHandoffReviewBoundary": {
+    "reviewOnly": true,
+    "commandsExecutedByChecker": false,
+    "snapshotGeneratedByChecker": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "publishingPerformed": false,
+    "tagCreated": false,
+    "packageBuilt": false,
+    "uploadPerformed": false,
+    "productionReady": false,
+    "readinessClaimed": false
+  },
+  "approvalStatus": "release_handoff_review",
+  "notes": [
+    "This review records local release handoff evidence only.",
+    "The checker validates the recorded review and does not run release commands or generate snapshots."
+  ]
+}

@@ -104,6 +104,13 @@
 
 ## Unreleased
 
+### Release Handoff Evidence Status
+
+- Added `npm run release:handoff:evidence:status`, a local read-only status summary for handoff evidence review.
+- The command aggregates the existing evidence doctor and checked snapshot index helpers into one JSON report with `readyForLocalHandoffEvidence`, `nextCommand`, and `nextAction`.
+- The status command does not run the full handoff gate, generate snapshots, mutate evidence, publish, tag, upload, package, create GitHub Releases, run browser smoke, or claim production readiness.
+- Added evidence status coverage and included it in `test:controlled-runtime`.
+
 ### Release Handoff Evidence Doctor
 
 - Added `npm run release:handoff:evidence:doctor`, a local read-only diagnostic helper for the newest handoff evidence snapshot.

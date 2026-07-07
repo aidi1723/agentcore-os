@@ -201,6 +201,19 @@ invalid, failed, stale, blocked by git access, or fresh, then returns
 evidence, publish, upload, tag, package installers, create GitHub Releases, run
 browser smoke, or claim production readiness.
 
+To review the latest evidence diagnosis and checked recent snapshot index in
+one report, run:
+
+```bash
+npm run release:handoff:evidence:status
+```
+
+The status command is read-only. It aggregates existing doctor and snapshot
+index helpers and reports `readyForLocalHandoffEvidence`; it does not run the
+full handoff gate, generate snapshots, mutate evidence, publish, upload, tag,
+package installers, create GitHub Releases, run browser smoke, or claim
+production readiness.
+
 ## Full Verification
 
 Before a public release announcement or handoff, run:
@@ -212,6 +225,7 @@ npm run release:handoff:snapshot:check -- <snapshot.json>
 npm run release:handoff:snapshot:index -- --check --limit 5
 npm run release:handoff:evidence:check
 npm run release:handoff:evidence:doctor
+npm run release:handoff:evidence:status
 ```
 
 If the aggregate gate fails and the failed child command needs to be reproduced

@@ -181,6 +181,14 @@ npm run release:handoff:evidence:doctor
 
 该 doctor 命令是只读的。它会判断 evidence 是缺失、无效、失败、过期、git 不可读，还是已经匹配当前 `HEAD`，并返回 `nextCommand` 和 `nextAction`。它不会执行建议命令，不会创建 evidence、修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
 
+如果需要把最新 evidence 诊断和最近 snapshot index 校验汇总成一份报告，可以运行：
+
+```bash
+npm run release:handoff:evidence:status
+```
+
+该 status 命令是只读的。它聚合已有 doctor 和 snapshot index helper，并报告 `readyForLocalHandoffEvidence`；它不会运行完整 handoff gate、不会生成 snapshot、不会修改 evidence、发布、上传、打 tag、打包安装器、创建 GitHub Release、运行浏览器烟测或声明 production readiness。
+
 ## 完整发布前验证
 
 公开发布说明、外部演示或交付前，建议运行：
@@ -192,6 +200,7 @@ npm run release:handoff:snapshot:check -- <snapshot.json>
 npm run release:handoff:snapshot:index -- --check --limit 5
 npm run release:handoff:evidence:check
 npm run release:handoff:evidence:doctor
+npm run release:handoff:evidence:status
 ```
 
 如果聚合门禁失败，需要复现具体子命令时，再按 JSON 输出里的 failed check 单独运行对应命令。

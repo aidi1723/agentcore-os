@@ -153,6 +153,7 @@ User / Trigger
 - `npm run playbook:lifecycle:mutation:executor:preview -- --manifest <path> --evidence <path> --dry-run <path>` 本地只读 mutation executor preview，重新跑 preflight，校验 manifest、dry-run 声明的目标 scope、当前 SHA-256、next content SHA-256 和 executor-only 边界。
 - `npm run playbook:lifecycle:mutation:executor:apply -- --manifest <path> --evidence <path> --dry-run <path> --confirm-apply` 本地受控 mutation executor apply，只允许显式确认后的 registered playbook 文件替换；不刷新 fixture、不写 store、不调用外部 connector、不发布、不宣称 production ready。
 - `npm run playbook:lifecycle:mutation:post-apply:sequence:check -- --sequence <path>` 本地只读 post-apply audit sequence gate，要求 mutation apply report 已完成，并声明 apply 后必须按 control audit、lifecycle handoff、governed fixture gate、controlled-runtime、core-workflows 和 `git diff --check` 顺序完成审计；在审计证据存在前不得刷新 fixture、发布或宣称 production ready。
+- `npm run playbook:lifecycle:mutation:post-apply:evidence:check -- --evidence <path>` 本地只读 post-apply audit evidence gate，要求已记录命令结果严格匹配 post-apply sequence、全部 exit 0，并保留不刷新 fixture、不写 store、不外部写入、不发布、不宣称 production ready 的边界。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 
@@ -162,7 +163,7 @@ User / Trigger
 - 核心 controlled runtime 已成型，playbook lifecycle 已有第一层合同、本地 review diagnostic、deprecated replacement 合同、proposal gate、migration plan gate 和 handoff checklist，但原始“固定 agent 执行步骤、让结果可控”的全部设计目标尚未完全闭环。
 - 尚未宣称 production ready。
 - 当前 controlled-runtime 里程碑已经具备本地收尾门禁。
-- 下一阶段继续 **Productionization Preparation**，从已建立的本地 mutation executor 与 post-apply sequence 边界补齐 rollback evidence、post-apply audit evidence validation、fixture refresh handoff、统一 policy、真实 replay、authoring UI 和生产运维准备。
+- 下一阶段继续 **Productionization Preparation**，从已建立的本地 mutation executor、post-apply sequence 与 post-apply evidence 边界补齐 rollback evidence、fixture refresh handoff、统一 policy、真实 replay、authoring UI 和生产运维准备。
 
 仍未完成：
 
@@ -176,7 +177,7 @@ User / Trigger
 - replay sandbox catalog CI summary 已通过 `npm run replay:sandbox:fixtures` 实现为 compact JSON 命令。
 - replay sandbox failure diagnostics taxonomy 已把 contract bridge failure、sandbox artifact failure 和 guarantee violation 固定为稳定 `failureKind` / `guaranteeErrors` 输出。
 - replay sandbox failure harness direct modes 已覆盖 contract、sandbox 和 guarantee failures。
-- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review、Trace Operations maintenance slices、Control Chain closeout gate、本地 mutation executor 边界与 post-apply sequence gate 已完成；因此下一阶段应继续生产化准备，仍不能直接刷新 fixture、跑真实工具 replay、扩大外部写回范围或宣称生产就绪。
+- Runtime UI Reframing、Runtime Console Delivery Readiness Audit、Delivery Demo Smoke Path、Browser Evidence And Release Readiness Sweep、Post-Delivery Fixture / Playbook Expansion Review、Trace Operations maintenance slices、Control Chain closeout gate、本地 mutation executor 边界、post-apply sequence gate 与 post-apply evidence gate 已完成；因此下一阶段应继续生产化准备，仍不能直接刷新 fixture、跑真实工具 replay、扩大外部写回范围或宣称生产就绪。
 
 ## 6. 文档体系
 

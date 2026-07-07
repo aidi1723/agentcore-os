@@ -129,6 +129,8 @@
 - Added `docs/playbook-lifecycle-mutation-manifests/example-version-update-manifest.json` as a tracked safe preview manifest for `sales-pipeline-v1`.
 - Added `npm run playbook:lifecycle:mutation:post-apply:sequence:check -- --sequence <path>`, a read-only post-apply audit sequence gate after lifecycle mutation executor apply.
 - The post-apply sequence gate validates a completed local apply report and requires control audit, lifecycle handoff, governed fixture checks, controlled runtime tests, core workflow tests, and `git diff --check` in exact order before fixture refresh, publishing, or readiness claims.
+- Added `npm run playbook:lifecycle:mutation:post-apply:evidence:check -- --evidence <path>`, a read-only post-apply audit evidence gate that validates recorded command results for the declared sequence.
+- The post-apply evidence gate requires all seven recorded post-apply commands to be green and keeps fixture refresh, store writes, external writes, publishing, and production-ready claims blocked until a separate fixture refresh handoff exists.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
 - The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
 - `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.

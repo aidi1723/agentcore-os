@@ -1,0 +1,79 @@
+{
+  "evidenceId": "post-apply-evidence-sales-pipeline-v1-review",
+  "sequencePath": "docs/playbook-lifecycle-mutation-post-apply-sequences/example-version-update-post-apply-sequence.json",
+  "owner": "agentcore-runtime-maintainers",
+  "recordedAt": "2026-07-07T03:30:00Z",
+  "commandResults": [
+    {
+      "command": "npm run playbook:control:audit",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T03:30:01Z",
+      "controlAudit": "playbook_control_audit_green",
+      "productionReady": false,
+      "publishingPerformed": false
+    },
+    {
+      "command": "npm run playbook:lifecycle:handoff",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T03:30:02Z",
+      "handoffOnly": true,
+      "productionReady": false,
+      "publishingPerformed": false
+    },
+    {
+      "command": "npm run trace:fixtures --silent",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T03:30:03Z",
+      "fixtureGate": "governed_fixtures_green"
+    },
+    {
+      "command": "npm run trace:fixtures:summary --silent",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T03:30:04Z",
+      "fixtureSummaryGate": "governed_fixture_summary_green"
+    },
+    {
+      "command": "npm run test:controlled-runtime",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T03:30:05Z",
+      "testFiles": 81,
+      "tests": 413
+    },
+    {
+      "command": "npm run test:core-workflows",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T03:30:06Z",
+      "coreWorkflowGate": "core_workflows_green"
+    },
+    {
+      "command": "git diff --check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T03:30:07Z",
+      "diffCheck": "git_diff_check_green"
+    }
+  ],
+  "sequenceResult": {
+    "ok": true,
+    "sequenceOnly": true,
+    "productionReady": false,
+    "publishingPerformed": false
+  },
+  "postApplyAuditBoundary": {
+    "fixtureRefreshPerformed": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "publishingPerformed": false,
+    "productionReady": false,
+    "readinessClaimed": false
+  },
+  "approvalStatus": "post_apply_audit_evidence",
+  "exampleOnly": true,
+  "exampleNote": "Contract fixture for post-apply audit evidence validation. Real applies must record their own command results before fixture refresh handoff."
+}

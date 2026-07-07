@@ -294,6 +294,16 @@ npm run playbook:lifecycle:mutation:approval:check -- --approval <path>
 
 这仍然不执行迁移、不修改 registered playbooks、不刷新 fixtures、不写 store、不调用外部 connector、不发布；它只是把 readiness green 之后的人类批准变成结构化、本地可审计的 approval receipt。
 
+当前新增的 lifecycle mutation dry-run gate 是：
+
+```bash
+npm run playbook:lifecycle:mutation:dry-run:check -- --dry-run <path>
+```
+
+该命令读取本地 dry-run JSON，并重新运行其引用的 mutation approval checker 与 migration plan checker。只有 approval green、migration plan green、`targetPlaybookId` 与 migration plan 目标一致、planned target 路径限制在 `src/lib/executor/playbooks/`、fixture impact 覆盖 migration plan 的 expected fixture ids，且 `executionBoundary` 保持 `dryRunOnly: true`、未执行 mutation、未刷新 fixture、未写 store、未外部写入、未发布、未生产就绪时，才会输出 `readyForLifecycleMutationDryRun: true`。它支持 `--now <iso-or-date>` 和 `--current-commit <commit>`，保持 `productionReady: false`、`publishingPerformed: false`、`dryRunOnly: true`。
+
+这仍然不执行迁移、不修改 registered playbooks、不刷新 fixtures、不写 store、不调用外部 connector、不发布；它只是把批准后的拟变更目标和副作用边界变成结构化、本地可审计的 dry-run contract。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine

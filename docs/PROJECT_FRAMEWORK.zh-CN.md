@@ -147,6 +147,7 @@ User / Trigger
 - `npm run playbook:lifecycle:sequence:evidence:doctor -- --evidence <path>` 本地只读 sequence evidence doctor，归类 freshness/provenance 状态并给出下一步本地命令。
 - `npm run playbook:lifecycle:maintenance:ready -- --evidence <path>` 本地只读 maintenance readiness gate，聚合 lifecycle handoff 与 sequence evidence doctor。
 - `npm run playbook:lifecycle:mutation:approval:check -- --approval <path>` 本地只读 mutation approval receipt gate，检查 readiness green 后的结构化批准回执和 no-execution / no-write / no-publish 边界。
+- `npm run playbook:lifecycle:mutation:dry-run:check -- --dry-run <path>` 本地只读 mutation dry-run gate，检查批准后的拟变更 playbook target、fixture impact 和 dry-run-only 边界。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 

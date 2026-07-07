@@ -68,6 +68,10 @@ export type PlaybookLifecycleMigrationPlanReport = {
     rollbackSteps: number;
     expectedFixtureIds: number;
   };
+  fixtureReview: {
+    expectedFixtureIds: string[];
+    refreshRequired: boolean;
+  };
   checks: {
     proposalOk: boolean;
     requiredCommandsPresent: number;
@@ -278,6 +282,10 @@ export function validatePlaybookLifecycleMigrationPlan(
       plannedChanges: plannedChanges.length,
       rollbackSteps: rollbackPlan.length,
       expectedFixtureIds: expectedFixtureIds.length,
+    },
+    fixtureReview: {
+      expectedFixtureIds,
+      refreshRequired: fixtureReview.refreshRequired === true,
     },
     checks: {
       proposalOk: options.proposalReport.ok,

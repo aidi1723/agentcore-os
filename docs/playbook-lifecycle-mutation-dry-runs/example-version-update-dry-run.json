@@ -1,0 +1,35 @@
+{
+  "dryRunId": "dry-run-sales-pipeline-v1-review",
+  "approvalPath": "docs/playbook-lifecycle-mutation-approvals/example-version-update-approval.json",
+  "migrationPlanPath": "docs/playbook-lifecycle-migration-plans/example-version-update-plan.json",
+  "owner": "agentcore-runtime-maintainers",
+  "createdAt": "2026-07-07T03:20:00Z",
+  "mutationType": "registered_playbook_contract_update",
+  "targetPlaybookId": "sales-pipeline-v1",
+  "plannedTargets": [
+    {
+      "kind": "registered_playbook_contract",
+      "path": "src/lib/executor/playbooks/sales-pipeline.ts",
+      "operation": "review_only"
+    }
+  ],
+  "fixtureImpact": {
+    "expectedFixtureIds": [
+      "sales-pipeline-governed"
+    ],
+    "refreshRequired": false,
+    "notes": [
+      "No fixture refresh is performed by the dry-run checker.",
+      "A real mutation must rerun lifecycle handoff and governed fixture checks."
+    ]
+  },
+  "executionBoundary": {
+    "dryRunOnly": true,
+    "mutationPerformed": false,
+    "fixtureRefreshPerformed": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "publishingPerformed": false,
+    "productionReady": false
+  }
+}

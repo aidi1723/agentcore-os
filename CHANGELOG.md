@@ -119,6 +119,7 @@
 - Added `npm run playbook:lifecycle:sequence:evidence:doctor -- --evidence <path>`, a local read-only diagnostic wrapper that classifies lifecycle sequence evidence freshness/provenance failures and suggests the next local command without running it.
 - Added `npm run playbook:lifecycle:maintenance:ready -- --evidence <path>`, a local read-only maintenance readiness gate that aggregates lifecycle handoff and sequence evidence doctor state.
 - Added `npm run playbook:lifecycle:mutation:approval:check -- --approval <path>`, a local read-only mutation approval receipt gate that validates structured human approval after maintenance readiness while preserving no-execution/no-write/no-publish boundaries.
+- Added `npm run playbook:lifecycle:mutation:dry-run:check -- --dry-run <path>`, a local read-only mutation dry-run gate that validates proposed playbook contract targets, fixture impact, and side-effect boundaries after mutation approval.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
 - The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
 - `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.

@@ -109,6 +109,7 @@
 - Added `npm run playbook:control:audit`, a local read-only control-chain audit for registered controlled playbooks.
 - Added required playbook lifecycle metadata and audit coverage for lifecycle status, owner, last-reviewed date, review cadence, and change policy.
 - Added `npm run playbook:lifecycle:review`, a local read-only lifecycle review diagnostic that fails closed when active playbooks are due or overdue for review.
+- Added deprecated playbook lifecycle audit coverage requiring `deprecatedAt`, `deprecationReason`, and a registered `replacementPlaybookId`.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
 - The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
 - `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.

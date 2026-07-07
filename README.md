@@ -54,7 +54,7 @@ AgentCore OS 当前要做的是第三种：
 
 - **已达到 local delivery demo ready**：可以通过本地 seed/check 和浏览器路径演示 Home -> Runtime Console -> controlled run -> asset landing -> governed trace copy。
 - **已建立控制链路审计入口**：`npm run playbook:control:audit` 会本地只读审计 registered playbooks 的生命周期、步骤、schema、工具、审批、失败策略、写回目标、默认 runtime guardrails 和 governed fixture coverage，并保持 `productionReady: false`。
-- **尚未完全达到全部设计目标**：核心 runtime 已经成型，playbook lifecycle 已有第一层合同和本地 review diagnostic；但完整 authoring UI/versioning/deprecation flow、统一 policy/guardrail、真实 replay、外部 connector 写回和生产级运维仍需继续硬化。
+- **尚未完全达到全部设计目标**：核心 runtime 已经成型，playbook lifecycle 已有第一层合同、本地 review diagnostic 和 deprecated replacement 合同；但完整 authoring UI/versioning flow、真实迁移器、统一 policy/guardrail、真实 replay、外部 connector 写回和生产级运维仍需继续硬化。
 - **尚未宣称 production ready**：真实 replay、长期 retention / cleanup、生产级运维边界仍需继续硬化。
 - **下一阶段默认是 Control Chain Hardening**：继续强化 playbook 控制链路、policy/guardrail、fixture/replay depth 和维护路径，不继续扩大 UI 壳或新增普通 skill。
 

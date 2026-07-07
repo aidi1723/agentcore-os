@@ -171,6 +171,7 @@ function auditPlaybookContract(
 function auditPlaybookFindings(
   playbook: ControlledPlaybook,
   fixtureIds: string[],
+  registeredPlaybookIds: Set<string>,
 ): PlaybookControlAuditFinding[] {
   const findings: PlaybookControlAuditFinding[] = [];
   const validation = validateControlledPlaybook(playbook);
@@ -266,6 +267,59 @@ function auditPlaybookFindings(
           { playbookId: playbook.id },
         ),
       );
+    }
+    if (lifecycle.status === "deprecated") {
+      if (!hasIsoDate(lifecycle.deprecatedAt)) {
+        findings.push(
+          finding(
+            "invalid_deprecation_metadata",
+            `Deprecated playbook ${playbook.id} lifecycle.deprecatedAt must be YYYY-MM-DD.`,
+            { playbookId: playbook.id },
+          ),
+        );
+      }
+      if (
+        typeof lifecycle.deprecationReason !== "string" ||
+        lifecycle.deprecationReason.trim().length === 0
+      ) {
+        findings.push(
+          finding(
+            "invalid_deprecation_metadata",
+            `Deprecated playbook ${playbook.id} lifecycle.deprecationReason must be non-empty.`,
+            { playbookId: playbook.id },
+          ),
+        );
+      }
+
+      const replacementPlaybookId =
+        typeof lifecycle.replacementPlaybookId === "string"
+          ? lifecycle.replacementPlaybookId.trim()
+          : "";
+      if (!replacementPlaybookId) {
+        findings.push(
+          finding(
+            "invalid_deprecation_metadata",
+            `Deprecated playbook ${playbook.id} lifecycle.replacementPlaybookId must be non-empty.`,
+            { playbookId: playbook.id },
+          ),
+        );
+      } else if (replacementPlaybookId === playbook.id) {
+        findings.push(
+          finding(
+            "deprecated_replacement_self_reference",
+            `Deprecated playbook ${playbook.id} replacementPlaybookId must not point to itself.`,
+            { playbookId: playbook.id },
+          ),
+        );
+      } else if (!registeredPlaybookIds.has(replacementPlaybookId)) {
+        findings.push(
+          finding(
+            "deprecated_replacement_not_registered",
+            `Deprecated playbook ${playbook.id} replacementPlaybookId ${replacementPlaybookId} is not registered.`,
+            { playbookId: playbook.id },
+          ),
+        );
+      }
     }
   }
 
@@ -377,6 +431,7 @@ export function auditControlledPlaybookCatalog({
 }: AuditControlledPlaybookCatalogInput): PlaybookControlAuditReport {
   const findings: PlaybookControlAuditFinding[] = [];
   const fixtureIdsByPlaybook = new Map<string, string[]>();
+  const registeredPlaybookIds = new Set(playbooks.map((playbook) => playbook.id));
 
   for (const entry of fixtureCatalog) {
     const existing = fixtureIdsByPlaybook.get(entry.playbookId) ?? [];
@@ -412,7 +467,7 @@ export function auditControlledPlaybookCatalog({
 
   const items = playbooks.map((playbook) => {
     const fixtureIds = fixtureIdsByPlaybook.get(playbook.id) ?? [];
-    findings.push(...auditPlaybookFindings(playbook, fixtureIds));
+    findings.push(...auditPlaybookFindings(playbook, fixtureIds, registeredPlaybookIds));
     return auditPlaybookContract(playbook, fixtureIds);
   });
   const ok = findings.length === 0;

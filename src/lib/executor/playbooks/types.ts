@@ -26,6 +26,9 @@ export type ControlledPlaybookLifecycle = {
   lastReviewedAt: string;
   reviewCadenceDays: number;
   changePolicy: "spec_plan_tdd_fixture_required";
+  deprecatedAt?: string;
+  deprecationReason?: string;
+  replacementPlaybookId?: string;
 };
 
 export type ControlledPlaybookSchema = {

@@ -16,6 +16,25 @@ const fixtureCatalog = [
   },
 ];
 
+function buildDeprecatedSalesPlaybook(
+  lifecycleOverrides: Partial<ControlledPlaybook["lifecycle"]> = {},
+): ControlledPlaybook {
+  return {
+    ...salesPipelinePlaybook,
+    id: "sales-pipeline-v0",
+    scenarioId: "sales-pipeline-legacy",
+    version: "0.9.0",
+    lifecycle: {
+      ...salesPipelinePlaybook.lifecycle,
+      status: "deprecated",
+      deprecatedAt: "2026-07-07",
+      deprecationReason: "Replaced by the reviewed sales pipeline v1 playbook.",
+      replacementPlaybookId: "sales-pipeline-v1",
+      ...lifecycleOverrides,
+    } as ControlledPlaybook["lifecycle"],
+  };
+}
+
 describe("auditControlledPlaybookCatalog", () => {
   it("passes the registered controlled playbook control chain", () => {
     const report = auditControlledPlaybookCatalog({
@@ -308,5 +327,106 @@ describe("auditControlledPlaybookCatalog", () => {
         }),
       ]),
     );
+  });
+
+  it("passes a deprecated playbook when replacement metadata points to a registered playbook", () => {
+    const deprecatedPlaybook = buildDeprecatedSalesPlaybook();
+
+    const report = auditControlledPlaybookCatalog({
+      playbooks: [deprecatedPlaybook, salesPipelinePlaybook],
+      fixtureCatalog: [
+        { id: "sales-pipeline-v0-governed", playbookId: "sales-pipeline-v0" },
+        { id: "sales-pipeline-governed", playbookId: "sales-pipeline-v1" },
+      ],
+      fixtureCatalogReport: {
+        ok: true,
+        total: 2,
+        passed: 2,
+        failed: 0,
+      },
+    });
+
+    expect(report.ok).toBe(true);
+    expect(report.findings).toEqual([]);
+    expect(report.items[0].lifecycle).toMatchObject({
+      status: "deprecated",
+      deprecatedAt: "2026-07-07",
+      deprecationReason: "Replaced by the reviewed sales pipeline v1 playbook.",
+      replacementPlaybookId: "sales-pipeline-v1",
+    });
+  });
+
+  it("fails when a deprecated playbook is missing deprecation metadata", () => {
+    const deprecatedPlaybook = buildDeprecatedSalesPlaybook({
+      deprecatedAt: undefined,
+      deprecationReason: "",
+      replacementPlaybookId: "",
+    });
+
+    const report = auditControlledPlaybookCatalog({
+      playbooks: [deprecatedPlaybook, salesPipelinePlaybook],
+      fixtureCatalog: [
+        { id: "sales-pipeline-v0-governed", playbookId: "sales-pipeline-v0" },
+        { id: "sales-pipeline-governed", playbookId: "sales-pipeline-v1" },
+      ],
+      fixtureCatalogReport: {
+        ok: true,
+        total: 2,
+        passed: 2,
+        failed: 0,
+      },
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "invalid_deprecation_metadata",
+          playbookId: "sales-pipeline-v0",
+          message: "Deprecated playbook sales-pipeline-v0 lifecycle.deprecatedAt must be YYYY-MM-DD.",
+        }),
+        expect.objectContaining({
+          code: "invalid_deprecation_metadata",
+          playbookId: "sales-pipeline-v0",
+          message:
+            "Deprecated playbook sales-pipeline-v0 lifecycle.deprecationReason must be non-empty.",
+        }),
+        expect.objectContaining({
+          code: "invalid_deprecation_metadata",
+          playbookId: "sales-pipeline-v0",
+          message:
+            "Deprecated playbook sales-pipeline-v0 lifecycle.replacementPlaybookId must be non-empty.",
+        }),
+      ]),
+    );
+  });
+
+  it("fails when a deprecated playbook points to an unregistered replacement", () => {
+    const deprecatedPlaybook = buildDeprecatedSalesPlaybook({
+      replacementPlaybookId: "sales-pipeline-v2",
+    });
+
+    const report = auditControlledPlaybookCatalog({
+      playbooks: [deprecatedPlaybook, salesPipelinePlaybook],
+      fixtureCatalog: [
+        { id: "sales-pipeline-v0-governed", playbookId: "sales-pipeline-v0" },
+        { id: "sales-pipeline-governed", playbookId: "sales-pipeline-v1" },
+      ],
+      fixtureCatalogReport: {
+        ok: true,
+        total: 2,
+        passed: 2,
+        failed: 0,
+      },
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.findings).toContainEqual({
+      code: "deprecated_replacement_not_registered",
+      severity: "error",
+      playbookId: "sales-pipeline-v0",
+      message:
+        "Deprecated playbook sales-pipeline-v0 replacementPlaybookId sales-pipeline-v2 is not registered.",
+    });
   });
 });

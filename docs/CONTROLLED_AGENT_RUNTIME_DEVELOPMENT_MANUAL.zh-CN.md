@@ -130,7 +130,7 @@ LLM 可以生成建议、草稿和结构化内容，但不能成为默认流程�
 
 **固定 playbook runtime 已经成为主线，但设计目标还没有完全闭环。**
 
-当前已完成固定 playbook、validator、approval、durable trace、resume/retry、approved writeback、governed fixture replay、Runtime Console、本地交付门禁、第一层 playbook lifecycle contract 和本地 lifecycle review diagnostic。后续第一优先级不再是证明方向，而是继续硬化控制链路：统一审计 playbook 合同、补强 policy/guardrail、提升 replay depth、把 lifecycle contract 扩展成完整 authoring/versioning/deprecation flow，并完善生产运维边界。
+当前已完成固定 playbook、validator、approval、durable trace、resume/retry、approved writeback、governed fixture replay、Runtime Console、本地交付门禁、第一层 playbook lifecycle contract、本地 lifecycle review diagnostic 和 deprecated replacement contract。后续第一优先级不再是证明方向，而是继续硬化控制链路：统一审计 playbook 合同、补强 policy/guardrail、提升 replay depth、把 lifecycle contract 扩展成完整 authoring/versioning/deprecation flow，并完善生产运维边界。
 
 ## 5. 目标架构
 
@@ -186,7 +186,13 @@ npm run playbook:control:audit
 - `lifecycle.reviewCadenceDays`：正整数；
 - `lifecycle.changePolicy`：当前固定为 `spec_plan_tdd_fixture_required`。
 
-这只是 lifecycle contract 的第一层，不等于已经完成 playbook authoring UI、版本迁移、废弃流程或发布审批。
+当 `lifecycle.status === "deprecated"` 时，还必须声明：
+
+- `lifecycle.deprecatedAt`：`YYYY-MM-DD`；
+- `lifecycle.deprecationReason`：非空废弃原因；
+- `lifecycle.replacementPlaybookId`：已注册的替代 playbook id，不能指向自身。
+
+这只是 lifecycle / deprecation contract 的合同层，不等于已经完成 playbook authoring UI、版本迁移、自动迁移器、废弃流程或发布审批。
 
 当前新增的 lifecycle 维护诊断命令是：
 

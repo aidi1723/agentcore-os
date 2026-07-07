@@ -108,6 +108,8 @@
 
 - Added `npm run playbook:control:audit`, a local read-only control-chain audit for registered controlled playbooks.
 - The audit checks catalog uniqueness, schemas, tool boundaries, approval gates, failure policy, writeback/result asset alignment, and governed fixture coverage.
+- The audit now resolves each playbook into an execution plan and validates it against exported `DEFAULT_GUARDRAILS`, including guarded-tool approval declarations.
+- `step-executor.ts` now imports the shared `DEFAULT_GUARDRAILS` from `guardrails.ts` instead of keeping a duplicate default policy constant.
 - Aligned `sales-pipeline-v1.resultAssets` with its actual durable writebacks by declaring `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`.
 - Added control-audit helper and CLI coverage to `test:controlled-runtime`.
 - Added `docs/DESIGN_GOAL_COMPLETION_STATUS.zh-CN.md` to record that the core runtime is established but the original design goals are not yet fully complete.

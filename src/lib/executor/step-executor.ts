@@ -13,7 +13,7 @@ import type { ControlledPlaybookSchema } from "@/lib/executor/playbooks/types";
 import { getTool } from "@/lib/executor/tools";
 import type { ToolContext } from "@/lib/executor/tools/registry";
 import { executorLog } from "@/lib/executor/logger";
-import { shouldRequireApproval } from "@/lib/executor/guardrails";
+import { DEFAULT_GUARDRAILS, shouldRequireApproval } from "@/lib/executor/guardrails";
 import { getControlledPlaybook } from "@/lib/executor/playbooks/catalog";
 import { buildControlledStepInput } from "@/lib/executor/runtime/step-input";
 import { validateControlledOutput } from "@/lib/executor/runtime/schema";
@@ -26,15 +26,6 @@ import {
   updateControlledExecutionRun,
   updateControlledExecutionStep,
 } from "@/lib/server/controlled-execution-store";
-
-const DEFAULT_GUARDRAILS: GuardrailConfig = {
-  maxTotalTokens: 50_000,
-  maxSteps: 10,
-  maxToolCallsPerStep: 5,
-  maxDurationMs: 300_000,
-  forbiddenTools: [],
-  requireApprovalFor: ["file_write", "code_execute"],
-};
 
 function allDependenciesMet(step: ExecutionStep, results: StepResult[]): boolean {
   if (step.dependsOn.length === 0) return true;

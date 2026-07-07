@@ -29,7 +29,7 @@ AgentCore OS 当前已经完成从“AI OS 壳”到 **Controlled Skill / Playbo
 
 | 缺口 | 影响 | 下一步处理 |
 | --- | --- | --- |
-| 控制链路缺少统一 playbook 审计门 | 单个 validator / fixture replay 已存在，但没有一条命令汇总检查 playbook 合同、工具、审批、写回、fixture coverage。 | 新增 `npm run playbook:control:audit`。 |
+| 控制链路缺少统一 playbook 审计门 | 单个 validator / fixture replay 已存在，但原先没有一条命令汇总检查 playbook 合同、工具、审批、写回、guardrails、fixture coverage。 | 已新增并继续强化 `npm run playbook:control:audit`。 |
 | playbook 声明与写回落点可能漂移 | 执行能跑，但 `resultAssets` 等声明可能没有覆盖真实 writeback targets，影响精准性和维护判断。 | 审计写回目标与 resultAssets 对齐，失败时 fail closed。 |
 | policy / guardrail 分散 | 工具策略、失败策略、审批策略存在，但还未形成统一 policy layer。 | 下一阶段把审计结果作为 policy hardening 输入。 |
 | replay 仍是 metadata-only | 当前 fixture replay 不执行真实工具、不调用 API、不写 store，适合合同回归，不等于真实 replay。 | 继续推进 no-side-effect sandbox 到更完整的 per-playbook replay gate。 |

@@ -2,6 +2,8 @@ import type {
   ControlledPlaybook,
   ControlledPlaybookWriteTarget,
 } from "@/lib/executor/playbooks/types";
+import { DEFAULT_GUARDRAILS, validatePlan } from "@/lib/executor/guardrails";
+import { resolveExecutionPlanFromPlaybook } from "@/lib/executor/playbooks/resolver";
 import { validateControlledPlaybook } from "@/lib/executor/playbooks/validator";
 
 export const PLAYBOOK_CONTROL_AUDIT_COMMAND = "playbook:control:audit";
@@ -36,6 +38,13 @@ export type PlaybookControlAuditItem = {
   approvalSteps: number;
   writeTargets: ControlledPlaybookWriteTarget[];
   fixtureIds: string[];
+  guardrails: {
+    planValid: boolean;
+    maxSteps: number;
+    maxToolCallsPerStep: number;
+    guardedTools: string[];
+    rejectionReason?: string;
+  };
   valid: boolean;
   errors: string[];
 };
@@ -120,6 +129,10 @@ function auditPlaybookContract(
   fixtureIds: string[],
 ): PlaybookControlAuditItem {
   const validation = validateControlledPlaybook(playbook);
+  const guardrailValidation = validatePlan(
+    resolveExecutionPlanFromPlaybook(playbook),
+    DEFAULT_GUARDRAILS,
+  );
   return {
     playbookId: playbook.id,
     scenarioId: playbook.scenarioId,
@@ -128,6 +141,13 @@ function auditPlaybookContract(
     approvalSteps: playbook.steps.filter((step) => step.requiresApproval).length,
     writeTargets: collectWriteTargets(playbook),
     fixtureIds,
+    guardrails: {
+      planValid: guardrailValidation.valid,
+      maxSteps: DEFAULT_GUARDRAILS.maxSteps,
+      maxToolCallsPerStep: DEFAULT_GUARDRAILS.maxToolCallsPerStep,
+      guardedTools: DEFAULT_GUARDRAILS.requireApprovalFor,
+      ...(guardrailValidation.reason ? { rejectionReason: guardrailValidation.reason } : {}),
+    },
     valid: validation.valid,
     errors: validation.errors,
   };
@@ -139,8 +159,13 @@ function auditPlaybookFindings(
 ): PlaybookControlAuditFinding[] {
   const findings: PlaybookControlAuditFinding[] = [];
   const validation = validateControlledPlaybook(playbook);
+  const guardrailValidation = validatePlan(
+    resolveExecutionPlanFromPlaybook(playbook),
+    DEFAULT_GUARDRAILS,
+  );
   const declaredResultAssets = new Set(playbook.resultAssets);
   const seenStepIds = new Set<string>();
+  const guardedTools = new Set(DEFAULT_GUARDRAILS.requireApprovalFor);
 
   if (!playbook.id.trim()) {
     findings.push(finding("missing_playbook_id", "Playbook id is required."));
@@ -177,6 +202,16 @@ function auditPlaybookFindings(
     );
   }
 
+  if (!guardrailValidation.valid) {
+    findings.push(
+      finding(
+        "guardrail_plan_rejected",
+        `Resolved playbook ${playbook.id} violates default guardrails: ${guardrailValidation.reason}`,
+        { playbookId: playbook.id },
+      ),
+    );
+  }
+
   for (const step of playbook.steps) {
     if (seenStepIds.has(step.id)) {
       findings.push(
@@ -205,6 +240,18 @@ function auditPlaybookFindings(
           finding(
             "invalid_retry_policy",
             `Playbook ${playbook.id} step ${step.id} retry policy requires a positive maxRetries value.`,
+            { playbookId: playbook.id, stepId: step.id },
+          ),
+        );
+      }
+    }
+
+    for (const toolCall of step.toolCalls ?? []) {
+      if (guardedTools.has(toolCall.toolName) && !step.requiresApproval) {
+        findings.push(
+          finding(
+            "guarded_tool_without_declared_approval",
+            `Playbook ${playbook.id} step ${step.id} calls guarded tool ${toolCall.toolName} but does not declare approval.`,
             { playbookId: playbook.id, stepId: step.id },
           ),
         );

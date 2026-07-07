@@ -176,7 +176,9 @@ User / Trigger
 npm run playbook:control:audit
 ```
 
-该命令会检查 registered controlled playbooks 的 catalog 唯一性、step schema、tool boundary、approval gate、failure policy、writeback/result asset alignment 和 governed fixture coverage。它只做审计，不执行工具、不写 store、不写资产、不刷新 fixture、不发布 release、不宣称 production ready。
+该命令会检查 registered controlled playbooks 的 catalog 唯一性、step schema、tool boundary、approval gate、failure policy、writeback/result asset alignment、default runtime guardrails 和 governed fixture coverage。它只做审计，不执行工具、不写 store、不写资产、不刷新 fixture、不发布 release、不宣称 production ready。
+
+Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine
 

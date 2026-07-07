@@ -136,7 +136,7 @@ User / Trigger
 - governed trace artifact、local trace artifact route、Runtime Console 脱敏 trace copy。
 - governed trace fixture builder、fixture replay runner、fixture catalog、catalog report、JSON summary、人读 summary、failure harness 和 builder CLI。
 - fixture refresh workflow、replay contract、CI gate guide、catalog coverage guide、operational runbook。
-- `npm run playbook:control:audit` 本地只读控制链路审计，覆盖 playbook catalog、schema、tool boundary、approval gate、failure policy、writeback/result asset alignment 和 fixture coverage。
+- `npm run playbook:control:audit` 本地只读控制链路审计，覆盖 playbook catalog、schema、tool boundary、approval gate、failure policy、writeback/result asset alignment、default runtime guardrails 和 fixture coverage。
 - Runtime UI Reframing、Delivery Demo Smoke Path、Browser Evidence、Runtime UI Delivery Polish 和 UI closeout。
 - Runtime Console delivery handoff 摘要，可查看 recent runs、pending approvals、retryable failures、asset landings 和 governed trace candidates。
 

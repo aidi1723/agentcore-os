@@ -1,0 +1,45 @@
+{
+  "reviewId": "candidate-fixture-review-sales-pipeline-v1",
+  "owner": "agentcore-runtime-maintainers",
+  "handoffPath": "docs/playbook-lifecycle-mutation-fixture-refresh-handoffs/example-version-update-fixture-refresh-handoff.json",
+  "catalogFixtureId": "sales-pipeline-governed",
+  "candidateFixturePath": "src/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json",
+  "committedFixturePath": "src/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json",
+  "targetPlaybookId": "sales-pipeline-v1",
+  "reviewReason": "Validate fixture candidate metadata before any committed fixture replacement.",
+  "reviewEvidence": {
+    "sourceIdentityGate": true,
+    "redactionGate": true,
+    "playbookContractGate": true,
+    "approvalTerminalStateGate": true,
+    "writebackIdentityGate": true,
+    "failureTriageGate": true,
+    "sensitiveStringSearchGate": true,
+    "replacementDiffGate": true,
+    "catalogGate": true,
+    "runtimeRegressionGate": true,
+    "rollbackNotes": [
+      "Reject the candidate if validation, replay, sensitive string search, or replacement diff review fails.",
+      "Do not replace committed fixture JSON until a separate manual replacement review is green."
+    ]
+  },
+  "reviewBoundary": {
+    "reviewOnly": true,
+    "candidateFixtureProvided": true,
+    "committedFixtureReplaced": false,
+    "fixtureRefreshPerformed": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "publishingPerformed": false,
+    "productionReady": false
+  },
+  "candidatePolicy": "manual_committed_fixture_replacement_required",
+  "publishingPolicy": "no_publish_or_release",
+  "productionPolicy": "no_production_ready_claim",
+  "approvalStatus": "candidate_fixture_review_only",
+  "notes": [
+    "This tracked example uses the current committed sales fixture as deterministic candidate input for review validation.",
+    "The review gate does not generate, replace, or refresh fixture JSON.",
+    "Publishing and production readiness remain blocked."
+  ]
+}

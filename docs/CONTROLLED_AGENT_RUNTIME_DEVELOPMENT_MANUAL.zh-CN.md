@@ -371,7 +371,17 @@ npm run playbook:lifecycle:mutation:fixture-refresh:handoff:check -- --handoff <
 
 该命令读取本地 handoff JSON、其引用的 post-apply evidence JSON、post-apply sequence JSON 和 apply report JSON。它会复用 post-apply sequence / evidence checker，只有 evidence green、`readyForFixtureRefreshHandoff: true`、`evidenceOnly: true` 且没有 production / publishing claim 时才继续验证 handoff。handoff 必须声明目标 playbook、至少一个目标 governed fixture id、完整人工 review checklist、rollback notes，并要求 `handoffBoundary` 保持 `handoffOnly: true`、未生成 candidate fixture、未替换 committed fixture、未刷新 fixture、未写 store、未外部写入、未发布、未宣称 production ready。
 
-它保持 `productionReady: false`、`publishingPerformed: false`、`handoffOnly: true`。它不生成候选 fixture、不替换 committed fixture、不执行 builder、不刷新 fixture、不写 store、不调用外部 connector、不发布 release；它只是把 green post-apply evidence 之后能否进入人工 fixture refresh review 变成结构化、本地可审计的 handoff contract。下一步可以在此基础上定义 candidate fixture review validation。
+它保持 `productionReady: false`、`publishingPerformed: false`、`handoffOnly: true`。它不生成候选 fixture、不替换 committed fixture、不执行 builder、不刷新 fixture、不写 store、不调用外部 connector、不发布 release；它只是把 green post-apply evidence 之后能否进入人工 fixture refresh review 变成结构化、本地可审计的 handoff contract，并由后续 candidate fixture review gate 承接候选文件审查。
+
+当前新增的 lifecycle mutation candidate fixture review gate 是：
+
+```bash
+npm run playbook:lifecycle:mutation:candidate-fixture:review:check -- --review <path>
+```
+
+该命令读取本地 review JSON、其引用的 fixture refresh handoff JSON、handoff 引用的 post-apply evidence / sequence / apply report JSON，以及 review 指向的 candidate fixture JSON 和 committed fixture JSON。它会复用 fixture refresh handoff checker，并用 `validateControlledTraceFixture()` 与 `replayControlledTraceFixture()` 对 candidate fixture 做只读 schema/replay 校验。review 必须声明 `catalogFixtureId`，且该 id 必须在 handoff 的 `intendedFixtureIds` 中；candidate fixture 的 `playbookId` 必须与 handoff target playbook 对齐；敏感标记扫描必须无命中；人工 review evidence 必须覆盖 source identity、redaction、playbook contract、approval terminal state、writeback identity、failure triage、sensitive string search、replacement diff、catalog gate、runtime regression 和 rollback notes。
+
+它保持 `productionReady: false`、`publishingPerformed: false`、`reviewOnly: true`。它不生成候选 fixture、不替换 committed fixture、不改 catalog、不运行 catalog/test/lint/build 命令、不写 store、不调用外部 connector、不发布 release；它只是把已经存在的候选 fixture 是否可以进入人工 committed fixture replacement review 变成结构化、本地可审计的 review contract。下一步可以在此基础上定义 committed fixture replacement handoff 和 rollback evidence。
 
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
@@ -601,13 +611,13 @@ type ControlledPlaybookStep = {
 - governed fixture / playbook expansion review 已确认当前 sales/support committed governed fixture 覆盖所有注册 controlled playbook，暂不新增 fixture JSON 或迁移新 playbook。
 - 真实 replay 执行仍未实现；已完成边界设计、TypeScript contract 校验、no-side-effect prototype design、最小 prototype implementation、governed fixture -> replay sandbox contract bridge、catalog-level replay sandbox report、replay sandbox catalog CI summary、failure diagnostics taxonomy 和 direct failure harness modes。
 - Runtime UI 只进入交付可读性 polish，不进入全量 UI 重构。
-- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence 和 fixture refresh handoff 已有只读门禁，但还没有 rollback evidence、candidate fixture review validation 或生产化发布审批。
+- 本地 mutation executor 已有 manifest preview/apply 边界，post-apply audit sequence、evidence、fixture refresh handoff 和 candidate fixture review 已有只读门禁，但还没有 rollback evidence、committed fixture replacement handoff 或生产化发布审批。
 
 因此下一阶段默认进入：
 
 **Productionization Preparation**
 
-目标是在本地 mutation executor、post-apply sequence、post-apply evidence 与 fixture refresh handoff 边界之上补齐 rollback evidence、candidate fixture review validation、统一 policy/guardrail、fixture/replay depth、authoring/lifecycle 和生产运维准备。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不宣称 production ready。
+目标是在本地 mutation executor、post-apply sequence、post-apply evidence、fixture refresh handoff 与 candidate fixture review 边界之上补齐 rollback evidence、committed fixture replacement handoff、统一 policy/guardrail、fixture/replay depth、authoring/lifecycle 和生产运维准备。该阶段仍不恢复 raw governed artifact payload、不直接刷新 committed fixture JSON、不执行真实工具、不调用 route、不写外部资产、不发布 release、不宣称 production ready。
 
 ### Phase 0. 冻结方向
 

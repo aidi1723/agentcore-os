@@ -1,0 +1,132 @@
+{
+  "candidateId": "local-delivery-candidate-2026-07-07",
+  "handoffSummaryPath": "docs/playbook-lifecycle-mutation-handoff-summaries/example-version-update-handoff-summary.json",
+  "owner": "agentcore-runtime-maintainers",
+  "recordedAt": "2026-07-07T11:10:00Z",
+  "deliveryCandidate": {
+    "targetMilestone": "controlled-runtime-local-delivery-candidate",
+    "deliveryClaim": "local_delivery_candidate_ready",
+    "sourceHandoffClaim": "local_release_handoff_ready",
+    "nextBoundary": "production_release_policy_hardening"
+  },
+  "commandEvidence": [
+    {
+      "command": "npm run playbook:lifecycle:mutation:handoff:summary:check -- --summary docs/playbook-lifecycle-mutation-handoff-summaries/example-version-update-handoff-summary.json",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T11:10:01Z",
+      "gate": "handoff_summary_green"
+    },
+    {
+      "command": "npm run delivery:ready:check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T11:10:02Z",
+      "releaseClaim": "local_delivery_demo_ready"
+    },
+    {
+      "command": "npm run test:controlled-runtime",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T11:10:03Z",
+      "testFiles": 95,
+      "tests": 493
+    },
+    {
+      "command": "npm run test:core-workflows",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T11:10:04Z",
+      "gate": "core_workflows_green"
+    },
+    {
+      "command": "npm run lint",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T11:10:05Z",
+      "warningCount": 1,
+      "knownWarnings": [
+        "existing <img> warning in ShellUI.test.tsx"
+      ]
+    },
+    {
+      "command": "npm run build",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T11:10:06Z",
+      "warningCount": 1,
+      "knownWarnings": [
+        "existing <img> warning in ShellUI.test.tsx"
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "ok": true,
+      "exitCode": 0,
+      "recordedAt": "2026-07-07T11:10:07Z",
+      "gate": "git_diff_check_green"
+    }
+  ],
+  "documentationSummary": {
+    "updatedFiles": [
+      "README.md",
+      "CHANGELOG.md",
+      "docs/NEXT_STEPS.md",
+      "docs/PROJECT_FRAMEWORK.zh-CN.md",
+      "docs/DESIGN_GOAL_COMPLETION_STATUS.zh-CN.md",
+      "docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md",
+      "docs/DOCUMENTATION_INDEX.zh-CN.md"
+    ],
+    "status": "delivery_candidate_docs_aligned"
+  },
+  "riskSummary": {
+    "productionReady": false,
+    "publishingApproved": false,
+    "externalWritesApproved": false,
+    "tagApproved": false,
+    "packageApproved": false,
+    "uploadApproved": false,
+    "deferredItems": [
+      "production release policy",
+      "packaging and artifact signing policy",
+      "deployment environment validation",
+      "monitoring and rollback operations"
+    ]
+  },
+  "rollbackSummary": {
+    "rollbackAvailable": true,
+    "rollbackNotes": [
+      "Revert the delivery candidate gate commit and rerun local checks.",
+      "Regenerate the candidate report after handoff summary or delivery readiness evidence changes."
+    ]
+  },
+  "handoffSummaryResult": {
+    "ok": true,
+    "summaryOnly": true,
+    "productionReady": false,
+    "publishingPerformed": false
+  },
+  "deliveryReadyResult": {
+    "ok": true,
+    "releaseClaim": "local_delivery_demo_ready",
+    "productionReady": false
+  },
+  "deliveryCandidateBoundary": {
+    "candidateOnly": true,
+    "commandsExecutedByChecker": false,
+    "storeWritesPerformed": false,
+    "externalWritesPerformed": false,
+    "publishingPerformed": false,
+    "tagCreated": false,
+    "packageBuilt": false,
+    "uploadPerformed": false,
+    "productionReady": false,
+    "productionReadinessClaimed": false
+  },
+  "approvalStatus": "delivery_candidate_review",
+  "notes": [
+    "This report is a local delivery candidate handoff only.",
+    "The checker validates recorded evidence and reuses local handoff summary and delivery readiness gates.",
+    "Production release, packaging, deployment, publishing, and production readiness remain separate phases."
+  ]
+}

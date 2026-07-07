@@ -1,5 +1,13 @@
 # AgentCore OS Changelog
 
+## Unreleased - 2026-07-07
+
+### Delivery Candidate Hardening
+
+- Added `npm run delivery:candidate:check -- --candidate <path>`, a local read-only delivery candidate gate that validates green handoff summary evidence, local delivery readiness, recorded regression/lint/build/diff evidence, documentation alignment, rollback notes, and no-production/no-publish boundaries.
+- Added a tracked example candidate report at `docs/delivery-candidates/example-local-delivery-candidate.json`.
+- Added validator and CLI coverage to `test:controlled-runtime`.
+
 ## v1.5.1 - 2026-05-25
 
 ### Multi-Step Engine Hardening

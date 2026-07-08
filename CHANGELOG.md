@@ -2,6 +2,12 @@
 
 ## Unreleased - 2026-07-08
 
+### GitHub macOS CLI Install Path
+
+- Added `docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md` as the canonical current install path for GitHub-based macOS command-line installation.
+- Added `npm run release:github-macos-cli:check`, a local read-only documentation contract gate that validates the canonical install page and entry docs without cloning, installing, starting services, publishing, packaging, uploading, deploying, using credentials, or claiming production readiness.
+- Updated README, command-line install, public release, early access, and documentation index entries to point at the canonical GitHub macOS CLI install path.
+
 ### Production Release Completion Evidence Boundary
 
 - Added `npm run release:completion:evidence:check -- --evidence <path>`, a local post-execution production release completion evidence checker after the release execution approval boundary.

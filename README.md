@@ -54,7 +54,7 @@ AgentCore OS 当前要做的是第三种：
 
 - **已达到 local delivery demo ready**：可以通过本地 seed/check 和浏览器路径演示 Home -> Runtime Console -> controlled run -> asset landing -> governed trace copy。
 - **已建立控制链路审计、proposal intake、migration plan、maintenance sequence、sequence evidence、freshness/provenance、doctor、maintenance readiness、mutation approval、mutation dry-run、lifecycle handoff、项目收尾门禁、mutation preflight、本地 mutation executor 边界、post-apply sequence gate、post-apply evidence gate、fixture refresh handoff、candidate fixture review、fixture replacement handoff、post-replacement evidence、release handoff review、handoff summary、delivery candidate gate、production release policy gate、production release approval packet gate、release execution planning gate、package build execution gate、tag creation execution gate、artifact upload execution gate、deployment execution gate、external-write execution gate、production verification gate 与 release execution approval boundary**：`npm run playbook:control:audit` 会本地只读审计 registered playbooks 的生命周期、步骤、schema、工具、审批、失败策略、写回目标、默认 runtime guardrails 和 governed fixture coverage；`npm run playbook:lifecycle:change:check` 会检查 playbook lifecycle 变更提案；`npm run playbook:lifecycle:migration:plan:check` 会检查迁移规划；`npm run playbook:lifecycle:sequence:check` 会检查维护顺序；`npm run playbook:lifecycle:sequence:evidence:check` / `freshness:check` / `doctor` 会检查 evidence、provenance 和可维护状态；`npm run playbook:lifecycle:maintenance:ready`、`mutation:approval:check`、`mutation:dry-run:check` 和 `handoff` 会覆盖维护准入、批准、dry-run 和 handoff；`npm run project:closeout:check` 会聚合关键本地门禁；`npm run playbook:lifecycle:mutation:executor:preview` / `apply` 会在 manifest、preflight、SHA-256 和显式确认边界下进行本地 registered playbook 文件替换；`npm run playbook:lifecycle:mutation:post-apply:sequence:check` 会在 apply 后要求 control audit、handoff、fixture gate、回归测试和 `git diff --check` 的固定顺序；`npm run playbook:lifecycle:mutation:post-apply:evidence:check` 会检查这些命令结果是否已按顺序记录为 green；`npm run playbook:lifecycle:mutation:fixture-refresh:handoff:check` 会在 green evidence 后检查 fixture refresh 人工交接条件；`npm run playbook:lifecycle:mutation:candidate-fixture:review:check` 会在 handoff 后检查候选 fixture 的 schema/replay、敏感标记、review evidence 和 no-replacement 边界；`npm run playbook:lifecycle:mutation:fixture-replacement:handoff:check` 会在候选 review 后检查人工 replacement handoff、rollback evidence 和 post-replacement validation plan；`npm run playbook:lifecycle:mutation:post-replacement:evidence:check` 会在人工替换后检查 fixture/runtime/core/diff evidence 和 no-publish/no-production 边界；`npm run playbook:lifecycle:mutation:release-handoff:review:check` 会把 post-replacement evidence 与本地 release handoff/check/snapshot/status/audit/diff evidence 进行结构化复核；`npm run playbook:lifecycle:mutation:handoff:summary:check` 会把 release handoff review 转成维护者可读的非生产 summary；`npm run delivery:candidate:check` 会把 handoff summary、delivery readiness、完整回归/build 证据和文档对齐收口成本地交付候选报告；`npm run release:production-policy:check` 会在 delivery candidate green 后检查生产发布策略包；`npm run release:production-approval:check` 会在 policy green 后检查结构化批准包；`npm run release:execution-plan:check` 会在 approval green 后检查 packaging、tag、upload、deployment 和 external writes 的执行计划；`npm run release:package-build:gate:check` 会在 execution plan green 后检查 package build request、source review、artifact handling 和 gate-only 边界；`npm run release:tag-creation:gate:check` 会在 package build gate green 后检查 tag request、tag policy、source commit、release note linkage 和 no-tag-created 边界；`npm run release:artifact-upload:gate:check` 会在 tag creation gate green 后检查 artifact upload request、artifact identity、checksum/provenance policy、upload destination policy、rollback/monitoring 和 no-upload-performed 边界；`npm run release:deployment:gate:check` 会在 artifact upload gate green 后检查 deployment request、environment review、pre-deployment checks、rollback/monitoring 和 no-deploy-performed 边界；`npm run release:external-write:gate:check` 会在 deployment gate green 后检查 external write request、external system review、idempotency policy、rollback/monitoring 和 no-external-write-performed 边界；`npm run release:production-verification:gate:check` 会在 external-write gate green 后检查 verification plan、post-action checks、monitoring readiness、incident/rollback readiness 和 no-production-verification-executed 边界；`npm run release:execution-approval:check` 会在 production verification gate green 后检查最终 operator approval requirements、execution readiness review、release action authorization 和 approval-boundary-only 边界，但不批准或执行任何发布动作。
-- **当前 controlled-runtime 里程碑可以进入 local delivery candidate、production release policy review、production release approval、release execution planning、各 release action gate、production verification、release execution approval boundary 和 post-execution completion evidence schema review 状态，但仍不是 production ready**：核心 runtime 已经成型，发布链路已经能验证从候选、策略、批准、计划、各动作 gate、生产验证、最终批准到人工执行后 evidence packet 的本地合同；但 tracked example 是 `example_schema_only`，不是实际 operator evidence，完整 authoring UI/versioning flow、统一 policy/guardrail、真实 replay、真实外部 connector 写回和生产级运维仍需继续硬化。
+- **当前 controlled-runtime 里程碑可以进入 local delivery candidate、production release policy review、production release approval、release execution planning、各 release action gate、production verification、release execution approval boundary 和 post-execution completion evidence schema review 状态，但仍不声明 production ready**：核心 runtime 已经成型，发布链路已经能验证从候选、策略、批准、计划、各动作 gate、生产验证、最终批准到人工执行后 evidence packet 的本地合同；但 tracked example 是 `example_schema_only`，不是实际 operator evidence，完整 authoring UI/versioning flow、统一 policy/guardrail、真实 replay、真实外部 connector 写回和生产级运维仍需继续硬化。
 - **尚未宣称 production ready**：真实 replay、长期 retention / cleanup、生产级运维边界仍需继续硬化。
 - **下一阶段默认是 production closeout / operations evidence hardening**：post-execution evidence boundary 已有 schema-only 示例和 actual operator evidence 合同；后续继续补 release closeout 报告、生产运维 runbook、事故/回滚证据和长期监控证据，仍不扩大 UI 壳或新增普通 skill，也不由 checker 直接发布、打 tag、打包、上传、部署、外部写入或使用凭证。
 
@@ -89,15 +89,12 @@ AgentCore OS 当前要做的是第三种：
 - [Governed Trace Fixture CI Gates](docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
 - [Production Release Completion Evidence Boundary](docs/PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)
 
-获取源码、版本信息与公开发布说明，请以仓库与 GitHub Releases 页面为准：
+当前对外安装入口只保留 GitHub macOS 命令行路径：
 
 - 主仓库 GitHub：<https://github.com/aidi1723/agentcore-os>
-- 国内镜像 CNB：<https://cnb.cool/aidiyangyu/agentcore-os>
-- GitHub Releases：<https://github.com/aidi1723/agentcore-os/releases>
+- 安装说明：[docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md](docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
 - 当前版本发布说明：[English](docs/releases/v1.3.0.md) / [中文](docs/releases/v1.3.0.zh-CN.md)
-- 桌面壳等价收口更新（中文）：[docs/releases/2026-03-25-desktop-parity-update.zh-CN.md](docs/releases/2026-03-25-desktop-parity-update.zh-CN.md)
 - 对外分发说明：[docs/EARLY_ACCESS_RELEASE.zh-CN.md](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
-- 上一稳定版市场发布文案：[docs/LAUNCH_COPY_v1.2.0.zh-CN.md](docs/LAUNCH_COPY_v1.2.0.zh-CN.md)
 - 文档总入口：[docs/DOCUMENTATION_INDEX.zh-CN.md](docs/DOCUMENTATION_INDEX.zh-CN.md)
 
 ## 快速开始
@@ -118,7 +115,7 @@ npm run dev
 
 ### 命令行安装与运行
 
-当前推荐安装方式只有一种：**命令行安装**。
+当前推荐安装方式只有一种：**GitHub macOS 命令行安装**。
 
 ```bash
 git clone https://github.com/aidi1723/agentcore-os.git
@@ -127,7 +124,7 @@ npm install
 npm run dev
 ```
 
-如果你要进一步验证桌面壳或本地 sidecar，请看：
+安装说明以 [GitHub macOS 命令行安装](docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md) 为准。历史入口见：
 
 - [命令行安装说明](docs/COMMAND_LINE_INSTALL.zh-CN.md)
 - [冷启动安装验收](docs/COLD_START_VALIDATION.zh-CN.md)
@@ -135,16 +132,11 @@ npm run dev
 ### 当前已验证基线
 
 截至 `2026-03-23`，GitHub 主仓库 `d6f6a37` 已完成一轮真实冷启动验收。
-截至 `2026-03-25`，当前工作树又补跑并通过了一轮桌面壳 / sidecar 主链路等价验证。
-
 当前已经验证通过的主线是：
 
 - 命令行安装
 - 从源码运行
 - 浏览器模式
-- `desktop_light` 主线
-- 桌面壳 + sidecar 主链路
-- 执行器历史 / 销售 / 客服 / 工作流运行在桌面壳下的服务端同步链路
 
 当前推荐的浏览器主线最小稳定性门禁命令：
 
@@ -152,14 +144,6 @@ npm run dev
 npm install
 npm run test:stability
 npm run dev
-```
-
-如果你要对“整个项目，包括桌面壳 sidecar 链路”做保守验收，推荐门禁改为：
-
-```bash
-npm install
-npm run desktop:smoke-test-sidecar
-npm run test:stability
 ```
 
 ## 核心能力概览
@@ -196,9 +180,9 @@ npm run test:stability
 
 ### 安装与发布相关
 
+- [GitHub macOS 命令行安装](docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
 - [命令行安装说明](docs/COMMAND_LINE_INSTALL.zh-CN.md)
 - [冷启动安装验收](docs/COLD_START_VALIDATION.zh-CN.md)
-- [桌面壳等价收口更新](docs/releases/2026-03-25-desktop-parity-update.zh-CN.md)
 - [公开发布说明（中文）](docs/PUBLIC_RELEASE.zh-CN.md)
 
 ### 其他核心文档
@@ -259,7 +243,8 @@ npm run test:stability
 - `npm run playbook:lifecycle:mutation:release-handoff:review:check -- --review <path>`：本地只读 release handoff review gate，在 post-replacement evidence green 后检查 release handoff、snapshot、status、audit 和 diff review evidence；不运行 release 命令、不生成 snapshot、不发布、不宣称 production ready
 - `npm run playbook:lifecycle:mutation:handoff:summary:check -- --summary <path>`：本地只读 handoff summary gate，在 release handoff review green 后检查维护者摘要、命令摘要、风险/deferred items、rollback notes 和 summary-only 边界；不运行命令、不生成 snapshot、不发布、不宣称 production ready
 - `npm run release:hygiene:check`：本地开源卫生门禁，检查必备治理文档、GPLv3+ 元数据、tracked artifact 路径和公开发布边界，不声明 production ready
-- `npm run release:handoff:check`：完整本地交付前门禁，聚合 hygiene、delivery readiness、controlled runtime 测试、core workflow、lint、build 和 `git diff --check`；不发布、不打 tag、不打包安装器，只声明 `local_release_handoff_ready`
+- `npm run release:github-macos-cli:check`：本地只读 GitHub macOS 命令行安装口径门禁，检查 canonical 安装页和入口文档是否只指向 `docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md`；不克隆、不安装、不启动服务、不发布
+- `npm run release:handoff:check`：完整本地交付前门禁，聚合 hygiene、GitHub macOS CLI install、delivery readiness、controlled runtime 测试、core workflow、lint、build 和 `git diff --check`；不发布、不打 tag、不打包安装器，只声明 `local_release_handoff_ready`
 - `npm run release:handoff:snapshot`：运行完整 handoff gate，并把门禁结果与 git 上下文写入本地 `output/release-handoff/` JSON 证据；新证据同时保留短 SHA `snapshot.git.commit` 和完整 SHA `snapshot.git.commitFull`；不发布、不上传、不打 tag，生成文件默认不提交
 - `npm run release:handoff:snapshot:check -- <snapshot.json>`：只读校验本地 handoff evidence 的 schema 和发布边界；不发布、不上传、不修改 evidence
 - `npm run release:handoff:snapshot:index -- --check --limit 5`：只读列出并可校验本地 handoff evidence 快照，便于交付复核最新证据；不创建、不修改、不发布 evidence

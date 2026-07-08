@@ -10,7 +10,7 @@
 
 - 可以声明 **local delivery demo ready**；
 - 不声明 **production ready**；
-- 不把 DMG / EXE 安装包作为默认分发承诺；
+- 当前对外安装路径只说明 GitHub macOS 命令行安装；
 - 真实 replay、外部系统写入和生产级运维边界仍不属于当前公开声明。
 
 AgentCore OS 当前应被描述为：
@@ -28,7 +28,7 @@ AgentCore OS 当前应被描述为：
 - Runtime Console 作为 controlled run 检查、审批、恢复、资产落点和 governed trace 导出的操作面；
 - `sales-pipeline-v1` 和 `support-resolution-v1` 作为当前已覆盖的 controlled playbook；
 - 通过 deterministic seed/check、governed fixture gates、retention preview 和 browser evidence 支撑本地 demo readiness；
-- 命令行安装 / 从源码运行作为当前推荐评估路径。
+- `docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md` 作为当前唯一推荐安装路径。
 
 公开仓库不应宣称：
 
@@ -36,7 +36,6 @@ AgentCore OS 当前应被描述为：
 - 真实 LLM / tool replay；
 - 自动 fixture refresh；
 - replay 期间对外部系统写入；
-- DMG / EXE 安装包是默认分发路径；
 - 历史兼容命名已经全部清除。
 
 ## 快速本地交付门禁
@@ -103,6 +102,7 @@ npm run release:handoff:check
 该命令聚合：
 
 - `npm run release:hygiene:check`
+- `npm run release:github-macos-cli:check`
 - `npm run delivery:ready:check`
 - `npm run test:controlled-runtime`
 - `npm run test:core-workflows`
@@ -246,10 +246,9 @@ npm run release:handoff:evidence:audit
 建议公开入口：
 
 - 主仓库 GitHub：<https://github.com/aidi1723/agentcore-os>
-- 国内镜像 CNB：<https://cnb.cool/aidiyangyu/agentcore-os>
-- GitHub Releases：<https://github.com/aidi1723/agentcore-os/releases>
+- GitHub macOS 命令行安装：`docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md`
 
-当前推荐安装方式：**命令行安装 / 从源码运行**。
+当前推荐安装方式：**GitHub macOS 命令行安装**。
 
 ```bash
 git clone https://github.com/aidi1723/agentcore-os.git

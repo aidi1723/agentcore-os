@@ -12,6 +12,12 @@ export const DEFAULT_RELEASE_HANDOFF_CHECKS = [
     args: ["run", "release:hygiene:check", "--silent"],
   },
   {
+    name: "github_macos_cli_install_check",
+    command: "npm run release:github-macos-cli:check",
+    bin: "npm",
+    args: ["run", "release:github-macos-cli:check", "--silent"],
+  },
+  {
     name: "delivery_ready_check",
     command: "npm run delivery:ready:check",
     bin: "npm",
@@ -112,6 +118,7 @@ export function buildReleaseHandoffReport({
       "production readiness is not claimed by this gate",
       "no publishing, tagging, uploading, or installer packaging is performed",
       "release:hygiene:check owns warning-only secret pattern review details",
+      "release:github-macos-cli:check owns the current GitHub macOS command-line install documentation boundary",
       "lint/build may report the existing <img> warning in ShellUI.test.tsx",
     ],
   };

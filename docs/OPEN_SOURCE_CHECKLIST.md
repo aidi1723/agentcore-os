@@ -97,6 +97,8 @@ Confirm:
 - `release:handoff:check` reports `releaseClaim: "local_release_handoff_ready"`
 - `release:handoff:check` reports `productionReady: false`
 - `release:handoff:check` reports `publishingPerformed: false`
+- `release:github-macos-cli:check` reports `installClaim: "github_macos_cli_install_path_defined"`
+- `release:github-macos-cli:check` reports `installOnly: true`
 - `release:handoff:snapshot` writes local evidence under `output/release-handoff/`
 - `release:handoff:snapshot` reports `evidenceOnly: true`
 - new `release:handoff:snapshot` evidence records both short `git.commit` and full `git.commitFull`
@@ -107,6 +109,7 @@ Confirm:
 - `release:handoff:evidence:status` reports `readyForLocalHandoffEvidence: true` only when the latest evidence is fresh and the checked recent snapshot index passes, and it exposes full commit fields from the doctor report when available
 - `release:handoff:evidence:audit` summarizes the recent local evidence window, reports failed/invalid/invalid-JSON evidence and full commit coverage, and suggests the next local command without running it
 - `release:hygiene:check` reports `ok: true` and `productionReady: false`
+- `release:github-macos-cli:check` reports `ok: true`, `productionReady: false`, and `publishingPerformed: false`
 - secret pattern review results are warning-only and still require human review
 - public docs say local delivery demo ready, not production ready
 - `delivery:ready:check` reports `releaseClaim: "local_delivery_demo_ready"`

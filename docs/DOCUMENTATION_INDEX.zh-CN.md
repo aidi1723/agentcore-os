@@ -27,11 +27,13 @@
 19. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
 20. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
 21. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
-22. [快速开始](GETTING_STARTED.md)
-23. [用户指南（中文）](USER_GUIDE.zh-CN.md)
+22. [GitHub macOS 命令行安装](GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
+23. [快速开始](GETTING_STARTED.md)
+24. [用户指南（中文）](USER_GUIDE.zh-CN.md)
 
 ## 对外分发
 
+- [GitHub macOS 命令行安装](GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
 - [Early Access 对外分发说明](EARLY_ACCESS_RELEASE.zh-CN.md)
 - [命令行安装说明](COMMAND_LINE_INSTALL.zh-CN.md)
 - [冷启动安装验收](COLD_START_VALIDATION.zh-CN.md)

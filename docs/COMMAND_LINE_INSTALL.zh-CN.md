@@ -1,16 +1,10 @@
 # AgentCore OS 命令行安装说明
 
-如果你希望从源码或开发环境启动 AgentCore OS，这是当前推荐的公开安装方式。
+当前命令行安装说明已经收口到一个 canonical 路径：
 
-## 基本要求
+- [GitHub macOS 命令行安装](GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
 
-- Node.js 20+（建议使用 Node.js 22 LTS；当前工程允许 Node.js 20 到 24）
-- npm
-- macOS 或 Windows
-
-当前推荐版本：`v1.3.0`
-
-## 安装步骤
+当前对外只维护这一种安装格式：macOS 上从 GitHub 克隆源码，并通过命令行运行。
 
 ```bash
 git clone https://github.com/aidi1723/agentcore-os.git
@@ -19,52 +13,10 @@ npm install
 npm run dev
 ```
 
-启动后默认访问：
+启动后访问：
 
-- App UI: `http://localhost:3000/`
-- 可选本地 connector UI: `http://127.0.0.1:8787/`
-
-如果你要验证生产构建：
-
-```bash
-npm run build
-npm run start
+```text
+http://localhost:3000/
 ```
 
-## 常用命令
-
-```bash
-npm run dev
-npm run test:stability
-npm run build
-npm run start
-npm run lint
-```
-
-## 推荐验收顺序
-
-如果你希望确认当前仓库在你的机器上确实稳定可用，建议按这个顺序执行：
-
-```bash
-npm install
-npm run test:stability
-npm run dev
-```
-
-`npm run test:stability` 当前会覆盖：
-
-- 销售链路回归
-- 客服链路回归
-- Knowledge Vault 复用保护检查
-- 发布队列回归
-- lint
-- build
-
-如需更多环境准备与分轨说明，请结合阅读：
-
-- [README.md](../README.md)
-- 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
-- [冷启动安装验收](COLD_START_VALIDATION.zh-CN.md)
-- [GETTING_STARTED.md](GETTING_STARTED.md)
-- [CONFIGURATION.md](CONFIGURATION.md)
-- [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+本页只作为旧入口的转向说明。后续安装步骤、要求和验证命令以 `docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md` 为准。

@@ -27,6 +27,10 @@ describe("release handoff check script", () => {
         publishingPerformed: false,
         checks: expect.arrayContaining([
           expect.objectContaining({ name: "release_hygiene_check", ok: true }),
+          expect.objectContaining({
+            name: "github_macos_cli_install_check",
+            ok: true,
+          }),
           expect.objectContaining({ name: "delivery_ready_check", ok: true }),
           expect.objectContaining({ name: "controlled_runtime_tests", ok: true }),
           expect.objectContaining({ name: "core_workflow_tests", ok: true }),
@@ -52,6 +56,7 @@ describe("release handoff check script", () => {
 
     expect(seen).toEqual([
       "release_hygiene_check",
+      "github_macos_cli_install_check",
       "delivery_ready_check",
       "controlled_runtime_tests",
     ]);

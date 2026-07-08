@@ -23,6 +23,7 @@ Read first:
 
 - [Project Framework](PROJECT_FRAMEWORK.zh-CN.md)
 - [Controlled Agent Runtime Development Manual](CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
+- [GitHub macOS CLI Install](GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
 - [Production Release Completion Evidence Boundary](PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)
 - [Architecture](ARCHITECTURE.md)
 - [Roadmap](ROADMAP.md)
@@ -86,7 +87,7 @@ Completed in the current controlled runtime line:
 - Delivery Release Gate Hardening: `npm run delivery:ready:check` now aggregates the fast local delivery demo, governed fixture, fixture summary, and retention preview gates into one JSON readiness report while keeping `productionReady: false`.
 - Public Release Boundary Alignment: public release and open-source docs now describe the current Controlled Skill / Playbook Runtime boundary, local delivery demo readiness, and the `delivery:ready:check` gate without claiming production readiness.
 - Open Source Hygiene Gate: `npm run release:hygiene:check` now provides a local read-only repository hygiene gate for required public docs, GPLv3+ package metadata, tracked artifact paths, public release boundary wording, and warning-only secret pattern review.
-- Local Release Handoff Gate: `npm run release:handoff:check` now aggregates repository hygiene, delivery readiness, controlled-runtime regression, core workflow regression, lint, build, and `git diff --check` into one local handoff JSON report while keeping `productionReady: false` and `publishingPerformed: false`.
+- Local Release Handoff Gate: `npm run release:handoff:check` now aggregates repository hygiene, GitHub macOS CLI install contract, delivery readiness, controlled-runtime regression, core workflow regression, lint, build, and `git diff --check` into one local handoff JSON report while keeping `productionReady: false` and `publishingPerformed: false`.
 - Release Handoff Evidence Snapshot: `npm run release:handoff:snapshot` now writes a local-only JSON evidence snapshot under `output/release-handoff/` with the handoff report and git context while keeping `productionReady: false`, `publishingPerformed: false`, and `evidenceOnly: true`.
 - Release Handoff Snapshot Validation: `npm run release:handoff:snapshot:check -- <snapshot.json>` now validates local handoff evidence schema and release-boundary fields without mutating evidence or publishing anything.
 - Release Handoff Snapshot Index: `npm run release:handoff:snapshot:index -- --check --limit 5` now lists local handoff evidence snapshots newest first and can validate the listed files without creating, mutating, or publishing evidence.
@@ -135,6 +136,7 @@ Completed in the current controlled runtime line:
 - Production Verification Gate: `npm run release:production-verification:gate:check -- --gate <path>` validates green external-write gate evidence, production verification plan metadata, post-action checks, monitoring readiness, incident/rollback readiness, command evidence, credential boundary, and verification-only non-production boundaries.
 - Release Execution Approval Boundary: `npm run release:execution-approval:check -- --approval <path>` validates green production verification gate evidence, final operator approval requirements, execution readiness review, release action authorization, command evidence, credential boundary, and approval-boundary-only non-production boundaries.
 - Production Release Completion Evidence Boundary: `npm run release:completion:evidence:check -- --evidence <path>` validates green release execution approval boundary evidence plus post-execution action, credential, verification, monitoring, rollback, audit, and checker no-side-effect evidence. The tracked example is schema-only and keeps `productionReleaseCompleted: false`.
+- GitHub macOS CLI Install Path: `npm run release:github-macos-cli:check` validates the current install documentation contract for `docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md` and entry docs. It does not clone, install, start services, publish, package, upload, deploy, use credentials, or claim production readiness.
 - Sales Playbook Result Asset Alignment: `sales-pipeline-v1.resultAssets` now declares `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`, matching its actual durable writeback targets.
 
 Current verification baseline:

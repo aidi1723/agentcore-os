@@ -23,6 +23,7 @@ Read first:
 
 - [Project Framework](PROJECT_FRAMEWORK.zh-CN.md)
 - [Controlled Agent Runtime Development Manual](CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
+- [Production Release Completion Evidence Boundary](PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)
 - [Architecture](ARCHITECTURE.md)
 - [Roadmap](ROADMAP.md)
 
@@ -590,6 +591,7 @@ Delivered:
 - Added `scripts/release-execution/check-production-release-completion-evidence.mjs`.
 - Added `npm run release:completion:evidence:check`.
 - Added `docs/release-completion-evidence/example-production-release-completion-evidence.json`.
+- Added [Production Release Completion Evidence Boundary maintainer guide](PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md).
 - The command validates:
   - green release execution approval boundary evidence;
   - owner identity and `production_release_completion_evidence` scope;

@@ -571,6 +571,8 @@ npm run release:completion:evidence:check -- --evidence <path>
 
 该 checker 本身仍不发布、不打 tag、不打包、不上传、不部署、不调用 connector、不执行外部写入、不写 store、不运行生产验证、不使用凭证。它只验证人工/operator 在 checker 外部执行后的结构化 evidence packet。
 
+维护者专题页见 [Production Release Completion Evidence Boundary](PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)。该页用于区分仓库内 `example_schema_only` 示例与真实 `operator_recorded_actual_execution` evidence，并记录下一阶段 production closeout / operations evidence hardening 的入口。
+
 Runtime 默认 guardrails 现在由 `src/lib/executor/guardrails.ts` 导出，`step-executor.ts` 和 playbook control audit 共享同一个 `DEFAULT_GUARDRAILS`。后续修改默认步数上限、单步工具调用上限或高风险工具审批列表时，必须同时通过 `npm run playbook:control:audit` 和 `npm run test:controlled-runtime`。
 
 ### 5.4 Runtime State Machine

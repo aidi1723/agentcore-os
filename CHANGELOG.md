@@ -5,6 +5,7 @@
 ### Production Release Completion Evidence Boundary
 
 - Added `npm run release:completion:evidence:check -- --evidence <path>`, a local post-execution production release completion evidence checker after the release execution approval boundary.
+- Added `docs/PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md` as the maintainer guide for schema-only evidence, actual operator-recorded evidence, no-side-effect boundaries, and the next production closeout path.
 - Added a tracked schema-only example evidence packet at `docs/release-completion-evidence/example-production-release-completion-evidence.json`.
 - The checker validates green release execution approval boundary evidence, owner identity, release action evidence, credential use evidence, post-execution verification, monitoring, rollback, audit trail, and checker no-side-effect boundaries.
 - The checker supports `example_schema_only` evidence without claiming production completion, and `operator_recorded_actual_execution` evidence for real operator-recorded completion packets.

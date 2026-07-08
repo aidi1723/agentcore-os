@@ -210,6 +210,7 @@ User / Trigger
 - 当前执行 backlog：`docs/NEXT_STEPS.md`
 - Real Replay 边界：`docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md`
 - No-Side-Effect Replay Sandbox Prototype Design：`docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md`
+- Production Release Completion Evidence Boundary：`docs/PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md`
 - 设计规范：`DESIGN.md`
 - 变更记录：`CHANGELOG.md`
 - 具体实施计划：`docs/superpowers/plans/*`

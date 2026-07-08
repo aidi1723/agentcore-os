@@ -87,6 +87,7 @@ AgentCore OS 当前要做的是第三种：
 - [Real Replay Boundary Design](docs/REAL_REPLAY_BOUNDARY_DESIGN.zh-CN.md)
 - [No-Side-Effect Replay Sandbox Prototype Design](docs/NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
 - [Governed Trace Fixture CI Gates](docs/GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
+- [Production Release Completion Evidence Boundary](docs/PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)
 
 获取源码、版本信息与公开发布说明，请以仓库与 GitHub Releases 页面为准：
 
@@ -186,6 +187,7 @@ npm run test:stability
 - [Browser Evidence And Release Readiness Sweep](docs/BROWSER_EVIDENCE_AND_RELEASE_READINESS_SWEEP.zh-CN.md)
 - [Post-Delivery Fixture And Playbook Expansion Review](docs/POST_DELIVERY_FIXTURE_PLAYBOOK_EXPANSION_REVIEW.zh-CN.md)
 - [Governed Trace Operational Runbook](docs/GOVERNED_TRACE_OPERATIONAL_RUNBOOK.zh-CN.md)
+- [Production Release Completion Evidence Boundary](docs/PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)
 - [文档总入口](docs/DOCUMENTATION_INDEX.zh-CN.md)
 - [用户指南（中文）](docs/USER_GUIDE.zh-CN.md)
 - 当前版本发布说明：[English](docs/releases/v1.3.0.md) / [中文](docs/releases/v1.3.0.zh-CN.md)

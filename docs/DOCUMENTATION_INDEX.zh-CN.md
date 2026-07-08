@@ -23,11 +23,12 @@
 15. [No-Side-Effect Replay Sandbox Prototype Design](NO_SIDE_EFFECT_REPLAY_SANDBOX_PROTOTYPE_DESIGN.zh-CN.md)
 16. [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
 17. [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
-18. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
-19. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
-20. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
-21. [快速开始](GETTING_STARTED.md)
-22. [用户指南（中文）](USER_GUIDE.zh-CN.md)
+18. [Production Release Completion Evidence Boundary](PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)
+19. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
+20. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
+21. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
+22. [快速开始](GETTING_STARTED.md)
+23. [用户指南（中文）](USER_GUIDE.zh-CN.md)
 
 ## 对外分发
 
@@ -68,6 +69,7 @@
 - [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
 - [Governed Trace Fixture Catalog Coverage](GOVERNED_TRACE_FIXTURE_CATALOG_COVERAGE.zh-CN.md)
 - [Governed Trace Fixture Refresh Workflow](GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md)
+- [Production Release Completion Evidence Boundary](PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)
 - [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
 - [团队 Memo：如何看待 build-your-own-x](TEAM_MEMO_BUILD_YOUR_OWN_X.zh-CN.md)
 - [工程学习地图](ENGINEERING_LEARNING_MAP.zh-CN.md)

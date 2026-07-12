@@ -22,6 +22,7 @@ pnpm-debug.log*
 .tmp/
 tmp/
 memory/
+.worktrees/
 
 # OS/editor
 .DS_Store

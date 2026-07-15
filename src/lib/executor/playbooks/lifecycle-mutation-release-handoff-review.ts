@@ -1,7 +1,3 @@
-import {
-  validatePlaybookLifecycleMutationPostReplacementEvidence,
-} from "@/lib/executor/playbooks/lifecycle-mutation-post-replacement-evidence";
-
 export const PLAYBOOK_LIFECYCLE_MUTATION_RELEASE_HANDOFF_REVIEW_COMMAND =
   "playbook:lifecycle:mutation:release-handoff:review:check";
 
@@ -80,9 +76,13 @@ export type PlaybookLifecycleMutationReleaseHandoffReviewFinding = {
   path?: string;
 };
 
-type PostReplacementEvidenceReport = ReturnType<
-  typeof validatePlaybookLifecycleMutationPostReplacementEvidence
->;
+type PostReplacementEvidenceReport = {
+  ok: boolean;
+  productionReady: boolean;
+  publishingPerformed: boolean;
+  evidenceOnly: boolean;
+  readyForReleaseHandoffReview: boolean;
+};
 
 type ValidatePlaybookLifecycleMutationReleaseHandoffReviewOptions = {
   reviewPath?: string;

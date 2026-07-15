@@ -12,14 +12,17 @@ const evidencePath =
 const dryRunPath =
   "docs/playbook-lifecycle-mutation-dry-runs/example-version-update-dry-run.json";
 
-function cliResult(report, exitCode = report.ok ? 0 : 1) {
+function cliResult(
+  report: Record<string, unknown>,
+  exitCode = report.ok === true ? 0 : 1,
+) {
   return {
     exitCode,
     stdout: `${JSON.stringify(report)}\n`,
   };
 }
 
-function okGate(command, extra = {}) {
+function okGate(command: string, extra: Record<string, unknown> = {}) {
   return {
     ok: true,
     command,

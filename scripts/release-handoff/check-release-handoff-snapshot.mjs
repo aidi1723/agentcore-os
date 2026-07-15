@@ -194,10 +194,16 @@ export function validateReleaseHandoffSnapshot(snapshot, snapshotPath) {
   };
 }
 
+/**
+ * @param {{
+ *   snapshotPath: string,
+ *   readFile?: (filePath: string) => string,
+ * }} options
+ */
 export function checkReleaseHandoffSnapshotFile({
   snapshotPath,
   readFile = (filePath) => readFileSync(filePath, "utf8"),
-} = {}) {
+}) {
   if (!snapshotPath) {
     throw new Error("snapshot path is required");
   }

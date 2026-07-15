@@ -155,6 +155,15 @@ function buildBaseReport({ snapshotDir, checked }) {
   };
 }
 
+/**
+ * @param {{
+ *   snapshotDir?: string,
+ *   limit?: number,
+ *   check?: boolean,
+ *   listFiles?: (dir: string) => string[],
+ *   readFile?: (filePath: string) => string,
+ * }} [options]
+ */
 export function buildReleaseHandoffSnapshotIndex({
   snapshotDir = DEFAULT_RELEASE_HANDOFF_SNAPSHOT_INDEX_DIR,
   limit,

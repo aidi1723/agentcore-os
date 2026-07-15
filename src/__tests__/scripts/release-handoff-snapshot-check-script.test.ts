@@ -34,6 +34,13 @@ const successfulSnapshot = {
   },
 };
 
+function failuresOf(result: ReturnType<typeof validateReleaseHandoffSnapshot>) {
+  if (!("failures" in result.report)) {
+    throw new Error("Expected snapshot validation failures");
+  }
+  return result.report.failures;
+}
+
 describe("release handoff snapshot check script", () => {
   it("passes a valid successful handoff snapshot", () => {
     const result = validateReleaseHandoffSnapshot(
@@ -94,7 +101,7 @@ describe("release handoff snapshot check script", () => {
 
     expect(result.exitCode).toBe(1);
     expect(result.report.ok).toBe(false);
-    expect(result.report.failures).toContain("productionReady must be false");
+    expect(failuresOf(result)).toContain("productionReady must be false");
   });
 
   it("validates git.commitFull when present", () => {
@@ -105,7 +112,7 @@ describe("release handoff snapshot check script", () => {
     const result = validateReleaseHandoffSnapshot(invalid, "bad-full.json");
 
     expect(result.exitCode).toBe(1);
-    expect(result.report.failures).toContain(
+    expect(failuresOf(result)).toContain(
       "git.commitFull must be a non-empty string when present",
     );
   });
@@ -123,7 +130,7 @@ describe("release handoff snapshot check script", () => {
     const result = validateReleaseHandoffSnapshot(invalid, "bad-failed.json");
 
     expect(result.exitCode).toBe(1);
-    expect(result.report.failures).toContain(
+    expect(failuresOf(result)).toContain(
       "failed snapshots must not include releaseClaim",
     );
   });

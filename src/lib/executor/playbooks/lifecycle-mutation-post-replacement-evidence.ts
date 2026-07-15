@@ -1,7 +1,3 @@
-import {
-  validatePlaybookLifecycleMutationFixtureReplacementHandoff,
-} from "@/lib/executor/playbooks/lifecycle-mutation-fixture-replacement-handoff";
-
 export const PLAYBOOK_LIFECYCLE_MUTATION_POST_REPLACEMENT_EVIDENCE_COMMAND =
   "playbook:lifecycle:mutation:post-replacement:evidence:check";
 
@@ -81,9 +77,16 @@ export type PlaybookLifecycleMutationPostReplacementEvidenceFinding = {
   path?: string;
 };
 
-type FixtureReplacementHandoffReport = ReturnType<
-  typeof validatePlaybookLifecycleMutationFixtureReplacementHandoff
->;
+type FixtureReplacementHandoffReport = {
+  ok: boolean;
+  productionReady: boolean;
+  publishingPerformed: boolean;
+  handoffOnly: boolean;
+  readyForManualCommittedFixtureReplacement: boolean;
+  handoff: unknown;
+  candidateFixturePath: string;
+  committedFixturePath: string;
+};
 
 type ValidatePlaybookLifecycleMutationPostReplacementEvidenceOptions = {
   evidencePath?: string;

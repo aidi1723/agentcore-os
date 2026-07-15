@@ -19,7 +19,7 @@ const dryRunPath =
 const manifestPath =
   "docs/playbook-lifecycle-mutation-manifests/example-version-update-manifest.json";
 
-function sha256(content) {
+function sha256(content: string) {
   return createHash("sha256").update(content).digest("hex");
 }
 

@@ -1,7 +1,4 @@
 import {
-  validatePlaybookLifecycleMutationFixtureRefreshHandoff,
-} from "@/lib/executor/playbooks/lifecycle-mutation-fixture-refresh-handoff";
-import {
   replayControlledTraceFixture,
 } from "@/lib/executor/runtime/trace-replay";
 import {
@@ -70,9 +67,14 @@ export type PlaybookLifecycleMutationCandidateFixtureReviewFinding = {
   path?: string;
 };
 
-type FixtureRefreshHandoffReport = ReturnType<
-  typeof validatePlaybookLifecycleMutationFixtureRefreshHandoff
->;
+type FixtureRefreshHandoffReport = {
+  ok: boolean;
+  productionReady: boolean;
+  publishingPerformed: boolean;
+  handoffOnly: boolean;
+  readyForFixtureRefreshReview: boolean;
+  handoff: unknown;
+};
 type CandidateFixtureValidationReport = ReturnType<typeof validateControlledTraceFixture>;
 type CandidateFixtureReplayReport = ReturnType<typeof replayControlledTraceFixture>;
 

@@ -203,7 +203,6 @@ function buildValidEvidence(
 
 function buildEvidenceReport(evidence = buildValidEvidence()) {
   return validatePlaybookLifecycleSequenceEvidence(evidence, {
-    sequencePath,
     sequenceReport: buildSequenceReport(),
   });
 }

@@ -84,6 +84,15 @@ function buildIndexReviewCommand(limit) {
   return `npm run release:handoff:snapshot:index -- --check --limit ${limit}`;
 }
 
+/**
+ * @param {{
+ *   snapshotDir?: string,
+ *   limit?: number,
+ *   listFiles?: (dir: string) => string[],
+ *   readFile?: (filePath: string) => string,
+ *   gitRunner?: () => import("node:child_process").SpawnSyncReturns<string>,
+ * }} [options]
+ */
 export function buildReleaseHandoffEvidenceStatus({
   snapshotDir = DEFAULT_RELEASE_HANDOFF_EVIDENCE_DIR,
   limit = DEFAULT_STATUS_LIMIT,

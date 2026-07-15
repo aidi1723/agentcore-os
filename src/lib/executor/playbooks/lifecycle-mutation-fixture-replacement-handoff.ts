@@ -1,7 +1,3 @@
-import {
-  validatePlaybookLifecycleMutationCandidateFixtureReview,
-} from "@/lib/executor/playbooks/lifecycle-mutation-candidate-fixture-review";
-
 export const PLAYBOOK_LIFECYCLE_MUTATION_FIXTURE_REPLACEMENT_HANDOFF_COMMAND =
   "playbook:lifecycle:mutation:fixture-replacement:handoff:check";
 
@@ -64,9 +60,16 @@ export type PlaybookLifecycleMutationFixtureReplacementHandoffFinding = {
   path?: string;
 };
 
-type CandidateFixtureReviewReport = ReturnType<
-  typeof validatePlaybookLifecycleMutationCandidateFixtureReview
->;
+type CandidateFixtureReviewReport = {
+  ok: boolean;
+  productionReady: boolean;
+  publishingPerformed: boolean;
+  reviewOnly: boolean;
+  readyForManualFixtureReplacementReview: boolean;
+  review: unknown;
+  candidateFixturePath: string;
+  committedFixturePath: string;
+};
 
 type ValidatePlaybookLifecycleMutationFixtureReplacementHandoffOptions = {
   handoffPath?: string;

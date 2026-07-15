@@ -141,6 +141,22 @@ function actionForStatus(status) {
   return "Review lifecycle sequence evidence findings before changing playbooks or fixtures.";
 }
 
+/**
+ * @param {{
+ *   evidencePath: string,
+ *   cwd?: string,
+ *   now?: string,
+ *   currentCommit?: string,
+ *   fileExists?: (path: string) => boolean,
+ *   buildFreshnessResult?: (options: {
+ *     cwd?: string,
+ *     evidencePath: string,
+ *     now?: string,
+ *     currentCommit?: string,
+ *     pretty: boolean,
+ *   }) => { exitCode: number, stdout: string },
+ * }} options
+ */
 export function doctorPlaybookLifecycleSequenceEvidence({
   evidencePath,
   cwd = process.cwd(),
@@ -148,7 +164,7 @@ export function doctorPlaybookLifecycleSequenceEvidence({
   currentCommit,
   fileExists = (path) => existsSync(resolve(cwd, path)),
   buildFreshnessResult = buildPlaybookLifecycleSequenceEvidenceFreshnessCliResult,
-} = {}) {
+}) {
   const base = buildBaseReport(evidencePath);
   if (!fileExists(evidencePath)) {
     return {

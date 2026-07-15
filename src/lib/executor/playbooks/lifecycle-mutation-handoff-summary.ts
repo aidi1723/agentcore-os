@@ -1,7 +1,3 @@
-import {
-  validatePlaybookLifecycleMutationReleaseHandoffReview,
-} from "@/lib/executor/playbooks/lifecycle-mutation-release-handoff-review";
-
 export const PLAYBOOK_LIFECYCLE_MUTATION_HANDOFF_SUMMARY_COMMAND =
   "playbook:lifecycle:mutation:handoff:summary:check";
 
@@ -84,9 +80,13 @@ export type PlaybookLifecycleMutationHandoffSummaryFinding = {
   path?: string;
 };
 
-type ReleaseHandoffReviewReport = ReturnType<
-  typeof validatePlaybookLifecycleMutationReleaseHandoffReview
->;
+type ReleaseHandoffReviewReport = {
+  ok: boolean;
+  productionReady: boolean;
+  publishingPerformed: boolean;
+  reviewOnly: boolean;
+  readyForLocalReleaseHandoffReview: boolean;
+};
 
 type ValidatePlaybookLifecycleMutationHandoffSummaryOptions = {
   summaryPath?: string;

@@ -4,6 +4,7 @@ import {
   doctorReleaseHandoffEvidence,
   parseReleaseHandoffEvidenceDoctorArgs,
 } from "../../../scripts/release-handoff/doctor-release-handoff-evidence.mjs";
+import { spawnResult } from "../helpers/spawn-result";
 
 const successfulSnapshot = {
   schemaVersion: 1,
@@ -59,7 +60,7 @@ describe("release handoff evidence doctor script", () => {
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: `${fullCommit}\n`, stderr: "" }),
+      gitRunner: () => spawnResult({ stdout: `${fullCommit}\n` }),
     });
 
     expect(result).toMatchObject({
@@ -93,7 +94,7 @@ describe("release handoff evidence doctor script", () => {
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: `${fullCommit}\n`, stderr: "" }),
+      gitRunner: () => spawnResult({ stdout: `${fullCommit}\n` }),
     });
 
     expect(result).toMatchObject({
@@ -114,7 +115,7 @@ describe("release handoff evidence doctor script", () => {
       snapshotDir: "output/release-handoff",
       listFiles: () => [],
       readFile: () => "",
-      gitRunner: () => ({ status: 0, stdout: "abcdef0\n", stderr: "" }),
+      gitRunner: () => spawnResult({ stdout: "abcdef0\n" }),
     });
 
     expect(result).toMatchObject({
@@ -137,7 +138,7 @@ describe("release handoff evidence doctor script", () => {
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: "abcdef0\n", stderr: "" }),
+      gitRunner: () => spawnResult({ stdout: "abcdef0\n" }),
     });
 
     expect(result).toMatchObject({
@@ -170,7 +171,7 @@ describe("release handoff evidence doctor script", () => {
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: "abcdef0\n", stderr: "" }),
+      gitRunner: () => spawnResult({ stdout: "abcdef0\n" }),
     });
 
     expect(result).toMatchObject({
@@ -211,7 +212,7 @@ describe("release handoff evidence doctor script", () => {
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: "abcdef0\n", stderr: "" }),
+      gitRunner: () => spawnResult({ stdout: "abcdef0\n" }),
     });
 
     expect(result).toMatchObject({
@@ -245,10 +246,8 @@ describe("release handoff evidence doctor script", () => {
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({
-        status: 0,
+      gitRunner: () => spawnResult({
         stdout: "new22223456789abcdef0123456789abcdef01\n",
-        stderr: "",
       }),
     });
 
@@ -283,7 +282,7 @@ describe("release handoff evidence doctor script", () => {
       snapshotDir: "output/release-handoff",
       listFiles: fs.listFiles,
       readFile: fs.readFile,
-      gitRunner: () => ({ status: 0, stdout: `${fullCommit}\n`, stderr: "" }),
+      gitRunner: () => spawnResult({ stdout: `${fullCommit}\n` }),
     });
 
     expect(result).toMatchObject({

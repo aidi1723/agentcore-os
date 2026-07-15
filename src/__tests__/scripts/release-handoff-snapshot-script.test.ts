@@ -5,6 +5,7 @@ import {
   parseGitStatusSummary,
   writeReleaseHandoffSnapshot,
 } from "../../../scripts/release-handoff/write-release-handoff-snapshot.mjs";
+import { spawnResult } from "../helpers/spawn-result";
 
 const passingReport = {
   ok: true,
@@ -22,18 +23,18 @@ describe("release handoff snapshot script", () => {
     const result = writeReleaseHandoffSnapshot({
       now: () => new Date("2026-07-07T00:00:00.000Z"),
       outputDir: "output/release-handoff",
-      handoffRunner: () => ({
+      handoffRunner: () => spawnResult({
         status: 0,
         stdout: JSON.stringify(passingReport),
         stderr: "",
       }),
       gitRunner: (name: string) => {
-        if (name === "branch") return { status: 0, stdout: "main\n", stderr: "" };
-        if (name === "commit") return { status: 0, stdout: "abcdef0\n", stderr: "" };
+        if (name === "branch") return spawnResult({ stdout: "main\n" });
+        if (name === "commit") return spawnResult({ stdout: "abcdef0\n" });
         if (name === "commitFull") {
-          return { status: 0, stdout: `${fullCommit}\n`, stderr: "" };
+          return spawnResult({ stdout: `${fullCommit}\n` });
         }
-        return { status: 0, stdout: "?? output/\n", stderr: "" };
+        return spawnResult({ stdout: "?? output/\n" });
       },
       writeFile: (path: string, data: string) => writes.push({ path, data }),
       mkdir: () => undefined,
@@ -87,12 +88,12 @@ describe("release handoff snapshot script", () => {
     const result = writeReleaseHandoffSnapshot({
       now: () => new Date("2026-07-07T00:01:00.000Z"),
       outputDir: "output/release-handoff",
-      handoffRunner: () => ({
+      handoffRunner: () => spawnResult({
         status: 1,
         stdout: JSON.stringify(failedReport),
         stderr: "build failed",
       }),
-      gitRunner: () => ({ status: 0, stdout: "", stderr: "" }),
+      gitRunner: () => spawnResult(),
       writeFile: (path: string, data: string) => writes.push({ path, data }),
       mkdir: () => undefined,
     });
@@ -113,8 +114,8 @@ describe("release handoff snapshot script", () => {
 
     expect(() =>
       writeReleaseHandoffSnapshot({
-        handoffRunner: () => ({ status: 0, stdout: "not json", stderr: "" }),
-        gitRunner: () => ({ status: 0, stdout: "", stderr: "" }),
+        handoffRunner: () => spawnResult({ stdout: "not json" }),
+        gitRunner: () => spawnResult(),
         writeFile: (path: string, data: string) => writes.push({ path, data }),
         mkdir: () => undefined,
       }),

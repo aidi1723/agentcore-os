@@ -3,11 +3,12 @@ import {
   buildDeliveryReadyReport,
   DELIVERY_READY_RELEASE_CLAIM,
 } from "../../../scripts/delivery-ready/check-delivery-ready.mjs";
+import { spawnResult } from "../helpers/spawn-result";
 
 describe("delivery ready check script", () => {
   it("returns local delivery demo ready when all checks pass", () => {
     const result = buildDeliveryReadyReport({
-      runner: (check) => ({
+      runner: (check) => spawnResult({
         status: 0,
         stdout:
           check.name === "delivery_demo_check"
@@ -38,8 +39,8 @@ describe("delivery ready check script", () => {
     const result = buildDeliveryReadyReport({
       runner: (check) =>
         check.name === "trace_fixtures_report"
-          ? { status: 1, stdout: "fixture failure", stderr: "bad fixture" }
-          : { status: 0, stdout: "{\"ok\":true}", stderr: "" },
+          ? spawnResult({ status: 1, stdout: "fixture failure", stderr: "bad fixture" })
+          : spawnResult({ status: 0, stdout: "{\"ok\":true}", stderr: "" }),
     });
 
     expect(result.exitCode).toBe(1);
@@ -63,7 +64,7 @@ describe("delivery ready check script", () => {
 
   it("rejects delivery demo JSON with ok false even when the process exits zero", () => {
     const result = buildDeliveryReadyReport({
-      runner: (check) => ({
+      runner: (check) => spawnResult({
         status: 0,
         stdout:
           check.name === "delivery_demo_check"
@@ -74,6 +75,9 @@ describe("delivery ready check script", () => {
     });
 
     expect(result.exitCode).toBe(1);
+    if (!("failedCheck" in result.report)) {
+      throw new Error("Expected failed delivery report");
+    }
     expect(result.report.failedCheck).toBe("delivery_demo_check");
     expect(result.report.checks[0]).toMatchObject({
       ok: false,
@@ -85,10 +89,18 @@ describe("delivery ready check script", () => {
     const longText = "x".repeat(700);
     const result = buildDeliveryReadyReport({
       excerptLength: 80,
-      runner: () => ({ status: 1, stdout: longText, stderr: longText }),
+      runner: () => spawnResult({ status: 1, stdout: longText, stderr: longText }),
     });
 
     const failed = result.report.checks[0];
+    if (
+      !("stdoutExcerpt" in failed) ||
+      typeof failed.stdoutExcerpt !== "string" ||
+      !("stderrExcerpt" in failed) ||
+      typeof failed.stderrExcerpt !== "string"
+    ) {
+      throw new Error("Expected failed check excerpts");
+    }
     expect(failed.stdoutExcerpt.length).toBeLessThanOrEqual(80);
     expect(failed.stderrExcerpt.length).toBeLessThanOrEqual(80);
     expect(failed.stdoutExcerpt.endsWith("...")).toBe(true);

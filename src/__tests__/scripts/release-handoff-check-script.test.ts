@@ -5,6 +5,7 @@ import {
   RELEASE_HANDOFF_COMMAND,
   buildReleaseHandoffReport,
 } from "../../../scripts/release-handoff/check-release-handoff.mjs";
+import { spawnResult } from "../helpers/spawn-result";
 
 describe("release handoff check script", () => {
   it("returns local handoff ready when all checks pass", () => {
@@ -12,7 +13,7 @@ describe("release handoff check script", () => {
     const result = buildReleaseHandoffReport({
       runner: (check) => {
         seen.push(check.name);
-        return { status: 0, stdout: `${check.name} ok`, stderr: "" };
+        return spawnResult({ status: 0, stdout: `${check.name} ok`, stderr: "" });
       },
     });
 
@@ -48,9 +49,9 @@ describe("release handoff check script", () => {
       runner: (check) => {
         seen.push(check.name);
         if (check.name === "controlled_runtime_tests") {
-          return { status: 1, stdout: "test failure", stderr: "bad test" };
+          return spawnResult({ status: 1, stdout: "test failure", stderr: "bad test" });
         }
-        return { status: 0, stdout: "ok", stderr: "" };
+        return spawnResult({ status: 0, stdout: "ok", stderr: "" });
       },
     });
 
@@ -88,7 +89,7 @@ describe("release handoff check script", () => {
         now += 25;
         return now;
       },
-      runner: () => ({ status: 0, stdout: "", stderr: "" }),
+      runner: () => spawnResult(),
     });
 
     expect(result.report.checks[0]).toMatchObject({
@@ -104,10 +105,13 @@ describe("release handoff check script", () => {
 
   it("treats a missing numeric process status as failure", () => {
     const result = buildReleaseHandoffReport({
-      runner: () => ({ status: null, stdout: "no status", stderr: "" }),
+      runner: () => spawnResult({ status: null, stdout: "no status" }),
     });
 
     expect(result.exitCode).toBe(1);
+    if (!("failedCheck" in result.report)) {
+      throw new Error("Expected failed release handoff report");
+    }
     expect(result.report.failedCheck).toBe("release_hygiene_check");
     expect(result.report.checks[0]).toMatchObject({
       ok: false,
@@ -119,10 +123,18 @@ describe("release handoff check script", () => {
     const longText = "x".repeat(700);
     const result = buildReleaseHandoffReport({
       excerptLength: 80,
-      runner: () => ({ status: 1, stdout: longText, stderr: longText }),
+      runner: () => spawnResult({ status: 1, stdout: longText, stderr: longText }),
     });
 
     const failed = result.report.checks[0];
+    if (
+      !("stdoutExcerpt" in failed) ||
+      typeof failed.stdoutExcerpt !== "string" ||
+      !("stderrExcerpt" in failed) ||
+      typeof failed.stderrExcerpt !== "string"
+    ) {
+      throw new Error("Expected failed check excerpts");
+    }
     expect(failed.stdoutExcerpt.length).toBeLessThanOrEqual(80);
     expect(failed.stderrExcerpt.length).toBeLessThanOrEqual(80);
     expect(failed.stdoutExcerpt.endsWith("...")).toBe(true);

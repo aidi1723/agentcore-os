@@ -574,7 +574,7 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
   });
 
   it("copies governed trace artifacts from the selected controlled run", async () => {
-    const clipboardWrite = vi.fn(async () => undefined);
+    const clipboardWrite = vi.fn(async (_text: string) => undefined);
     vi.stubGlobal("navigator", {
       clipboard: {
         writeText: clipboardWrite,
@@ -658,7 +658,10 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
       expect(clipboardWrite).toHaveBeenCalled();
     });
 
-    const copiedText = clipboardWrite.mock.calls[0]?.[0] as string;
+    const copiedText: unknown = clipboardWrite.mock.calls[0]?.[0];
+    if (typeof copiedText !== "string") {
+      throw new Error("Expected copied trace text");
+    }
     expect(copiedText).toContain('"artifact"');
     expect(copiedText).toContain("run-assets-1");
     expect(copiedText).not.toContain("Nora");

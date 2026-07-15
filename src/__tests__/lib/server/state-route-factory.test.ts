@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import { createStateRouteHandlers, createDeleteHandler } from "@/lib/server/state-route-factory";
 
 function makeRequest(options: {

@@ -43,6 +43,7 @@ function makeRun(): ControlledExecutionRunRecord {
     state: "running",
     createdAt: 1,
     updatedAt: 1,
+    auditEvents: [],
     plan: {
       id: "plan-1",
       goal: "sales pipeline",

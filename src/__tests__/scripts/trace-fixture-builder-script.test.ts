@@ -3,12 +3,15 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import type { ControlledTraceArtifact } from "@/lib/executor/runtime/trace-governance";
+import type {
+  ControlledTraceArtifact,
+  ControlledTraceRedaction,
+} from "@/lib/executor/runtime/trace-governance";
 import type { ControlledTraceFixture } from "@/lib/executor/runtime/trace-fixtures";
 
-const redacted = {
+const redacted: ControlledTraceRedaction = {
   redacted: true,
-  reason: "trace_governance" as const,
+  reason: "trace_governance",
   summary: "object(keys=raw)",
 };
 
@@ -68,7 +71,7 @@ function makeArtifact(): ControlledTraceArtifact {
     auditEvents: [
       {
         id: "audit-builder-1",
-        type: "approval_resolved",
+        type: "console_retry_requested",
         stepId: "human_review",
         createdAt: 160,
         actor: "local_user",

@@ -133,6 +133,7 @@ describe("resumeControlledExecutionRun", () => {
 
     expect(result.ok).toBe(false);
     expect(result.status).toBe(404);
+    if (result.ok) throw new Error("Expected missing-run failure");
     expect(result.error).toBe("Controlled run not found");
   });
 
@@ -144,6 +145,7 @@ describe("resumeControlledExecutionRun", () => {
 
     expect(result.ok).toBe(false);
     expect(result.status).toBe(409);
+    if (result.ok) throw new Error("Expected terminal-run failure");
     expect(result.error).toContain("Cannot resume completed controlled run");
   });
 
@@ -156,6 +158,7 @@ describe("resumeControlledExecutionRun", () => {
 
     expect(result.ok).toBe(false);
     expect(result.status).toBe(409);
+    if (result.ok) throw new Error("Expected pending-approval failure");
     expect(result.error).toBe("Controlled run is awaiting approval");
     expect(calls).toEqual([]);
   });
@@ -170,6 +173,7 @@ describe("resumeControlledExecutionRun", () => {
     const run = await getControlledExecutionRun("resume-run-1");
 
     expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.error);
     expect(result.resumedStepIds).toEqual(["human_review"]);
     expect(run?.state).toBe("awaiting_approval");
     expect(run?.currentStepId).toBe("writeback");
@@ -192,6 +196,7 @@ describe("resumeControlledExecutionRun", () => {
     const writebackStep = run?.steps.find((step) => step.stepId === "writeback");
 
     expect(finalResume.ok).toBe(true);
+    if (!finalResume.ok) throw new Error(finalResume.error);
     expect(finalResume.resumedStepIds).toEqual(["writeback"]);
     expect(run?.state).toBe("completed");
     expect(writebackStep?.writebackReceipts.map((receipt) => receipt.target)).toEqual([
@@ -272,6 +277,7 @@ describe("resumeControlledExecutionRun", () => {
 
     expect(result.ok).toBe(false);
     expect(result.status).toBe(409);
+    if (result.ok) throw new Error("Expected resumed-step failure");
     expect(result.error).toBe("resume failed");
     expect(result.state).toBe("failed");
     expect(run?.state).toBe("failed");
@@ -331,6 +337,7 @@ describe("resumeControlledExecutionRun", () => {
 
     expect(result.ok).toBe(false);
     expect(result.status).toBe(409);
+    if (result.ok) throw new Error("Expected durable failed-step conflict");
     expect(result.error).toBe("Cannot resume failed step failed_step");
     expect(calls).toEqual([]);
   });
@@ -420,6 +427,7 @@ describe("resumeControlledExecutionRun", () => {
     const run = await getControlledExecutionRun("retry-run-1");
 
     expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.error);
     expect(result.retriedStepIds).toEqual(["retry_step"]);
     expect(calls).toEqual(["retry"]);
     expect(run?.state).toBe("completed");
@@ -476,6 +484,7 @@ describe("resumeControlledExecutionRun", () => {
 
     expect(result.ok).toBe(false);
     expect(result.status).toBe(409);
+    if (result.ok) throw new Error("Expected non-retryable failure");
     expect(result.error).toBe("Failed step non_retryable_step is not retryable");
   });
 
@@ -502,6 +511,7 @@ describe("resumeControlledExecutionRun", () => {
 
     expect(result.ok).toBe(false);
     expect(result.status).toBe(409);
+    if (result.ok) throw new Error("Expected rejected-approval failure");
     expect(result.state).toBe("failed");
     expect(run?.state).toBe("failed");
   });

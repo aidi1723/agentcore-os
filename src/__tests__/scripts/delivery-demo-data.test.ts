@@ -20,16 +20,28 @@ describe("delivery demo data", () => {
       "awaiting_approval",
       "failed",
     ]);
-    expect(data.controlledRuns[0].steps.at(-1)?.writebackReceipts.map((receipt) => receipt.target)).toEqual([
-      "sales_asset",
-      "knowledge_asset",
-      "workflow_run",
-      "draft",
-      "support_asset",
-    ]);
-    expect(data.controlledRuns[1].steps.some((step) => step.approval?.state === "pending")).toBe(
-      true,
-    );
+    const receipts: unknown[] | undefined =
+      data.controlledRuns[0].steps.at(-1)?.writebackReceipts;
+    expect(receipts).toBeDefined();
+    if (!receipts) throw new Error("Expected completed writeback receipts");
+    expect(
+      receipts.map((receipt) => {
+        if (
+          !receipt ||
+          typeof receipt !== "object" ||
+          !("target" in receipt) ||
+          typeof receipt.target !== "string"
+        ) {
+          throw new Error("Expected writeback target");
+        }
+        return receipt.target;
+      }),
+    ).toEqual(["sales_asset", "knowledge_asset", "workflow_run", "draft", "support_asset"]);
+    expect(
+      data.controlledRuns[1].steps.some(
+        (step) => "approval" in step && step.approval?.state === "pending",
+      ),
+    ).toBe(true);
     expect(data.controlledRuns[2].plan.steps.some((step) => step.onFailure?.action === "retry")).toBe(
       true,
     );

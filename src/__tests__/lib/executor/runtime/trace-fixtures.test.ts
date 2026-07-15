@@ -1,12 +1,21 @@
 import { describe, expect, it } from "vitest";
-import type { ControlledTraceArtifact } from "@/lib/executor/runtime/trace-governance";
+import type {
+  ControlledTraceArtifact,
+  ControlledTraceRedaction,
+} from "@/lib/executor/runtime/trace-governance";
 import {
   buildControlledTraceFixture,
   validateControlledTraceFixture,
 } from "@/lib/executor/runtime/trace-fixtures";
+import type { ControlledTraceFixture } from "@/lib/executor/runtime/trace-fixtures";
 import sampleFixture from "@/__tests__/fixtures/controlled-traces/sales-pipeline-governed.fixture.json";
 
-const redacted = { redacted: true, reason: "trace_governance" as const, summary: "object(keys=raw)" };
+const redacted: ControlledTraceRedaction = {
+  redacted: true,
+  reason: "trace_governance",
+  summary: "object(keys=raw)",
+};
+const governedSampleFixture = sampleFixture as ControlledTraceFixture;
 
 function makeStep(
   stepId: string,
@@ -219,9 +228,9 @@ describe("trace fixtures", () => {
   });
 
   it("validates the committed governed sales trace fixture", () => {
-    const serialized = JSON.stringify(sampleFixture);
+    const serialized = JSON.stringify(governedSampleFixture);
 
-    expect(validateControlledTraceFixture(sampleFixture)).toEqual({ ok: true, errors: [] });
+    expect(validateControlledTraceFixture(governedSampleFixture)).toEqual({ ok: true, errors: [] });
     expect(serialized).not.toContain("Nora");
     expect(serialized).not.toContain("sk-fixture-secret");
   });

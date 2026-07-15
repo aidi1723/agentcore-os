@@ -31,7 +31,8 @@ describe("/api/agent/stream", () => {
   });
 
   it("forces review-step approval mode for controlled playbook executions", async () => {
-    let capturedRequest: AgentCoreTaskRequest | null = null;
+    let capturedRequest: AgentCoreTaskRequest | undefined;
+    const getCapturedRequest = () => capturedRequest;
     runMultiStepTaskMock.mockImplementation(
       async (request: AgentCoreTaskRequest, _callbacks: ExecutionCallbacks) => {
         capturedRequest = request;
@@ -66,9 +67,12 @@ describe("/api/agent/stream", () => {
     );
     await response.text();
 
+    const request = getCapturedRequest();
     expect(response.status).toBe(200);
-    expect(capturedRequest?.controlledPlaybookId).toBe("sales-pipeline-v1");
-    expect(capturedRequest?.multiStep?.approvalMode).toBe("each-review-step");
+    expect(request).toBeDefined();
+    if (!request) throw new Error("Expected captured agent request");
+    expect(request.controlledPlaybookId).toBe("sales-pipeline-v1");
+    expect(request.multiStep?.approvalMode).toBe("each-review-step");
   });
 
   it("includes controlled run metadata in execution_done", async () => {

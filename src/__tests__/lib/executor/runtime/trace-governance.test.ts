@@ -1,8 +1,21 @@
 import { describe, expect, it } from "vitest";
+import type { ExecutionStep } from "@/lib/executor/contracts";
+import type { ControlledPlaybookStep } from "@/lib/executor/playbooks/types";
 import { buildControlledTraceArtifact } from "@/lib/executor/runtime/trace-governance";
 import type { ControlledExecutionRunRecord } from "@/lib/executor/runtime/types";
 
 function makeSensitiveRun(): ControlledExecutionRunRecord {
+  const intakeStep: ExecutionStep & Pick<ControlledPlaybookStep, "writesTo"> = {
+    id: "intake",
+    title: "Intake",
+    description: "Collect customer details",
+    toolCalls: [{ toolName: "llm_generate" }],
+    dependsOn: [],
+    mode: "auto",
+    writesTo: [{ target: "sales_asset", when: "on_success" }],
+    onFailure: { action: "retry", maxRetries: 1 },
+  };
+
   return {
     id: "run-governed-1",
     requestId: "req-governed-1",
@@ -33,18 +46,7 @@ function makeSensitiveRun(): ControlledExecutionRunRecord {
       goal: "Follow up with Nora",
       totalSteps: 1,
       requiresApproval: true,
-      steps: [
-        {
-          id: "intake",
-          title: "Intake",
-          description: "Collect customer details",
-          toolCalls: [{ toolName: "llm_generate" }],
-          dependsOn: [],
-          mode: "auto",
-          writesTo: [{ target: "sales_asset", when: "on_success" }],
-          onFailure: { action: "retry", maxRetries: 1 },
-        },
-      ],
+      steps: [intakeStep],
     },
     steps: [
       {

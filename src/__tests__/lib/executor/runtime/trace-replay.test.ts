@@ -3,13 +3,15 @@ import sampleFixture from "@/__tests__/fixtures/controlled-traces/sales-pipeline
 import type { ControlledTraceFixture } from "@/lib/executor/runtime/trace-fixtures";
 import { replayControlledTraceFixture } from "@/lib/executor/runtime/trace-replay";
 
+const governedSampleFixture = sampleFixture as ControlledTraceFixture;
+
 function cloneFixture(): ControlledTraceFixture {
-  return structuredClone(sampleFixture) as ControlledTraceFixture;
+  return structuredClone(governedSampleFixture);
 }
 
 describe("trace replay", () => {
   it("validates a committed governed sales fixture without executing side effects", () => {
-    const report = replayControlledTraceFixture(sampleFixture);
+    const report = replayControlledTraceFixture(governedSampleFixture);
 
     expect(report).toEqual({
       ok: true,

@@ -85,6 +85,15 @@ describe("resolveAllowedOutboundUrl", () => {
     });
   });
 
+  it("does not let loopback permission authorize an arbitrary hostname", async () => {
+    await expect(
+      resolveAllowedOutboundUrl("https://hooks.example.test/publish", {
+        lookup: async () => [{ address: "127.0.0.1", family: 4 }],
+        allowLoopback: true,
+      }),
+    ).rejects.toMatchObject({ code: "blocked_url" });
+  });
+
   it("rejects empty DNS answers with a typed code", async () => {
     await expect(
       resolveAllowedOutboundUrl("https://hooks.example.test/publish", {

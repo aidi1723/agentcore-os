@@ -193,12 +193,15 @@ export async function resolveAllowedOutboundUrl(
     throw new OutboundUrlPolicyError("dns_empty", "Webhook hostname returned no addresses.");
   }
 
+  const allowResolvedLoopback = Boolean(
+    options.allowLoopback && LOCAL_NAMES.has(hostname),
+  );
   const validated = answers.map((answer) => {
     const family = normalizedFamily(answer.address, answer.family);
     if (!family) {
       throw new OutboundUrlPolicyError("dns_failed", "Webhook hostname returned an invalid address.");
     }
-    if (!isAllowedResolvedAddress(answer.address, family, Boolean(options.allowLoopback))) {
+    if (!isAllowedResolvedAddress(answer.address, family, allowResolvedLoopback)) {
       throw new OutboundUrlPolicyError("blocked_url", "Webhook hostname resolved to a blocked address.");
     }
     return { address: normalizedHost(answer.address), family };

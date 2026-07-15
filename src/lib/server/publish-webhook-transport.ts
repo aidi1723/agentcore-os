@@ -24,14 +24,19 @@ export type PublishWebhookTransportErrorCode =
   | "connection_failed";
 
 export class PublishWebhookTransportError extends Error {
+  readonly code: PublishWebhookTransportErrorCode;
+  readonly retryable: boolean;
+
   constructor(
-    public readonly code: PublishWebhookTransportErrorCode,
-    public readonly retryable: boolean,
+    code: PublishWebhookTransportErrorCode,
+    retryable: boolean,
     message: string = code,
     options?: { cause?: unknown },
   ) {
     super(message, options?.cause === undefined ? undefined : { cause: options.cause });
     this.name = "PublishWebhookTransportError";
+    this.code = code;
+    this.retryable = retryable;
   }
 }
 

@@ -88,17 +88,16 @@ async function runPublishConfigRegression() {
 
 async function runPublishDispatchReceiptRegression() {
   logSection("publish dispatch receipt semantics");
-  const originalFetch = globalThis.fetch;
   const tempRoot = await mkdtemp(path.join(os.tmpdir(), "agentcore-publish-dispatch-"));
   const previousCwd = process.cwd();
   process.chdir(tempRoot);
 
-  globalThis.fetch = async (input) => {
-    const url = typeof input === "string" ? input : String(input?.url ?? "");
-
+  const postWebhook = async ({ url }) => {
     if (url === "http://127.0.0.1:8787/dispatch-ok") {
-      return new Response(
-        JSON.stringify({
+      return {
+        ok: true,
+        status: 202,
+        responseText: JSON.stringify({
           ok: true,
           id: "receipt-123",
           externalId: "provider-job-1",
@@ -107,13 +106,14 @@ async function runPublishDispatchReceiptRegression() {
           receivedAt: "2026-03-28T00:00:00.000Z",
           message: "Queued by connector",
         }),
-        { status: 202, headers: { "Content-Type": "application/json" } },
-      );
+      };
     }
 
     if (url === "http://127.0.0.1:8787/dispatch-auth-error") {
-      return new Response(
-        JSON.stringify({
+      return {
+        ok: false,
+        status: 401,
+        responseText: JSON.stringify({
           ok: false,
           error: "Connector token rejected",
           errorType: "auth",
@@ -121,11 +121,10 @@ async function runPublishDispatchReceiptRegression() {
           receivedAt: "2026-03-28T00:01:00.000Z",
           message: "Refresh credentials",
         }),
-        { status: 401, headers: { "Content-Type": "application/json" } },
-      );
+      };
     }
 
-    throw new Error(`unexpected fetch url: ${url}`);
+    throw new Error(`unexpected webhook url: ${url}`);
   };
 
   try {
@@ -138,6 +137,7 @@ async function runPublishDispatchReceiptRegression() {
       platforms: ["xiaohongshu", "douyin", "wechat"],
       dryRun: false,
       timeoutSeconds: 0,
+      postWebhook,
       connections: {
         xiaohongshu: {
           token: "connector-token",
@@ -219,7 +219,6 @@ async function runPublishDispatchReceiptRegression() {
 
     console.log("publish dispatch receipt regression passed");
   } finally {
-    globalThis.fetch = originalFetch;
     process.chdir(previousCwd);
     await rm(tempRoot, { recursive: true, force: true });
   }

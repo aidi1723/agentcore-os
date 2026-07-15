@@ -109,13 +109,16 @@ export type OutboundUrlPolicyErrorCode =
   | "dns_failed";
 
 export class OutboundUrlPolicyError extends Error {
+  readonly code: OutboundUrlPolicyErrorCode;
+
   constructor(
-    public readonly code: OutboundUrlPolicyErrorCode,
+    code: OutboundUrlPolicyErrorCode,
     message: string = code,
     options?: { cause?: unknown },
   ) {
     super(message, options?.cause === undefined ? undefined : { cause: options.cause });
     this.name = "OutboundUrlPolicyError";
+    this.code = code;
   }
 }
 

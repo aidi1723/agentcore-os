@@ -1,6 +1,10 @@
 import type { MatrixAccountsSettings } from "@/lib/settings";
 import { requestServerLlmText, type ServerLlmConfigInput } from "@/lib/server/direct-llm";
 import { isAllowedOutboundUrl } from "@/lib/server/network-policy";
+import {
+  PublishWebhookTransportError,
+  postPublishWebhook,
+} from "@/lib/server/publish-webhook-transport";
 
 export type DispatchPlatform =
   | "xiaohongshu"
@@ -148,6 +152,7 @@ export async function runPublishDispatch(params: {
   connections: Partial<MatrixAccountsSettings> | Record<string, { token?: string; webhookUrl?: string }>;
   timeoutSeconds?: number;
   llm?: ServerLlmConfigInput | null;
+  postWebhook?: typeof postPublishWebhook;
 }) {
   const title = params.title.trim();
   const content = params.body.trim();
@@ -165,6 +170,7 @@ export async function runPublishDispatch(params: {
     typeof params.timeoutSeconds === "number" && Number.isFinite(params.timeoutSeconds)
       ? Math.max(10, Math.min(180, Math.floor(params.timeoutSeconds)))
       : 50;
+  const postWebhook = params.postWebhook ?? postPublishWebhook;
 
   const checklist = platforms.map((platform, idx) => `${idx + 1}. ${platformHint(platform)}`).join("\n");
   const plannerPrompt =
@@ -301,40 +307,54 @@ export async function runPublishDispatch(params: {
     }
 
     try {
-      const res = await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await postWebhook({
+        url: webhookUrl,
         body: JSON.stringify(payload),
+        timeoutMs: timeoutSeconds * 1_000,
+        allowLoopback: true,
       });
-      const rawResponseText = await res.text().catch(() => "");
+      const rawResponseText = response.responseText;
       const parsed = parseConnectorPayload(rawResponseText);
-      const responseText = rawResponseText.slice(0, 20_000);
-      const ok = typeof parsed?.ok === "boolean" ? parsed.ok : res.ok;
+      const isRedirect = response.status >= 300 && response.status < 400;
+      const ok = typeof parsed?.ok === "boolean" ? parsed.ok : response.ok;
       results.push({
         platform,
         ok,
         mode: "webhook",
-        status: res.status,
+        status: response.status,
         queued: parsed?.queued,
-        retryable: parsed?.retryable,
-        errorType: parsed?.errorType,
+        retryable: parsed?.retryable ?? (isRedirect ? false : undefined),
+        errorType: parsed?.errorType ?? (isRedirect ? "redirect" : undefined),
         receiptId: parsed?.receiptId,
         externalId: parsed?.externalId,
         receivedAt: parsed?.receivedAt,
         message: parsed?.message,
-        responseText: responseText || undefined,
+        responseText: rawResponseText || undefined,
         error:
           parsed?.error ??
-          (!ok ? parsed?.message ?? `Webhook 返回失败状态：${res.status}` : undefined),
+          (!ok
+            ? parsed?.message ??
+              (isRedirect
+                ? "Webhook redirect responses are not followed."
+                : `Webhook 返回失败状态：${response.status}`)
+            : undefined),
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : "请求异常";
+      const transportError =
+        err instanceof PublishWebhookTransportError ? err : undefined;
+      const errorType =
+        transportError?.code === "blocked_url"
+          ? "blocked_url"
+          : transportError?.code === "response_too_large"
+            ? "response_too_large"
+            : "temporary";
       results.push({
         platform,
         ok: false,
         mode: "webhook",
-        errorType: "temporary",
-        retryable: true,
+        errorType,
+        retryable: transportError?.retryable ?? true,
         error: message,
       });
     }

@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 
@@ -14,7 +14,9 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/__tests__/setup.ts"],
     exclude: [
-      "node_modules/**",
+      ...configDefaults.exclude,
+      ".worktrees/**",
+      ".superpowers/**",
       "lobster-src/**",
       "src/lib/executor/claw-code.test.mjs",
       "src/lib/home-command-center.test.mjs",

@@ -27,6 +27,11 @@ function isPrivateIpv4(host: string) {
   );
 }
 
+function isLoopbackIpv4(host: string) {
+  const parts = host.split(".").map((part) => Number(part));
+  return parts.length === 4 && parts.every(Number.isInteger) && parts[0] === 127;
+}
+
 function isPrivateIpv6(host: string) {
   const normalized = normalizedHost(host);
   return (
@@ -35,6 +40,10 @@ function isPrivateIpv6(host: string) {
     normalized.startsWith("fc") ||
     normalized.startsWith("fd")
   );
+}
+
+function isLoopbackIpv6(host: string) {
+  return normalizedHost(host) === "::1";
 }
 
 export function parseHttpUrl(input: string) {
@@ -47,16 +56,25 @@ export function parseHttpUrl(input: string) {
   }
 }
 
-export function isAllowedOutboundUrl(input: string, options: { allowLocal?: boolean } = {}) {
+export function isAllowedOutboundUrl(
+  input: string,
+  options: { allowLocal?: boolean; allowLoopback?: boolean } = {},
+) {
   const url = parseHttpUrl(input);
   if (!url) return false;
 
   const host = normalizedHost(url.hostname);
-  if (LOCAL_NAMES.has(host)) return Boolean(options.allowLocal);
+  if (LOCAL_NAMES.has(host)) return Boolean(options.allowLocal || options.allowLoopback);
 
   const ipKind = net.isIP(host);
-  if (ipKind === 4) return options.allowLocal ? true : !isPrivateIpv4(host);
-  if (ipKind === 6) return options.allowLocal ? true : !isPrivateIpv6(host);
+  if (ipKind === 4) {
+    if (isLoopbackIpv4(host)) return Boolean(options.allowLocal || options.allowLoopback);
+    return options.allowLocal ? true : !isPrivateIpv4(host);
+  }
+  if (ipKind === 6) {
+    if (isLoopbackIpv6(host)) return Boolean(options.allowLocal || options.allowLoopback);
+    return options.allowLocal ? true : !isPrivateIpv6(host);
+  }
 
   return true;
 }

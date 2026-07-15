@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { ModeSwitcher, AgentCoreBrand } from "@/components/ShellUI";
 
 vi.mock("next/image", () => ({
+  // The test double intentionally reduces next/image to a native element.
+  // eslint-disable-next-line @next/next/no-img-element
   default: ({ alt, ...props }: any) => <img alt={alt} {...props} />,
 }));
 

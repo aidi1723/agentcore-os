@@ -23,7 +23,7 @@ describe("publish dispatch", () => {
       connections: {
         twitter: {
           token: "token",
-          webhookUrl: "http://127.0.0.1:8080/internal",
+          webhookUrl: "http://192.168.1.20:8080/internal",
         },
       },
     });

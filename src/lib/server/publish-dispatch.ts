@@ -287,7 +287,7 @@ export async function runPublishDispatch(params: {
       continue;
     }
 
-    if (!isAllowedOutboundUrl(webhookUrl)) {
+    if (!isAllowedOutboundUrl(webhookUrl, { allowLoopback: true })) {
       results.push({
         platform,
         ok: false,

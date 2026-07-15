@@ -129,12 +129,14 @@ describe("playbook lifecycle mutation preflight script", () => {
     ).toThrow("--dry-run <path> is required");
   });
 
-  it("builds a successful preflight result for the tracked example", () => {
+  it("builds a successful preflight result for the tracked dry-run with green upstream gates", () => {
     const result = buildPlaybookLifecycleMutationPreflightCliResult({
       evidencePath,
       dryRunPath,
       now: "2026-07-07T03:00:00Z",
       currentCommit: fullCommit,
+      buildCloseoutResult: () => closeoutResult(),
+      buildDryRunResult: () => dryRunResult(),
       pretty: false,
     });
     const report = JSON.parse(result.stdout);

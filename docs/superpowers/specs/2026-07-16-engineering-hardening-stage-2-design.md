@@ -4,8 +4,9 @@
 
 Close two documented engineering risks without weakening existing safety or test boundaries:
 
-1. Make `npx tsc --noEmit` pass with the full strict project scope, including tests.
-2. Prevent publish webhooks from connecting to private addresses through DNS resolution, redirects, or an address change between validation and connection.
+1. Make the test baseline deterministic in a clean clone or isolated Git worktree.
+2. Make `npx tsc --noEmit` pass with the full strict project scope, including tests.
+3. Prevent publish webhooks from connecting to private addresses through DNS resolution, redirects, or an address change between validation and connection.
 
 This stage does not perform desktop release packaging, redesign onboarding UI, prune dependencies, contact external services, or claim production readiness.
 
@@ -14,6 +15,7 @@ This stage does not perform desktop release packaging, redesign onboarding UI, p
 Use strict, staged remediation.
 
 - Fix type errors at their real ownership boundary. Keep tests inside the root TypeScript project and keep `strict: true`; do not hide errors with exclusions, broad casts, `skipLibCheck` changes, or relaxed compiler flags.
+- Remove the mutation-preflight test's dependency on untracked local closeout evidence by injecting deterministic green upstream gate results while continuing to read the committed dry-run fixture.
 - Replace the publish webhook's direct `fetch` path with a focused server helper that resolves and validates the destination, pins the selected address into the actual HTTP(S) connection, rejects redirects, enforces timeout and response-size limits, and preserves the original hostname for HTTP `Host` and TLS SNI.
 - Complete the type-check stage before changing network transport so each failure set remains attributable.
 
@@ -43,6 +45,12 @@ The root `tsconfig.json` remains the canonical strict check. Remediation follows
 6. **JavaScript script boundaries.** Add concise JSDoc contracts to `.mjs` exports when TypeScript consumers need a stable injectable options or report shape. Keep runtime behavior unchanged.
 
 The acceptance command is the unchanged `npx tsc --noEmit`.
+
+## Deterministic Baseline
+
+The tracked-example mutation-preflight test must not depend on `output/`, generated release evidence, or other ignored local state. It will continue to load the committed dry-run JSON while injecting deterministic successful closeout and dry-run checker results. The assertion remains an integration test for preflight validation and serialization, but becomes reproducible in CI, a clean clone, and an isolated worktree.
+
+The Next.js 15.1.6 security upgrade warning discovered during isolated dependency installation is recorded for the next dependency-maintenance stage. Upgrading the framework is intentionally excluded here because it requires its own compatibility and browser regression cycle.
 
 ## Outbound Network Architecture
 
@@ -96,6 +104,7 @@ Blocked destinations continue to return `errorType: "blocked_url"`. DNS failures
 
 ### Type Stage
 
+- Run the isolated baseline suite first and require all 695 tests to pass without copying ignored evidence into the worktree.
 - Run the relevant Vitest file after each fixture or API typing change.
 - Run `npx tsc --noEmit` after each error cluster.
 - Preserve all existing runtime assertions; type fixes must not delete or weaken tests.

@@ -84,7 +84,7 @@
 
 ## 残余风险
 
-1. **Next.js 安全维护（Stage 2 之后独立完成）**：本 Stage 2 closeout 时仍为 15.1.6。后续在隔离分支将 `next` / `eslint-config-next` 升至官方 15.x backport `15.5.20`，并通过 `tsc`、全量 Vitest（722）、`lint`、`build`。交互式浏览器回归与 Next.js 16 大版本评估仍是后续独立项，不构成生产就绪声明。
+1. **Next.js 安全维护（Stage 2 之后独立完成）**：本 Stage 2 closeout 时仍为 15.1.6。该依赖维护已在 2026-07-16 独立完成：`next` / `eslint-config-next` → 官方 15.x backport `15.5.20`，并完成 `tsc`、全量 Vitest（722）、`lint`、`build` 与生产短烟雾。收尾见 `docs/NEXTJS_SECURITY_UPGRADE_CLOSEOUT_2026-07-16.zh-CN.md`。完整交互式浏览器回归与 Next.js 16 大版本评估仍是后续独立项，不构成生产就绪声明。
 2. **桌面发布边界**：本轮只验证 runtime 生成、暂存、Rust 编译和 sidecar 烟测，没有执行签名、公证、跨平台安装包或生产发布。
 3. **视觉一致性债务**：语言/运行时引导仍使用较重 blur、渐变和 24-32px 圆角，与 `DESIGN.md` 的克制 operational cockpit 规范有偏差。整体收敛会影响共享壳层，建议作为单独视觉规格处理。
 4. **依赖目录卫生**：`npm ls --depth=0` 显示一个 extraneous 的 `@emnapi/runtime`，不影响当前构建，但应在下一次锁文件/依赖维护中用干净安装确认来源。

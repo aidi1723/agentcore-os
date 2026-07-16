@@ -6,8 +6,9 @@
 
 - Bumped `next` and `eslint-config-next` from `15.1.6` to the official 15.x backport line `15.5.20` (security maintenance for the App Router 15.x stack; not a jump to Next.js 16).
 - Regenerated `package-lock.json` for the pinned versions; no product redesign, config rewrite, or React major change in this pass.
-- Verified on an isolated worktree branch: `npx tsc --noEmit`, `npm test` (138 files / 722 tests), `npm run lint`, and `npm run build` (Next.js 15.5.20 production build, 56 routes).
-- Does not claim production readiness, signed installers, desktop notarization, or completion of real external connectors. Interactive browser regression and Next.js 16 evaluation remain separate follow-ups.
+- Verified on an isolated worktree branch: `npx tsc --noEmit`, `npm test` (138 files / 722 tests), `npm run lint`, and `npm run build` (Next.js 15.5.20 production build, 56 routes). Production short smoke: `GET /`, `/robots.txt`, and `/api/runtime/executor/health` returned HTTP 200 under `next start`.
+- Recorded maintainer closeout in `docs/NEXTJS_SECURITY_UPGRADE_CLOSEOUT_2026-07-16.zh-CN.md` and aligned documentation index / Stage 2 residual notes.
+- Does not claim production readiness, signed installers, desktop notarization, or completion of real external connectors. Full interactive browser regression and Next.js 16 evaluation remain separate follow-ups.
 
 ### Engineering Hardening Stage 2
 

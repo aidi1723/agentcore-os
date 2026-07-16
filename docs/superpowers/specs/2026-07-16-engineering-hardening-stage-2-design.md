@@ -50,7 +50,7 @@ The acceptance command is the unchanged `npx tsc --noEmit`.
 
 The tracked-example mutation-preflight test must not depend on `output/`, generated release evidence, or other ignored local state. It will continue to load the committed dry-run JSON while injecting deterministic successful closeout and dry-run checker results. The assertion remains an integration test for preflight validation and serialization, but becomes reproducible in CI, a clean clone, and an isolated worktree.
 
-The Next.js 15.1.6 security upgrade warning discovered during isolated dependency installation is recorded for the next dependency-maintenance stage. Upgrading the framework is intentionally excluded here because it requires its own compatibility and browser regression cycle.
+The Next.js 15.1.6 security upgrade warning discovered during isolated dependency installation was intentionally excluded from Stage 2 because it required its own compatibility and browser regression cycle. That follow-up was completed on 2026-07-16 as an independent dependency-maintenance pass: `next` and `eslint-config-next` are pinned to the official 15.x backport line `15.5.20` (not Next.js 16). See `docs/NEXTJS_SECURITY_UPGRADE_CLOSEOUT_2026-07-16.zh-CN.md`.
 
 ## Outbound Network Architecture
 

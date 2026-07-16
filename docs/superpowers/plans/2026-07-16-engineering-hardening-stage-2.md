@@ -579,7 +579,7 @@ Record:
 - final Vitest file/test counts
 - DNS all-answer validation and pinned connection behavior
 - redirect, timeout, and response-size policy
-- Next.js 15.1.6 security upgrade as the next dependency-maintenance priority
+- Next.js security maintenance completed after Stage 2: `15.1.6` → `15.5.20` (see `docs/NEXTJS_SECURITY_UPGRADE_CLOSEOUT_2026-07-16.zh-CN.md`); Next.js 16 remains a separate evaluation cycle
 - unchanged desktop release and visual redesign boundaries
 
 - [x] **Step 3: Final diff review**

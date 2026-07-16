@@ -2,6 +2,13 @@
 
 ## Unreleased - 2026-07-16
 
+### Next.js Security Maintenance
+
+- Bumped `next` and `eslint-config-next` from `15.1.6` to the official 15.x backport line `15.5.20` (security maintenance for the App Router 15.x stack; not a jump to Next.js 16).
+- Regenerated `package-lock.json` for the pinned versions; no product redesign, config rewrite, or React major change in this pass.
+- Verified on an isolated worktree branch: `npx tsc --noEmit`, `npm test` (138 files / 722 tests), `npm run lint`, and `npm run build` (Next.js 15.5.20 production build, 56 routes).
+- Does not claim production readiness, signed installers, desktop notarization, or completion of real external connectors. Interactive browser regression and Next.js 16 evaluation remain separate follow-ups.
+
 ### Engineering Hardening Stage 2
 
 - Cleared the strict TypeScript baseline (`npx tsc --noEmit`) while keeping root `tsconfig.json`, `strict: true`, and tests in scope; no broad casts, test exclusions, or compiler relaxations.

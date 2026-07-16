@@ -140,6 +140,7 @@ Completed in the current controlled runtime line:
 - GitHub macOS CLI Install Path: `npm run release:github-macos-cli:check` validates the current install documentation contract for `docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md` and entry docs. It does not clone, install, start services, publish, package, upload, deploy, use credentials, or claim production readiness.
 - Sales Playbook Result Asset Alignment: `sales-pipeline-v1.resultAssets` now declares `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`, matching its actual durable writeback targets.
 - Engineering Hardening Stage 2: strict `npx tsc --noEmit` baseline is green with tests still in scope; clean/isolated worktree Vitest no longer depends on ignored local closeout evidence; ESLint root config is isolated; publish webhooks resolve every DNS answer, reject private/mixed/special-use destinations, pin the validated address into the HTTP(S) socket, do not follow redirects, and keep existing receipt/retry semantics. Local closeout: `docs/PROJECT_AUDIT_OPTIMIZATION_CLOSEOUT_2026-07-16.zh-CN.md`. Design/plan: `docs/superpowers/specs/2026-07-16-engineering-hardening-stage-2-design.md` and `docs/superpowers/plans/2026-07-16-engineering-hardening-stage-2.md`. Does not claim production readiness, signed installers, or real external connector completion.
+- Next.js security maintenance: `next` and `eslint-config-next` pinned to `15.5.20` (official 15.x backport security line; not Next.js 16). Isolated-worktree verification: `tsc --noEmit`, full Vitest (722), `next lint`, and `next build` green. Does not claim production readiness or replace interactive browser regression.
 
 Current verification baseline:
 
@@ -208,7 +209,7 @@ Current `test:controlled-runtime` coverage:
 
 Known residual engineering risks (not production claims):
 
-- Next.js 15.1.6 security maintenance / upgrade evaluation remains the highest-priority dependency-maintenance item and needs its own compatibility and browser regression cycle.
+- Next.js is on the 15.x security backport line (`15.5.20`); automated gates passed, but interactive browser / App Router smoke and any future Next.js 16 major upgrade still need separate cycles.
 - Desktop packaging, signing, notarization, and cross-platform installer release remain out of scope for the completed engineering hardening stages.
 - Visual onboarding/runtime guidance still carries heavier decorative styling debt relative to the operational cockpit guidance in `DESIGN.md`.
 

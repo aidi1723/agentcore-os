@@ -143,6 +143,18 @@ For local auto-publish dispatch:
 
 For production, replace the endpoint with your own connector service.
 
+### Outbound webhook URL policy
+
+Publish dispatch validates the configured webhook URL before connecting:
+
+- Only HTTP(S) destinations are accepted.
+- DNS answers are validated in full; private, mixed, and special-use addresses fail closed.
+- Loopback is limited to explicit local aliases used by local demo connectors.
+- The connection pins the validated address and does not follow redirects.
+- Webhook URLs and connector tokens stay in the local server store (`.openclaw-data/publish-config.json`); do not commit that directory or paste live tokens into tracked docs.
+
+See `docs/CONNECTORS.md` for the full outbound safety contract and receipt semantics.
+
 ## Queue execution secret
 
 If you want the publish queue runner route to require authentication, set:

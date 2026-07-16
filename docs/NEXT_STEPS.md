@@ -1,6 +1,6 @@
 # Next Steps
 
-Last updated: 2026-07-08
+Last updated: 2026-07-16
 
 This document is the execution backlog for the current `main` branch. It is narrower than the public roadmap and should be treated as the default work queue for engineering sessions.
 
@@ -25,6 +25,7 @@ Read first:
 - [Controlled Agent Runtime Development Manual](CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
 - [GitHub macOS CLI Install](GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
 - [Production Release Completion Evidence Boundary](PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)
+- [Project Audit Optimization Closeout 2026-07-16](PROJECT_AUDIT_OPTIMIZATION_CLOSEOUT_2026-07-16.zh-CN.md)
 - [Architecture](ARCHITECTURE.md)
 - [Roadmap](ROADMAP.md)
 
@@ -138,6 +139,7 @@ Completed in the current controlled runtime line:
 - Production Release Completion Evidence Boundary: `npm run release:completion:evidence:check -- --evidence <path>` validates green release execution approval boundary evidence plus post-execution action, credential, verification, monitoring, rollback, audit, and checker no-side-effect evidence. The tracked example is schema-only and keeps `productionReleaseCompleted: false`.
 - GitHub macOS CLI Install Path: `npm run release:github-macos-cli:check` validates the current install documentation contract for `docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md` and entry docs. It does not clone, install, start services, publish, package, upload, deploy, use credentials, or claim production readiness.
 - Sales Playbook Result Asset Alignment: `sales-pipeline-v1.resultAssets` now declares `draft` and `workflow_run` alongside `sales_asset` and `knowledge_asset`, matching its actual durable writeback targets.
+- Engineering Hardening Stage 2: strict `npx tsc --noEmit` baseline is green with tests still in scope; clean/isolated worktree Vitest no longer depends on ignored local closeout evidence; ESLint root config is isolated; publish webhooks resolve every DNS answer, reject private/mixed/special-use destinations, pin the validated address into the HTTP(S) socket, do not follow redirects, and keep existing receipt/retry semantics. Local closeout: `docs/PROJECT_AUDIT_OPTIMIZATION_CLOSEOUT_2026-07-16.zh-CN.md`. Design/plan: `docs/superpowers/specs/2026-07-16-engineering-hardening-stage-2-design.md` and `docs/superpowers/plans/2026-07-16-engineering-hardening-stage-2.md`. Does not claim production readiness, signed installers, or real external connector completion.
 
 Current verification baseline:
 
@@ -204,9 +206,34 @@ Current `test:controlled-runtime` coverage:
 - Includes sales/support playbook validation, playbook lifecycle/control-chain/default guardrail/deprecated replacement audit coverage, playbook lifecycle review diagnostic coverage, playbook lifecycle handoff checklist coverage, playbook lifecycle change proposal contract coverage, playbook lifecycle migration plan contract coverage, playbook lifecycle maintenance sequence contract coverage, playbook lifecycle sequence evidence contract coverage, playbook lifecycle sequence evidence freshness/provenance coverage, playbook lifecycle sequence evidence doctor coverage, playbook lifecycle maintenance readiness coverage, playbook lifecycle mutation approval coverage, playbook lifecycle mutation dry-run coverage, playbook lifecycle mutation preflight coverage, playbook lifecycle mutation executor boundary coverage, playbook lifecycle mutation post-apply sequence coverage, playbook lifecycle mutation post-apply evidence coverage, playbook lifecycle mutation fixture refresh handoff coverage, playbook lifecycle mutation candidate fixture review coverage, playbook lifecycle mutation fixture replacement handoff coverage, playbook lifecycle mutation post-replacement evidence coverage, playbook lifecycle mutation release handoff review coverage, playbook lifecycle mutation handoff summary coverage, delivery candidate readiness coverage, production release policy coverage, production release approval packet coverage, release execution planning coverage, package build gate coverage, tag creation gate coverage, artifact upload gate coverage, deployment gate coverage, external-write gate coverage, production verification gate coverage, release execution approval boundary coverage, production release completion evidence coverage, project closeout readiness coverage, controlled execution, approval/resume recovery, console summary metadata, retry route behavior, stream recovery, Runtime Console retry UI wiring, runtime cockpit summary, record-level asset focus, workflow/draft deep link coverage, support asset writeback coverage, governed trace redaction, the local trace artifact route, Runtime Console governed trace copy, retention preview/prune safety, retention preview/prune CLI coverage, governed trace fixture validation, pure trace fixture replay validation, replay sandbox contracts, no-side-effect replay sandbox prototype, fixture-to-contract bridge coverage, replay sandbox catalog report coverage, replay sandbox catalog CI summary coverage, replay sandbox failure diagnostics taxonomy, replay sandbox direct failure harness modes, catalog replay coverage for sales/support governed fixtures, aggregate catalog report coverage, trace fixture catalog CI summary command coverage, governed trace fixture builder CLI coverage, delivery demo seed/check helper coverage, delivery readiness gate helper coverage, delivery candidate gate helper coverage, production release policy helper coverage, production release approval packet helper coverage, release execution plan helper coverage, package build gate helper coverage, tag creation gate helper coverage, artifact upload gate helper coverage, deployment gate helper coverage, external-write gate helper coverage, production verification gate helper coverage, release execution approval helper coverage, production release completion evidence helper coverage, release hygiene gate helper coverage, release handoff gate helper coverage, release handoff evidence snapshot coverage, release handoff snapshot validation coverage, release handoff snapshot index coverage, release handoff evidence freshness coverage, release handoff evidence doctor coverage, release handoff evidence status coverage, release handoff evidence audit coverage, and server-backed retry timing stability coverage.
 - Trace fixture replay reports include structured drift diagnostics, deeper golden invariant diagnostics, validation failure diagnostics, human-readable summary output, and failure harness coverage while preserving stable error messages.
 
-Known current lint/build note:
+Known residual engineering risks (not production claims):
 
-- existing `<img>` warning in `src/__tests__/components/ShellUI.test.tsx`.
+- Next.js 15.1.6 security maintenance / upgrade evaluation remains the highest-priority dependency-maintenance item and needs its own compatibility and browser regression cycle.
+- Desktop packaging, signing, notarization, and cross-platform installer release remain out of scope for the completed engineering hardening stages.
+- Visual onboarding/runtime guidance still carries heavier decorative styling debt relative to the operational cockpit guidance in `DESIGN.md`.
+
+## Completed. Engineering Hardening Stage 2
+
+Why:
+
+- Clean clones and isolated worktrees still needed a deterministic Vitest baseline that does not depend on ignored local evidence.
+- The strict TypeScript project (including tests) still needed a green `npx tsc --noEmit` without relaxing compiler policy.
+- Publish webhook dispatch needed DNS-aware SSRF protection that also closes the resolve-then-reconnect TOCTOU window.
+
+Delivered:
+
+- Deterministic mutation-preflight tracked-fixture tests with injected green upstream gates.
+- Strict TypeScript remediation at real ownership boundaries (spawn result fixtures, discriminated unions, script JSDoc contracts, typed fixtures).
+- ESLint root isolation for nested worktrees.
+- Async DNS destination validation in `src/lib/server/network-policy.ts` with full A/AAAA validation and special-use IPv4 rejection.
+- Pinned publish webhook transport in `src/lib/server/publish-webhook-transport.ts` integrated through `runPublishDispatch`.
+- Closeout report with local verification evidence for typecheck, full Vitest, stability, publish, lint, build, Rust check, Python compile, and sidecar smoke.
+
+Outcome:
+
+- Stage-2 implementation plan tasks are complete.
+- Local engineering gates passed as recorded in the 2026-07-16 closeout.
+- Production packaging, signing, real external connectors, and production readiness claims remain deferred.
 
 ## Completed. Delivery Candidate Hardening
 

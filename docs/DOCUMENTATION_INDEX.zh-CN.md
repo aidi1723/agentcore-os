@@ -2,7 +2,7 @@
 
 这是当前 `v1.3.0` 稳定版对外发布对应的中文入口页。
 
-> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-08，当前 controlled-runtime 里程碑已有本地 closeout gate、manifest-based mutation executor preview/apply 边界、完整 release-control gate 链路、release execution approval boundary 和 production release completion evidence boundary。`release:completion:evidence:check` 可验证 schema-only 示例包，也可在人工/operator 真实执行后验证 `operator_recorded_actual_execution` evidence packet；仓库 tracked example 不等于 production ready。下一步继续 production closeout / operations evidence hardening、authoring UI、统一 policy、real replay、connector 写回和生产运维。后续开发请先阅读项目框架总纲、设计目标完成状态、可控 Runtime 开发手册、Roadmap、Next Steps、交付演示路径、浏览器证据、UI 收尾、交付后扩展复核、governed trace 运维文档和 real replay / sandbox 边界文档。
+> 2026-07-05 起，内部工程主线已经从“继续扩展 AI OS 壳”调整为“可控 Skill / Playbook Runtime”。截至 2026-07-16，当前 controlled-runtime 里程碑已有本地 closeout gate、manifest-based mutation executor preview/apply 边界、完整 release-control gate 链路、release execution approval boundary、production release completion evidence boundary，以及 Engineering Hardening Stage 2（严格 TypeScript 清零、干净 worktree 测试确定性、发布 webhook DNS 全量校验 + 固定地址连接、special-use IPv4 拒绝）。`release:completion:evidence:check` 可验证 schema-only 示例包，也可在人工/operator 真实执行后验证 `operator_recorded_actual_execution` evidence packet；仓库 tracked example 不等于 production ready。本地工程门禁通过不等于安装包签名、真实外部 Connector 或生产发布完成。下一步继续 production closeout / operations evidence hardening、依赖安全维护（含 Next.js 安全升级评估）、authoring UI、统一 policy、real replay、connector 写回和生产运维。后续开发请先阅读项目框架总纲、设计目标完成状态、可控 Runtime 开发手册、Roadmap、Next Steps、2026-07-16 审查收尾、交付演示路径、浏览器证据、UI 收尾、交付后扩展复核、governed trace 运维文档和 real replay / sandbox 边界文档。
 
 ## 建议阅读顺序
 
@@ -24,12 +24,13 @@
 16. [Governed Trace Fixture CI Gates](GOVERNED_TRACE_FIXTURE_CI_GATES.zh-CN.md)
 17. [Governed Trace Fixture Replay Contract](GOVERNED_TRACE_FIXTURE_REPLAY_CONTRACT.zh-CN.md)
 18. [Production Release Completion Evidence Boundary](PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)
-19. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
-20. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
-21. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
-22. [GitHub macOS 命令行安装](GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
-23. [快速开始](GETTING_STARTED.md)
-24. [用户指南（中文）](USER_GUIDE.zh-CN.md)
+19. [全项目审查与优化收尾（2026-07-16）](PROJECT_AUDIT_OPTIMIZATION_CLOSEOUT_2026-07-16.zh-CN.md)
+20. [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
+21. 当前版本发布说明：[English](releases/v1.3.0.md) / [中文](releases/v1.3.0.zh-CN.md)
+22. [公开发布说明（中文）](PUBLIC_RELEASE.zh-CN.md)
+23. [GitHub macOS 命令行安装](GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
+24. [快速开始](GETTING_STARTED.md)
+25. [用户指南（中文）](USER_GUIDE.zh-CN.md)
 
 ## 对外分发
 
@@ -72,6 +73,9 @@
 - [Governed Trace Fixture Catalog Coverage](GOVERNED_TRACE_FIXTURE_CATALOG_COVERAGE.zh-CN.md)
 - [Governed Trace Fixture Refresh Workflow](GOVERNED_TRACE_FIXTURE_REFRESH.zh-CN.md)
 - [Production Release Completion Evidence Boundary](PRODUCTION_RELEASE_COMPLETION_EVIDENCE_BOUNDARY.zh-CN.md)
+- [全项目审查与优化收尾（2026-07-16）](PROJECT_AUDIT_OPTIMIZATION_CLOSEOUT_2026-07-16.zh-CN.md)
+- [Engineering Hardening Stage 2 设计](superpowers/specs/2026-07-16-engineering-hardening-stage-2-design.md)
+- [Engineering Hardening Stage 2 实现计划](superpowers/plans/2026-07-16-engineering-hardening-stage-2.md)
 - [许可证迁移说明](LICENSE_CHANGE_NOTICE.md)
 - [团队 Memo：如何看待 build-your-own-x](TEAM_MEMO_BUILD_YOUR_OWN_X.zh-CN.md)
 - [工程学习地图](ENGINEERING_LEARNING_MAP.zh-CN.md)

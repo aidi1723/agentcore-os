@@ -70,8 +70,9 @@ Policy rules:
 - Invalid or non-HTTP(S) URLs fail closed.
 - Literal IPs are validated without DNS.
 - Public hostnames must resolve successfully and every returned A/AAAA address must be public.
-- Local aliases allowed by `allowLoopback` must resolve only to loopback addresses.
+- Local aliases allowed by `allowLoopback` must resolve only to loopback addresses. Public hostnames that resolve only to loopback remain rejected so DNS rebinding cannot reach host-local services.
 - Mixed public/private answers are rejected; the helper never selects the convenient public answer while ignoring a private one.
+- Special-use IPv4 answers are treated as non-public and fail closed even when they are not classic RFC1918 private ranges: CGNAT `100.64.0.0/10`, benchmarking `198.18.0.0/15`, multicast `224.0.0.0/4`, and reserved `240.0.0.0/4` (including broadcast).
 - Existing `allowLocal` behavior remains available only to current callers that explicitly request broader local access.
 
 ### Pinned HTTP(S) Request
@@ -116,8 +117,10 @@ Write failing tests before implementation for:
 - public hostname with public A/AAAA results
 - hostname with a private result
 - mixed public/private results
+- special-use IPv4 DNS answers (CGNAT, benchmarking, multicast, reserved)
 - loopback alias with explicit loopback permission
 - loopback alias without permission
+- public hostname resolving only to loopback (rebinding denial)
 - literal public, private, and loopback IPs
 - pinned lookup returning the validated address
 - redirect rejection

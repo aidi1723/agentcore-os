@@ -32,7 +32,7 @@
 ### 4. 干净工作树确定性
 
 - playbook mutation preflight 的跟踪夹具不再隐式依赖被忽略的 `output/` closeout 证据；测试显式注入绿色上游门禁，同时继续读取和验证受版本控制的 dry-run。
-- 隔离 worktree 全量测试从 694/695 恢复为稳定 718/718。
+- 隔离 worktree 全量测试从 694/695 恢复为稳定基线；在 special-use IPv4 回归补齐后，最终为 138 个文件、722 个测试全部通过（中间基线曾为 718，随后新增 DNS 特殊用途地址用例）。
 - Tauri Rust 检查明确使用 `npm run desktop:prepare-sidecar` 生成并暂存被忽略的本机 target launcher，不把桌面二进制纳入提交。
 
 ### 5. 严格 TypeScript 基线

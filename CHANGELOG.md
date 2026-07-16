@@ -1,5 +1,17 @@
 # AgentCore OS Changelog
 
+## Unreleased - 2026-07-16
+
+### Engineering Hardening Stage 2
+
+- Cleared the strict TypeScript baseline (`npx tsc --noEmit`) while keeping root `tsconfig.json`, `strict: true`, and tests in scope; no broad casts, test exclusions, or compiler relaxations.
+- Made clean-worktree / isolated-worktree Vitest baselines deterministic by injecting green upstream gates into tracked mutation-preflight fixtures instead of depending on ignored local evidence under `output/`.
+- Isolated ESLint root configuration so nested worktrees no longer cascade-load parent workspace plugins.
+- Hardened publish webhook outbound dispatch: DNS resolves with `all: true`, every A/AAAA answer is validated, and the HTTP(S) socket is pinned to a validated address while preserving original hostname / Host / SNI.
+- Rejects private, loopback (except explicit local aliases with `allowLoopback`), mixed public/private, and special-use IPv4 DNS answers (CGNAT `100.64/10`, benchmarking `198.18/15`, multicast `224/4`, reserved `240/4` including broadcast).
+- Publish webhook transport does not follow 3xx redirects, caps response bodies at 20,000 bytes, destroys requests on timeout/overflow, and maps blocked destinations to stable non-retryable receipts.
+- Recorded local closeout evidence in `docs/PROJECT_AUDIT_OPTIMIZATION_CLOSEOUT_2026-07-16.zh-CN.md`. Stage-2 design/plan live under `docs/superpowers/specs/` and `docs/superpowers/plans/`. This stage does not claim production readiness, packaging, signing, or real external connector completion.
+
 ## Unreleased - 2026-07-08
 
 ### GitHub macOS CLI Install Path

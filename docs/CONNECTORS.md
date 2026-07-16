@@ -167,6 +167,22 @@ The example server demonstrates:
 - Approved third-party schedulers (Buffer/Metricool/Make/Zapier)
 - Internal tooling with explicit user consent and ToS compliance
 
+## Outbound dispatch safety
+
+AgentCore OS treats the publish webhook URL as an untrusted network destination. Outbound dispatch is fail-closed:
+
+- The destination must be HTTP(S).
+- Hostnames are resolved with all A/AAAA answers; every answer must pass the address policy. Mixed public/private results are rejected.
+- Private, link-local, and other non-public destinations are blocked by default.
+- Special-use IPv4 ranges in DNS answers are also blocked (CGNAT `100.64/10`, benchmarking `198.18/15`, multicast `224/4`, reserved `240/4` including broadcast).
+- Local loopback connectors are only allowed for explicit local aliases such as `localhost` / `127.0.0.1` / `::1` / `tauri.localhost` when the dispatch path opts into loopback. A public hostname that merely resolves to loopback is still rejected.
+- After validation, the HTTP(S) connection pins the validated address into the socket lookup while preserving the original hostname for HTTP `Host` and TLS SNI, so a second uncontrolled DNS lookup cannot change the destination.
+- Redirect responses (`3xx`) are not followed. Connectors must expose a final endpoint.
+- Response bodies are capped; oversized responses fail without being treated as successful receipts.
+- Blocked destinations surface as non-retryable blocked-URL style receipts; timeouts and connection failures remain retryable temporary errors.
+
+These controls protect the AgentCore OS host. They do not replace connector authentication, rate limiting, or provider-side authorization.
+
 ## Operational guidance
 
 - Keep connector endpoints private, authenticated, and rate-limited
@@ -174,6 +190,8 @@ The example server demonstrates:
 - Let AgentCore OS retry delivery to the connector
 - Let the connector handle provider-specific retries internally
 - If you need stronger external exactly-once guarantees, add a connector-side idempotency key
+- Use a final HTTPS endpoint; do not rely on open redirects from the webhook URL
+- For local demos, prefer `http://127.0.0.1:8787/webhook/publish` with the bundled example connector
 
 ## Mobile IM Bridge
 

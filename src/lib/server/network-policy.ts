@@ -25,7 +25,13 @@ function isPrivateIpv4(host: string) {
     (a === 172 && b >= 16 && b <= 31) ||
     (a === 192 && b === 168) ||
     (a === 169 && b === 254) ||
-    a === 0
+    a === 0 ||
+    // Shared address space / carrier-grade NAT (RFC 6598)
+    (a === 100 && b >= 64 && b <= 127) ||
+    // Benchmarking (RFC 2544)
+    (a === 198 && (b === 18 || b === 19)) ||
+    // Multicast (224/4) and reserved/future use including broadcast (240/4)
+    a >= 224
   );
 }
 

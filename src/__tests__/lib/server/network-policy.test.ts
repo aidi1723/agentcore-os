@@ -47,6 +47,17 @@ describe("resolveAllowedOutboundUrl", () => {
     });
   });
 
+  it.each(["100.64.0.1", "198.18.0.1", "224.0.0.1", "255.255.255.255"])(
+    "rejects special-use IPv4 DNS answer %s",
+    async (address) => {
+      await expect(
+        resolveAllowedOutboundUrl("https://hooks.example.test/publish", {
+          lookup: async () => [{ address, family: 4 }],
+        }),
+      ).rejects.toMatchObject({ code: "blocked_url" });
+    },
+  );
+
   it("rejects mixed public and private DNS answers", async () => {
     await expect(
       resolveAllowedOutboundUrl("https://hooks.example.test/publish", {

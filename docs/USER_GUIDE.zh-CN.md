@@ -43,11 +43,11 @@ npm run dev
 
 ### 2.2 命令行模式
 
-当前公开稳定版本：`1.2.0`
+当前公开稳定版本：`1.3.0`
 
 - GitHub 仓库：<https://github.com/aidi1723/agentcore-os>
 - GitHub Releases：<https://github.com/aidi1723/agentcore-os/releases>
-- 当前版本发布说明：[docs/releases/v1.2.0.zh-CN.md](releases/v1.2.0.zh-CN.md)
+- 当前版本发布说明：[docs/releases/v1.3.0.zh-CN.md](releases/v1.3.0.zh-CN.md)
 
 当前推荐方式是直接通过命令行安装并运行源码版本。
 

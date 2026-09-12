@@ -1,18 +1,56 @@
 version: 2
 updates:
+  # npm 依赖更新
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
     open-pull-requests-limit: 10
+    reviewers:
+      - "aidi1723"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore(deps)"
+    # 只自动更新补丁版本和安全更新
+    versioning-strategy: increase-if-necessary
     groups:
-      npm-minor-and-patch:
+      # 将安全更新分组
+      security-updates:
+        patterns:
+          - "*"
         update-types:
-          - "minor"
           - "patch"
+          - "minor"
 
+  # GitHub Actions 更新
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(ci)"
+
+  # Cargo 依赖更新（Tauri 桌面应用）
+  - package-ecosystem: "cargo"
+    directory: "/src-tauri"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    labels:
+      - "dependencies"
+      - "rust"
+    commit-message:
+      prefix: "chore(deps)"

@@ -95,9 +95,12 @@ AgentCore OS 当前要做的是第三种：
 - 安装说明：[docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md](docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
 - 当前版本发布说明：[English](docs/releases/v1.3.0.md) / [中文](docs/releases/v1.3.0.zh-CN.md)
 - 对外分发说明：[docs/EARLY_ACCESS_RELEASE.zh-CN.md](docs/EARLY_ACCESS_RELEASE.zh-CN.md)
+- **文档导航指南**：[docs/DOCUMENTATION_GUIDE.zh-CN.md](docs/DOCUMENTATION_GUIDE.zh-CN.md) - 按角色快速找到对应文档
 - 文档总入口：[docs/DOCUMENTATION_INDEX.zh-CN.md](docs/DOCUMENTATION_INDEX.zh-CN.md)
 
-## 快速开始
+## ⚡ 快速开始
+
+**第一次使用？** 👉 请先阅读 [5 分钟快速上手指南](QUICKSTART.md)
 
 ### 本地开发体验
 
@@ -112,6 +115,18 @@ npm run dev
 
 - App UI：`http://localhost:3000/`
 - 可选本地 Connector UI：`http://127.0.0.1:8787/`
+
+### 运行演示数据
+
+```bash
+# 写入演示数据
+npm run delivery:demo:seed
+
+# 验证演示数据
+npm run delivery:demo:check
+```
+
+刷新浏览器，你会在 Runtime Console 中看到示例任务。
 
 ### 命令行安装与运行
 

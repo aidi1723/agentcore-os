@@ -1,5 +1,7 @@
 # AgentCore OS（智枢 OS）
 
+[![Beta Version](https://img.shields.io/badge/status-beta-yellow.svg)](https://github.com/aidi1723/agentcore-os/blob/main/BETA_NOTES.md)
+[![Current Version](https://img.shields.io/badge/version-v1.3.0--beta.1-blue.svg)](https://github.com/aidi1723/agentcore-os/releases)
 [![CI](https://github.com/aidi1723/agentcore-os/actions/workflows/ci.yml/badge.svg)](https://github.com/aidi1723/agentcore-os/actions/workflows/ci.yml)
 [![License: GPL v3+](https://img.shields.io/badge/License-GPLv3%2B-blue.svg)](LICENSE)
 
@@ -7,6 +9,31 @@ AgentCore OS 是一个**本地优先、面向真实工作的 AI 工作底座**�
 它不是只会聊天的单点工具，而是把模型、文件、工具、审批、连接器和工作流资产，放进一个可持续积累的本地工作系统里。
 
 > 2026-07-05 之后的工程主线已经收口为 **可控 Skill / Playbook Runtime**：固定 playbook 步骤、限制工具边界、保留人工审批、记录 trace、支持恢复，并把 approved output 写回业务资产。项目框架总纲见 [docs/PROJECT_FRAMEWORK.zh-CN.md](docs/PROJECT_FRAMEWORK.zh-CN.md)。
+
+## ⚠️ Beta 版本说明
+
+**AgentCore OS v1.3.0 目前处于 Public Beta 阶段。** 查看完整说明：[BETA_NOTES.md](BETA_NOTES.md)
+
+**当前状态**：
+- ✅ 核心功能完整且稳定
+- ✅ 本地演示和测试就绪
+- ⚠️ 生产环境硬化进行中
+- ⚠️ 部分高级特性待完善
+
+**适合场景**：
+- ✅ 本地开发和测试
+- ✅ 概念验证（POC）
+- ✅ 小规模试用
+- ⚠️ 生产环境请谨慎评估
+
+**已知限制**：
+- 真实 replay 功能正在完善
+- 生产运维工具待增强
+- Runtime UI 可控性视觉化待集成
+
+**反馈渠道**：
+- GitHub Issues: [提交问题](https://github.com/aidi1723/agentcore-os/issues)
+- GitHub Discussions: [参与讨论](https://github.com/aidi1723/agentcore-os/discussions)
 
 我们的目标很直接：
 

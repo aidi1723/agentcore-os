@@ -1,0 +1,70 @@
+/**
+ * AgentCore OS Design Tokens - Typography
+ *
+ * 流式字体系统，使用 clamp() 实现响应式缩放
+ */
+
+:root {
+  /* ==================== 字体家族 ==================== */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+               sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+               "Segoe UI Symbol", "Noto Color Emoji";
+
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
+               Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* ==================== 字体大小（流式设计） ==================== */
+  /* 使用 clamp(最小值, 首选值, 最大值) 实现响应式 */
+
+  /* Display 大标题 */
+  --font-size-display-xl: clamp(3rem, 5vw, 4.5rem);       /* 48-72px */
+  --font-size-display-lg: clamp(2.5rem, 4vw, 3.75rem);    /* 40-60px */
+  --font-size-display-md: clamp(2rem, 3.5vw, 3rem);       /* 32-48px */
+  --font-size-display-sm: clamp(1.75rem, 3vw, 2.25rem);   /* 28-36px */
+
+  /* Heading 标题 */
+  --font-size-h1: clamp(1.875rem, 2.5vw, 2.25rem);        /* 30-36px */
+  --font-size-h2: clamp(1.5rem, 2vw, 1.875rem);           /* 24-30px */
+  --font-size-h3: clamp(1.25rem, 1.75vw, 1.5rem);         /* 20-24px */
+  --font-size-h4: clamp(1.125rem, 1.5vw, 1.25rem);        /* 18-20px */
+  --font-size-h5: 1rem;                                     /* 16px */
+  --font-size-h6: 0.875rem;                                 /* 14px */
+
+  /* Body 正文 */
+  --font-size-body-lg: 1.125rem;                            /* 18px */
+  --font-size-body: 1rem;                                   /* 16px */
+  --font-size-body-sm: 0.875rem;                            /* 14px */
+  --font-size-body-xs: 0.75rem;                             /* 12px */
+
+  /* Caption 说明文字 */
+  --font-size-caption: 0.75rem;                             /* 12px */
+  --font-size-caption-sm: 0.6875rem;                        /* 11px */
+
+  /* ==================== 字体粗细 ==================== */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ==================== 行高 ==================== */
+  /* Display 和 Heading 使用紧凑行高 */
+  --line-height-display: 1.1;
+  --line-height-heading: 1.2;
+
+  /* Body 使用舒适行高 */
+  --line-height-body: 1.5;
+  --line-height-body-relaxed: 1.75;
+
+  /* Caption 使用紧凑行高 */
+  --line-height-caption: 1.3;
+
+  /* ==================== 字间距 ==================== */
+  /* Display 使用负字间距增强视觉紧凑感 */
+  --letter-spacing-display: -0.02em;
+  --letter-spacing-heading: -0.01em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+}

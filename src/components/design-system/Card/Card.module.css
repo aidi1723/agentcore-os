@@ -1,0 +1,102 @@
+/* Card Component Styles */
+
+.card {
+  /* 基础样式 */
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+
+  /* 过渡 */
+  transition: all var(--duration-micro) var(--ease-out);
+}
+
+/* ==================== 变体 ==================== */
+
+.card--default {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.card--elevated {
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-md);
+}
+
+.card--bordered {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+}
+
+.card--ghost {
+  background: transparent;
+}
+
+/* ==================== 内边距 ==================== */
+
+.card--padding-none {
+  padding: 0;
+}
+
+.card--padding-sm {
+  padding: var(--spacing-4);
+}
+
+.card--padding-md {
+  padding: var(--spacing-6);
+}
+
+.card--padding-lg {
+  padding: var(--spacing-8);
+}
+
+/* ==================== 交互状态 ==================== */
+
+.card--interactive {
+  cursor: pointer;
+}
+
+.card--interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-emphasis);
+}
+
+.card--interactive:active {
+  transform: translateY(0);
+}
+
+/* ==================== 内部元素 ==================== */
+
+.card__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-6);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.card--padding-none .card__header {
+  padding: var(--spacing-6);
+}
+
+.card__content {
+  flex: 1;
+  padding: var(--spacing-6);
+}
+
+.card--padding-none .card__content {
+  padding: var(--spacing-6);
+}
+
+.card__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-6);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.card--padding-none .card__footer {
+  padding: var(--spacing-6);
+}

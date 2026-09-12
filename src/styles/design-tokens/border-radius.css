@@ -1,0 +1,43 @@
+/**
+ * AgentCore OS Design Tokens - Border Radius
+ *
+ * 统一的圆角系统
+ */
+
+:root {
+  /* ==================== 基础圆角 ==================== */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;       /* 4px */
+  --radius-default: 0.5rem;   /* 8px */
+  --radius-md: 0.75rem;       /* 12px */
+  --radius-lg: 1rem;          /* 16px */
+  --radius-xl: 1.5rem;        /* 24px */
+  --radius-2xl: 2rem;         /* 32px */
+  --radius-full: 9999px;      /* 完全圆角 */
+
+  /* ==================== 语义化圆角 ==================== */
+  /* 按钮和交互元素 */
+  --radius-button: var(--radius-full);        /* 胶囊形状 */
+  --radius-button-sm: var(--radius-lg);
+
+  /* 卡片 */
+  --radius-card: var(--radius-lg);
+  --radius-card-sm: var(--radius-default);
+
+  /* 输入框 */
+  --radius-input: var(--radius-default);
+
+  /* 标签和徽章 */
+  --radius-badge: var(--radius-full);
+  --radius-tag: var(--radius-default);
+
+  /* 头像 */
+  --radius-avatar: var(--radius-full);        /* 圆形 */
+
+  /* 弹窗 */
+  --radius-modal: var(--radius-xl);
+  --radius-dropdown: var(--radius-md);
+
+  /* 图片 */
+  --radius-image: var(--radius-lg);
+}

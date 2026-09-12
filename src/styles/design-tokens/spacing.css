@@ -1,0 +1,51 @@
+/**
+ * AgentCore OS Design Tokens - Spacing
+ *
+ * 统一的间距系统，基于 8px 基准
+ */
+
+:root {
+  /* ==================== 基础间距单位 ==================== */
+  /* 8px 基准网格系统 */
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;    /* 4px */
+  --spacing-2: 0.5rem;     /* 8px */
+  --spacing-3: 0.75rem;    /* 12px */
+  --spacing-4: 1rem;       /* 16px */
+  --spacing-5: 1.25rem;    /* 20px */
+  --spacing-6: 1.5rem;     /* 24px */
+  --spacing-8: 2rem;       /* 32px */
+  --spacing-10: 2.5rem;    /* 40px */
+  --spacing-12: 3rem;      /* 48px */
+  --spacing-16: 4rem;      /* 64px */
+  --spacing-20: 5rem;      /* 80px */
+  --spacing-24: 6rem;      /* 96px */
+  --spacing-32: 8rem;      /* 128px */
+
+  /* ==================== 语义化间距 ==================== */
+  /* 基于使用场景命名 */
+
+  /* 组件内部间距 */
+  --spacing-component-xs: var(--spacing-1);   /* 紧凑 */
+  --spacing-component-sm: var(--spacing-2);   /* 小 */
+  --spacing-component-md: var(--spacing-4);   /* 中等 */
+  --spacing-component-lg: var(--spacing-6);   /* 大 */
+  --spacing-component-xl: var(--spacing-8);   /* 超大 */
+
+  /* 布局间距 */
+  --spacing-section-xs: var(--spacing-8);     /* 32px */
+  --spacing-section-sm: var(--spacing-12);    /* 48px */
+  --spacing-section-md: var(--spacing-16);    /* 64px */
+  --spacing-section-lg: var(--spacing-20);    /* 80px */
+  --spacing-section-xl: var(--spacing-24);    /* 96px */
+
+  /* 页面容器 */
+  --spacing-container-sm: var(--spacing-4);   /* 移动端 */
+  --spacing-container-md: var(--spacing-6);   /* 平板 */
+  --spacing-container-lg: var(--spacing-8);   /* 桌面 */
+  --spacing-container-xl: var(--spacing-12);  /* 大屏 */
+
+  /* 卡片间距 */
+  --spacing-card-padding: var(--spacing-6);
+  --spacing-card-gap: var(--spacing-4);
+}

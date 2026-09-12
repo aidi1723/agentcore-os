@@ -1,0 +1,139 @@
+/**
+ * AgentCore OS Design Tokens - Colors
+ *
+ * 核心配色方案：深空科技感
+ * 基于"可控 Runtime"的品牌定位
+ */
+
+:root {
+  /* ==================== 品牌色：赛博蓝 ==================== */
+  /* 代表"可控"、"科技"、"理性" */
+  --brand-primary: #0EA5E9;           /* Sky Blue 500 */
+  --brand-primary-50: #F0F9FF;
+  --brand-primary-100: #E0F2FE;
+  --brand-primary-200: #BAE6FD;
+  --brand-primary-300: #7DD3FC;
+  --brand-primary-400: #38BDF8;
+  --brand-primary-500: #0EA5E9;       /* 主色 */
+  --brand-primary-600: #0284C7;
+  --brand-primary-700: #0369A1;
+  --brand-primary-800: #075985;
+  --brand-primary-900: #0C4A6E;
+
+  /* 快捷访问 */
+  --brand-primary-light: var(--brand-primary-400);
+  --brand-primary-dark: var(--brand-primary-600);
+
+  /* ==================== 状态色 ==================== */
+  /* 用于 Playbook 执行状态可视化 */
+
+  /* 运行中 - 蓝色 */
+  --status-running: #3B82F6;
+  --status-running-bg: rgba(59, 130, 246, 0.1);
+  --status-running-border: rgba(59, 130, 246, 0.2);
+
+  /* 等待审批 - 琥珀色 */
+  --status-waiting: #F59E0B;
+  --status-waiting-bg: rgba(245, 158, 11, 0.1);
+  --status-waiting-border: rgba(245, 158, 11, 0.2);
+
+  /* 成功 - 翠绿色 */
+  --status-success: #10B981;
+  --status-success-bg: rgba(16, 185, 129, 0.1);
+  --status-success-border: rgba(16, 185, 129, 0.2);
+
+  /* 失败 - 红色 */
+  --status-failed: #EF4444;
+  --status-failed-bg: rgba(239, 68, 68, 0.1);
+  --status-failed-border: rgba(239, 68, 68, 0.2);
+
+  /* 待执行 - 灰色 */
+  --status-pending: #6B7280;
+  --status-pending-bg: rgba(107, 114, 128, 0.1);
+  --status-pending-border: rgba(107, 114, 128, 0.2);
+
+  /* ==================== 背景色：深空主题 ==================== */
+  /* 多层次深色背景，营造科技感 */
+  --bg-base: #0A0E1A;                 /* 最深层 - 深空蓝黑 */
+  --bg-elevated: #111827;             /* 提升层 - Gray 900 */
+  --bg-surface: #1F2937;              /* 表面层 - Gray 800 */
+  --bg-interactive: #374151;          /* 交互层 - Gray 700 */
+  --bg-hover: #4B5563;                /* 悬停层 - Gray 600 */
+
+  /* 半透明背景（用于遮罩、卡片等） */
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --bg-glass: rgba(31, 41, 55, 0.8);  /* 毛玻璃效果 */
+
+  /* ==================== 文字色：高对比 ==================== */
+  /* 确保可读性 */
+  --text-primary: #F9FAFB;            /* Gray 50 - 主要文字 */
+  --text-secondary: #D1D5DB;          /* Gray 300 - 次要文字 */
+  --text-tertiary: #9CA3AF;           /* Gray 400 - 第三级文字 */
+  --text-quaternary: #6B7280;         /* Gray 500 - 占位符 */
+  --text-disabled: #4B5563;           /* Gray 600 - 禁用状态 */
+
+  /* 反色文字（用于深色按钮上） */
+  --text-on-primary: #FFFFFF;
+  --text-on-dark: #FFFFFF;
+
+  /* ==================== 边框色：微光效果 ==================== */
+  /* 带有品牌色的边框，营造科技感 */
+  --border-subtle: rgba(59, 130, 246, 0.1);
+  --border-default: rgba(59, 130, 246, 0.2);
+  --border-emphasis: rgba(59, 130, 246, 0.4);
+  --border-strong: rgba(59, 130, 246, 0.6);
+
+  /* 中性边框（不带品牌色） */
+  --border-neutral: rgba(255, 255, 255, 0.1);
+  --border-neutral-emphasis: rgba(255, 255, 255, 0.2);
+
+  /* ==================== 阴影色 ==================== */
+  /* 用于卡片、弹窗等元素的深度感 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-default: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+  /* 品牌色发光阴影（用于强调元素） */
+  --shadow-primary: 0 0 10px rgba(14, 165, 233, 0.3);
+  --shadow-primary-lg: 0 0 20px rgba(14, 165, 233, 0.4);
+
+  /* ==================== 功能色 ==================== */
+  /* 用于特殊场景 */
+  --color-info: #3B82F6;              /* 蓝色 */
+  --color-warning: #F59E0B;           /* 琥珀色 */
+  --color-error: #EF4444;             /* 红色 */
+  --color-success: #10B981;           /* 绿色 */
+
+  /* 功能色背景 */
+  --color-info-bg: rgba(59, 130, 246, 0.1);
+  --color-warning-bg: rgba(245, 158, 11, 0.1);
+  --color-error-bg: rgba(239, 68, 68, 0.1);
+  --color-success-bg: rgba(16, 185, 129, 0.1);
+}
+
+/* ==================== 浅色主题（可选） ==================== */
+/* 如果需要支持浅色主题，取消注释以下代码 */
+/*
+[data-theme="light"] {
+  --bg-base: #FFFFFF;
+  --bg-elevated: #F9FAFB;
+  --bg-surface: #F3F4F6;
+  --bg-interactive: #E5E7EB;
+  --bg-hover: #D1D5DB;
+
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-tertiary: #6B7280;
+  --text-quaternary: #9CA3AF;
+  --text-disabled: #D1D5DB;
+
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --border-default: rgba(0, 0, 0, 0.1);
+  --border-emphasis: rgba(0, 0, 0, 0.2);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-default: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+*/

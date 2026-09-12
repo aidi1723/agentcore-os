@@ -1,0 +1,216 @@
+/* Button Component Styles */
+
+.button {
+  /* 基础样式 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+
+  /* 字体 */
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+
+  /* 圆角 */
+  border-radius: var(--radius-button);
+  border: none;
+
+  /* 光标 */
+  cursor: pointer;
+
+  /* 过渡 */
+  transition: all var(--duration-micro) var(--ease-out);
+
+  /* 防止选中文字 */
+  user-select: none;
+
+  /* 取消默认样式 */
+  background: none;
+  color: inherit;
+}
+
+/* ==================== 尺寸变体 ==================== */
+
+.button--sm {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--font-size-body-sm);
+  min-height: 32px;
+}
+
+.button--md {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-body);
+  min-height: 40px;
+}
+
+.button--lg {
+  padding: var(--spacing-3) var(--spacing-6);
+  font-size: var(--font-size-body-lg);
+  min-height: 48px;
+}
+
+/* ==================== 样式变体 ==================== */
+
+/* Primary - 主要按钮 */
+.button--primary {
+  background: var(--brand-primary);
+  color: var(--text-on-primary);
+}
+
+.button--primary:hover:not(:disabled) {
+  background: var(--brand-primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.button--primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.2);
+}
+
+/* Secondary - 次要按钮 */
+.button--secondary {
+  background: var(--bg-interactive);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+}
+
+.button--secondary:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--brand-primary);
+}
+
+.button--secondary:active:not(:disabled) {
+  background: var(--bg-interactive);
+}
+
+/* Tertiary - 第三级按钮 */
+.button--tertiary {
+  background: transparent;
+  color: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
+}
+
+.button--tertiary:hover:not(:disabled) {
+  background: var(--bg-interactive);
+}
+
+.button--tertiary:active:not(:disabled) {
+  background: var(--bg-surface);
+}
+
+/* Ghost - 幽灵按钮 */
+.button--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.button--ghost:hover:not(:disabled) {
+  background: var(--bg-interactive);
+  color: var(--text-primary);
+}
+
+.button--ghost:active:not(:disabled) {
+  background: var(--bg-surface);
+}
+
+/* Danger - 危险按钮 */
+.button--danger {
+  background: var(--status-failed);
+  color: var(--text-on-primary);
+}
+
+.button--danger:hover:not(:disabled) {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.button--danger:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* ==================== 状态 ==================== */
+
+/* 禁用状态 */
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* 加载状态 */
+.button--loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.button--loading .button__text,
+.button--loading .button__icon {
+  opacity: 0;
+}
+
+/* 全宽 */
+.button--full-width {
+  width: 100%;
+}
+
+/* ==================== 内部元素 ==================== */
+
+.button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+}
+
+.button__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.button__text {
+  display: inline-block;
+}
+
+/* 加载动画 */
+.button__spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 1.25em;
+  height: 1.25em;
+  animation: spin 1s linear infinite;
+}
+
+.spinner__circle {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 50;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================== 焦点样式 ==================== */
+
+.button:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}

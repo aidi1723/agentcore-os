@@ -1,0 +1,91 @@
+/* Badge Component Styles */
+
+.badge {
+  /* 基础样式 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-badge);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* ==================== 尺寸 ==================== */
+
+.badge--sm {
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--font-size-caption);
+  min-height: 18px;
+}
+
+.badge--md {
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--font-size-body-sm);
+  min-height: 22px;
+}
+
+.badge--lg {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-body);
+  min-height: 28px;
+}
+
+/* ==================== 变体 ==================== */
+
+.badge--default {
+  background: var(--bg-interactive);
+  color: var(--text-secondary);
+}
+
+.badge--primary {
+  background: var(--brand-primary);
+  color: var(--text-on-primary);
+}
+
+.badge--success {
+  background: var(--status-success-bg);
+  color: var(--status-success);
+  border: 1px solid var(--status-success-border);
+}
+
+.badge--warning {
+  background: var(--status-waiting-bg);
+  color: var(--status-waiting);
+  border: 1px solid var(--status-waiting-border);
+}
+
+.badge--error {
+  background: var(--status-failed-bg);
+  color: var(--status-failed);
+  border: 1px solid var(--status-failed-border);
+}
+
+.badge--info {
+  background: var(--status-running-bg);
+  color: var(--status-running);
+  border: 1px solid var(--status-running-border);
+}
+
+/* ==================== 圆点样式 ==================== */
+
+.badge--dot {
+  padding: 0;
+  width: 8px;
+  height: 8px;
+  min-height: 8px;
+  border-radius: var(--radius-full);
+}
+
+.badge--dot.badge--sm {
+  width: 6px;
+  height: 6px;
+  min-height: 6px;
+}
+
+.badge--dot.badge--lg {
+  width: 10px;
+  height: 10px;
+  min-height: 10px;
+}

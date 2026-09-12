@@ -1,0 +1,269 @@
+/**
+ * AgentCore OS - Global Styles
+ *
+ * 导入所有设计 tokens 和全局样式
+ */
+
+/* ==================== Design Tokens ==================== */
+@import './design-tokens/colors.css';
+@import './design-tokens/spacing.css';
+@import './design-tokens/typography.css';
+@import './design-tokens/border-radius.css';
+
+/* ==================== Animations ==================== */
+@import './animations.css';
+
+/* ==================== Base Reset ==================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* 使用系统字体渲染 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* 防止字体大小调整 */
+  -webkit-text-size-adjust: 100%;
+
+  /* 滚动行为 */
+  scroll-behavior: smooth;
+}
+
+body {
+  /* 背景 */
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+
+  /* 字体 */
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+
+  /* 最小高度 */
+  min-height: 100vh;
+
+  /* 禁用选择样式（可选） */
+  /* user-select: none; */
+}
+
+/* ==================== Typography Base ==================== */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+}
+
+h4 {
+  font-size: var(--font-size-h4);
+}
+
+h5 {
+  font-size: var(--font-size-h5);
+}
+
+h6 {
+  font-size: var(--font-size-h6);
+}
+
+p {
+  margin-bottom: var(--spacing-4);
+}
+
+a {
+  color: var(--brand-primary);
+  text-decoration: none;
+  transition: color var(--duration-micro) var(--ease-out);
+}
+
+a:hover {
+  color: var(--brand-primary-light);
+}
+
+/* ==================== Form Elements ==================== */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-input);
+  padding: var(--spacing-2) var(--spacing-3);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  transition: border-color var(--duration-micro) var(--ease-out);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-quaternary);
+}
+
+/* ==================== Images ==================== */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* ==================== Utility Classes ==================== */
+
+/* 隐藏元素 */
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* 文字截断 */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* ==================== Scrollbar Styling ==================== */
+/* 自定义滚动条样式（仅 Webkit） */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-elevated);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-interactive);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-hover);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-interactive) var(--bg-elevated);
+}
+
+/* ==================== Selection ==================== */
+::selection {
+  background-color: var(--brand-primary);
+  color: var(--text-on-primary);
+}
+
+::-moz-selection {
+  background-color: var(--brand-primary);
+  color: var(--text-on-primary);
+}
+
+/* ==================== Focus Visible ==================== */
+/* 只在键盘导航时显示焦点样式 */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* ==================== Print Styles ==================== */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+
+  /* 隐藏不需要打印的元素 */
+  nav,
+  aside,
+  .no-print {
+    display: none !important;
+  }
+}

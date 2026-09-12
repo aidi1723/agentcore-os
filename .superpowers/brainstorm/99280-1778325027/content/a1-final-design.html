@@ -1,0 +1,99 @@
+<h2>A1 最终设计草案</h2>
+<p class="subtitle">首页作为 AgentCore OS 总控台：业务场景、执行入口、审批资产、运行时状态全部聚合在一屏。</p>
+
+<div class="mockup">
+  <div class="mockup-header">AgentCore OS · Command Center</div>
+  <div class="mockup-body">
+    <div style="border:1px solid #d9dde5;border-radius:8px;background:#fff;padding:10px 12px;display:flex;justify-content:space-between;gap:12px;align-items:center">
+      <div><strong>AgentCore OS</strong> <span style="color:#6b7280">/ 企业智能体工作台</span></div>
+      <div style="display:flex;gap:8px;align-items:center;color:#6b7280;font-size:12px">
+        <span>搜索</span><span>中文</span><span>Kimi</span><span>设置</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:220px minmax(0,1fr) 300px;gap:14px;margin-top:14px">
+      <aside style="border:1px solid #d9dde5;border-radius:8px;background:#f8fafc;padding:14px">
+        <div style="font-size:11px;color:#6b7280;text-transform:uppercase">Business scenarios</div>
+        <div style="margin-top:10px;display:grid;gap:8px">
+          <div style="background:#111827;color:#fff;border-radius:8px;padding:10px">销售获客<br><small>线索 → 报价 → 跟进</small></div>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px">客服处理<br><small>工单 → 回复 → 复盘</small></div>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px">内容发布<br><small>选题 → 改写 → 发布</small></div>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px">市场研究<br><small>检索 → 分析 → 报告</small></div>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px">知识资产<br><small>沉淀 → 复用 → 版本</small></div>
+        </div>
+      </aside>
+
+      <main style="display:grid;gap:14px">
+        <section style="border:1px solid #d9dde5;border-radius:8px;background:#fff;padding:16px">
+          <div style="font-size:11px;color:#6b7280;text-transform:uppercase">Primary command</div>
+          <div style="font-size:22px;font-weight:650;margin-top:6px">今天要推进哪个业务结果？</div>
+          <div style="margin-top:12px;border:1px solid #d9dde5;border-radius:8px;padding:12px;color:#6b7280">输入任务指令，或从下方工作流继续...</div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="mock-button">开始执行</button>
+            <button class="mock-button">进入角色桌面</button>
+            <button class="mock-button">打开方案库</button>
+          </div>
+        </section>
+
+        <section style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div class="placeholder">工作流<br><small>继续/启动</small></div>
+          <div class="placeholder">审批<br><small>待确认 3</small></div>
+          <div class="placeholder">资产<br><small>最新结果 12</small></div>
+          <div class="placeholder">运行时<br><small>Ready</small></div>
+        </section>
+
+        <section style="border:1px solid #d9dde5;border-radius:8px;background:#fff;padding:14px">
+          <div style="font-size:11px;color:#6b7280;text-transform:uppercase">Active workflow</div>
+          <div style="margin-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+            <div class="placeholder">触发</div>
+            <div class="placeholder">执行中</div>
+            <div class="placeholder">需审批</div>
+            <div class="placeholder">资产落地</div>
+          </div>
+        </section>
+      </main>
+
+      <aside style="display:grid;gap:14px">
+        <section style="border:1px solid #d9dde5;border-radius:8px;background:#fff;padding:14px">
+          <div style="font-size:11px;color:#6b7280;text-transform:uppercase">Attention</div>
+          <div style="margin-top:10px;display:grid;gap:8px">
+            <div class="placeholder">待人工确认</div>
+            <div class="placeholder">运行中任务</div>
+            <div class="placeholder">失败/重试</div>
+          </div>
+        </section>
+        <section style="border:1px solid #d9dde5;border-radius:8px;background:#fff;padding:14px">
+          <div style="font-size:11px;color:#6b7280;text-transform:uppercase">Reusable assets</div>
+          <div style="margin-top:10px;display:grid;gap:8px">
+            <div class="placeholder">报价草案</div>
+            <div class="placeholder">客服回复模板</div>
+            <div class="placeholder">研究摘要</div>
+          </div>
+        </section>
+        <section style="border:1px solid #d9dde5;border-radius:8px;background:#fff;padding:14px">
+          <div style="font-size:11px;color:#6b7280;text-transform:uppercase">Runtime</div>
+          <div style="margin-top:8px;color:#16a34a;font-weight:650">AgentCoreOS ready</div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div class="pros-cons">
+  <div class="pros">
+    <h4>会做</h4>
+    <ul>
+      <li>视觉从玻璃拟态改成更克制的 open-design / enterprise / Vercel 式清晰面板。</li>
+      <li>保留现有应用窗口机制，但首页能看到主流程、快捷入口、状态和资产。</li>
+      <li>优先修改共享首页结构和样式，减少逐个应用窗口重做。</li>
+    </ul>
+  </div>
+  <div class="cons">
+    <h4>不会做</h4>
+    <ul>
+      <li>不重写每个业务 App 的内部表单和逻辑。</li>
+      <li>不引入新的大型 UI 框架。</li>
+      <li>不做营销页式大 Hero 或装饰动画。</li>
+    </ul>
+  </div>
+</div>

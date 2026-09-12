@@ -1,0 +1,92 @@
+<h2>方案 A 的第一屏信息密度</h2>
+<p class="subtitle">已确定：左侧按业务场景，中间做功能快捷入口，复杂操作仍打开窗口。现在选首页看起来有多“密”。</p>
+
+<div class="cards">
+  <div class="card" data-choice="a1" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A1 · 指挥中心型</div>
+        <div class="mockup-body">
+          <div class="mock-nav">AgentCore OS · 搜索 · 模型 · 设置</div>
+          <div style="display:grid;grid-template-columns:210px 1fr 300px;gap:12px;margin-top:12px">
+            <div class="mock-sidebar">业务场景<br><br>销售获客<br>客服处理<br>内容发布<br>市场研究<br>知识资产</div>
+            <div class="mock-content">
+              <div class="placeholder">今日主任务 / 全局命令输入</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px">
+                <div class="placeholder">工作流</div>
+                <div class="placeholder">审批</div>
+                <div class="placeholder">资产</div>
+                <div class="placeholder">运行时</div>
+              </div>
+              <div class="placeholder" style="margin-top:10px">当前工作流阶段与最近输出</div>
+            </div>
+            <div class="mock-sidebar">状态栏<br><br>待审批 3<br>运行中 2<br>可复用资产 12<br>Runtime ready</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A1 · 指挥中心型</h3>
+      <p>信息最完整，第一屏就能看到场景、主任务、四类功能、审批、资产、运行时。适合“一个页面掌控所有功能”。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="a2" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A2 · 任务优先型</div>
+        <div class="mockup-body">
+          <div class="mock-nav">AgentCore OS · 搜索 · 状态</div>
+          <div style="display:grid;grid-template-columns:190px 1fr;gap:12px;margin-top:12px">
+            <div class="mock-sidebar">业务场景<br><br>销售<br>客服<br>内容<br>研究</div>
+            <div class="mock-content">
+              <div class="placeholder" style="height:78px">主任务输入区更大：今天要做什么？</div>
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px">
+                <div class="placeholder">工作流</div>
+                <div class="placeholder">审批</div>
+                <div class="placeholder">资产</div>
+                <div class="placeholder">发布</div>
+                <div class="placeholder">设置</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+                <div class="placeholder">最近任务</div>
+                <div class="placeholder">系统健康</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A2 · 任务优先型</h3>
+      <p>界面更轻，主输入更突出；状态信息减少，用户需要滚动或打开面板看更多上下文。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="a3" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A3 · 应用网格增强型</div>
+        <div class="mockup-body">
+          <div class="mock-nav">AgentCore OS · 搜索 · 工作台</div>
+          <div class="mock-content" style="margin-top:12px">
+            <div class="placeholder">顶部命令条 + 场景切换</div>
+            <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px">
+              <div class="placeholder">销售</div>
+              <div class="placeholder">客服</div>
+              <div class="placeholder">内容</div>
+              <div class="placeholder">研究</div>
+              <div class="placeholder">资产</div>
+              <div class="placeholder">设置</div>
+            </div>
+            <div class="placeholder" style="margin-top:10px">保留更多当前应用入口</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A3 · 应用网格增强型</h3>
+      <p>离现有桌面图标最近，改动小；但“操作系统总控台”的感觉弱，功能仍容易散。</p>
+    </div>
+  </div>
+</div>

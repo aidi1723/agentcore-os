@@ -1,0 +1,304 @@
+/* PipelineFlow Component Styles */
+
+.pipeline {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  /* 自定义滚动条 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-interactive) var(--bg-elevated);
+}
+
+.pipeline::-webkit-scrollbar {
+  height: 6px;
+}
+
+.pipeline::-webkit-scrollbar-track {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+}
+
+.pipeline::-webkit-scrollbar-thumb {
+  background: var(--bg-interactive);
+  border-radius: var(--radius-full);
+}
+
+.pipeline::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-hover);
+}
+
+/* ==================== Track ==================== */
+
+.pipeline__track {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
+  min-width: min-content;
+}
+
+.pipeline__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+/* ==================== Step ==================== */
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+
+  padding: var(--spacing-4);
+  min-width: 140px;
+
+  border-radius: var(--radius-card);
+  border: 2px solid transparent;
+
+  background: var(--bg-elevated);
+
+  transition: all var(--duration-micro) var(--ease-out);
+
+  /* 重置按钮样式 */
+  cursor: default;
+  text-align: center;
+}
+
+/* 可点击状态 */
+.step--clickable {
+  cursor: pointer;
+}
+
+.step--clickable:hover {
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.step--clickable:active {
+  transform: translateY(0);
+}
+
+/* ==================== 状态变体 ==================== */
+
+/* 已完成 */
+.step--completed {
+  border-color: var(--status-success-border);
+  background: var(--status-success-bg);
+}
+
+.step--completed .step__icon {
+  color: var(--status-success);
+}
+
+/* 执行中 */
+.step--running {
+  border-color: var(--status-running-border);
+  background: var(--status-running-bg);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.step--running .step__icon {
+  color: var(--status-running);
+}
+
+/* 等待审批 */
+.step--awaiting {
+  border-color: var(--status-waiting-border);
+  background: var(--status-waiting-bg);
+  animation: glow 2s ease-in-out infinite;
+}
+
+.step--awaiting .step__icon {
+  color: var(--status-waiting);
+}
+
+/* 失败 */
+.step--failed {
+  border-color: var(--status-failed-border);
+  background: var(--status-failed-bg);
+}
+
+.step--failed .step__icon {
+  color: var(--status-failed);
+}
+
+/* 待执行 */
+.step--pending {
+  border-color: var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.step--pending .step__icon {
+  color: var(--text-quaternary);
+}
+
+/* ==================== 特殊标识 ==================== */
+
+/* 审批点 */
+.step--approval {
+  border-width: 3px;
+  border-style: dashed;
+}
+
+.step--approval.step--awaiting {
+  /* 审批点等待状态特别强调 */
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+/* 当前步骤 */
+.step--current {
+  transform: scale(1.1);
+  z-index: 1;
+}
+
+/* ==================== 步骤内容 ==================== */
+
+.step__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--bg-base);
+}
+
+.step__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  width: 100%;
+}
+
+.step__title {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  line-height: var(--line-height-body);
+}
+
+.step__badge {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-badge);
+  background: var(--status-waiting);
+  color: var(--text-on-primary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.step__error {
+  font-size: var(--font-size-caption);
+  color: var(--status-failed);
+  line-height: var(--line-height-caption);
+}
+
+.step__duration {
+  font-size: var(--font-size-caption);
+  color: var(--text-tertiary);
+}
+
+/* ==================== Connector（连接线） ==================== */
+
+.connector {
+  width: 40px;
+  height: 2px;
+  background: var(--border-default);
+  position: relative;
+
+  transition: background-color var(--duration-micro) var(--ease-out);
+}
+
+.connector--completed {
+  background: var(--status-success);
+}
+
+/* 箭头效果（可选） */
+.connector::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 0;
+  height: 0;
+  border-left: 6px solid var(--border-default);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+
+  transition: border-color var(--duration-micro) var(--ease-out);
+}
+
+.connector--completed::after {
+  border-left-color: var(--status-success);
+}
+
+/* ==================== 响应式 ==================== */
+
+@media (max-width: 768px) {
+  .step {
+    min-width: 100px;
+  }
+
+  .step__title {
+    font-size: var(--font-size-caption);
+  }
+
+  .connector {
+    width: 20px;
+  }
+}
+
+/* ==================== 动画 ==================== */
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+  }
+}
+
+/* ==================== 无障碍 ==================== */
+
+.step:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* 尊重用户的减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .step,
+  .connector,
+  .step--running,
+  .step--awaiting,
+  .step--current {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .step--clickable:hover {
+    transform: none;
+  }
+
+  .step--current {
+    transform: none;
+  }
+}

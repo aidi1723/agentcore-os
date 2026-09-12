@@ -1,0 +1,27 @@
+[    1183ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:24650
+[    4315ms] [WARNING] The resource http://127.0.0.1:3001/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3001/:0
+[  181656ms] [ERROR] Failed to load resource: the server responded with a status of 408 (Request Timeout) @ http://127.0.0.1:3001/api/publish/queue/run:0
+[  181657ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ http://127.0.0.1:3001/api/publish/queue/run:0
+[  280942ms] [ERROR] %o
+
+%s ChunkLoadError: Loading chunk _app-pages-browser_src_components_apps_SettingsAppWindow_tsx failed.
+(timeout: http://127.0.0.1:3001/_next/static/chunks/_app-pages-browser_src_components_apps_SettingsAppWindow_tsx.js)
+    at __webpack_require__.f.j (http://127.0.0.1:3001/_next/static/chunks/webpack.js?v=1784133182995:858:29)
+    at http://127.0.0.1:3001/_next/static/chunks/webpack.js?v=1784133182995:153:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (http://127.0.0.1:3001/_next/static/chunks/webpack.js?v=1784133182995:152:67)
+    at fn.e (http://127.0.0.1:3001/_next/static/chunks/webpack.js?v=1784133182995:389:50)
+    at SettingsAppWindow.loadableGenerated.modules [as loader] (webpack-internal:///(app-pages-browser)/./src/apps/registry.ts:275:108)
+    at eval (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/lazy-dynamic/loadable.js:40:58)
+    at lazyInitializer (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react/cjs/react.development.js:760:16)
+    at react-stack-bottom-frame (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:23719:18)
+    at beginWork (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:9615:24)
+    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:544:16)
+    at performUnitOfWork (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15064:22)
+    at workLoopSync (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14888:41)
+    at renderRootSync (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14868:11)
+    at performWorkOnRoot (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14351:13)
+    at performSyncWorkOnRoot (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15970:7)
+    at flushSyncWorkAcrossRoots_impl (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15830:21)
+    at processRootScheduleInMicrotask (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15864:7)
+    at eval (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:15986:13) The above error occurred in the <Lazy> component. It was handled by the <ReactDevOverlay> error boundary. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/react-client-callbacks/app-router.js:52

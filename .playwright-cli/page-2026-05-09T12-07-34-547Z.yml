@@ -1,0 +1,109 @@
+- generic [ref=e2]:
+  - main [ref=e3]:
+    - heading "面向企业的智能体定制服务" [level=1] [ref=e4]
+    - paragraph [ref=e5]: AgentCore OS 专注智能体企业定制、企业智能体定制、企业定制智能体、 企业定制 Agent、AI 智能体企业定制、企业 AI Agent 定制、企业智能体解决方案 和企业智能体私有化部署，帮助企业把客服、销售、知识库、运营、招聘等业务场景 建成可执行、可复用、可审计的专属智能体工作流。
+    - heading "企业智能体定制开发方向" [level=2] [ref=e6]
+    - list [ref=e7]:
+      - listitem [ref=e8]: 智能体企业定制开发与企业 AI 智能体定制开发
+      - listitem [ref=e9]: 企业专属智能体定制、企业内部智能体定制和企业本地部署智能体
+      - listitem [ref=e10]: 企业客服智能体定制、企业销售智能体定制和企业知识库智能体定制
+      - listitem [ref=e11]: 企业运营智能体定制、企业招聘智能体定制和行业智能体企业定制
+      - listitem [ref=e12]: 企业 AI 工作流自动化、企业流程自动化智能体和多智能体工作流平台
+    - heading "适合咨询的长尾成交需求" [level=2] [ref=e13]
+    - paragraph [ref=e14]: 如果正在评估智能体企业定制多少钱、企业智能体定制费用、企业智能体怎么定制、 企业 AI Agent 定制流程或企业智能体定制方案，可以从业务流程、数据权限、 知识库接入、工具调用、部署方式和验收指标六个维度规划项目范围。
+  - generic [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - img "AgentCore OS" [ref=e24]
+        - generic [ref=e25]:
+          - generic [ref=e26]: AgentCore OS
+          - generic [ref=e27]: Business Solution Operating System
+      - button "搜索" [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+      - generic [ref=e32]: "--:--"
+      - generic [ref=e33]: Loading date
+    - generic [ref=e34]:
+      - button "中文 ▾" [ref=e36] [cursor=pointer]:
+        - generic [ref=e37]:
+          - img [ref=e38]
+          - text: 中文 ▾
+      - 'button "✨ 引擎: Kimi (Moonshot) ▾" [ref=e44] [cursor=pointer]'
+      - button "音量" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - combobox "切换桌面模式" [ref=e53]:
+          - option "默认桌面"
+          - option "创作模式" [selected]
+          - option "工作流模式"
+        - generic:
+          - generic: ▼
+      - button "窗口管理" [ref=e55] [cursor=pointer]:
+        - img [ref=e56]
+        - generic [ref=e61]: "0"
+      - button "工作台" [ref=e62] [cursor=pointer]
+      - button "设置" [ref=e63] [cursor=pointer]
+  - generic [ref=e68]:
+    - generic [ref=e70]:
+      - button "内容与创作者未启动" [ref=e71] [cursor=pointer]
+      - button "销售与商务未启动" [ref=e72] [cursor=pointer]
+      - button "客服与用户运营未启动" [ref=e73] [cursor=pointer]
+      - button "研究与策略未启动" [ref=e74] [cursor=pointer]
+    - generic [ref=e75]:
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - generic [ref=e79]: Agent chat
+            - heading "Sales Desk" [level=1] [ref=e80]
+            - paragraph [ref=e81]: 直接描述目标、客户、约束条件和你期待的下一步动作。
+          - generic [ref=e82]:
+            - generic [ref=e83]: 销售与商务
+            - generic [ref=e84]: Kimi (Moonshot)
+            - generic [ref=e85]: 未启动 · 4 个阶段
+        - generic [ref=e88]:
+          - generic [ref=e89]: 像聊天一样安排工作
+          - generic [ref=e90]: 输入目标、客户、约束和期望结果，AgentCore OS 会把它转成可执行的工作链。
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - button "搜索目标客户并按优先级排序" [ref=e93] [cursor=pointer]
+            - button "根据客户画像起草首轮触达话术" [ref=e94] [cursor=pointer]
+            - button "把今天的销售推进链拆成可执行任务" [ref=e95] [cursor=pointer]
+          - generic [ref=e96]:
+            - textbox "例如：帮销售部自动搜索并筛选 20 个潜在客户，按优先级排序，起草第一轮触达内容，并生成可执行的任务推进链。" [ref=e97]
+            - generic [ref=e98]:
+              - generic [ref=e99]: Enter 发送，Shift + Enter 换行
+              - generic [ref=e100]:
+                - button "打开角色桌面" [ref=e101] [cursor=pointer]:
+                  - img [ref=e102]
+                  - text: 打开角色桌面
+                - button "启动工作流" [ref=e105] [cursor=pointer]:
+                  - img [ref=e106]
+                  - text: 启动工作流
+                - button "发送命令" [disabled] [ref=e109]:
+                  - img [ref=e110]
+                  - text: 发送命令
+      - generic [ref=e112]:
+        - button "工作流" [ref=e113] [cursor=pointer]:
+          - generic [ref=e114]:
+            - img [ref=e115]
+            - generic [ref=e118]: 工作流
+        - button "审批" [ref=e119] [cursor=pointer]:
+          - generic [ref=e120]:
+            - img [ref=e121]
+            - generic [ref=e123]: 审批
+        - button "资产" [ref=e124] [cursor=pointer]:
+          - generic [ref=e125]:
+            - img [ref=e126]
+            - generic [ref=e128]: 资产
+        - button "运行时" [ref=e129] [cursor=pointer]:
+          - generic [ref=e130]:
+            - img [ref=e131]
+            - generic [ref=e134]: 运行时
+        - button "行业中心" [ref=e135] [cursor=pointer]:
+          - generic [ref=e136]:
+            - img [ref=e137]
+            - generic [ref=e141]: 行业中心
+        - button "方案库" [ref=e142] [cursor=pointer]:
+          - generic [ref=e143]:
+            - img [ref=e144]
+            - generic [ref=e147]: 方案库

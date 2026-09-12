@@ -1,0 +1,292 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - main [ref=e3]:
+      - heading "面向企业的智能体定制服务" [level=1] [ref=e4]
+      - paragraph [ref=e5]: AgentCore OS 专注智能体企业定制、企业智能体定制、企业定制智能体、 企业定制 Agent、AI 智能体企业定制、企业 AI Agent 定制、企业智能体解决方案 和企业智能体私有化部署，帮助企业把客服、销售、知识库、运营、招聘等业务场景 建成可执行、可复用、可审计的专属智能体工作流。
+      - heading "企业智能体定制开发方向" [level=2] [ref=e6]
+      - list [ref=e7]:
+        - listitem [ref=e8]: 智能体企业定制开发与企业 AI 智能体定制开发
+        - listitem [ref=e9]: 企业专属智能体定制、企业内部智能体定制和企业本地部署智能体
+        - listitem [ref=e10]: 企业客服智能体定制、企业销售智能体定制和企业知识库智能体定制
+        - listitem [ref=e11]: 企业运营智能体定制、企业招聘智能体定制和行业智能体企业定制
+        - listitem [ref=e12]: 企业 AI 工作流自动化、企业流程自动化智能体和多智能体工作流平台
+      - heading "适合咨询的长尾成交需求" [level=2] [ref=e13]
+      - paragraph [ref=e14]: 如果正在评估智能体企业定制多少钱、企业智能体定制费用、企业智能体怎么定制、 企业 AI Agent 定制流程或企业智能体定制方案，可以从业务流程、数据权限、 知识库接入、工具调用、部署方式和验收指标六个维度规划项目范围。
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - img "AgentCore OS" [ref=e24]
+          - generic [ref=e25]:
+            - generic [ref=e26]: AgentCore OS
+            - generic [ref=e27]: Business Solution Operating System
+        - button "搜索" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+        - generic [ref=e32]: 19:29
+        - generic [ref=e33]: 5月9日周六
+      - generic [ref=e34]:
+        - button "中文 ▾" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]:
+            - img [ref=e38]
+            - text: 中文 ▾
+        - 'button "✨ 引擎: Kimi (Moonshot) ▾" [ref=e44] [cursor=pointer]'
+        - generic [ref=e45]:
+          - img [ref=e46]
+          - button "音量" [ref=e50] [cursor=pointer]:
+            - img [ref=e51]
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - combobox "切换桌面模式" [ref=e59]:
+            - option "默认桌面"
+            - option "创作模式" [selected]
+            - option "工作流模式"
+          - generic:
+            - generic: ▼
+        - button "窗口管理" [ref=e61] [cursor=pointer]:
+          - img [ref=e62]
+          - generic [ref=e67]: "0"
+        - button "工作台" [ref=e68] [cursor=pointer]
+        - button "设置" [ref=e69] [cursor=pointer]
+    - generic [ref=e72]:
+      - generic [ref=e74]:
+        - complementary [ref=e75]:
+          - generic [ref=e76]:
+            - img "AgentCore OS" [ref=e78]
+            - generic [ref=e79]:
+              - generic [ref=e80]: Business scenarios
+              - generic [ref=e81]: 部门模式
+          - generic [ref=e82]:
+            - button "内容与创作者 Creator Desk 运行中 围绕选题、改写、分发和复盘的内容增长桌面。" [ref=e340] [cursor=pointer]:
+              - generic [ref=e84]:
+                - generic [ref=e85]:
+                  - generic [ref=e86]: 内容与创作者
+                  - generic [ref=e87]: Creator Desk
+                - generic [ref=e88]: 运行中
+              - generic [ref=e89]: 围绕选题、改写、分发和复盘的内容增长桌面。
+            - button "销售与商务 Sales Desk 运行中 聚焦线索判断、邮件推进、CRM 跟进和成交闭环。" [ref=e341] [cursor=pointer]:
+              - generic [ref=e91]:
+                - generic [ref=e92]:
+                  - generic [ref=e93]: 销售与商务
+                  - generic [ref=e94]: Sales Desk
+                - generic [ref=e95]: 运行中
+              - generic [ref=e96]: 聚焦线索判断、邮件推进、CRM 跟进和成交闭环。
+            - button "客服与用户运营 收到高风险工单 / 差评 / 私信投诉 未启动 适合工单、私信、评论区和 FAQ 回答场景。" [ref=e97] [cursor=pointer]:
+              - generic [ref=e98]:
+                - generic [ref=e99]:
+                  - generic [ref=e100]: 客服与用户运营
+                  - generic [ref=e101]: 收到高风险工单 / 差评 / 私信投诉
+                - generic [ref=e102]: 未启动
+              - generic [ref=e103]: 适合工单、私信、评论区和 FAQ 回答场景。
+            - button "研究与策略 Research Desk 运行中 从研究输入、情报摘要到观点沉淀的一体化工作台。" [ref=e342] [cursor=pointer]:
+              - generic [ref=e105]:
+                - generic [ref=e106]:
+                  - generic [ref=e107]: 研究与策略
+                  - generic [ref=e108]: Research Desk
+                - generic [ref=e109]: 运行中
+              - generic [ref=e110]: 从研究输入、情报摘要到观点沉淀的一体化工作台。
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - generic [ref=e113]:
+              - generic [ref=e114]:
+                - generic [ref=e115]: Command center
+                - heading "Sales Desk" [level=1] [ref=e116]
+                - paragraph [ref=e117]: 直接描述目标、客户、约束条件和你期待的下一步动作。
+              - generic [ref=e118]:
+                - generic [ref=e119]: 销售与商务
+                - generic [ref=e120]: Kimi (Moonshot)
+                - generic [ref=e121]: 运行中 · 1/4 阶段
+            - generic [ref=e122]:
+              - textbox "例如：帮销售部自动搜索并筛选 20 个潜在客户，按优先级排序，起草第一轮触达内容，并生成可执行的任务推进链。" [ref=e123]
+              - generic [ref=e124]:
+                - generic [ref=e125]: Enter 发送，Shift + Enter 换行
+                - generic [ref=e126]:
+                  - button "打开角色桌面" [ref=e127] [cursor=pointer]:
+                    - img [ref=e128]
+                    - text: 打开角色桌面
+                  - button "启动工作流" [ref=e131] [cursor=pointer]:
+                    - img [ref=e132]
+                    - text: 启动工作流
+                  - button "发送命令" [disabled] [ref=e135]:
+                    - img [ref=e136]
+                    - text: 发送命令
+          - generic [ref=e138]:
+            - button "工作流 Sales Desk" [ref=e139] [cursor=pointer]:
+              - img [ref=e142]
+              - generic [ref=e146]: 工作流
+              - generic [ref=e147]: Sales Desk
+            - button "审批 人工确认、阻塞项和任务状态" [ref=e148] [cursor=pointer]:
+              - img [ref=e151]
+              - generic [ref=e154]: 审批
+              - generic [ref=e155]: 人工确认、阻塞项和任务状态
+            - button "资产 沉淀可复用结果与知识" [ref=e156] [cursor=pointer]:
+              - img [ref=e159]
+              - generic [ref=e162]: 资产
+              - generic [ref=e163]: 沉淀可复用结果与知识
+            - button "运行时 Runtime 需要检查" [ref=e164] [cursor=pointer]:
+              - img [ref=e167]
+              - generic [ref=e171]: 运行时
+              - generic [ref=e172]: Runtime 需要检查
+          - generic [ref=e173]:
+            - generic [ref=e174]:
+              - generic [ref=e175]:
+                - generic [ref=e176]: Active workflow
+                - generic [ref=e177]: 从线索筛选到成交跟进的销售推进链
+              - generic [ref=e178]:
+                - button "行业中心" [ref=e179] [cursor=pointer]:
+                  - img [ref=e180]
+                  - text: 行业中心
+                - button "方案库" [ref=e184] [cursor=pointer]:
+                  - img [ref=e185]
+                  - text: 方案库
+            - generic [ref=e188]:
+              - generic [ref=e189]:
+                - generic [ref=e190]: 阶段 1
+                - generic [ref=e191]: 筛选线索
+                - generic [ref=e192]: 协作
+              - generic [ref=e193]:
+                - generic [ref=e194]: 阶段 2
+                - generic [ref=e195]: 生成跟进
+                - generic [ref=e196]: 审核
+              - generic [ref=e197]:
+                - generic [ref=e198]: 阶段 3
+                - generic [ref=e199]: 会后收口
+                - generic [ref=e200]: 协作
+              - generic [ref=e201]:
+                - generic [ref=e202]: 阶段 4
+                - generic [ref=e203]: 沉淀打法
+                - generic [ref=e204]: 人工
+          - generic [ref=e205]:
+            - generic [ref=e207]: 执行动态
+            - generic [ref=e208]:
+              - generic [ref=e343]: 搜索目标客户并按优先级排序
+              - generic [ref=e344]: claw-code runtime is unavailable. Configure or package the claw binary.
+              - generic [ref=e345]: hi
+              - generic [ref=e346]: AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+              - generic [ref=e347]: hi
+              - generic [ref=e348]: AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+            - generic [ref=e211]:
+              - button "搜索目标客户并按优先级排序" [ref=e212] [cursor=pointer]
+              - button "根据客户画像起草首轮触达话术" [ref=e213] [cursor=pointer]
+              - button "把今天的销售推进链拆成可执行任务" [ref=e214] [cursor=pointer]
+        - complementary [ref=e215]:
+          - generic [ref=e216]:
+            - generic [ref=e217]: Attention
+            - generic [ref=e218]:
+              - button "待人工确认 需要判断、授权或复核 2" [ref=e349] [cursor=pointer]:
+                - generic [ref=e220]:
+                  - generic [ref=e221]:
+                    - generic [ref=e222]: 待人工确认
+                    - generic [ref=e223]: 需要判断、授权或复核
+                  - generic [ref=e224]: "2"
+              - button "运行中任务 正在执行或窗口已打开 4" [ref=e350] [cursor=pointer]:
+                - generic [ref=e226]:
+                  - generic [ref=e227]:
+                    - generic [ref=e228]: 运行中任务
+                    - generic [ref=e229]: 正在执行或窗口已打开
+                  - generic [ref=e230]: "4"
+              - button "失败/重试 需要检查异常链路 0" [ref=e231] [cursor=pointer]:
+                - generic [ref=e232]:
+                  - generic [ref=e233]:
+                    - generic [ref=e234]: 失败/重试
+                    - generic [ref=e235]: 需要检查异常链路
+                  - generic [ref=e236]: "0"
+              - button "运行时 AgentCoreOS Runtime 状态 需检查" [ref=e237] [cursor=pointer]:
+                - generic [ref=e238]:
+                  - generic [ref=e239]:
+                    - generic [ref=e240]: 运行时
+                    - generic [ref=e241]: AgentCoreOS Runtime 状态
+                  - generic [ref=e242]: 需检查
+          - generic [ref=e243]:
+            - generic [ref=e244]:
+              - generic [ref=e245]:
+                - generic [ref=e246]: Reusable assets
+                - generic [ref=e247]: 目标交付物
+              - button "打开应用" [ref=e248] [cursor=pointer]
+            - generic [ref=e249]:
+              - button "客户画像结构" [ref=e250] [cursor=pointer]
+              - button "跟进邮件节奏" [ref=e251] [cursor=pointer]
+              - button "销售话术模板" [ref=e252] [cursor=pointer]
+              - button "机会推进规则" [ref=e253] [cursor=pointer]
+          - generic [ref=e254]:
+            - generic [ref=e255]: 执行动态
+            - generic [ref=e256]:
+              - generic [ref=e260]:
+                - generic [ref=e261]: 桌面状态
+                - generic [ref=e262]: 运行中 · 1/4 阶段
+              - generic [ref=e266]:
+                - generic [ref=e267]: 工作流主线
+                - generic [ref=e268]: 从线索筛选到成交跟进的销售推进链
+              - generic [ref=e272]:
+                - generic [ref=e273]: 目标交付物
+                - generic [ref=e274]: 客户画像结构 · 跟进邮件节奏 · 销售话术模板 · 机会推进规则
+      - generic [ref=e275]:
+        - generic [ref=e276]:
+          - generic [ref=e277]:
+            - generic [ref=e278]:
+              - generic [ref=e279]: Home command deck
+              - generic [ref=e280]: 今日执行面板
+              - generic [ref=e281]: 把角色、工作流、审批、资产和 AgentCoreOS Runtime 放在同一个第一屏，不再让任务散成应用图标。
+            - generic [ref=e282]:
+              - img [ref=e283]
+              - text: Runtime attention
+          - generic [ref=e286]:
+            - button "运行时 AgentCoreOS Runtime 需要检查" [ref=e287] [cursor=pointer]:
+              - img [ref=e289]
+              - generic [ref=e292]: 运行时
+              - generic [ref=e293]: AgentCoreOS Runtime 需要检查
+            - button "工作流 Creator Studio" [ref=e294] [cursor=pointer]:
+              - img [ref=e296]
+              - generic [ref=e300]: 工作流
+              - generic [ref=e301]: Creator Studio
+            - button "审批 人工确认、阻塞项和任务状态" [ref=e302] [cursor=pointer]:
+              - img [ref=e304]
+              - generic [ref=e306]: 审批
+              - generic [ref=e307]: 人工确认、阻塞项和任务状态
+            - button "资产 沉淀可复用结果与知识" [ref=e308] [cursor=pointer]:
+              - img [ref=e310]
+              - generic [ref=e314]: 资产
+              - generic [ref=e315]: 沉淀可复用结果与知识
+        - generic [ref=e316]:
+          - generic [ref=e317]:
+            - generic [ref=e318]:
+              - generic [ref=e319]: Work surface
+              - generic [ref=e320]: 当前工作面
+            - img [ref=e321]
+          - generic [ref=e323]:
+            - generic [ref=e324]:
+              - generic [ref=e325]: Apps
+              - generic [ref=e326]: "32"
+              - generic [ref=e327]: 当前角色可用组件
+            - generic [ref=e328]:
+              - generic [ref=e329]: Active
+              - generic [ref=e330]: "0"
+              - generic [ref=e331]: 已打开或最小化
+            - generic [ref=e332]:
+              - generic [ref=e333]: Dock
+              - generic [ref=e334]: "10"
+              - generic [ref=e335]: 高频任务入口
+            - generic [ref=e336]:
+              - generic [ref=e337]: Role
+              - generic [ref=e338]: Creator Studio
+              - generic [ref=e339]: 当前方案上下文
+    - generic:
+      - button "向上翻页" [disabled] [ref=e351]:
+        - img [ref=e352]
+      - button "向下翻页" [ref=e354] [cursor=pointer]:
+        - img [ref=e355]
+    - generic [ref=e389]:
+      - img "AgentCore OS" [ref=e392]
+      - generic [ref=e393]:
+        - button "进入轻量级桌面" [ref=e394] [cursor=pointer]:
+          - generic [ref=e395]: 进入轻量级桌面
+          - img [ref=e396]
+        - button "配置桌面" [ref=e398] [cursor=pointer]:
+          - generic [ref=e399]: 配置桌面
+          - img [ref=e400]
+  - status [ref=e377]:
+    - generic [ref=e378]:
+      - img [ref=e380]
+      - generic [ref=e382]:
+        - text: Static route
+        - button "Hide static indicator" [ref=e383] [cursor=pointer]:
+          - img [ref=e384]
+  - alert [ref=e387]

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "kind": "release_handoff_evidence_snapshot",
+  "createdAt": "2026-07-06T16:53:02.554Z",
+  "command": "release:handoff:snapshot",
+  "sourceCommand": "release:handoff:check",
+  "ok": true,
+  "productionReady": false,
+  "publishingPerformed": false,
+  "evidenceOnly": true,
+  "git": {
+    "branch": "main",
+    "commit": "0dcbc9f",
+    "dirty": true,
+    "hasTrackedChanges": true,
+    "hasUntrackedFiles": true,
+    "statusShort": [
+      " M CHANGELOG.md",
+      " M docs/NEXT_STEPS.md",
+      " M package.json",
+      " M src/lib/server-backed-list-state.ts",
+      "?? .playwright-cli/",
+      "?? .superpowers/",
+      "?? HEARTBEAT.md",
+      "?? IDENTITY.md",
+      "?? SOUL.md",
+      "?? TOOLS.md",
+      "?? USER.md",
+      "?? docs/superpowers/plans/2026-05-04-claw-code-executor-redesign.md",
+      "?? docs/superpowers/plans/2026-05-23-project-hardening-optimization.md",
+      "?? docs/superpowers/specs/2026-05-04-claw-code-executor-redesign.md",
+      "?? output/",
+      "?? scripts/seo/",
+      "?? src/__tests__/lib/server-backed-list-state.test.ts"
+    ]
+  },
+  "handoffReport": {
+    "ok": true,
+    "command": "release:handoff:check",
+    "productionReady": false,
+    "publishingPerformed": false,
+    "checks": [
+      {
+        "name": "release_hygiene_check",
+        "command": "npm run release:hygiene:check",
+        "ok": true,
+        "exitCode": 0,
+        "durationMs": 264
+      },
+      {
+        "name": "delivery_ready_check",
+        "command": "npm run delivery:ready:check",
+        "ok": true,
+        "exitCode": 0,
+        "durationMs": 610
+      },
+      {
+        "name": "controlled_runtime_tests",
+        "command": "npm run test:controlled-runtime",
+        "ok": true,
+        "exitCode": 0,
+        "durationMs": 4678
+      },
+      {
+        "name": "core_workflow_tests",
+        "command": "npm run test:core-workflows",
+        "ok": true,
+        "exitCode": 0,
+        "durationMs": 757
+      },
+      {
+        "name": "lint",
+        "command": "npm run lint",
+        "ok": true,
+        "exitCode": 0,
+        "durationMs": 1185
+      },
+      {
+        "name": "build",
+        "command": "npm run build",
+        "ok": true,
+        "exitCode": 0,
+        "durationMs": 10924
+      },
+      {
+        "name": "diff_check",
+        "command": "git diff --check",
+        "ok": true,
+        "exitCode": 0,
+        "durationMs": 14
+      }
+    ],
+    "knownWarnings": [
+      "production readiness is not claimed by this gate",
+      "no publishing, tagging, uploading, or installer packaging is performed",
+      "release:hygiene:check owns warning-only secret pattern review details",
+      "lint/build may report the existing <img> warning in ShellUI.test.tsx"
+    ],
+    "releaseClaim": "local_release_handoff_ready"
+  },
+  "knownWarnings": [
+    "snapshot is local evidence only and is not a published release artifact",
+    "output/release-handoff snapshots should not be committed by default"
+  ],
+  "releaseClaim": "local_release_handoff_ready"
+}

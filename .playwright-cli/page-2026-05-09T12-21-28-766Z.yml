@@ -1,0 +1,1048 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - main [ref=e3]:
+      - heading "面向企业的智能体定制服务" [level=1] [ref=e4]
+      - paragraph [ref=e5]: AgentCore OS 专注智能体企业定制、企业智能体定制、企业定制智能体、 企业定制 Agent、AI 智能体企业定制、企业 AI Agent 定制、企业智能体解决方案 和企业智能体私有化部署，帮助企业把客服、销售、知识库、运营、招聘等业务场景 建成可执行、可复用、可审计的专属智能体工作流。
+      - heading "企业智能体定制开发方向" [level=2] [ref=e6]
+      - list [ref=e7]:
+        - listitem [ref=e8]: 智能体企业定制开发与企业 AI 智能体定制开发
+        - listitem [ref=e9]: 企业专属智能体定制、企业内部智能体定制和企业本地部署智能体
+        - listitem [ref=e10]: 企业客服智能体定制、企业销售智能体定制和企业知识库智能体定制
+        - listitem [ref=e11]: 企业运营智能体定制、企业招聘智能体定制和行业智能体企业定制
+        - listitem [ref=e12]: 企业 AI 工作流自动化、企业流程自动化智能体和多智能体工作流平台
+      - heading "适合咨询的长尾成交需求" [level=2] [ref=e13]
+      - paragraph [ref=e14]: 如果正在评估智能体企业定制多少钱、企业智能体定制费用、企业智能体怎么定制、 企业 AI Agent 定制流程或企业智能体定制方案，可以从业务流程、数据权限、 知识库接入、工具调用、部署方式和验收指标六个维度规划项目范围。
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - img "AgentCore OS" [ref=e24]
+          - generic [ref=e25]:
+            - generic [ref=e26]: AgentCore OS
+            - generic [ref=e27]: Business Solution Operating System
+        - button "搜索" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+        - generic [ref=e32]: 20:21
+        - generic [ref=e33]: 5月9日周六
+      - generic [ref=e34]:
+        - button "中文 ▾" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]:
+            - img [ref=e38]
+            - text: 中文 ▾
+        - 'button "✨ 引擎: Kimi (Moonshot) ▾" [ref=e44] [cursor=pointer]'
+        - generic [ref=e45]:
+          - img [ref=e46]
+          - button "音量" [ref=e50] [cursor=pointer]:
+            - img [ref=e51]
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - combobox "切换桌面模式" [ref=e59]:
+            - option "默认桌面"
+            - option "创作模式" [selected]
+            - option "工作流模式"
+          - generic:
+            - generic: ▼
+        - button "窗口管理" [ref=e61] [cursor=pointer]:
+          - img [ref=e62]
+          - generic [ref=e67]: "1"
+        - button "工作台" [ref=e68] [cursor=pointer]
+        - button "设置" [ref=e69] [cursor=pointer]
+    - generic [ref=e74]:
+      - generic [ref=e76]:
+        - button "内容与创作者运行中" [ref=e236] [cursor=pointer]
+        - button "销售与商务运行中" [ref=e237] [cursor=pointer]
+        - button "客服与用户运营未启动" [ref=e79] [cursor=pointer]
+        - button "研究与策略运行中" [ref=e238] [cursor=pointer]
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - generic [ref=e84]:
+              - generic [ref=e85]: Agent chat
+              - heading "Sales Desk" [level=1] [ref=e86]
+              - paragraph [ref=e87]: 直接描述目标、客户、约束条件和你期待的下一步动作。
+            - generic [ref=e88]:
+              - generic [ref=e89]: 销售与商务
+              - generic [ref=e90]: Kimi (Moonshot)
+              - generic [ref=e91]: 运行中 · 1/4 阶段
+          - generic [ref=e93]:
+            - generic [ref=e239]: 搜索目标客户并按优先级排序
+            - generic [ref=e240]: claw-code runtime is unavailable. Configure or package the claw binary.
+            - generic [ref=e241]: hi
+            - generic [ref=e242]: AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+            - generic [ref=e243]: hi
+            - generic [ref=e244]: AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+            - generic [ref=e245]: hi
+            - generic [ref=e246]: AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - button "搜索目标客户并按优先级排序" [ref=e99] [cursor=pointer]
+              - button "根据客户画像起草首轮触达话术" [ref=e100] [cursor=pointer]
+              - button "把今天的销售推进链拆成可执行任务" [ref=e101] [cursor=pointer]
+            - generic [ref=e102]:
+              - textbox "例如：帮销售部自动搜索并筛选 20 个潜在客户，按优先级排序，起草第一轮触达内容，并生成可执行的任务推进链。" [ref=e103]
+              - generic [ref=e104]:
+                - generic [ref=e105]: Enter 发送，Shift + Enter 换行
+                - generic [ref=e106]:
+                  - button "打开角色桌面" [ref=e107] [cursor=pointer]:
+                    - img [ref=e108]
+                    - text: 打开角色桌面
+                  - button "启动工作流" [ref=e111] [cursor=pointer]:
+                    - img [ref=e112]
+                    - text: 启动工作流
+                  - button "发送命令" [disabled] [ref=e115]:
+                    - img [ref=e116]
+                    - text: 发送命令
+        - complementary [ref=e118]:
+          - generic [ref=e119]:
+            - generic [ref=e120]: Tools
+            - generic [ref=e121]:
+              - button "工作流" [ref=e122] [cursor=pointer]:
+                - generic [ref=e123]:
+                  - img [ref=e124]
+                  - generic [ref=e127]: 工作流
+              - button "审批" [ref=e128] [cursor=pointer]:
+                - generic [ref=e129]:
+                  - img [ref=e130]
+                  - generic [ref=e132]: 审批
+              - button "资产" [ref=e133] [cursor=pointer]:
+                - generic [ref=e134]:
+                  - img [ref=e135]
+                  - generic [ref=e137]: 资产
+              - button "运行时" [ref=e138] [cursor=pointer]:
+                - generic [ref=e139]:
+                  - img [ref=e140]
+                  - generic [ref=e143]: 运行时
+              - button "行业中心" [active] [ref=e144] [cursor=pointer]:
+                - generic [ref=e145]:
+                  - img [ref=e146]
+                  - generic [ref=e150]: 行业中心
+              - button "方案库" [ref=e151] [cursor=pointer]:
+                - generic [ref=e152]:
+                  - img [ref=e153]
+                  - generic [ref=e156]: 方案库
+          - generic [ref=e157]:
+            - generic [ref=e158]: Attention
+            - generic [ref=e159]:
+              - button "待人工确认 需要判断、授权或复核 2" [ref=e247] [cursor=pointer]:
+                - generic [ref=e161]:
+                  - generic [ref=e162]:
+                    - generic [ref=e163]: 待人工确认
+                    - generic [ref=e164]: 需要判断、授权或复核
+                  - generic [ref=e165]: "2"
+              - button "运行中任务 正在执行或窗口已打开 4" [ref=e248] [cursor=pointer]:
+                - generic [ref=e167]:
+                  - generic [ref=e168]:
+                    - generic [ref=e169]: 运行中任务
+                    - generic [ref=e170]: 正在执行或窗口已打开
+                  - generic [ref=e171]: "4"
+              - button "失败/重试 需要检查异常链路 0" [ref=e172] [cursor=pointer]:
+                - generic [ref=e173]:
+                  - generic [ref=e174]:
+                    - generic [ref=e175]: 失败/重试
+                    - generic [ref=e176]: 需要检查异常链路
+                  - generic [ref=e177]: "0"
+              - button "运行时 AgentCoreOS Runtime 状态 需检查" [ref=e178] [cursor=pointer]:
+                - generic [ref=e179]:
+                  - generic [ref=e180]:
+                    - generic [ref=e181]: 运行时
+                    - generic [ref=e182]: AgentCoreOS Runtime 状态
+                  - generic [ref=e183]: 需检查
+          - generic [ref=e184]:
+            - generic [ref=e185]: Workflow
+            - generic [ref=e186]: 从线索筛选到成交跟进的销售推进链
+            - generic [ref=e187]:
+              - generic [ref=e188]:
+                - generic [ref=e189]: 阶段 1
+                - generic [ref=e190]: 筛选线索
+                - generic [ref=e191]: 协作
+              - generic [ref=e192]:
+                - generic [ref=e193]: 阶段 2
+                - generic [ref=e194]: 生成跟进
+                - generic [ref=e195]: 审核
+              - generic [ref=e196]:
+                - generic [ref=e197]: 阶段 3
+                - generic [ref=e198]: 会后收口
+                - generic [ref=e199]: 协作
+              - generic [ref=e200]:
+                - generic [ref=e201]: 阶段 4
+                - generic [ref=e202]: 沉淀打法
+                - generic [ref=e203]: 人工
+          - generic [ref=e204]:
+            - generic [ref=e205]:
+              - generic [ref=e206]:
+                - generic [ref=e207]: Reusable assets
+                - generic [ref=e208]: 目标交付物
+              - button "打开应用" [ref=e209] [cursor=pointer]
+            - generic [ref=e210]:
+              - button "客户画像结构" [ref=e211] [cursor=pointer]
+              - button "跟进邮件节奏" [ref=e212] [cursor=pointer]
+              - button "销售话术模板" [ref=e213] [cursor=pointer]
+              - button "机会推进规则" [ref=e214] [cursor=pointer]
+          - generic [ref=e215]:
+            - generic [ref=e216]: 执行动态
+            - generic [ref=e217]:
+              - generic [ref=e221]:
+                - generic [ref=e222]: 桌面状态
+                - generic [ref=e223]: 运行中 · 1/4 阶段
+              - generic [ref=e227]:
+                - generic [ref=e228]: 工作流主线
+                - generic [ref=e229]: 从线索筛选到成交跟进的销售推进链
+              - generic [ref=e233]:
+                - generic [ref=e234]: 目标交付物
+                - generic [ref=e235]: 客户画像结构 · 跟进邮件节奏 · 销售话术模板 · 机会推进规则
+    - generic [ref=e295]:
+      - generic [ref=e296]:
+        - generic [ref=e297]:
+          - button "关闭" [ref=e298] [cursor=pointer]:
+            - img [ref=e299]
+          - button "最小化" [ref=e302] [cursor=pointer]:
+            - img [ref=e303]
+        - generic [ref=e305]:
+          - img [ref=e307]
+          - generic [ref=e311]: 行业应用中心
+        - generic [ref=e313]: Workspace App
+      - generic [ref=e315]:
+        - generic [ref=e317]:
+          - generic [ref=e318]:
+            - generic [ref=e319]: 行业应用中心
+            - generic [ref=e320]: 把成熟的落地场景按行业打包成可直接使用的工作台和 app 组合。
+          - button "打开方案库" [ref=e321] [cursor=pointer]:
+            - img [ref=e322]
+            - text: 打开方案库
+        - generic [ref=e326]:
+          - complementary [ref=e327]:
+            - button "内容与创作者 2 套模板 围绕选题、内容生产、再利用和分发形成闭环。" [ref=e328] [cursor=pointer]:
+              - generic [ref=e329]:
+                - generic [ref=e330]: 内容与创作者
+                - generic [ref=e331]: 2 套模板
+              - generic [ref=e332]: 围绕选题、内容生产、再利用和分发形成闭环。
+            - button "销售与增长 2 套模板 围绕线索判断、关系推进、邮件跟进和增长动作展开。" [ref=e333] [cursor=pointer]:
+              - generic [ref=e334]:
+                - generic [ref=e335]: 销售与增长
+                - generic [ref=e336]: 2 套模板
+              - generic [ref=e337]: 围绕线索判断、关系推进、邮件跟进和增长动作展开。
+            - button "客服与用户成功 2 套模板 围绕多渠道收口、标准回复、CRM 跟进和知识沉淀展开。" [ref=e338] [cursor=pointer]:
+              - generic [ref=e339]:
+                - generic [ref=e340]: 客服与用户成功
+                - generic [ref=e341]: 2 套模板
+              - generic [ref=e342]: 围绕多渠道收口、标准回复、CRM 跟进和知识沉淀展开。
+            - button "研究与策略 2 套模板 围绕多源情报、市场研究、洞察沉淀和日常策略节奏。" [ref=e343] [cursor=pointer]:
+              - generic [ref=e344]:
+                - generic [ref=e345]: 研究与策略
+                - generic [ref=e346]: 2 套模板
+              - generic [ref=e347]: 围绕多源情报、市场研究、洞察沉淀和日常策略节奏。
+            - button "招聘与人才 1 套模板 围绕候选人筛选、面试记录、评分卡和后续跟进展开。" [ref=e348] [cursor=pointer]:
+              - generic [ref=e349]:
+                - generic [ref=e350]: 招聘与人才
+                - generic [ref=e351]: 1 套模板
+              - generic [ref=e352]: 围绕候选人筛选、面试记录、评分卡和后续跟进展开。
+            - button "项目与运营 1 套模板 围绕项目周报、阻塞同步、推进节奏和执行收口展开。" [ref=e353] [cursor=pointer]:
+              - generic [ref=e354]:
+                - generic [ref=e355]: 项目与运营
+                - generic [ref=e356]: 1 套模板
+              - generic [ref=e357]: 围绕项目周报、阻塞同步、推进节奏和执行收口展开。
+            - button "个人与家庭 3 套模板 围绕晨报、家庭节奏、习惯、健康和长期记录。" [ref=e358] [cursor=pointer]:
+              - generic [ref=e359]:
+                - generic [ref=e360]: 个人与家庭
+                - generic [ref=e361]: 3 套模板
+              - generic [ref=e362]: 围绕晨报、家庭节奏、习惯、健康和长期记录。
+          - main [ref=e363]:
+            - generic [ref=e364]:
+              - generic [ref=e365]:
+                - generic [ref=e366]:
+                  - generic [ref=e367]: 角色工作台入口
+                  - generic [ref=e368]: 先按角色进入，再让系统带出对应场景、默认应用组合和启动顺序，比先找 App 更接近真实业务入口。
+                - generic [ref=e369]: industry + role + workflow
+              - generic [ref=e370]:
+                - generic [ref=e371]:
+                  - generic [ref=e372]:
+                    - generic [ref=e373]:
+                      - generic [ref=e374]: CEO Desk
+                      - generic [ref=e375]: 看摘要、抓风险、盯推进，用最少入口判断今天最重要的事。
+                    - img [ref=e376]
+                  - generic [ref=e380]:
+                    - generic [ref=e381]: 核心关注
+                    - generic [ref=e382]:
+                      - generic [ref=e383]: 晨报摘要
+                      - generic [ref=e384]: 关键推进
+                      - generic [ref=e385]: 会后闭环
+                      - generic [ref=e386]: 风险与决策
+                  - generic [ref=e387]: 默认场景：Founder Command Center · Desktop 11 · Dock 7
+                  - generic [ref=e388]:
+                    - button "查看流程" [ref=e389] [cursor=pointer]:
+                      - img [ref=e390]
+                      - text: 查看流程
+                    - button "进入这个角色工作台" [ref=e392] [cursor=pointer]:
+                      - img [ref=e393]
+                      - text: 进入这个角色工作台
+                    - button "查看对应场景" [ref=e398] [cursor=pointer]:
+                      - img [ref=e399]
+                      - text: 查看对应场景
+                - generic [ref=e403]:
+                  - generic [ref=e404]:
+                    - generic [ref=e405]:
+                      - generic [ref=e406]: Creator Desk
+                      - generic [ref=e407]: 围绕选题、改写、分发和复盘的内容增长桌面。
+                    - img [ref=e408]
+                  - generic [ref=e412]:
+                    - generic [ref=e413]: 核心关注
+                    - generic [ref=e414]:
+                      - generic [ref=e415]: 选题雷达
+                      - generic [ref=e416]: 内容改写
+                      - generic [ref=e417]: 发布预演
+                      - generic [ref=e418]: 资产沉淀
+                  - generic [ref=e419]: 默认场景：Creator Studio · Desktop 11 · Dock 8
+                  - generic [ref=e420]:
+                    - button "建议起点" [ref=e421] [cursor=pointer]:
+                      - img [ref=e422]
+                      - text: 建议起点
+                    - button "进入这个角色工作台" [ref=e424] [cursor=pointer]:
+                      - img [ref=e425]
+                      - text: 进入这个角色工作台
+                    - button "查看对应场景" [ref=e430] [cursor=pointer]:
+                      - img [ref=e431]
+                      - text: 查看对应场景
+                - generic [ref=e435]:
+                  - generic [ref=e436]:
+                    - generic [ref=e437]:
+                      - generic [ref=e438]: Sales Desk
+                      - generic [ref=e439]: 聚焦线索判断、邮件推进、CRM 跟进和成交闭环。
+                    - img [ref=e440]
+                  - generic [ref=e444]:
+                    - generic [ref=e445]: 核心关注
+                    - generic [ref=e446]:
+                      - generic [ref=e447]: 线索筛选
+                      - generic [ref=e448]: 跟进邮件
+                      - generic [ref=e449]: CRM 推进
+                      - generic [ref=e450]: 成交机会
+                  - generic [ref=e451]: 默认场景：Sales Pipeline Desk · Desktop 8 · Dock 5
+                  - generic [ref=e452]:
+                    - button "查看流程" [ref=e453] [cursor=pointer]:
+                      - img [ref=e454]
+                      - text: 查看流程
+                    - button "进入这个角色工作台" [ref=e456] [cursor=pointer]:
+                      - img [ref=e457]
+                      - text: 进入这个角色工作台
+                    - button "查看对应场景" [ref=e462] [cursor=pointer]:
+                      - img [ref=e463]
+                      - text: 查看对应场景
+                - generic [ref=e467]:
+                  - generic [ref=e468]:
+                    - generic [ref=e469]:
+                      - generic [ref=e470]: Ops Desk
+                      - generic [ref=e471]: 让任务、周报、风险同步和执行状态更可见。
+                    - img [ref=e472]
+                  - generic [ref=e476]:
+                    - generic [ref=e477]: 核心关注
+                    - generic [ref=e478]:
+                      - generic [ref=e479]: 任务收口
+                      - generic [ref=e480]: 项目节奏
+                      - generic [ref=e481]: 风险同步
+                      - generic [ref=e482]: 执行追踪
+                  - generic [ref=e483]: 默认场景：Project Delivery Board · Desktop 7 · Dock 5
+                  - generic [ref=e484]:
+                    - button "查看流程" [ref=e485] [cursor=pointer]:
+                      - img [ref=e486]
+                      - text: 查看流程
+                    - button "进入这个角色工作台" [ref=e488] [cursor=pointer]:
+                      - img [ref=e489]
+                      - text: 进入这个角色工作台
+                    - button "查看对应场景" [ref=e494] [cursor=pointer]:
+                      - img [ref=e495]
+                      - text: 查看对应场景
+                - generic [ref=e499]:
+                  - generic [ref=e500]:
+                    - generic [ref=e501]:
+                      - generic [ref=e502]: Research Desk
+                      - generic [ref=e503]: 从研究输入、情报摘要到观点沉淀的一体化工作台。
+                    - img [ref=e504]
+                  - generic [ref=e508]:
+                    - generic [ref=e509]: 核心关注
+                    - generic [ref=e510]:
+                      - generic [ref=e511]: 情报摄取
+                      - generic [ref=e512]: 研究摘要
+                      - generic [ref=e513]: 观点沉淀
+                      - generic [ref=e514]: 内容转化
+                  - generic [ref=e515]: 默认场景：Research Radar · Desktop 9 · Dock 7
+                  - generic [ref=e516]:
+                    - button "查看流程" [ref=e517] [cursor=pointer]:
+                      - img [ref=e518]
+                      - text: 查看流程
+                    - button "进入这个角色工作台" [ref=e520] [cursor=pointer]:
+                      - img [ref=e521]
+                      - text: 进入这个角色工作台
+                    - button "查看对应场景" [ref=e526] [cursor=pointer]:
+                      - img [ref=e527]
+                      - text: 查看对应场景
+                - generic [ref=e531]:
+                  - generic [ref=e532]:
+                    - generic [ref=e533]:
+                      - generic [ref=e534]: People Desk
+                      - generic [ref=e535]: 围绕岗位筛选、面试记录、候选人推进和后续动作。
+                    - img [ref=e536]
+                  - generic [ref=e540]:
+                    - generic [ref=e541]: 核心关注
+                    - generic [ref=e542]:
+                      - generic [ref=e543]: 候选人筛选
+                      - generic [ref=e544]: 面试记录
+                      - generic [ref=e545]: 邮件跟进
+                      - generic [ref=e546]: 招聘闭环
+                  - generic [ref=e547]: 默认场景：Recruiting Pipeline · Desktop 7 · Dock 5
+                  - generic [ref=e548]:
+                    - button "查看流程" [ref=e549] [cursor=pointer]:
+                      - img [ref=e550]
+                      - text: 查看流程
+                    - button "进入这个角色工作台" [ref=e552] [cursor=pointer]:
+                      - img [ref=e553]
+                      - text: 进入这个角色工作台
+                    - button "查看对应场景" [ref=e558] [cursor=pointer]:
+                      - img [ref=e559]
+                      - text: 查看对应场景
+            - generic [ref=e563]:
+              - generic [ref=e564]:
+                - generic [ref=e565]:
+                  - generic [ref=e566]: 行业解决方案 Starter
+                  - generic [ref=e567]: 这里不是再列一组 App，而是给每个行业一个可以直接启动的样板方案，带预填上下文、默认应用和预期结果。
+                - generic [ref=e568]: scenario-ready starters
+              - generic [ref=e569]:
+                - generic [ref=e570]:
+                  - generic [ref=e571]:
+                    - generic [ref=e572]:
+                      - generic [ref=e573]:
+                        - generic [ref=e574]: 内容与创作者
+                        - generic [ref=e575]: 运行状态 · 运行中
+                      - generic [ref=e576]: 创作者内容增长冲刺
+                      - generic [ref=e577]: 把每日选题、内容改写和发布预演连起来，适合品牌内容团队、自媒体和独立创作者。
+                    - button "一键启动方案" [ref=e578] [cursor=pointer]:
+                      - img [ref=e579]
+                      - text: 一键启动方案
+                  - generic [ref=e582]:
+                    - generic [ref=e583]:
+                      - generic [ref=e584]: 触发场景
+                      - generic [ref=e585]: 每日内容日历 / 热点信号
+                    - generic [ref=e586]:
+                      - generic [ref=e587]: 预期交付
+                      - generic [ref=e588]: 输出可发布内容包和 Publisher 预演草稿
+                  - generic [ref=e589]:
+                    - generic [ref=e590]: 创作者雷达
+                    - generic [ref=e591]: 内容重组器
+                    - generic [ref=e592]: 发布中心
+                  - generic [ref=e593]:
+                    - generic [ref=e594]: 会沉淀的资产
+                    - generic [ref=e595]:
+                      - generic [ref=e596]: Hook 模板
+                      - generic [ref=e597]: 多平台内容包
+                      - generic [ref=e598]: 复用脚本
+                - generic [ref=e599]:
+                  - generic [ref=e600]:
+                    - generic [ref=e601]:
+                      - generic [ref=e602]:
+                        - generic [ref=e603]: 招聘与人才
+                        - generic [ref=e604]: 运行状态 · 运行中
+                      - generic [ref=e605]: 候选人评估与跟进闭环
+                      - generic [ref=e606]: 从面试记录、评分卡到候选人 follow-up，适合 founder、招聘负责人和用人经理。
+                    - button "一键启动方案" [ref=e607] [cursor=pointer]:
+                      - img [ref=e608]
+                      - text: 一键启动方案
+                  - generic [ref=e611]:
+                    - generic [ref=e612]:
+                      - generic [ref=e613]: 触发场景
+                      - generic [ref=e614]: 完成一轮面试 / 收到候选人资料
+                    - generic [ref=e615]:
+                      - generic [ref=e616]: 预期交付
+                      - generic [ref=e617]: 输出评分卡、下一步动作和跟进邮件
+                  - generic [ref=e618]:
+                    - generic [ref=e619]: 招聘工作台
+                    - generic [ref=e620]: 邮件助手
+                    - generic [ref=e621]: 任务中心
+                  - generic [ref=e622]:
+                    - generic [ref=e623]: 会沉淀的资产
+                    - generic [ref=e624]:
+                      - generic [ref=e625]: 候选人评分卡
+                      - generic [ref=e626]: 面试观察
+                      - generic [ref=e627]: 招聘 follow-up 模板
+                - generic [ref=e628]:
+                  - generic [ref=e629]:
+                    - generic [ref=e630]:
+                      - generic [ref=e631]:
+                        - generic [ref=e632]: 研究与策略
+                        - generic [ref=e633]: 运行状态 · 运行中
+                      - generic [ref=e634]: 竞争情报与市场扫描
+                      - generic [ref=e635]: 围绕研究主题、关键发现和日常决策输入，适合策略、投研、品牌和产品团队。
+                    - button "一键启动方案" [ref=e636] [cursor=pointer]:
+                      - img [ref=e637]
+                      - text: 一键启动方案
+                  - generic [ref=e640]:
+                    - generic [ref=e641]:
+                      - generic [ref=e642]: 触发场景
+                      - generic [ref=e643]: 每周市场扫描 / 新竞争对手出现
+                    - generic [ref=e644]:
+                      - generic [ref=e645]: 预期交付
+                      - generic [ref=e646]: 输出研究问题框架、长期资料库和晨报决策输入
+                  - generic [ref=e647]:
+                    - generic [ref=e648]: 深度研究台
+                    - generic [ref=e649]: 知识库
+                    - generic [ref=e650]: 晨报
+                  - generic [ref=e651]:
+                    - generic [ref=e652]: 会沉淀的资产
+                    - generic [ref=e653]:
+                      - generic [ref=e654]: 观察维度
+                      - generic [ref=e655]: 资料框架
+                      - generic [ref=e656]: 决策摘要
+                - generic [ref=e657]:
+                  - generic [ref=e658]:
+                    - generic [ref=e659]:
+                      - generic [ref=e660]:
+                        - generic [ref=e661]: 客服与用户成功
+                        - generic [ref=e662]: 运行状态 · 待启动
+                      - generic [ref=e663]: 客服升级与客户安抚
+                      - generic [ref=e664]: 从客户投诉、回复草稿到 CRM 留档，适合售后、客服和用户成功团队。
+                    - button "一键启动方案" [ref=e665] [cursor=pointer]:
+                      - img [ref=e666]
+                      - text: 一键启动方案
+                  - generic [ref=e669]:
+                    - generic [ref=e670]:
+                      - generic [ref=e671]: 触发场景
+                      - generic [ref=e672]: 收到高风险工单 / 差评 / 私信投诉
+                    - generic [ref=e673]:
+                      - generic [ref=e674]: 预期交付
+                      - generic [ref=e675]: 输出回复思路、客户记录和后续跟进动作
+                  - generic [ref=e676]:
+                    - generic [ref=e677]: 客服助手
+                    - generic [ref=e678]: 个人 CRM
+                    - generic [ref=e679]: 任务中心
+                  - generic [ref=e680]:
+                    - generic [ref=e681]: 会沉淀的资产
+                    - generic [ref=e682]:
+                      - generic [ref=e683]: FAQ 片段
+                      - generic [ref=e684]: 投诉案例
+                      - generic [ref=e685]: 客户跟进记录
+                - generic [ref=e686]:
+                  - generic [ref=e687]:
+                    - generic [ref=e688]:
+                      - generic [ref=e689]:
+                        - generic [ref=e690]: 销售与增长
+                        - generic [ref=e691]: 运行状态 · 运行中
+                      - generic [ref=e692]: 门窗外贸询盘推进
+                      - generic [ref=e693]: 从海外客户询盘进入资格判断、报价跟进和 CRM 收口，适合外贸销售或渠道拓展团队。
+                    - button "一键启动方案" [ref=e694] [cursor=pointer]:
+                      - img [ref=e695]
+                      - text: 一键启动方案
+                  - generic [ref=e698]:
+                    - generic [ref=e699]:
+                      - generic [ref=e700]: 触发场景
+                      - generic [ref=e701]: WhatsApp / 邮件收到新询盘
+                    - generic [ref=e702]:
+                      - generic [ref=e703]: 预期交付
+                      - generic [ref=e704]: 输出资格判断、首轮跟进稿和本地客户资产
+                  - generic [ref=e705]:
+                    - generic [ref=e706]: 商机判断台
+                    - generic [ref=e707]: 邮件助手
+                    - generic [ref=e708]: 个人 CRM
+                  - generic [ref=e709]:
+                    - generic [ref=e710]: 会沉淀的资产
+                    - generic [ref=e711]:
+                      - generic [ref=e712]: 客户偏好
+                      - generic [ref=e713]: 报价状态
+                      - generic [ref=e714]: 跟进节奏
+                - generic [ref=e715]:
+                  - generic [ref=e716]:
+                    - generic [ref=e717]:
+                      - generic [ref=e718]:
+                        - generic [ref=e719]: 项目与运营
+                        - generic [ref=e720]: 运行状态 · 待启动
+                      - generic [ref=e721]: 项目周报与风险收口
+                      - generic [ref=e722]: 从晨间优先级、项目简报到会议纪要收口，适合项目经理、交付负责人和运营 lead。
+                    - button "一键启动方案" [ref=e723] [cursor=pointer]:
+                      - img [ref=e724]
+                      - text: 一键启动方案
+                  - generic [ref=e727]:
+                    - generic [ref=e728]:
+                      - generic [ref=e729]: 触发场景
+                      - generic [ref=e730]: 周会前 / 项目有阻塞时
+                    - generic [ref=e731]:
+                      - generic [ref=e732]: 预期交付
+                      - generic [ref=e733]: 输出项目 brief、任务动作和风险同步清单
+                  - generic [ref=e734]:
+                    - generic [ref=e735]: 晨报
+                    - generic [ref=e736]: 项目运营台
+                    - generic [ref=e737]: 会议助手
+                    - generic [ref=e738]: 任务中心
+                  - generic [ref=e739]:
+                    - generic [ref=e740]: 会沉淀的资产
+                    - generic [ref=e741]:
+                      - generic [ref=e742]: 项目 brief
+                      - generic [ref=e743]: 风险清单
+                      - generic [ref=e744]: 执行动作项
+            - generic [ref=e745]:
+              - generic [ref=e746]:
+                - generic [ref=e747]:
+                  - generic [ref=e748]: Creator Desk · 默认工作流
+                  - generic [ref=e749]: 这里定义的是该角色进入后的推荐执行顺序，也标明了 AI 辅助、人工确认和最终该沉淀的业务资产。
+                  - generic [ref=e750]: 从选题、改写到分发和复盘的内容增长链
+                - generic [ref=e751]:
+                  - generic [ref=e752]: 建议起点：发现选题
+                  - generic [ref=e753]: 运行状态 · 运行中
+              - generic [ref=e754]:
+                - generic [ref=e755]:
+                  - generic [ref=e756]:
+                    - generic [ref=e757]: 触发器
+                    - generic [ref=e758]: 工作流不应该只靠手动点开。这里定义它会因什么事件被拉起。
+                  - button "启动这条流程" [ref=e759] [cursor=pointer]:
+                    - img [ref=e760]
+                    - text: 启动这条流程
+                - generic [ref=e763]:
+                  - button "手动选题 manual 内容负责人主动开始今天的内容生产链。" [ref=e764] [cursor=pointer]:
+                    - generic [ref=e765]: 手动选题
+                    - generic [ref=e766]: manual
+                    - generic [ref=e767]: 内容负责人主动开始今天的内容生产链。
+                  - button "内容日历 schedule 按日更/周更节奏拉起内容工作流。" [ref=e768] [cursor=pointer]:
+                    - generic [ref=e769]: 内容日历
+                    - generic [ref=e770]: schedule
+                    - generic [ref=e771]: 按日更/周更节奏拉起内容工作流。
+              - generic [ref=e772]:
+                - generic [ref=e773]:
+                  - generic [ref=e774]:
+                    - generic [ref=e775]:
+                      - generic [ref=e776]: "1"
+                      - generic [ref=e777]: 发现选题
+                    - generic [ref=e778]:
+                      - img [ref=e779]
+                      - text: AI 辅助
+                  - generic [ref=e781]: 从 Tech Digest 和 Creator Radar 里筛出今天最值得推进的一条内容。
+                  - generic [ref=e783]: 运行中
+                  - generic [ref=e784]:
+                    - button "科技情报摘要" [ref=e785] [cursor=pointer]
+                    - button "创作者雷达" [ref=e786] [cursor=pointer]
+                - generic [ref=e787]:
+                  - generic [ref=e788]:
+                    - generic [ref=e789]:
+                      - generic [ref=e790]: "2"
+                      - generic [ref=e791]: 生成内容包
+                    - generic [ref=e792]:
+                      - img [ref=e793]
+                      - text: AI 辅助
+                  - generic [ref=e795]: 把长内容或摘要拆成短视频、帖子和 newsletter 等可执行版本。
+                  - generic [ref=e797]: 待启动
+                  - generic [ref=e798]:
+                    - button "内容重组器" [ref=e799] [cursor=pointer]
+                    - button "AI 文案" [ref=e800] [cursor=pointer]
+                    - button "AI 视觉工坊" [ref=e801] [cursor=pointer]
+                - generic [ref=e802]:
+                  - generic [ref=e803]:
+                    - generic [ref=e804]:
+                      - generic [ref=e805]: "3"
+                      - generic [ref=e806]: 发布前检查
+                    - generic [ref=e807]:
+                      - img [ref=e808]
+                      - text: 待人工确认
+                  - generic [ref=e811]: 检查标题、CTA、平台匹配度和自动化条件，必要时先做修正版。
+                  - generic [ref=e813]: 待启动
+                  - button "发布中心" [ref=e815] [cursor=pointer]
+                - generic [ref=e816]:
+                  - generic [ref=e817]:
+                    - generic [ref=e818]:
+                      - generic [ref=e819]: "4"
+                      - generic [ref=e820]: 发布与复用
+                    - generic [ref=e821]:
+                      - img [ref=e822]
+                      - text: AI 辅助
+                  - generic [ref=e824]: 进入预演/分发，再把有效版本和经验沉淀成可复用资产。
+                  - generic [ref=e826]: 待启动
+                  - generic [ref=e827]:
+                    - button "发布中心" [ref=e828] [cursor=pointer]
+                    - button "知识库" [ref=e829] [cursor=pointer]
+                    - button "任务中心" [ref=e830] [cursor=pointer]
+              - generic [ref=e832]:
+                - generic [ref=e833]:
+                  - generic [ref=e834]: 运行状态
+                  - generic [ref=e835]: 当前运行流：Creator Studio · trigger schedule
+                - generic [ref=e836]: 当前阶段由业务应用执行结果驱动，这里仅展示状态
+              - generic [ref=e837]:
+                - generic [ref=e838]: 结果资产
+                - generic [ref=e839]:
+                  - generic [ref=e840]: 平台文案模板
+                  - generic [ref=e841]: 高表现内容结构
+                  - generic [ref=e842]: 发布候选稿
+                  - generic [ref=e843]: 复盘笔记
+            - generic [ref=e844]:
+              - button "Creator Command Center 把 Daily YouTube Digest、YouTube Content Pipeline、Podcast Production Pipeline 这类成熟场景压成一个内容工作台。 Daily YouTube Digest YouTube Content Pipeline Podcast Production Pipeline" [ref=e845] [cursor=pointer]:
+                - generic [ref=e846]:
+                  - generic [ref=e847]:
+                    - generic [ref=e848]: Creator Command Center
+                    - generic [ref=e849]: 把 Daily YouTube Digest、YouTube Content Pipeline、Podcast Production Pipeline 这类成熟场景压成一个内容工作台。
+                  - img [ref=e850]
+                - generic [ref=e852]:
+                  - generic [ref=e853]: Daily YouTube Digest
+                  - generic [ref=e854]: YouTube Content Pipeline
+                  - generic [ref=e855]: Podcast Production Pipeline
+              - button "Creator Newsroom 把 Multi-Source Tech News Digest、Podcast Production Pipeline、Content Repurposing 一类场景压成适合日更和多平台分发的内容编辑部。 Multi-Source Tech News Digest Podcast Production Pipeline Content Repurposing" [ref=e856] [cursor=pointer]:
+                - generic [ref=e857]:
+                  - generic [ref=e858]:
+                    - generic [ref=e859]: Creator Newsroom
+                    - generic [ref=e860]: 把 Multi-Source Tech News Digest、Podcast Production Pipeline、Content Repurposing 一类场景压成适合日更和多平台分发的内容编辑部。
+                  - img [ref=e861]
+                - generic [ref=e863]:
+                  - generic [ref=e864]: Multi-Source Tech News Digest
+                  - generic [ref=e865]: Podcast Production Pipeline
+                  - generic [ref=e866]: Content Repurposing
+            - generic [ref=e867]:
+              - generic [ref=e868]:
+                - generic [ref=e869]:
+                  - generic [ref=e870]: Creator Command Center
+                  - generic [ref=e871]: 把 Daily YouTube Digest、YouTube Content Pipeline、Podcast Production Pipeline 这类成熟场景压成一个内容工作台。
+                - generic [ref=e872]:
+                  - button "应用到工作台" [ref=e873] [cursor=pointer]:
+                    - img [ref=e874]
+                    - text: 应用到工作台
+                  - button "打开核心应用" [ref=e877] [cursor=pointer]:
+                    - img [ref=e878]
+                    - text: 打开核心应用
+                  - button "启动行业桌面" [ref=e883] [cursor=pointer]:
+                    - img [ref=e884]
+                    - text: 启动行业桌面
+              - generic [ref=e887]:
+                - generic [ref=e888]: 高频快捷入口
+                - generic [ref=e889]:
+                  - generic [ref=e890]:
+                    - generic [ref=e891]:
+                      - generic [ref=e892]:
+                        - generic [ref=e893]: 今日选题
+                        - generic [ref=e894]: 快速进入内容雷达和选题整理。
+                      - button "执行快捷入口" [ref=e895] [cursor=pointer]:
+                        - img [ref=e896]
+                        - text: 执行快捷入口
+                    - generic [ref=e899]:
+                      - generic [ref=e900]: 科技情报摘要
+                      - generic [ref=e901]: 创作者雷达
+                  - generic [ref=e902]:
+                    - generic [ref=e903]:
+                      - generic [ref=e904]:
+                        - generic [ref=e905]: SEO 页面
+                        - generic [ref=e906]: 把主题快速整理成网站结构和 SEO 页面方案。
+                      - button "执行快捷入口" [ref=e907] [cursor=pointer]:
+                        - img [ref=e908]
+                        - text: 执行快捷入口
+                    - generic [ref=e911]:
+                      - generic [ref=e912]: 网站 SEO 工作室
+                      - generic [ref=e913]: 知识库
+                  - generic [ref=e914]:
+                    - generic [ref=e915]:
+                      - generic [ref=e916]:
+                        - generic [ref=e917]: 一稿多拆
+                        - generic [ref=e918]: 把长内容直接拆成多平台内容包。
+                      - button "执行快捷入口" [ref=e919] [cursor=pointer]:
+                        - img [ref=e920]
+                        - text: 执行快捷入口
+                    - generic [ref=e923]:
+                      - generic [ref=e924]: 社媒自动驾驶台
+                      - generic [ref=e925]: 内容重组器
+                      - generic [ref=e926]: 发布中心
+                  - generic [ref=e927]:
+                    - generic [ref=e928]:
+                      - generic [ref=e929]:
+                        - generic [ref=e930]: 去发布
+                        - generic [ref=e931]: 把已经整理好的内容继续推进到发布出口。
+                      - button "执行快捷入口" [ref=e932] [cursor=pointer]:
+                        - img [ref=e933]
+                        - text: 执行快捷入口
+                    - generic [ref=e936]:
+                      - generic [ref=e937]: 发布中心
+                      - generic [ref=e938]: AI 文案
+              - generic [ref=e939]:
+                - generic [ref=e940]: 行业首页面板
+                - generic [ref=e941]:
+                  - generic [ref=e942]:
+                    - generic [ref=e943]: 今日选题
+                    - generic [ref=e944]: 3 条
+                    - generic [ref=e945]: 先挑 1 条最值得做的内容推进
+                  - generic [ref=e946]:
+                    - generic [ref=e947]: 可复用内容
+                    - generic [ref=e948]: 长内容 -> 4 端
+                    - generic [ref=e949]: 优先做一稿多拆，降低生产成本
+                  - generic [ref=e950]:
+                    - generic [ref=e951]: 推荐启动
+                    - generic [ref=e952]: Radar -> Repurpose -> Publish
+                    - generic [ref=e953]: 先信息，后生产，再分发
+              - generic [ref=e954]:
+                - generic [ref=e955]:
+                  - generic [ref=e956]:
+                    - generic [ref=e957]: 工作台配置器
+                    - generic [ref=e958]: 选择要放到桌面和 Dock 的 app，把行业模板微调成你自己的工作台。
+                  - generic [ref=e959]:
+                    - button "恢复推荐模板" [ref=e960] [cursor=pointer]
+                    - button "应用自定义工作台" [ref=e961] [cursor=pointer]:
+                      - img [ref=e962]
+                      - text: 应用自定义工作台
+                - generic [ref=e965]:
+                  - generic [ref=e966]:
+                    - generic [ref=e967]:
+                      - generic [ref=e968]: 流程与执行
+                      - generic [ref=e969]:
+                        - generic [ref=e970]:
+                          - generic [ref=e972]:
+                            - generic [ref=e973]: 行业应用中心
+                            - generic [ref=e974]: 必选
+                          - generic [ref=e975]:
+                            - button "桌面" [disabled] [ref=e976]
+                            - button "Dock" [disabled] [ref=e977]
+                        - generic [ref=e978]:
+                          - generic [ref=e981]: 任务中心
+                          - generic [ref=e982]:
+                            - button "桌面" [ref=e983] [cursor=pointer]
+                            - button "Dock" [ref=e984] [cursor=pointer]
+                    - generic [ref=e985]:
+                      - generic [ref=e986]: 内容与发布
+                      - generic [ref=e987]:
+                        - generic [ref=e988]:
+                          - generic [ref=e991]: 网站 SEO 工作室
+                          - generic [ref=e992]:
+                            - button "桌面" [ref=e993] [cursor=pointer]
+                            - button "Dock" [ref=e994] [cursor=pointer]
+                        - generic [ref=e995]:
+                          - generic [ref=e998]: 社媒自动驾驶台
+                          - generic [ref=e999]:
+                            - button "桌面" [ref=e1000] [cursor=pointer]
+                            - button "Dock" [ref=e1001] [cursor=pointer]
+                        - generic [ref=e1002]:
+                          - generic [ref=e1005]: 内容重组器
+                          - generic [ref=e1006]:
+                            - button "桌面" [ref=e1007] [cursor=pointer]
+                            - button "Dock" [ref=e1008] [cursor=pointer]
+                        - generic [ref=e1009]:
+                          - generic [ref=e1012]: AI 文案
+                          - generic [ref=e1013]:
+                            - button "桌面" [ref=e1014] [cursor=pointer]
+                            - button "Dock" [ref=e1015] [cursor=pointer]
+                        - generic [ref=e1016]:
+                          - generic [ref=e1019]: AI 视觉工坊
+                          - generic [ref=e1020]:
+                            - button "桌面" [ref=e1021] [cursor=pointer]
+                            - button "Dock" [ref=e1022] [cursor=pointer]
+                        - generic [ref=e1023]:
+                          - generic [ref=e1026]: 发布中心
+                          - generic [ref=e1027]:
+                            - button "桌面" [ref=e1028] [cursor=pointer]
+                            - button "Dock" [ref=e1029] [cursor=pointer]
+                    - generic [ref=e1030]:
+                      - generic [ref=e1031]: 信息与洞察
+                      - generic [ref=e1032]:
+                        - generic [ref=e1033]:
+                          - generic [ref=e1036]: 科技情报摘要
+                          - generic [ref=e1037]:
+                            - button "桌面" [ref=e1038] [cursor=pointer]
+                            - button "Dock" [ref=e1039] [cursor=pointer]
+                        - generic [ref=e1040]:
+                          - generic [ref=e1043]: 创作者雷达
+                          - generic [ref=e1044]:
+                            - button "桌面" [ref=e1045] [cursor=pointer]
+                            - button "Dock" [ref=e1046] [cursor=pointer]
+                        - generic [ref=e1047]:
+                          - generic [ref=e1050]: 知识库
+                          - generic [ref=e1051]:
+                            - button "桌面" [ref=e1052] [cursor=pointer]
+                            - button "Dock" [ref=e1053] [cursor=pointer]
+                    - generic [ref=e1054]:
+                      - generic [ref=e1055]: 系统与设置
+                      - generic [ref=e1057]:
+                        - generic [ref=e1059]:
+                          - generic [ref=e1060]: 设置
+                          - generic [ref=e1061]: 必选
+                        - generic [ref=e1062]:
+                          - button "桌面" [disabled] [ref=e1063]
+                          - button "Dock" [ref=e1064] [cursor=pointer]
+                  - generic [ref=e1065]:
+                    - generic [ref=e1066]: 桌面应用
+                    - generic [ref=e1067]: 12 已选
+                    - generic [ref=e1068]:
+                      - generic [ref=e1069]: 行业应用中心
+                      - generic [ref=e1070]: 网站 SEO 工作室
+                      - generic [ref=e1071]: 科技情报摘要
+                      - generic [ref=e1072]: 社媒自动驾驶台
+                      - generic [ref=e1073]: 创作者雷达
+                      - generic [ref=e1074]: 内容重组器
+                      - generic [ref=e1075]: AI 文案
+                      - generic [ref=e1076]: AI 视觉工坊
+                      - generic [ref=e1077]: 发布中心
+                      - generic [ref=e1078]: 知识库
+                      - generic [ref=e1079]: 任务中心
+                      - generic [ref=e1080]: 设置
+                    - generic [ref=e1081]: Dock 应用
+                    - generic [ref=e1082]: 8 已选
+                    - generic [ref=e1083]:
+                      - generic [ref=e1084]: 行业应用中心
+                      - generic [ref=e1085]: 网站 SEO 工作室
+                      - generic [ref=e1086]: 社媒自动驾驶台
+                      - generic [ref=e1087]: 创作者雷达
+                      - generic [ref=e1088]: 内容重组器
+                      - generic [ref=e1089]: AI 文案
+                      - generic [ref=e1090]: 发布中心
+                      - generic [ref=e1091]: 设置
+              - generic [ref=e1092]:
+                - generic [ref=e1093]:
+                  - generic [ref=e1094]: 参考场景
+                  - generic [ref=e1095]:
+                    - generic [ref=e1096]: Daily YouTube Digest
+                    - generic [ref=e1097]: YouTube Content Pipeline
+                    - generic [ref=e1098]: Podcast Production Pipeline
+                    - generic [ref=e1099]: Multi-Source Tech News Digest
+                - generic [ref=e1100]:
+                  - generic [ref=e1101]: 组合应用
+                  - generic [ref=e1102]:
+                    - button "网站 SEO 工作室" [ref=e1103] [cursor=pointer]
+                    - button "科技情报摘要" [ref=e1104] [cursor=pointer]
+                    - button "社媒自动驾驶台" [ref=e1105] [cursor=pointer]
+                    - button "创作者雷达" [ref=e1106] [cursor=pointer]
+                    - button "内容重组器" [ref=e1107] [cursor=pointer]
+                    - button "AI 文案" [ref=e1108] [cursor=pointer]
+                    - button "发布中心" [ref=e1109] [cursor=pointer]
+                  - generic [ref=e1110]: 工作台配备
+                  - generic [ref=e1111]:
+                    - generic [ref=e1112]: 行业应用中心
+                    - generic [ref=e1113]: 网站 SEO 工作室
+                    - generic [ref=e1114]: 科技情报摘要
+                    - generic [ref=e1115]: 社媒自动驾驶台
+                    - generic [ref=e1116]: 创作者雷达
+                    - generic [ref=e1117]: 内容重组器
+                    - generic [ref=e1118]: AI 文案
+                    - generic [ref=e1119]: AI 视觉工坊
+                    - generic [ref=e1120]: 发布中心
+                    - generic [ref=e1121]: 知识库
+                    - generic [ref=e1122]: 任务中心
+                    - generic [ref=e1123]: 设置
+                - generic [ref=e1124]:
+                  - generic [ref=e1125]: 为什么这样组合
+                  - list [ref=e1126]:
+                    - listitem [ref=e1127]: 先做多源内容雷达，再整理成今日最值得做的选题。
+                    - listitem [ref=e1128]: 把长视频、播客、直播纪要拆成多平台内容包。
+                    - listitem [ref=e1129]: 直接把内容包送进发布中心继续排程和预演。
+              - generic [ref=e1130]:
+                - generic [ref=e1131]:
+                  - generic [ref=e1132]: 今日推荐动作
+                  - list [ref=e1133]:
+                    - listitem [ref=e1134]: 先看一轮 Tech / Market Digest，把今天最值得做的信号压出来。
+                    - listitem [ref=e1135]: 把最强的一条信号送进 Creator Radar，整理成 1 个主选题。
+                    - listitem [ref=e1136]: 需要做官网、专题页或 SEO 页面时，直接进 Website SEO Studio 出结构和关键词方案。
+                    - listitem [ref=e1137]: 需要多平台快发时，直接在 Social Media Auto-pilot 里整理渠道版本和回复建议。
+                    - listitem [ref=e1138]: 如果已有长内容素材，直接进 Content Repurposer 生成多平台内容包。
+                  - generic [ref=e1139]:
+                    - button "科技情报摘要" [ref=e1140] [cursor=pointer]
+                    - button "创作者雷达" [ref=e1141] [cursor=pointer]
+                    - button "网站 SEO 工作室" [ref=e1142] [cursor=pointer]
+                    - button "社媒自动驾驶台" [ref=e1143] [cursor=pointer]
+                    - button "内容重组器" [ref=e1144] [cursor=pointer]
+                    - button "发布中心" [ref=e1145] [cursor=pointer]
+                - generic [ref=e1146]:
+                  - generic [ref=e1147]:
+                    - generic [ref=e1148]: 应用分工
+                    - button "复制 use cases" [ref=e1149] [cursor=pointer]:
+                      - img [ref=e1150]
+                      - text: 复制 use cases
+                  - generic [ref=e1153]:
+                    - generic [ref=e1154]:
+                      - generic [ref=e1155]:
+                        - generic [ref=e1156]:
+                          - generic [ref=e1157]: 科技情报摘要
+                          - generic [ref=e1158]: 多源内容雷达
+                        - button "打开" [ref=e1159] [cursor=pointer]
+                      - generic [ref=e1160]: 先把值得关注的行业/创作者动态压成一份 digest。
+                    - generic [ref=e1161]:
+                      - generic [ref=e1162]:
+                        - generic [ref=e1163]:
+                          - generic [ref=e1164]: 创作者雷达
+                          - generic [ref=e1165]: 选题引擎
+                        - button "打开" [ref=e1166] [cursor=pointer]
+                      - generic [ref=e1167]: 把 digest 里的信号转成今天最值得做的内容角度。
+                    - generic [ref=e1168]:
+                      - generic [ref=e1169]:
+                        - generic [ref=e1170]:
+                          - generic [ref=e1171]: 网站 SEO 工作室
+                          - generic [ref=e1172]: 网站与 SEO 页面台
+                        - button "打开" [ref=e1173] [cursor=pointer]
+                      - generic [ref=e1174]: 把内容主题整理成可执行的页面结构、Meta 和 FAQ 方案。
+                    - generic [ref=e1175]:
+                      - generic [ref=e1176]:
+                        - generic [ref=e1177]:
+                          - generic [ref=e1178]: 社媒自动驾驶台
+                          - generic [ref=e1179]: 社媒改写与排期台
+                        - button "打开" [ref=e1180] [cursor=pointer]
+                      - generic [ref=e1181]: 把主稿快速整理成多平台版本、排期备注和回复建议。
+                    - generic [ref=e1182]:
+                      - generic [ref=e1183]:
+                        - generic [ref=e1184]:
+                          - generic [ref=e1185]: 内容重组器
+                          - generic [ref=e1186]: 长内容拆分器
+                        - button "打开" [ref=e1187] [cursor=pointer]
+                      - generic [ref=e1188]: 把长视频、播客或文章改造成 shorts、帖子和 newsletter。
+                    - generic [ref=e1189]:
+                      - generic [ref=e1190]:
+                        - generic [ref=e1191]:
+                          - generic [ref=e1192]: 发布中心
+                          - generic [ref=e1193]: 分发出口
+                        - button "打开" [ref=e1194] [cursor=pointer]
+                      - generic [ref=e1195]: 把已经生成的内容包继续预演、排程和发布。
+                - generic [ref=e1196]:
+                  - generic [ref=e1197]: 推荐流程
+                  - generic [ref=e1198]:
+                    - generic [ref=e1199]:
+                      - generic [ref=e1200]:
+                        - generic [ref=e1201]:
+                          - generic [ref=e1202]: 晨间选题启动
+                          - generic [ref=e1203]: 先看信息，再定今天最值得做的一条内容。
+                        - button "运行流程" [ref=e1204] [cursor=pointer]:
+                          - img [ref=e1205]
+                          - text: 运行流程
+                      - generic [ref=e1208]:
+                        - generic [ref=e1209]: 科技情报摘要
+                        - generic [ref=e1210]: 创作者雷达
+                    - generic [ref=e1211]:
+                      - generic [ref=e1212]:
+                        - generic [ref=e1213]:
+                          - generic [ref=e1214]: 网站内容页
+                          - generic [ref=e1215]: 把选题进一步整理成可承接搜索和转化的页面方案。
+                        - button "运行流程" [ref=e1216] [cursor=pointer]:
+                          - img [ref=e1217]
+                          - text: 运行流程
+                      - generic [ref=e1220]:
+                        - generic [ref=e1221]: 创作者雷达
+                        - generic [ref=e1222]: 网站 SEO 工作室
+                    - generic [ref=e1223]:
+                      - generic [ref=e1224]:
+                        - generic [ref=e1225]:
+                          - generic [ref=e1226]: 一稿多拆
+                          - generic [ref=e1227]: 把长内容快速拆成多平台内容包并送去发布。
+                        - button "运行流程" [ref=e1228] [cursor=pointer]:
+                          - img [ref=e1229]
+                          - text: 运行流程
+                      - generic [ref=e1232]:
+                        - generic [ref=e1233]: 社媒自动驾驶台
+                        - generic [ref=e1234]: 内容重组器
+                        - generic [ref=e1235]: 发布中心
+              - generic [ref=e1236]:
+                - generic [ref=e1237]: 默认启动顺序
+                - generic [ref=e1238]:
+                  - generic [ref=e1239]:
+                    - generic [ref=e1240]: "1"
+                    - generic [ref=e1241]: 科技情报摘要
+                  - generic [ref=e1242]:
+                    - generic [ref=e1243]: "2"
+                    - generic [ref=e1244]: 创作者雷达
+                  - generic [ref=e1245]:
+                    - generic [ref=e1246]: "3"
+                    - generic [ref=e1247]: 网站 SEO 工作室
+                  - generic [ref=e1248]:
+                    - generic [ref=e1249]: "4"
+                    - generic [ref=e1250]: 社媒自动驾驶台
+                  - generic [ref=e1251]:
+                    - generic [ref=e1252]: "5"
+                    - generic [ref=e1253]: 内容重组器
+                  - generic [ref=e1254]:
+                    - generic [ref=e1255]: "6"
+                    - generic [ref=e1256]: 发布中心
+  - status [ref=e269]:
+    - generic [ref=e270]:
+      - img [ref=e272]
+      - generic [ref=e274]:
+        - text: Static route
+        - button "Hide static indicator" [ref=e275] [cursor=pointer]:
+          - img [ref=e276]
+  - alert [ref=e279]

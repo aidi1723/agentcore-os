@@ -1,0 +1,124 @@
+[    7344ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  520038ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  557422ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:24650
+[  557501ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <ClientPageRoot Component={function Home} searchParams={{}} params={{}}>
+      <Home params={Promise} searchParams={Promise}>
+        <div className="relative h...">
+          <PublishQueueRunner>
+          <main>
+          <div>
+          <div>
+          <div>
+          <div>
+          <div className="absolute i..." style={{right:0}}>
+            <div ref={{current:null}} className="h-full ove...">
+              <div className="mx-auto h-...">
+                <SolutionCenterPanel language="zh-CN" activeProvider="kimi" runtimeReady={false} ...>
+                  <section className="h-full tex...">
+                    <div className="flex h-ful...">
+                      <div>
+                      <div className="grid min-h...">
+                        <section className="flex min-h...">
+                          <div>
+                          <div>
+                          <div>
+                          <div className="shrink-0 b...">
+                            <div>
+                            <div className="rounded-xl...">
+                              <textarea
+                                value=""
+                                onChange={function onChange}
+                                onKeyDown={function onKeyDown}
+                                rows={2}
+                                placeholder="例如：帮销售部自动搜索并筛选 20 个潜在客户，按优先级排序，起草第一轮触达内容，并生成可执行的任务推进链。"
+                                className="max-h-[96px] w-full resize-none bg-transparent px-4 py-3 text-[15px] leadin..."
+-                               style={{}}
+                              >
+                              ...
+                        ...
+                ...
+          ...
+    ...
+ @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/globals/intercept-console-error.js:50
+[  557885ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:240
+[  558028ms] [LOG] [Fast Refresh] done in 144ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:67
+[  558073ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:240
+[  558156ms] [LOG] [Fast Refresh] done in 83ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:67
+[  558232ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:240
+[  558288ms] [LOG] [Fast Refresh] done in 56ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:67
+[  558472ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:3100/api/runtime/executor/sessions/webos-desktop-command-center-sales-inbound-quote:0
+[  561475ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  568521ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  576518ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  584523ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  592517ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  597743ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:240
+[  597862ms] [LOG] [Fast Refresh] done in 119ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:67
+[  598084ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:3100/_agentcore/heartbeat:0
+[  598277ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:24650
+[  598375ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:3100/api/runtime/executor/sessions/webos-desktop-command-center-sales-inbound-quote:0
+[  601394ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  609348ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  617348ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  625349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  633348ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  641348ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  649355ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  657350ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  665348ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  673349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  681350ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  685593ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:3100/:0
+[  685615ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:240
+[  685792ms] [LOG] [Fast Refresh] done in 177ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:67
+[  689356ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  697349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  705350ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  713348ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  721349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  729349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  737349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  745349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  753350ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  756822ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  761350ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  769349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  777349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  785351ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  793349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  801349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  809349ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  817350ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  825351ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  833354ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  841352ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  849351ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  857351ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  865392ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  873378ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  881363ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  889354ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  897351ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  905351ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  913353ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  921352ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  929351ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  937358ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  945352ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  953350ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  961352ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  969357ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0
+[  977354ms] [WARNING] The resource http://127.0.0.1:3100/_next/image?url=%2Fagentcore-logo.png&w=3840&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://127.0.0.1:3100/:0

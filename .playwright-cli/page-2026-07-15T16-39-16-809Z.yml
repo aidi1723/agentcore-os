@@ -1,0 +1,187 @@
+- generic [ref=e2]:
+  - main [ref=e3]:
+    - heading "面向企业的智能体定制服务" [level=1] [ref=e4]
+    - paragraph [ref=e5]: AgentCore OS 专注智能体企业定制、企业智能体定制、企业定制智能体、 企业定制 Agent、AI 智能体企业定制、企业 AI Agent 定制、企业智能体解决方案 和企业智能体私有化部署，帮助企业把客服、销售、知识库、运营、招聘等业务场景 建成可执行、可复用、可审计的专属智能体工作流。
+    - heading "企业智能体定制开发方向" [level=2] [ref=e6]
+    - list [ref=e7]:
+      - listitem [ref=e8]: 智能体企业定制开发与企业 AI 智能体定制开发
+      - listitem [ref=e9]: 企业专属智能体定制、企业内部智能体定制和企业本地部署智能体
+      - listitem [ref=e10]: 企业客服智能体定制、企业销售智能体定制和企业知识库智能体定制
+      - listitem [ref=e11]: 企业运营智能体定制、企业招聘智能体定制和行业智能体企业定制
+      - listitem [ref=e12]: 企业 AI 工作流自动化、企业流程自动化智能体和多智能体工作流平台
+    - heading "适合咨询的长尾成交需求" [level=2] [ref=e13]
+    - paragraph [ref=e14]: 如果正在评估智能体企业定制多少钱、企业智能体定制费用、企业智能体怎么定制、 企业 AI Agent 定制流程或企业智能体定制方案，可以从业务流程、数据权限、 知识库接入、工具调用、部署方式和验收指标六个维度规划项目范围。
+  - generic [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - img "AgentCore OS" [ref=e24]
+        - generic [ref=e25]:
+          - generic [ref=e26]: AgentCore OS
+          - generic [ref=e27]: Business Solution Operating System
+      - button "搜索" [ref=e28] [cursor=pointer]
+      - generic [ref=e32]: "--:--"
+      - generic [ref=e33]: Loading date
+    - generic [ref=e34]:
+      - button [ref=e36] [cursor=pointer]
+      - 'button "✨ 引擎: Kimi (Moonshot) ▾" [ref=e44] [cursor=pointer]'
+      - button "音量" [ref=e50] [cursor=pointer]
+    - generic [ref=e57]:
+      - generic [ref=e58]:
+        - combobox "切换桌面模式" [ref=e59]:
+          - option "默认桌面"
+          - option "创作模式" [selected]
+          - option "工作流模式"
+        - generic: ▼
+      - button "窗口管理" [ref=e61] [cursor=pointer]:
+        - generic [ref=e67]: "0"
+      - button "工作台" [ref=e68] [cursor=pointer]
+      - button "设置" [active] [ref=e69] [cursor=pointer]
+  - generic [ref=e74]:
+    - generic [ref=e76]:
+      - button "内容与创作者未启动" [ref=e77] [cursor=pointer]
+      - button "销售与商务未启动" [ref=e78] [cursor=pointer]
+      - button "客服与用户运营未启动" [ref=e79] [cursor=pointer]
+      - button "研究与策略未启动" [ref=e80] [cursor=pointer]
+    - generic [ref=e81]:
+      - generic [ref=e82]:
+        - generic [ref=e83]:
+          - generic [ref=e84]:
+            - generic [ref=e85]: Runtime cockpit
+            - heading "受控 Playbook 指挥台" [level=1] [ref=e86]
+            - paragraph [ref=e87]: Sales Desk · 从线索筛选到成交跟进的销售推进链
+          - generic [ref=e88]:
+            - button "打开 Runtime Console" [ref=e89] [cursor=pointer]
+            - button "运行受控 playbook" [ref=e93] [cursor=pointer]
+        - generic [ref=e97]:
+          - generic [ref=e98]:
+            - generic [ref=e99]: Playbook 运行
+            - generic [ref=e100]: 未启动
+            - generic [ref=e101]: 当前受控执行状态
+          - generic [ref=e102]:
+            - generic [ref=e103]: 审批
+            - generic [ref=e104]: "0"
+            - generic [ref=e105]: 人工复核关口
+          - generic [ref=e106]:
+            - generic [ref=e107]: 恢复
+            - generic [ref=e108]: "0"
+            - generic [ref=e109]: 失败或可重试运行
+          - generic [ref=e110]:
+            - generic [ref=e111]: 治理门禁
+            - generic [ref=e112]: 需检查
+            - generic [ref=e113]: AgentCoreOS Light Runtime · governed trace 和 replay gates
+        - generic [ref=e116]:
+          - generic [ref=e117]: 像聊天一样安排工作
+          - generic [ref=e118]: 输入目标、客户、约束和期望结果，AgentCore OS 会把它转成可执行的工作链。
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - button "搜索目标客户并按优先级排序" [ref=e121] [cursor=pointer]
+            - button "根据客户画像起草首轮触达话术" [ref=e122] [cursor=pointer]
+            - button "把今天的销售推进链拆成可执行任务" [ref=e123] [cursor=pointer]
+          - generic [ref=e124]:
+            - textbox "例如：帮销售部自动搜索并筛选 20 个潜在客户，按优先级排序，起草第一轮触达内容，并生成可执行的任务推进链。" [ref=e125]
+            - generic [ref=e126]:
+              - generic [ref=e127]: Enter 发送，Shift + Enter 换行
+              - generic [ref=e128]:
+                - button "打开角色桌面" [ref=e129] [cursor=pointer]
+                - button "启动工作流" [ref=e133] [cursor=pointer]
+                - button "发送命令" [disabled] [ref=e137]
+      - complementary [ref=e140]:
+        - generic [ref=e141]:
+          - generic [ref=e142]:
+            - generic [ref=e143]:
+              - generic [ref=e144]: Runtime cockpit
+              - generic [ref=e145]: 受控 Playbook 指挥台
+              - generic [ref=e146]: Sales Desk · 从线索筛选到成交跟进的销售推进链
+            - button "打开 Runtime Console" [ref=e147] [cursor=pointer]
+          - generic [ref=e148]:
+            - generic [ref=e149]:
+              - generic [ref=e150]: Playbook 运行
+              - generic [ref=e151]: 未启动
+            - generic [ref=e152]:
+              - generic [ref=e153]: 审批
+              - generic [ref=e154]: "0"
+            - generic [ref=e155]:
+              - generic [ref=e156]: 恢复
+              - generic [ref=e157]: "0"
+            - generic [ref=e158]:
+              - generic [ref=e159]: 治理门禁
+              - generic [ref=e160]: 需检查
+        - generic [ref=e161]:
+          - generic [ref=e162]: Tools
+          - generic [ref=e163]:
+            - button "工作流" [ref=e164] [cursor=pointer]
+            - button "审批" [ref=e170] [cursor=pointer]
+            - button "资产" [ref=e175] [cursor=pointer]
+            - button "运行时" [ref=e180] [cursor=pointer]
+            - button "行业中心" [ref=e186] [cursor=pointer]
+            - button "方案库" [ref=e193] [cursor=pointer]
+        - generic [ref=e199]:
+          - generic [ref=e200]: Attention
+          - generic [ref=e201]:
+            - button "待人工确认 需要判断、授权或复核 0" [ref=e202] [cursor=pointer]:
+              - generic [ref=e203]:
+                - generic [ref=e204]:
+                  - generic [ref=e205]: 待人工确认
+                  - generic [ref=e206]: 需要判断、授权或复核
+                - generic [ref=e207]: "0"
+            - button "运行中任务 正在执行或窗口已打开 0" [ref=e208] [cursor=pointer]:
+              - generic [ref=e209]:
+                - generic [ref=e210]:
+                  - generic [ref=e211]: 运行中任务
+                  - generic [ref=e212]: 正在执行或窗口已打开
+                - generic [ref=e213]: "0"
+            - button "失败/重试 需要检查异常链路 0" [ref=e214] [cursor=pointer]:
+              - generic [ref=e215]:
+                - generic [ref=e216]:
+                  - generic [ref=e217]: 失败/重试
+                  - generic [ref=e218]: 需要检查异常链路
+                - generic [ref=e219]: "0"
+            - button "运行时 AgentCoreOS Runtime 状态 需检查" [ref=e220] [cursor=pointer]:
+              - generic [ref=e221]:
+                - generic [ref=e222]:
+                  - generic [ref=e223]: 运行时
+                  - generic [ref=e224]: AgentCoreOS Runtime 状态
+                - generic [ref=e225]: 需检查
+        - generic [ref=e226]:
+          - generic [ref=e227]: Workflow
+          - generic [ref=e228]: 从线索筛选到成交跟进的销售推进链
+          - generic [ref=e229]:
+            - generic [ref=e230]:
+              - generic [ref=e231]: 阶段 1
+              - generic [ref=e232]: 筛选线索
+              - generic [ref=e233]: 协作
+            - generic [ref=e234]:
+              - generic [ref=e235]: 阶段 2
+              - generic [ref=e236]: 生成跟进
+              - generic [ref=e237]: 审核
+            - generic [ref=e238]:
+              - generic [ref=e239]: 阶段 3
+              - generic [ref=e240]: 会后收口
+              - generic [ref=e241]: 协作
+            - generic [ref=e242]:
+              - generic [ref=e243]: 阶段 4
+              - generic [ref=e244]: 沉淀打法
+              - generic [ref=e245]: 人工
+        - generic [ref=e246]:
+          - generic [ref=e247]:
+            - generic [ref=e248]:
+              - generic [ref=e249]: Reusable assets
+              - generic [ref=e250]: 目标交付物
+            - button "打开应用" [ref=e251] [cursor=pointer]
+          - generic [ref=e252]:
+            - button "客户画像结构" [ref=e253] [cursor=pointer]
+            - button "跟进邮件节奏" [ref=e254] [cursor=pointer]
+            - button "销售话术模板" [ref=e255] [cursor=pointer]
+            - button "机会推进规则" [ref=e256] [cursor=pointer]
+        - generic [ref=e257]:
+          - generic [ref=e258]: 执行动态
+          - generic [ref=e259]:
+            - generic [ref=e263]:
+              - generic [ref=e264]: 桌面状态
+              - generic [ref=e265]: 未启动 · 4 个阶段
+            - generic [ref=e269]:
+              - generic [ref=e270]: 工作流主线
+              - generic [ref=e271]: 从线索筛选到成交跟进的销售推进链
+            - generic [ref=e275]:
+              - generic [ref=e276]: 目标交付物
+              - generic [ref=e277]: 客户画像结构 · 跟进邮件节奏 · 销售话术模板 · 机会推进规则

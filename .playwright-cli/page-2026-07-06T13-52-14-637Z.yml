@@ -1,0 +1,1027 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - main [ref=e3]:
+      - heading "面向企业的智能体定制服务" [level=1] [ref=e4]
+      - paragraph [ref=e5]: AgentCore OS 专注智能体企业定制、企业智能体定制、企业定制智能体、 企业定制 Agent、AI 智能体企业定制、企业 AI Agent 定制、企业智能体解决方案 和企业智能体私有化部署，帮助企业把客服、销售、知识库、运营、招聘等业务场景 建成可执行、可复用、可审计的专属智能体工作流。
+      - heading "企业智能体定制开发方向" [level=2] [ref=e6]
+      - list [ref=e7]:
+        - listitem [ref=e8]: 智能体企业定制开发与企业 AI 智能体定制开发
+        - listitem [ref=e9]: 企业专属智能体定制、企业内部智能体定制和企业本地部署智能体
+        - listitem [ref=e10]: 企业客服智能体定制、企业销售智能体定制和企业知识库智能体定制
+        - listitem [ref=e11]: 企业运营智能体定制、企业招聘智能体定制和行业智能体企业定制
+        - listitem [ref=e12]: 企业 AI 工作流自动化、企业流程自动化智能体和多智能体工作流平台
+      - heading "适合咨询的长尾成交需求" [level=2] [ref=e13]
+      - paragraph [ref=e14]: 如果正在评估智能体企业定制多少钱、企业智能体定制费用、企业智能体怎么定制、 企业 AI Agent 定制流程或企业智能体定制方案，可以从业务流程、数据权限、 知识库接入、工具调用、部署方式和验收指标六个维度规划项目范围。
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - img "AgentCore OS" [ref=e24]
+          - generic [ref=e25]:
+            - generic [ref=e26]: AgentCore OS
+            - generic [ref=e27]: Business Solution Operating System
+        - button "搜索" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+        - generic [ref=e32]: 21:52
+        - generic [ref=e33]: 7月6日周一
+      - generic [ref=e34]:
+        - button "中文 ▾" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]:
+            - img [ref=e38]
+            - text: 中文 ▾
+        - 'button "✨ 引擎: Kimi (Moonshot) ▾" [ref=e44] [cursor=pointer]'
+        - generic [ref=e45]:
+          - img [ref=e46]
+          - button "音量" [ref=e50] [cursor=pointer]:
+            - img [ref=e51]
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - combobox "切换桌面模式" [ref=e59]:
+            - option "默认桌面"
+            - option "创作模式" [selected]
+            - option "工作流模式"
+          - generic:
+            - generic: ▼
+        - button "窗口管理" [ref=e61] [cursor=pointer]:
+          - img [ref=e62]
+          - generic [ref=e67]: "1"
+        - button "工作台" [ref=e68] [cursor=pointer]
+        - button "设置" [ref=e69] [cursor=pointer]
+    - generic [ref=e74]:
+      - generic [ref=e76]:
+        - button "内容与创作者运行中" [ref=e278] [cursor=pointer]
+        - button "销售与商务已完成" [ref=e279] [cursor=pointer]
+        - button "客服与用户运营未启动" [ref=e79] [cursor=pointer]
+        - button "研究与策略运行中" [ref=e280] [cursor=pointer]
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - generic [ref=e84]:
+              - generic [ref=e85]: Runtime cockpit
+              - heading "受控 Playbook 指挥台" [level=1] [ref=e86]
+              - paragraph [ref=e87]: Sales Desk · 从线索筛选到成交跟进的销售推进链
+            - generic [ref=e88]:
+              - button "打开 Runtime Console" [ref=e89] [cursor=pointer]:
+                - img [ref=e90]
+                - text: 打开 Runtime Console
+              - button "运行受控 playbook" [ref=e93] [cursor=pointer]:
+                - img [ref=e94]
+                - text: 运行受控 playbook
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - generic [ref=e99]: Playbook 运行
+              - generic [ref=e100]: 已完成
+              - generic [ref=e101]: 当前受控执行状态
+            - generic [ref=e102]:
+              - generic [ref=e103]: 审批
+              - generic [ref=e104]: "0"
+              - generic [ref=e105]: 人工复核关口
+            - generic [ref=e106]:
+              - generic [ref=e107]: 恢复
+              - generic [ref=e108]: "0"
+              - generic [ref=e109]: 失败或可重试运行
+            - generic [ref=e110]:
+              - generic [ref=e111]: 治理门禁
+              - generic [ref=e112]: 需检查
+              - generic [ref=e113]: AgentCoreOS Light Runtime · governed trace 和 replay gates
+          - generic [ref=e115]:
+            - generic [ref=e281]: 搜索目标客户并按优先级排序
+            - generic [ref=e282]: claw-code runtime is unavailable. Configure or package the claw binary.
+            - generic [ref=e283]: hi
+            - generic [ref=e284]: AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+            - generic [ref=e285]: hi
+            - generic [ref=e286]: AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+            - generic [ref=e287]: hi
+            - generic [ref=e288]: AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+          - generic [ref=e119]:
+            - generic [ref=e120]:
+              - button "搜索目标客户并按优先级排序" [ref=e121] [cursor=pointer]
+              - button "根据客户画像起草首轮触达话术" [ref=e122] [cursor=pointer]
+              - button "把今天的销售推进链拆成可执行任务" [ref=e123] [cursor=pointer]
+            - generic [ref=e124]:
+              - textbox "例如：帮销售部自动搜索并筛选 20 个潜在客户，按优先级排序，起草第一轮触达内容，并生成可执行的任务推进链。" [ref=e125]
+              - generic [ref=e126]:
+                - generic [ref=e127]: Enter 发送，Shift + Enter 换行
+                - generic [ref=e128]:
+                  - button "打开角色桌面" [ref=e129] [cursor=pointer]:
+                    - img [ref=e130]
+                    - text: 打开角色桌面
+                  - button "启动工作流" [ref=e133] [cursor=pointer]:
+                    - img [ref=e134]
+                    - text: 启动工作流
+                  - button "发送命令" [disabled] [ref=e137]:
+                    - img [ref=e138]
+                    - text: 发送命令
+        - complementary [ref=e140]:
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - generic [ref=e143]:
+                - generic [ref=e144]: Runtime cockpit
+                - generic [ref=e145]: 受控 Playbook 指挥台
+                - generic [ref=e146]: Sales Desk · 从线索筛选到成交跟进的销售推进链
+              - button "打开 Runtime Console" [ref=e147] [cursor=pointer]
+            - generic [ref=e148]:
+              - generic [ref=e149]:
+                - generic [ref=e150]: Playbook 运行
+                - generic [ref=e151]: 已完成
+              - generic [ref=e152]:
+                - generic [ref=e153]: 审批
+                - generic [ref=e154]: "0"
+              - generic [ref=e155]:
+                - generic [ref=e156]: 恢复
+                - generic [ref=e157]: "0"
+              - generic [ref=e158]:
+                - generic [ref=e159]: 治理门禁
+                - generic [ref=e160]: 需检查
+          - generic [ref=e161]:
+            - generic [ref=e162]: Tools
+            - generic [ref=e163]:
+              - button "工作流" [ref=e164] [cursor=pointer]:
+                - generic [ref=e165]:
+                  - img [ref=e166]
+                  - generic [ref=e169]: 工作流
+              - button "审批" [ref=e170] [cursor=pointer]:
+                - generic [ref=e171]:
+                  - img [ref=e172]
+                  - generic [ref=e174]: 审批
+              - button "资产" [ref=e175] [cursor=pointer]:
+                - generic [ref=e176]:
+                  - img [ref=e177]
+                  - generic [ref=e179]: 资产
+              - button "运行时" [ref=e180] [cursor=pointer]:
+                - generic [ref=e181]:
+                  - img [ref=e182]
+                  - generic [ref=e185]: 运行时
+              - button "行业中心" [ref=e186] [cursor=pointer]:
+                - generic [ref=e187]:
+                  - img [ref=e188]
+                  - generic [ref=e192]: 行业中心
+              - button "方案库" [ref=e193] [cursor=pointer]:
+                - generic [ref=e194]:
+                  - img [ref=e195]
+                  - generic [ref=e198]: 方案库
+          - generic [ref=e199]:
+            - generic [ref=e200]: Attention
+            - generic [ref=e201]:
+              - button "待人工确认 需要判断、授权或复核 0" [ref=e202] [cursor=pointer]:
+                - generic [ref=e203]:
+                  - generic [ref=e204]:
+                    - generic [ref=e205]: 待人工确认
+                    - generic [ref=e206]: 需要判断、授权或复核
+                  - generic [ref=e207]: "0"
+              - button "运行中任务 正在执行或窗口已打开 3" [ref=e289] [cursor=pointer]:
+                - generic [ref=e209]:
+                  - generic [ref=e210]:
+                    - generic [ref=e211]: 运行中任务
+                    - generic [ref=e212]: 正在执行或窗口已打开
+                  - generic [ref=e213]: "3"
+              - button "失败/重试 需要检查异常链路 0" [ref=e214] [cursor=pointer]:
+                - generic [ref=e215]:
+                  - generic [ref=e216]:
+                    - generic [ref=e217]: 失败/重试
+                    - generic [ref=e218]: 需要检查异常链路
+                  - generic [ref=e219]: "0"
+              - button "运行时 AgentCoreOS Runtime 状态 需检查" [ref=e220] [cursor=pointer]:
+                - generic [ref=e221]:
+                  - generic [ref=e222]:
+                    - generic [ref=e223]: 运行时
+                    - generic [ref=e224]: AgentCoreOS Runtime 状态
+                  - generic [ref=e225]: 需检查
+          - generic [ref=e226]:
+            - generic [ref=e227]: Workflow
+            - generic [ref=e228]: 从线索筛选到成交跟进的销售推进链
+            - generic [ref=e229]:
+              - generic [ref=e230]:
+                - generic [ref=e231]: 阶段 1
+                - generic [ref=e232]: 筛选线索
+                - generic [ref=e233]: 协作
+              - generic [ref=e234]:
+                - generic [ref=e235]: 阶段 2
+                - generic [ref=e236]: 生成跟进
+                - generic [ref=e237]: 审核
+              - generic [ref=e238]:
+                - generic [ref=e239]: 阶段 3
+                - generic [ref=e240]: 会后收口
+                - generic [ref=e241]: 协作
+              - generic [ref=e242]:
+                - generic [ref=e243]: 阶段 4
+                - generic [ref=e244]: 沉淀打法
+                - generic [ref=e245]: 人工
+          - generic [ref=e246]:
+            - generic [ref=e247]:
+              - generic [ref=e248]:
+                - generic [ref=e249]: Reusable assets
+                - generic [ref=e250]: 目标交付物
+              - button "打开应用" [ref=e251] [cursor=pointer]
+            - generic [ref=e252]:
+              - button "客户画像结构" [ref=e253] [cursor=pointer]
+              - button "跟进邮件节奏" [ref=e254] [cursor=pointer]
+              - button "销售话术模板" [ref=e255] [cursor=pointer]
+              - button "机会推进规则" [ref=e256] [cursor=pointer]
+          - generic [ref=e257]:
+            - generic [ref=e258]: 执行动态
+            - generic [ref=e259]:
+              - generic [ref=e263]:
+                - generic [ref=e264]: 桌面状态
+                - generic [ref=e265]: 已完成 · 5/4 阶段
+              - generic [ref=e269]:
+                - generic [ref=e270]: 工作流主线
+                - generic [ref=e271]: 从线索筛选到成交跟进的销售推进链
+              - generic [ref=e275]:
+                - generic [ref=e276]: 目标交付物
+                - generic [ref=e277]: 客户画像结构 · 跟进邮件节奏 · 销售话术模板 · 机会推进规则
+    - generic [ref=e322]:
+      - generic [ref=e323]:
+        - generic [ref=e324]:
+          - button "关闭" [ref=e325] [cursor=pointer]:
+            - img [ref=e326]
+          - button "最小化" [ref=e329] [cursor=pointer]:
+            - img [ref=e330]
+        - generic [ref=e332]:
+          - img [ref=e334]
+          - generic [ref=e337]: AgentCoreOS 运行时控制台
+        - generic [ref=e339]: Workspace App
+      - generic [ref=e341]:
+        - generic [ref=e342]:
+          - generic [ref=e343]:
+            - generic [ref=e344]: AgentCoreOS Runtime 执行底座
+            - generic [ref=e345]: 这里展示 AgentCore OS 的运行时执行状态、会话审计和本地诊断。
+          - generic [ref=e346]:
+            - generic [ref=e347]:
+              - img [ref=e348]
+              - text: Token 不下发到前端
+            - button "打开设置" [ref=e350] [cursor=pointer]
+        - generic [ref=e351]:
+          - generic [ref=e352]:
+            - generic [ref=e353]:
+              - generic [ref=e354]:
+                - img [ref=e355]
+                - text: AgentCoreOS Runtime Center
+              - generic [ref=e365]: AgentCoreOS Light Runtime
+              - generic [ref=e366]: Recommended default. AgentCore OS uses AgentCoreOS Runtime as the local execution base while keeping workflow, state, and assets under AgentCore control.
+            - button "打开运行时设置" [ref=e367] [cursor=pointer]
+          - generic [ref=e368]:
+            - generic [ref=e369]:
+              - generic [ref=e370]: LLM
+              - generic [ref=e371]: API Only
+              - generic [ref=e372]: Provider key missing
+            - generic [ref=e373]:
+              - generic [ref=e374]: Shell
+              - generic [ref=e375]: Browser / Web Shell
+              - generic [ref=e376]: 桌面版上线后这里会切到 Tauri
+            - generic [ref=e377]:
+              - generic [ref=e378]: Orchestration
+              - generic [ref=e379]: No Local Orchestration
+              - generic [ref=e380]: Keep the desktop app light. Prefer AgentCoreOS Runtime local execution plus direct API providers without a container stack.
+            - generic [ref=e381]:
+              - generic [ref=e382]: Runtime
+              - generic [ref=e383]: Needs setup
+              - generic [ref=e384]: Local runtime and sidecar addresses can be tuned in settings.
+        - generic [ref=e385]:
+          - generic [ref=e386]:
+            - generic [ref=e387]:
+              - generic [ref=e388]:
+                - generic [ref=e389]: Initialization status
+                - generic [ref=e390]: 当前桌面运行时的可用性，统一按运行模式、云端模型和本地 sidecar 诊断结果判断。
+              - generic [ref=e391]:
+                - img [ref=e392]
+                - text: 2/3 ready
+            - generic [ref=e394]:
+              - generic [ref=e395]:
+                - generic [ref=e396]:
+                  - generic [ref=e397]: Choose runtime profile
+                  - generic [ref=e398]: Ready
+                - generic [ref=e399]: AgentCoreOS light runtime is selected for local task execution.
+              - generic [ref=e400]:
+                - generic [ref=e401]:
+                  - generic [ref=e402]: Connect cloud model provider
+                  - generic [ref=e403]: Action
+                - generic [ref=e404]: Add an API key for kimi before running workflow automation.
+              - generic [ref=e405]:
+                - generic [ref=e406]:
+                  - generic [ref=e407]: AgentCoreOS Runtime is ready
+                  - generic [ref=e408]: Ready
+                - generic [ref=e409]: No local model stack is required. Workflow state and assets stay light and local.
+            - generic [ref=e410]:
+              - button "配置 API Key" [ref=e411] [cursor=pointer]
+              - button "调整运行时" [ref=e412] [cursor=pointer]
+          - generic [ref=e413]:
+            - generic [ref=e414]:
+              - generic [ref=e415]:
+                - generic [ref=e416]: Runtime diagnostics
+                - generic [ref=e417]: 诊断 API 会检测新机安装测试所需的关键条件，包括 AgentCoreOS Runtime、本地存储、ffmpeg 和 Docker。
+              - button "刷新" [ref=e418] [cursor=pointer]:
+                - img [ref=e419]
+                - text: 刷新
+            - generic [ref=e424]:
+              - generic [ref=e425]:
+                - generic [ref=e426]: Local Store
+                - generic [ref=e427]: Ready
+              - generic [ref=e428]:
+                - generic [ref=e429]: AgentCoreOS Runtime
+                - generic [ref=e430]: Missing
+              - generic [ref=e431]:
+                - generic [ref=e432]: Runtime Template
+                - generic [ref=e433]: Ready
+              - generic [ref=e434]:
+                - generic [ref=e435]: FFmpeg
+                - generic [ref=e436]: Ready
+              - generic [ref=e437]:
+                - generic [ref=e438]: Docker
+                - generic [ref=e439]: Ready
+              - generic [ref=e440]:
+                - generic [ref=e441]: Compose
+                - generic [ref=e442]: Missing
+              - generic [ref=e443]:
+                - generic [ref=e444]: Node
+                - generic [ref=e445]: Ready
+            - generic [ref=e446]:
+              - generic [ref=e447]:
+                - generic [ref=e448]: Desktop Light
+                - generic [ref=e449]: Not ready
+              - generic [ref=e450]:
+                - generic [ref=e451]: Desktop + Dify
+                - generic [ref=e452]: Not ready
+              - generic [ref=e453]:
+                - generic [ref=e454]: Creative Studio
+                - generic [ref=e455]: Ready
+            - generic [ref=e456]: "Recommended profile: Desktop Light Runtime. Install or configure AgentCoreOS Runtime before running task execution. Set AGENTCORE_CLAW_CODE_BIN or add the runtime binary to PATH."
+            - generic [ref=e457]:
+              - generic [ref=e458]:
+                - generic [ref=e459]: Runtime bridge
+                - generic [ref=e460]: Synced
+              - generic [ref=e461]: 服务端负责保存当前 runtime 配置，并在需要时静默执行 compose 启停。
+              - generic [ref=e462]:
+                - button "同步配置" [ref=e463] [cursor=pointer]
+                - button "启动 sidecar" [disabled] [ref=e464]
+                - button "停止 sidecar" [disabled] [ref=e465]
+              - generic [ref=e466]: "Last action: Runtime config synced to the local backend bridge."
+        - generic [ref=e467]:
+          - generic [ref=e468]:
+            - generic [ref=e469]:
+              - generic [ref=e470]:
+                - img [ref=e471]
+                - text: Asset Console
+              - generic [ref=e474]: 结果不该做完就消失，而要逐步沉淀成可复用的业务资产层。
+              - generic [ref=e475]: 每次 workflow run 都应该留下一份可调用资产。这里统一按业务链查看、筛选和回跳，不再让资产散落在各个 App 里。
+            - generic [ref=e476]:
+              - generic [ref=e477]:
+                - generic [ref=e478]: Sales
+                - generic [ref=e479]: "3"
+              - generic [ref=e480]:
+                - generic [ref=e481]: Creator
+                - generic [ref=e482]: "0"
+              - generic [ref=e483]:
+                - generic [ref=e484]: Support
+                - generic [ref=e485]: "1"
+              - generic [ref=e486]:
+                - generic [ref=e487]: Research
+                - generic [ref=e488]: "0"
+          - generic [ref=e489]:
+            - button "全部资产" [ref=e490] [cursor=pointer]
+            - button "销售" [ref=e491] [cursor=pointer]
+            - button "内容" [ref=e492] [cursor=pointer]
+            - button "客服" [ref=e493] [cursor=pointer]
+            - button "研究" [ref=e494] [cursor=pointer]
+          - generic [ref=e495]:
+            - generic [ref=e496]:
+              - generic [ref=e497]:
+                - generic [ref=e498]: Hero recommendations
+                - generic [ref=e499]: 直接从 runtime 层拉销售、内容、客服、研究四条业务链的最新结构化建议，再回到正确的执行节点。
+              - generic [ref=e500]:
+                - generic [ref=e501]: 已同步
+                - button "刷新" [ref=e502] [cursor=pointer]:
+                  - img [ref=e503]
+                  - text: 刷新
+            - generic [ref=e509]: "最近同步: 2026/7/6 21:51:28"
+            - generic [ref=e510]:
+              - generic [ref=e511]:
+                - generic [ref=e512]: 销售
+                - generic [ref=e513]:
+                  - generic [ref=e514]:
+                    - generic [ref=e515]: Recommended Move
+                    - generic [ref=e517]:
+                      - generic [ref=e518]: 复用沉淀资产
+                      - generic [ref=e519]: 当前闭环已经完成，下一步不该重新开始，而是先回看并复用这一轮沉淀下来的资产。
+                    - button "执行推荐动作" [ref=e520] [cursor=pointer]
+                  - generic [ref=e521]:
+                    - generic [ref=e522]: 执行信号
+                    - generic [ref=e526]:
+                      - generic [ref=e527]: Write controlled assets · 已完成
+                      - generic [ref=e528]: 销售 当前由 手动启动 触发。Open Runtime Console and inspect governed asset landings.
+                      - generic [ref=e529]: 这是当前最直接决定执行节奏的运行态信号。
+                      - generic [ref=e530]:
+                        - generic [ref=e531]: 状态 已完成
+                        - generic [ref=e532]: 触发 手动启动
+                        - generic [ref=e533]: 阶段 Write controlled assets
+                  - generic [ref=e534]:
+                    - generic [ref=e535]: 资产信号
+                    - generic [ref=e538]:
+                      - generic [ref=e539]:
+                        - generic [ref=e540]: Delivery Demo Customer
+                        - generic [ref=e541]: Qualified opportunity summary generated by the delivery demo run.
+                        - generic [ref=e542]: 这是当前最接近复用价值的客户与推进资产。
+                        - generic [ref=e543]:
+                          - generic [ref=e544]: 来源 local_delivery_demo
+                          - generic [ref=e545]: 产品 Controlled runtime onboarding
+                          - generic [ref=e546]: 语言 en
+                      - button "打开" [ref=e547] [cursor=pointer]
+              - generic [ref=e548]:
+                - generic [ref=e549]: 内容
+                - generic [ref=e550]:
+                  - generic [ref=e551]:
+                    - generic [ref=e552]: Recommended Move
+                    - generic [ref=e554]:
+                      - generic [ref=e555]: 继续推进当前阶段
+                      - generic [ref=e556]: 自动链路还在运行，最值得盯住当前阶段输出是否足够支撑下一跳。
+                  - generic [ref=e557]:
+                    - generic [ref=e558]: 执行信号
+                    - generic [ref=e562]:
+                      - generic [ref=e563]: 发现选题 · 处理中
+                      - generic [ref=e564]: 内容 当前由 内容日历 触发。先在 Creator Radar 确定今天最值得推进的一条内容角度。
+                      - generic [ref=e565]: 这是当前最直接决定执行节奏的运行态信号。
+                      - generic [ref=e566]:
+                        - generic [ref=e567]: 状态 内容生产中
+                        - generic [ref=e568]: 触发 内容日历
+                        - generic [ref=e569]: 阶段 发现选题
+                  - generic [ref=e570]:
+                    - generic [ref=e571]: 资产信号
+                    - generic [ref=e572]: 当前暂无命中。
+                  - generic [ref=e573]:
+                    - generic [ref=e574]: 草稿信号
+                    - generic [ref=e575]: 当前暂无命中。
+                  - generic [ref=e576]:
+                    - generic [ref=e577]: 连接器信号
+                    - generic [ref=e578]: 当前暂无命中。
+                  - generic [ref=e579]:
+                    - generic [ref=e580]: 任务信号
+                    - generic [ref=e581]: 当前暂无命中。
+              - generic [ref=e582]:
+                - generic [ref=e583]: 客服
+                - generic [ref=e584]:
+                  - generic [ref=e585]:
+                    - generic [ref=e586]: Recommended Move
+                    - generic [ref=e588]:
+                      - generic [ref=e589]: 查看已沉淀资产
+                      - generic [ref=e590]: 当前没有进行中的闭环，可以先回看最近资产，确认是否能直接复用而不是重跑一遍。
+                    - button "执行推荐动作" [ref=e591] [cursor=pointer]
+                  - generic [ref=e592]:
+                    - generic [ref=e593]: 执行信号
+                    - generic [ref=e597]:
+                      - generic [ref=e598]: 未启动
+                      - generic [ref=e599]: 当前还没有在跑的 客服 闭环。
+                      - generic [ref=e600]: 先明确是否有正在运行的闭环，再决定是否启动新一轮。
+                      - generic [ref=e601]:
+                        - generic [ref=e602]: 状态 未启动
+                        - generic [ref=e603]: 等待启动
+                        - generic [ref=e604]: 无进行中阶段
+                  - generic [ref=e605]:
+                    - generic [ref=e606]: 资产信号
+                    - generic [ref=e609]:
+                      - generic [ref=e610]:
+                        - generic [ref=e611]: Delivery Demo Customer
+                        - generic [ref=e612]: Open Runtime Console, search delivery-demo, and inspect the retryable failed run.
+                        - generic [ref=e613]: 这是当前最接近标准回复和处理边界的客服资产。
+                        - generic [ref=e614]:
+                          - generic [ref=e615]: 渠道 local_delivery_demo
+                          - generic [ref=e616]: 状态 completed
+                      - button "打开" [ref=e617] [cursor=pointer]
+              - generic [ref=e618]:
+                - generic [ref=e619]: 研究
+                - generic [ref=e620]:
+                  - generic [ref=e621]:
+                    - generic [ref=e622]: Recommended Move
+                    - generic [ref=e624]:
+                      - generic [ref=e625]: 继续推进当前阶段
+                      - generic [ref=e626]: 自动链路还在运行，最值得盯住当前阶段输出是否足够支撑下一跳。
+                  - generic [ref=e627]:
+                    - generic [ref=e628]: 执行信号
+                    - generic [ref=e632]:
+                      - generic [ref=e633]: 摄取研究输入 · 处理中
+                      - generic [ref=e634]: 研究 当前由 定时情报 触发。先把研究主题、来源和角度压成结构化研究简报。
+                      - generic [ref=e635]: 这是当前最直接决定执行节奏的运行态信号。
+                      - generic [ref=e636]:
+                        - generic [ref=e637]: 状态 研究处理中
+                        - generic [ref=e638]: 触发 定时情报
+                        - generic [ref=e639]: 阶段 摄取研究输入
+                  - generic [ref=e640]:
+                    - generic [ref=e641]: 资产信号
+                    - generic [ref=e642]: 当前暂无命中。
+          - generic [ref=e643]:
+            - generic [ref=e644]:
+              - generic [ref=e645]:
+                - generic [ref=e646]:
+                  - generic [ref=e647]:
+                    - generic [ref=e648]: Sales Pipeline
+                    - generic [ref=e649]: ready_for_review
+                  - generic [ref=e650]: Delivery Demo Customer
+                  - generic [ref=e651]: Qualified opportunity summary generated by the delivery demo run.
+                - img [ref=e652]
+              - generic [ref=e654]:
+                - generic [ref=e655]:
+                  - img [ref=e656]
+                  - text: 更新于 2026/7/6 21:46:10
+                - button "打开资产" [ref=e658] [cursor=pointer]:
+                  - img [ref=e659]
+                  - text: 打开资产
+            - generic [ref=e661]:
+              - generic [ref=e662]:
+                - generic [ref=e663]:
+                  - generic [ref=e664]:
+                    - generic [ref=e665]: Support Ops
+                    - generic [ref=e666]: completed
+                  - generic [ref=e667]: Delivery Demo Customer
+                  - generic [ref=e668]: Open Runtime Console, search delivery-demo, and inspect the retryable failed run.
+                - img [ref=e669]
+              - generic [ref=e671]:
+                - generic [ref=e672]:
+                  - img [ref=e673]
+                  - text: 更新于 2026/7/6 21:46:10
+                - button "打开资产" [ref=e675] [cursor=pointer]:
+                  - img [ref=e676]
+                  - text: 打开资产
+            - generic [ref=e678]:
+              - generic [ref=e679]:
+                - generic [ref=e680]:
+                  - generic [ref=e681]:
+                    - generic [ref=e682]: Sales Pipeline
+                    - generic [ref=e683]: not_started
+                  - generic [ref=e684]: Al Noor Facades LLC
+                  - generic [ref=e685]: 先完成资格判断，确认是否值得推进。
+                - img [ref=e686]
+              - generic [ref=e688]:
+                - generic [ref=e689]:
+                  - img [ref=e690]
+                  - text: 更新于 2026/4/6 08:26:06
+                - button "打开资产" [ref=e692] [cursor=pointer]:
+                  - img [ref=e693]
+                  - text: 打开资产
+            - generic [ref=e695]:
+              - generic [ref=e696]:
+                - generic [ref=e697]:
+                  - generic [ref=e698]:
+                    - generic [ref=e699]: Sales Pipeline
+                    - generic [ref=e700]: not_started
+                  - generic [ref=e701]: Al Noor Facades LLC
+                  - generic [ref=e702]: 先完成资格判断，确认是否值得推进。
+                - img [ref=e703]
+              - generic [ref=e705]:
+                - generic [ref=e706]:
+                  - img [ref=e707]
+                  - text: 更新于 2026/4/6 08:26:04
+                - button "打开资产" [ref=e709] [cursor=pointer]:
+                  - img [ref=e710]
+                  - text: 打开资产
+        - generic [ref=e712]:
+          - generic [ref=e713]:
+            - generic [ref=e714]:
+              - generic [ref=e715]: 受控运行 Trace
+              - generic [ref=e716]: 查看固定 playbook 的执行步骤、审批决策、写回 receipt 和资产落点。
+            - button "刷新" [ref=e717] [cursor=pointer]:
+              - img [ref=e718]
+              - text: 刷新
+          - generic [ref=e723]:
+            - generic [ref=e724]:
+              - button "All" [ref=e725] [cursor=pointer]
+              - button "Running" [ref=e726] [cursor=pointer]
+              - button "Awaiting" [ref=e727] [cursor=pointer]
+              - button "Completed" [ref=e728] [cursor=pointer]
+              - button "Failed" [ref=e729] [cursor=pointer]
+            - textbox "Search run / workflow / playbook" [ref=e730]
+          - generic [ref=e731]:
+            - generic [ref=e732]:
+              - button "Delivery demo controlled sales workflow sales-pipeline-v1 completed 5 done 0 awaiting 5 receipts 2026/7/6 21:46:10" [ref=e733] [cursor=pointer]:
+                - generic [ref=e734]:
+                  - generic [ref=e735]:
+                    - generic [ref=e736]: Delivery demo controlled sales workflow
+                    - generic [ref=e737]: sales-pipeline-v1
+                  - generic [ref=e738]: completed
+                - generic [ref=e739]:
+                  - generic [ref=e740]: 5 done
+                  - generic [ref=e741]: 0 awaiting
+                  - generic [ref=e742]: 5 receipts
+                - generic [ref=e743]: 2026/7/6 21:46:10
+              - button "Delivery demo retryable failure workflow sales-pipeline-v1 failed 1 done 0 awaiting 0 receipts 2026/7/6 21:46:09" [ref=e744] [cursor=pointer]:
+                - generic [ref=e745]:
+                  - generic [ref=e746]:
+                    - generic [ref=e747]: Delivery demo retryable failure workflow
+                    - generic [ref=e748]: sales-pipeline-v1
+                  - generic [ref=e749]: failed
+                - generic [ref=e750]:
+                  - generic [ref=e751]: 1 done
+                  - generic [ref=e752]: 0 awaiting
+                  - generic [ref=e753]: 0 receipts
+                - generic [ref=e754]: 2026/7/6 21:46:09
+              - button "Delivery demo awaiting approval workflow sales-pipeline-v1 Awaiting 3 done 1 awaiting 0 receipts 2026/7/6 21:46:08" [ref=e755] [cursor=pointer]:
+                - generic [ref=e756]:
+                  - generic [ref=e757]:
+                    - generic [ref=e758]: Delivery demo awaiting approval workflow
+                    - generic [ref=e759]: sales-pipeline-v1
+                  - generic [ref=e760]: Awaiting
+                - generic [ref=e761]:
+                  - generic [ref=e762]: 3 done
+                  - generic [ref=e763]: 1 awaiting
+                  - generic [ref=e764]: 0 receipts
+                - generic [ref=e765]: 2026/7/6 21:46:08
+            - generic [ref=e767]:
+              - generic [ref=e768]:
+                - generic [ref=e769]:
+                  - generic [ref=e770]: Delivery demo controlled sales workflow
+                  - generic [ref=e771]: delivery-demo-workflow-sales
+                - generic [ref=e772]: completed
+              - generic [ref=e773]:
+                - generic [ref=e774]: Current step：writeback
+                - generic [ref=e775]: Approvals：1
+                - generic [ref=e776]: Failed：0
+                - generic [ref=e777]: Assets：5
+              - generic [ref=e778]:
+                - generic [ref=e779]:
+                  - generic [ref=e780]: Governed trace
+                  - generic [ref=e781]: Copies redacted trace JSON for audit or fixture use.
+                - button "复制脱敏 Trace" [ref=e782] [cursor=pointer]:
+                  - img [ref=e783]
+                  - text: 复制脱敏 Trace
+              - generic [ref=e786]:
+                - generic [ref=e787]: Asset landings
+                - generic [ref=e788]:
+                  - generic [ref=e789]:
+                    - generic [ref=e790]:
+                      - generic [ref=e791]: Sales asset
+                      - generic [ref=e792]:
+                        - generic [ref=e793]: Written
+                        - button "打开" [ref=e794] [cursor=pointer]:
+                          - img [ref=e795]
+                          - text: 打开
+                    - generic [ref=e799]:
+                      - generic [ref=e800]: Asset：delivery-demo-sales-asset
+                      - generic [ref=e801]: Source：controlled-run:delivery-demo-run-completed:sales_asset
+                      - generic [ref=e802]: Workflow：delivery-demo-workflow-sales
+                    - generic [ref=e803]: Wrote sales asset delivery-demo-sales-asset
+                  - generic [ref=e804]:
+                    - generic [ref=e805]:
+                      - generic [ref=e806]: Knowledge asset
+                      - generic [ref=e807]:
+                        - generic [ref=e808]: Written
+                        - button "打开" [ref=e809] [cursor=pointer]:
+                          - img [ref=e810]
+                          - text: 打开
+                    - generic [ref=e814]:
+                      - generic [ref=e815]: Asset：delivery-demo-knowledge-asset
+                      - generic [ref=e816]: Source：controlled-run:delivery-demo-run-completed:knowledge_asset
+                      - generic [ref=e817]: Workflow：delivery-demo-workflow-sales
+                    - generic [ref=e818]: Wrote knowledge asset delivery-demo-knowledge-asset
+                  - generic [ref=e819]:
+                    - generic [ref=e820]:
+                      - generic [ref=e821]: Workflow run
+                      - generic [ref=e822]:
+                        - generic [ref=e823]: Written
+                        - button "打开" [ref=e824] [cursor=pointer]:
+                          - img [ref=e825]
+                          - text: 打开
+                    - generic [ref=e829]:
+                      - generic [ref=e830]: Source：controlled-run:delivery-demo-run-completed:workflow_run
+                      - generic [ref=e831]: Workflow：delivery-demo-workflow-sales
+                    - generic [ref=e832]: Wrote workflow run delivery-demo-workflow-sales as completed
+                  - generic [ref=e833]:
+                    - generic [ref=e834]:
+                      - generic [ref=e835]: Draft
+                      - generic [ref=e836]:
+                        - generic [ref=e837]: Written
+                        - button "打开" [ref=e838] [cursor=pointer]:
+                          - img [ref=e839]
+                          - text: 打开
+                    - generic [ref=e843]:
+                      - generic [ref=e844]: Asset：delivery-demo-draft
+                      - generic [ref=e845]: Source：controlled-run:delivery-demo-run-completed:draft
+                      - generic [ref=e846]: Workflow：delivery-demo-workflow-sales
+                    - generic [ref=e847]: Wrote draft delivery-demo-draft
+                  - generic [ref=e848]:
+                    - generic [ref=e849]:
+                      - generic [ref=e850]: Support asset
+                      - generic [ref=e851]:
+                        - generic [ref=e852]: Written
+                        - button "打开" [ref=e853] [cursor=pointer]:
+                          - img [ref=e854]
+                          - text: 打开
+                    - generic [ref=e858]:
+                      - generic [ref=e859]: Asset：delivery-demo-support-asset
+                      - generic [ref=e860]: Source：controlled-run:delivery-demo-run-completed:support_asset
+                      - generic [ref=e861]: Workflow：delivery-demo-workflow-sales
+                    - generic [ref=e862]: Wrote support asset delivery-demo-support-asset
+              - generic [ref=e863]:
+                - generic [ref=e864]:
+                  - generic [ref=e865]:
+                    - generic [ref=e866]:
+                      - generic [ref=e867]: 1. Capture intake
+                      - generic [ref=e868]: intake
+                    - generic [ref=e869]: completed
+                  - generic [ref=e870]:
+                    - generic [ref=e871]: Attempts：1
+                    - generic [ref=e872]: Receipts：0
+                    - generic [ref=e873]: Approval：无
+                    - generic [ref=e874]: Schema：未检查
+                - generic [ref=e875]:
+                  - generic [ref=e876]:
+                    - generic [ref=e877]:
+                      - generic [ref=e878]: 2. Qualify lead
+                      - generic [ref=e879]: qualify
+                    - generic [ref=e880]: completed
+                  - generic [ref=e881]:
+                    - generic [ref=e882]: Attempts：1
+                    - generic [ref=e883]: Receipts：0
+                    - generic [ref=e884]: Approval：无
+                    - generic [ref=e885]: Schema：未检查
+                - generic [ref=e886]:
+                  - generic [ref=e887]:
+                    - generic [ref=e888]:
+                      - generic [ref=e889]: 3. Draft outreach
+                      - generic [ref=e890]: draft_outreach
+                    - generic [ref=e891]: completed
+                  - generic [ref=e892]:
+                    - generic [ref=e893]: Attempts：1
+                    - generic [ref=e894]: Receipts：0
+                    - generic [ref=e895]: Approval：无
+                    - generic [ref=e896]: Schema：未检查
+                - generic [ref=e897]:
+                  - generic [ref=e898]:
+                    - generic [ref=e899]:
+                      - generic [ref=e900]: 4. Human review
+                      - generic [ref=e901]: human_review
+                    - generic [ref=e902]: completed
+                  - generic [ref=e903]:
+                    - generic [ref=e904]: Attempts：1
+                    - generic [ref=e905]: Receipts：0
+                    - generic [ref=e906]: Approval：approved
+                    - generic [ref=e907]: Schema：未检查
+                  - generic [ref=e908]: 审批反馈：Approved for delivery demo writeback.
+                - generic [ref=e909]:
+                  - generic [ref=e910]:
+                    - generic [ref=e911]:
+                      - generic [ref=e912]: 5. Write controlled assets
+                      - generic [ref=e913]: writeback
+                    - generic [ref=e914]: completed
+                  - generic [ref=e915]:
+                    - generic [ref=e916]: Attempts：1
+                    - generic [ref=e917]: Receipts：5
+                    - generic [ref=e918]: Approval：无
+                    - generic [ref=e919]: Schema：未检查
+                  - generic [ref=e920]:
+                    - generic [ref=e921]:
+                      - generic [ref=e922]: sales_asset：
+                      - text: Wrote sales asset delivery-demo-sales-asset
+                    - generic [ref=e923]:
+                      - generic [ref=e924]: knowledge_asset：
+                      - text: Wrote knowledge asset delivery-demo-knowledge-asset
+                    - generic [ref=e925]:
+                      - generic [ref=e926]: workflow_run：
+                      - text: Wrote workflow run delivery-demo-workflow-sales as completed
+                    - generic [ref=e927]:
+                      - generic [ref=e928]: draft：
+                      - text: Wrote draft delivery-demo-draft
+                    - generic [ref=e929]:
+                      - generic [ref=e930]: support_asset：
+                      - text: Wrote support asset delivery-demo-support-asset
+        - generic [ref=e931]:
+          - generic [ref=e932]:
+            - generic [ref=e933]:
+              - generic [ref=e934]: 核心状态同步
+              - generic [ref=e935]: 这里显示销售、客服、工作流三条核心状态链路的本地同步情况，便于判断是否有待重试任务积压。
+            - generic [ref=e936]: All synced
+          - generic [ref=e937]:
+            - generic [ref=e938]:
+              - generic [ref=e939]:
+                - generic [ref=e940]: 创作资产
+                - generic [ref=e941]: Idle
+              - generic [ref=e942]:
+                - generic [ref=e943]: 待同步：0
+                - generic [ref=e944]: 最近成功：暂无
+                - generic [ref=e945]: 下次重试：无
+              - generic [ref=e946]: 当前这条链路没有待同步积压。
+            - generic [ref=e947]:
+              - generic [ref=e948]:
+                - generic [ref=e949]: 工作流运行
+                - generic [ref=e950]: Idle
+              - generic [ref=e951]:
+                - generic [ref=e952]: 待同步：0
+                - generic [ref=e953]: 最近成功：暂无
+                - generic [ref=e954]: 下次重试：无
+              - generic [ref=e955]: 当前这条链路没有待同步积压。
+            - generic [ref=e956]:
+              - generic [ref=e957]:
+                - generic [ref=e958]: 客服工单
+                - generic [ref=e959]: Idle
+              - generic [ref=e960]:
+                - generic [ref=e961]: 待同步：0
+                - generic [ref=e962]: 最近成功：暂无
+                - generic [ref=e963]: 下次重试：无
+              - generic [ref=e964]: 当前这条链路没有待同步积压。
+            - generic [ref=e965]:
+              - generic [ref=e966]:
+                - generic [ref=e967]: 客服资产
+                - generic [ref=e968]: Idle
+              - generic [ref=e969]:
+                - generic [ref=e970]: 待同步：0
+                - generic [ref=e971]: 最近成功：暂无
+                - generic [ref=e972]: 下次重试：无
+              - generic [ref=e973]: 当前这条链路没有待同步积压。
+            - generic [ref=e974]:
+              - generic [ref=e975]:
+                - generic [ref=e976]: 任务
+                - generic [ref=e977]: Idle
+              - generic [ref=e978]:
+                - generic [ref=e979]: 待同步：0
+                - generic [ref=e980]: 最近成功：暂无
+                - generic [ref=e981]: 下次重试：无
+              - generic [ref=e982]: 当前这条链路没有待同步积压。
+            - generic [ref=e983]:
+              - generic [ref=e984]:
+                - generic [ref=e985]: 销售线索
+                - generic [ref=e986]: Idle
+              - generic [ref=e987]:
+                - generic [ref=e988]: 待同步：0
+                - generic [ref=e989]: 最近成功：暂无
+                - generic [ref=e990]: 下次重试：无
+              - generic [ref=e991]: 当前这条链路没有待同步积压。
+            - generic [ref=e992]:
+              - generic [ref=e993]:
+                - generic [ref=e994]: 销售资产
+                - generic [ref=e995]: Idle
+              - generic [ref=e996]:
+                - generic [ref=e997]: 待同步：0
+                - generic [ref=e998]: 最近成功：暂无
+                - generic [ref=e999]: 下次重试：无
+              - generic [ref=e1000]: 当前这条链路没有待同步积压。
+            - generic [ref=e1001]:
+              - generic [ref=e1002]:
+                - generic [ref=e1003]: 研究资产
+                - generic [ref=e1004]: Idle
+              - generic [ref=e1005]:
+                - generic [ref=e1006]: 待同步：0
+                - generic [ref=e1007]: 最近成功：暂无
+                - generic [ref=e1008]: 下次重试：无
+              - generic [ref=e1009]: 当前这条链路没有待同步积压。
+        - generic [ref=e1010]:
+          - generic [ref=e1011]:
+            - generic [ref=e1012]:
+              - generic [ref=e1013]: 执行器历史
+              - generic [ref=e1014]: 这里展示 AgentCore OS 服务端记录的最近执行会话，便于审计、复盘和问题定位。
+            - button "刷新" [ref=e1015] [cursor=pointer]:
+              - img [ref=e1016]
+              - text: 刷新
+          - generic [ref=e1021]:
+            - generic [ref=e1022]:
+              - button "ping claw default claw_code Error 最近输入：ping claw default 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary. 2026/7/6 21:46:44 1 turns" [ref=e1023] [cursor=pointer]:
+                - generic [ref=e1024]:
+                  - generic [ref=e1025]:
+                    - generic [ref=e1026]: ping claw default
+                    - generic [ref=e1027]: claw_code
+                  - generic [ref=e1028]: Error
+                - generic [ref=e1029]: 最近输入：ping claw default
+                - generic [ref=e1030]: 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+                - generic [ref=e1031]:
+                  - generic [ref=e1032]: 2026/7/6 21:46:44
+                  - generic [ref=e1033]: 1 turns
+              - button "ping claw default claw_code Error 最近输入：ping claw default 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary. 2026/7/6 21:14:02 1 turns" [ref=e1034] [cursor=pointer]:
+                - generic [ref=e1035]:
+                  - generic [ref=e1036]:
+                    - generic [ref=e1037]: ping claw default
+                    - generic [ref=e1038]: claw_code
+                  - generic [ref=e1039]: Error
+                - generic [ref=e1040]: 最近输入：ping claw default
+                - generic [ref=e1041]: 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+                - generic [ref=e1042]:
+                  - generic [ref=e1043]: 2026/7/6 21:14:02
+                  - generic [ref=e1044]: 1 turns
+              - button "ping claw default claw_code Error 最近输入：ping claw default 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary. 2026/7/6 21:10:16 1 turns" [ref=e1045] [cursor=pointer]:
+                - generic [ref=e1046]:
+                  - generic [ref=e1047]:
+                    - generic [ref=e1048]: ping claw default
+                    - generic [ref=e1049]: claw_code
+                  - generic [ref=e1050]: Error
+                - generic [ref=e1051]: 最近输入：ping claw default
+                - generic [ref=e1052]: 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+                - generic [ref=e1053]:
+                  - generic [ref=e1054]: 2026/7/6 21:10:16
+                  - generic [ref=e1055]: 1 turns
+              - button "ping claw default claw_code Error 最近输入：ping claw default 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary. 2026/7/6 20:51:48 1 turns" [ref=e1056] [cursor=pointer]:
+                - generic [ref=e1057]:
+                  - generic [ref=e1058]:
+                    - generic [ref=e1059]: ping claw default
+                    - generic [ref=e1060]: claw_code
+                  - generic [ref=e1061]: Error
+                - generic [ref=e1062]: 最近输入：ping claw default
+                - generic [ref=e1063]: 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+                - generic [ref=e1064]:
+                  - generic [ref=e1065]: 2026/7/6 20:51:48
+                  - generic [ref=e1066]: 1 turns
+              - button "ping claw default claw_code Error 最近输入：ping claw default 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary. 2026/7/6 20:41:48 1 turns" [ref=e1067] [cursor=pointer]:
+                - generic [ref=e1068]:
+                  - generic [ref=e1069]:
+                    - generic [ref=e1070]: ping claw default
+                    - generic [ref=e1071]: claw_code
+                  - generic [ref=e1072]: Error
+                - generic [ref=e1073]: 最近输入：ping claw default
+                - generic [ref=e1074]: 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+                - generic [ref=e1075]:
+                  - generic [ref=e1076]: 2026/7/6 20:41:48
+                  - generic [ref=e1077]: 1 turns
+              - button "ping claw default claw_code Error 最近输入：ping claw default 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary. 2026/7/6 20:26:22 1 turns" [ref=e1078] [cursor=pointer]:
+                - generic [ref=e1079]:
+                  - generic [ref=e1080]:
+                    - generic [ref=e1081]: ping claw default
+                    - generic [ref=e1082]: claw_code
+                  - generic [ref=e1083]: Error
+                - generic [ref=e1084]: 最近输入：ping claw default
+                - generic [ref=e1085]: 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+                - generic [ref=e1086]:
+                  - generic [ref=e1087]: 2026/7/6 20:26:22
+                  - generic [ref=e1088]: 1 turns
+              - button "ping claw default claw_code Error 最近输入：ping claw default 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary. 2026/7/6 20:09:33 1 turns" [ref=e1089] [cursor=pointer]:
+                - generic [ref=e1090]:
+                  - generic [ref=e1091]:
+                    - generic [ref=e1092]: ping claw default
+                    - generic [ref=e1093]: claw_code
+                  - generic [ref=e1094]: Error
+                - generic [ref=e1095]: 最近输入：ping claw default
+                - generic [ref=e1096]: 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+                - generic [ref=e1097]:
+                  - generic [ref=e1098]: 2026/7/6 20:09:33
+                  - generic [ref=e1099]: 1 turns
+              - button "ping claw default claw_code Error 最近输入：ping claw default 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary. 2026/7/6 19:53:42 1 turns" [ref=e1100] [cursor=pointer]:
+                - generic [ref=e1101]:
+                  - generic [ref=e1102]:
+                    - generic [ref=e1103]: ping claw default
+                    - generic [ref=e1104]: claw_code
+                  - generic [ref=e1105]: Error
+                - generic [ref=e1106]: 最近输入：ping claw default
+                - generic [ref=e1107]: 最近输出：AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+                - generic [ref=e1108]:
+                  - generic [ref=e1109]: 2026/7/6 19:53:42
+                  - generic [ref=e1110]: 1 turns
+            - generic [ref=e1111]:
+              - generic [ref=e1113]:
+                - generic [ref=e1114]: 会话明细
+                - generic [ref=e1115]: 查看每轮输入、输出、模型、上下文与耗时。
+              - generic [ref=e1116]:
+                - generic [ref=e1117]:
+                  - generic [ref=e1118]: ping claw default
+                  - generic [ref=e1119]:
+                    - generic [ref=e1120]: 会话 ID：regression-claw-default-1783345604062
+                    - generic [ref=e1121]: 最近引擎：claw_code
+                    - generic [ref=e1122]: 状态：Error
+                    - generic [ref=e1123]: 更新时间：2026/7/6 21:46:44
+                - generic [ref=e1125]:
+                  - generic [ref=e1126]:
+                    - generic [ref=e1127]: 第 1 轮
+                    - generic [ref=e1128]: Error
+                  - generic [ref=e1129]:
+                    - generic [ref=e1130]: 时间：2026/7/6 21:46:44
+                    - generic [ref=e1131]: 耗时：2 ms
+                    - generic [ref=e1132]: 来源：regression/claw-default
+                    - generic [ref=e1133]: 引擎：claw_code
+                    - generic [ref=e1134]: 模型：未记录
+                    - generic [ref=e1135]: 技能：关闭
+                  - generic [ref=e1136]:
+                    - generic [ref=e1137]: 输入
+                    - generic [ref=e1138]: ping claw default
+                  - generic [ref=e1139]:
+                    - generic [ref=e1140]: 输出
+                    - generic [ref=e1141]: AgentCoreOS Runtime is unavailable. Configure or package the AgentCoreOS runtime binary.
+        - generic:
+          - generic [ref=e1142]:
+            - generic [ref=e1143]: 控制台链接
+            - generic [ref=e1144]:
+              - generic [ref=e1145]:
+                - generic [ref=e1146]: Runtime Base URL
+                - textbox "http://127.0.0.1:18789" [ref=e1147]
+                - generic [ref=e1148]: 通常会跟随“设置 → 引擎核心”里的地址；默认使用 http://127.0.0.1:18789
+              - generic [ref=e1149]:
+                - generic [ref=e1150]: Chat Session
+                - textbox "agent:main:main" [ref=e1151]
+                - generic [ref=e1152]: 示例：agent:main:main
+            - generic [ref=e1153]:
+              - button "打开控制台" [ref=e1154] [cursor=pointer]:
+                - img [ref=e1155]
+                - text: 打开控制台
+              - button "打开 Chat 会话" [ref=e1159] [cursor=pointer]:
+                - img [ref=e1160]
+                - text: 打开 Chat 会话
+              - button "复制 Chat 链接" [ref=e1164] [cursor=pointer]
+            - generic [ref=e1165]:
+              - generic [ref=e1166]: 建议用法
+              - list [ref=e1167]:
+                - listitem [ref=e1168]: 在 WebOS 里用 Spotlight / 各 App 发起任务；在 TaskManager 里查看状态。
+                - listitem [ref=e1169]: 需要更深的调试或查看会话时，用上面的链接打开 AgentCoreOS Runtime 控制台。
+          - generic [ref=e1170]:
+            - generic [ref=e1171]:
+              - generic [ref=e1172]: AgentCoreOS Runtime 健康检查
+              - button "检查" [ref=e1173] [cursor=pointer]
+            - generic [ref=e1174]: 该检查通过服务端诊断 AgentCoreOS Runtime 与本地运行时状态，不会把 Token 暴露到浏览器。
+            - generic [ref=e1176]: 点击“检查”查看 AgentCoreOS Runtime health 输出。
+  - status [ref=e310]:
+    - generic [ref=e311]:
+      - img [ref=e313]
+      - generic [ref=e315]:
+        - text: Static route
+        - button "Hide static indicator" [ref=e316] [cursor=pointer]:
+          - img [ref=e317]
+  - alert [ref=e320]

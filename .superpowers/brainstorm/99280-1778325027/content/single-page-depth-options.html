@@ -1,0 +1,83 @@
+<h2>首页优化方向：单页操作深度</h2>
+<p class="subtitle">目标是“简洁、大方、一个页面看到并操作所有功能”。先确认操作深度，后面再定视觉细节。</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A · 总控台首页</div>
+        <div class="mockup-body">
+          <div class="mock-nav">AgentCore OS · 搜索 · 工作台 · 设置</div>
+          <div style="display:grid;grid-template-columns:220px 1fr 280px;gap:12px;margin-top:12px">
+            <div class="mock-sidebar">行业/角色<br><br>销售<br>客服<br>内容<br>研究</div>
+            <div class="mock-content">
+              <div class="placeholder">主任务：输入指令 / 继续工作流</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px">
+                <div class="placeholder">工作流</div>
+                <div class="placeholder">审批</div>
+                <div class="placeholder">资产</div>
+                <div class="placeholder">运行时</div>
+              </div>
+            </div>
+            <div class="mock-sidebar">状态<br><br>最近任务<br>待确认<br>系统健康</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · 首页是总控台，深层功能仍用窗口</h3>
+      <p>第一屏能看见并启动所有关键功能；复杂编辑、详细配置继续在现有应用窗口里完成。改动稳，风险低。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">B · 单页工作台</div>
+        <div class="mockup-body">
+          <div class="mock-nav">AgentCore OS · 全局命令 · 状态</div>
+          <div style="display:grid;grid-template-columns:180px 1fr;gap:12px;margin-top:12px">
+            <div class="mock-sidebar">功能分组<br><br>工作流<br>资产<br>客户<br>发布<br>设置</div>
+            <div class="mock-content">
+              <div class="placeholder">当前操作区：列表 / 表单 / 结果 / 对话</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+                <div class="placeholder">待办与审批</div>
+                <div class="placeholder">可复用资产</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · 真正单页化，所有功能嵌在首页</h3>
+      <p>减少窗口感，像一个完整控制台；需要把多个 App 的操作面板重组到一个页面，改动范围最大。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">C · 极简启动台</div>
+        <div class="mockup-body">
+          <div class="mock-nav">AgentCore OS</div>
+          <div class="mock-content" style="margin-top:12px">
+            <div class="placeholder">一句话命令入口</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
+              <div class="placeholder">销售</div>
+              <div class="placeholder">客服</div>
+              <div class="placeholder">内容</div>
+              <div class="placeholder">研究</div>
+              <div class="placeholder">资产</div>
+              <div class="placeholder">设置</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · 极简启动台，少展示多跳转</h3>
+      <p>视觉最轻，但不满足“一个页面操作所有功能”的强诉求，更适合做产品首页而不是工作界面。</p>
+    </div>
+  </div>
+</div>

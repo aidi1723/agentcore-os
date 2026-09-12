@@ -1,0 +1,186 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - main [ref=e3]:
+      - heading "面向企业的智能体定制服务" [level=1] [ref=e4]
+      - paragraph [ref=e5]: AgentCore OS 专注智能体企业定制、企业智能体定制、企业定制智能体、 企业定制 Agent、AI 智能体企业定制、企业 AI Agent 定制、企业智能体解决方案 和企业智能体私有化部署，帮助企业把客服、销售、知识库、运营、招聘等业务场景 建成可执行、可复用、可审计的专属智能体工作流。
+      - heading "企业智能体定制开发方向" [level=2] [ref=e6]
+      - list [ref=e7]:
+        - listitem [ref=e8]: 智能体企业定制开发与企业 AI 智能体定制开发
+        - listitem [ref=e9]: 企业专属智能体定制、企业内部智能体定制和企业本地部署智能体
+        - listitem [ref=e10]: 企业客服智能体定制、企业销售智能体定制和企业知识库智能体定制
+        - listitem [ref=e11]: 企业运营智能体定制、企业招聘智能体定制和行业智能体企业定制
+        - listitem [ref=e12]: 企业 AI 工作流自动化、企业流程自动化智能体和多智能体工作流平台
+      - heading "适合咨询的长尾成交需求" [level=2] [ref=e13]
+      - paragraph [ref=e14]: 如果正在评估智能体企业定制多少钱、企业智能体定制费用、企业智能体怎么定制、 企业 AI Agent 定制流程或企业智能体定制方案，可以从业务流程、数据权限、 知识库接入、工具调用、部署方式和验收指标六个维度规划项目范围。
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - img "AgentCore OS" [ref=e24]
+          - generic [ref=e25]:
+            - generic [ref=e26]: AgentCore OS
+            - generic [ref=e27]: Business Solution Operating System
+        - button "Search" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+        - generic [ref=e32]: 08:04 PM
+        - generic [ref=e33]: Sat, May 9
+      - generic [ref=e34]:
+        - button "English ▾" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]:
+            - img [ref=e38]
+            - text: English ▾
+        - 'button "✨ Engine: Kimi (Moonshot) ▾" [ref=e44] [cursor=pointer]'
+        - generic [ref=e45]:
+          - img [ref=e46]
+          - button "音量" [ref=e50] [cursor=pointer]:
+            - img [ref=e51]
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - combobox "Switch Desktop Mode" [ref=e59]:
+            - option "Default"
+            - option "Creator" [selected]
+            - option "Workflow"
+          - generic:
+            - generic: ▼
+        - button "Windows" [ref=e61] [cursor=pointer]:
+          - img [ref=e62]
+          - generic [ref=e67]: "0"
+        - button "Workspace" [ref=e68] [cursor=pointer]
+        - button "Settings" [ref=e69] [cursor=pointer]
+    - generic [ref=e74]:
+      - generic [ref=e76]:
+        - button "内容与创作者运行中" [ref=e77] [cursor=pointer]
+        - button "销售与商务运行中" [ref=e78] [cursor=pointer]
+        - button "客服与用户运营未启动" [ref=e79] [cursor=pointer]
+        - button "研究与策略运行中" [ref=e80] [cursor=pointer]
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - generic [ref=e84]:
+              - generic [ref=e85]: Agent chat
+              - heading "Sales Desk" [level=1] [ref=e86]
+              - paragraph [ref=e87]: Describe the goal, customer, constraints, and what should happen next.
+            - generic [ref=e88]:
+              - generic [ref=e89]: 销售与商务
+              - generic [ref=e90]: Kimi (Moonshot)
+              - generic [ref=e91]: 运行中 · 1/4 阶段
+          - generic [ref=e94]:
+            - generic [ref=e95]: 像聊天一样安排工作
+            - generic [ref=e96]: 输入目标、客户、约束和期望结果，AgentCore OS 会把它转成可执行的工作链。
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - button "搜索目标客户并按优先级排序" [ref=e99] [cursor=pointer]
+              - button "根据客户画像起草首轮触达话术" [ref=e100] [cursor=pointer]
+              - button "把今天的销售推进链拆成可执行任务" [ref=e101] [cursor=pointer]
+            - generic [ref=e102]:
+              - 'textbox "Example: Search and qualify 20 manufacturing leads in Shanghai, draft first outreach, and break the work into a verifiable chain." [ref=e103]'
+              - generic [ref=e104]:
+                - generic [ref=e105]: Enter to send, Shift + Enter for newline
+                - generic [ref=e106]:
+                  - button "Open role desk" [ref=e107] [cursor=pointer]:
+                    - img [ref=e108]
+                    - text: Open role desk
+                  - button "Run workflow" [ref=e111] [cursor=pointer]:
+                    - img [ref=e112]
+                    - text: Run workflow
+                  - button "Send command" [disabled] [ref=e115]:
+                    - img [ref=e116]
+                    - text: Send command
+        - complementary [ref=e118]:
+          - generic [ref=e119]:
+            - generic [ref=e120]: Tools
+            - generic [ref=e121]:
+              - button "Workflows" [ref=e122] [cursor=pointer]:
+                - generic [ref=e123]:
+                  - img [ref=e124]
+                  - generic [ref=e127]: Workflows
+              - button "Approvals" [ref=e128] [cursor=pointer]:
+                - generic [ref=e129]:
+                  - img [ref=e130]
+                  - generic [ref=e132]: Approvals
+              - button "Assets" [ref=e133] [cursor=pointer]:
+                - generic [ref=e134]:
+                  - img [ref=e135]
+                  - generic [ref=e137]: Assets
+              - button "Runtime" [ref=e138] [cursor=pointer]:
+                - generic [ref=e139]:
+                  - img [ref=e140]
+                  - generic [ref=e143]: Runtime
+              - button "Industry hub" [ref=e144] [cursor=pointer]:
+                - generic [ref=e145]:
+                  - img [ref=e146]
+                  - generic [ref=e150]: Industry hub
+              - button "Solution library" [ref=e151] [cursor=pointer]:
+                - generic [ref=e152]:
+                  - img [ref=e153]
+                  - generic [ref=e156]: Solution library
+          - generic [ref=e157]:
+            - generic [ref=e158]: Attention
+            - generic [ref=e159]:
+              - button "Approvals Needs review or authorization 2" [ref=e160] [cursor=pointer]:
+                - generic [ref=e161]:
+                  - generic [ref=e162]:
+                    - generic [ref=e163]: Approvals
+                    - generic [ref=e164]: Needs review or authorization
+                  - generic [ref=e165]: "2"
+              - button "Running Executing or already opened 4" [ref=e166] [cursor=pointer]:
+                - generic [ref=e167]:
+                  - generic [ref=e168]:
+                    - generic [ref=e169]: Running
+                    - generic [ref=e170]: Executing or already opened
+                  - generic [ref=e171]: "4"
+              - button "Failures Needs recovery 0" [ref=e172] [cursor=pointer]:
+                - generic [ref=e173]:
+                  - generic [ref=e174]:
+                    - generic [ref=e175]: Failures
+                    - generic [ref=e176]: Needs recovery
+                  - generic [ref=e177]: "0"
+              - button "Runtime AgentCoreOS Runtime state Check" [ref=e178] [cursor=pointer]:
+                - generic [ref=e179]:
+                  - generic [ref=e180]:
+                    - generic [ref=e181]: Runtime
+                    - generic [ref=e182]: AgentCoreOS Runtime state
+                  - generic [ref=e183]: Check
+          - generic [ref=e184]:
+            - generic [ref=e185]: Workflow
+            - generic [ref=e186]: 从线索筛选到成交跟进的销售推进链
+            - generic [ref=e187]:
+              - generic [ref=e188]:
+                - generic [ref=e189]: Stage 1
+                - generic [ref=e190]: 筛选线索
+                - generic [ref=e191]: 协作
+              - generic [ref=e192]:
+                - generic [ref=e193]: Stage 2
+                - generic [ref=e194]: 生成跟进
+                - generic [ref=e195]: 审核
+              - generic [ref=e196]:
+                - generic [ref=e197]: Stage 3
+                - generic [ref=e198]: 会后收口
+                - generic [ref=e199]: 协作
+              - generic [ref=e200]:
+                - generic [ref=e201]: Stage 4
+                - generic [ref=e202]: 沉淀打法
+                - generic [ref=e203]: 人工
+          - generic [ref=e204]:
+            - generic [ref=e205]:
+              - generic [ref=e206]:
+                - generic [ref=e207]: Reusable assets
+                - generic [ref=e208]: Deliverables
+              - button "Open app" [ref=e209] [cursor=pointer]
+            - generic [ref=e210]:
+              - button "客户画像结构" [ref=e211] [cursor=pointer]
+              - button "跟进邮件节奏" [ref=e212] [cursor=pointer]
+              - button "销售话术模板" [ref=e213] [cursor=pointer]
+              - button "机会推进规则" [ref=e214] [cursor=pointer]
+          - generic [ref=e215]:
+            - generic [ref=e216]: Execution feed
+            - generic [ref=e217]:
+              - generic [ref=e221]:
+                - generic [ref=e222]: Desk state
+                - generic [ref=e223]: 运行中 · 1/4 阶段
+              - generic [ref=e227]:
+                - generic [ref=e228]: Workflow chain
+                - generic [ref=e229]: 从线索筛选到成交跟进的销售推进链
+              - generic [ref=e233]:
+                - generic [ref=e234]: Deliverables
+                - generic [ref=e235]: 客户画像结构 · 跟进邮件节奏 · 销售话术模板 · 机会推进规则
+  - alert [ref=e236]

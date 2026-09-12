@@ -1,33 +1,48 @@
 ---
-name: Bug report
-about: Report a reproducible problem
-title: "[Bug] "
-labels: bug
-assignees: ""
+name: Bug 报告
+about: 报告一个 Bug
+title: '[BUG] '
+labels: 'bug'
+assignees: ''
 ---
 
-## Summary
+## 🐛 Bug 描述
 
-What happened?
+简要描述遇到的问题。
 
-## Steps to reproduce
+## 📋 复现步骤
 
-1.
-2.
-3.
+1. 
+2. 
+3. 
 
-## Expected behavior
+## ✅ 预期行为
 
-## Actual behavior
+描述应该发生什么。
 
-## Environment
+## ❌ 实际行为
 
-- OS:
-- Browser:
-- Node.js version:
-- App version/commit:
+描述实际发生了什么。
 
-## Logs / screenshots
+## 🖼️ 截图
 
-Paste relevant console logs or screenshots (redact secrets).
+如有截图请在此粘贴。
 
+## 💻 环境信息
+
+- OS: [例如 macOS 13.0]
+- Node.js 版本: [运行 `node -v`]
+- AgentCore OS 版本: [例如 v1.3.0-beta.1]
+- 浏览器: [例如 Chrome 120]
+
+## 📝 日志
+
+如有错误日志请在此粘贴：
+
+```
+粘贴日志
+```
+
+## 🔗 相关信息
+
+其他可能有用的信息。

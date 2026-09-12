@@ -1,27 +1,35 @@
 ---
-name: Feature request
-about: Suggest an improvement or new capability
-title: "[Feature] "
-labels: enhancement
-assignees: ""
+name: 功能请求
+about: 提出一个新功能
+title: '[FEATURE] '
+labels: 'enhancement'
+assignees: ''
 ---
 
-## Summary
+## 💡 功能描述
 
-What would you like to add or improve?
+简要描述您想要的功能。
 
-## Problem / context
+## 🎯 问题/需求
 
-What user problem does this solve?
+这个功能要解决什么问题？
 
-## Proposed approach
+## 💭 建议的解决方案
 
-Describe the preferred solution if you have one.
+您认为应该如何实现？
 
-## Alternatives considered
+## 🔄 备选方案
 
-What other options did you consider?
+有其他可行的方案吗？
 
-## Additional context
+## 📖 使用场景
 
-Links, screenshots, references, or mockups.
+描述一个具体的使用场景。
+
+## 📸 参考示例
+
+如有参考示例（其他产品、截图等）请在此提供。
+
+## 🔗 相关信息
+
+其他可能有用的信息。

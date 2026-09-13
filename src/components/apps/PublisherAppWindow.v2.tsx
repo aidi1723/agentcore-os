@@ -499,7 +499,7 @@ export function PublisherAppWindow({
                       >
                         <div className="text-sm font-semibold text-gray-900">{draft.title}</div>
                         <div className="mt-1 text-xs text-gray-500">
-                          {draft.tags?.slice(0, 3).map(getPlatformLabel).join(" · ")}
+                          {draft.tags?.slice(0, 3).map((tag) => getPlatformLabel(tag as PublishPlatformId)).join(" · ")}
                         </div>
                       </button>
                     );
@@ -522,7 +522,7 @@ export function PublisherAppWindow({
                   <Button
                     variant="danger"
                     size="sm"
-                    icon={Trash2}
+                    icon={<Trash2 className="h-4 w-4" />}
                     onClick={deleteDraft}
                     disabled={!selectedId}
                   >
@@ -599,7 +599,7 @@ export function PublisherAppWindow({
                   <Button
                     variant="primary"
                     size="md"
-                    icon={Send}
+                    icon={<Send className="h-4 w-4" />}
                     onClick={dispatch}
                     disabled={!body.trim() || selectedPlatforms.length === 0 || isDispatching}
                   >
@@ -628,7 +628,7 @@ export function PublisherAppWindow({
                     <Button
                       variant="secondary"
                       size="sm"
-                      icon={RefreshCw}
+                      icon={<RefreshCw className="h-4 w-4" />}
                       onClick={refreshJobsPanel}
                       disabled={jobsRefreshing}
                       loading={jobsRefreshing}
@@ -684,7 +684,7 @@ export function PublisherAppWindow({
                 />
                 <CardBody spacing="sm">
                   <div className="space-y-2">
-                    {publishInsights.checklist.map((item, index) => {
+                    {publishInsights.checks.map((item, index) => {
                       const statusMeta = getChecklistStatusMeta(item.status);
                       return (
                         <div
@@ -694,7 +694,9 @@ export function PublisherAppWindow({
                           <Badge variant={statusMeta.variant} size="sm">
                             {statusMeta.label}
                           </Badge>
-                          <div className="flex-1 text-sm text-gray-700">{item.message}</div>
+                          <div className="flex-1 text-sm text-gray-700">
+                            <span className="font-semibold">{item.label}</span>: {item.detail}
+                          </div>
                         </div>
                       );
                     })}

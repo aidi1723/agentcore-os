@@ -675,7 +675,7 @@ export function KnowledgeVaultAppWindow({
                                 variant="secondary"
                                 size="sm"
                                 onClick={() => {
-                                  void jumpToAssetTarget(asset);
+                                  void jumpToAssetTarget(asset.sourceJumpTarget);
                                 }}
                               >
                                 查看来源
@@ -747,7 +747,10 @@ export function KnowledgeVaultAppWindow({
                             size="sm"
                             disabled={!asset.draftId}
                             onClick={() => {
-                              if (asset.draftId) void jumpToAssetTarget(asset);
+                              if (asset.draftId) {
+                                // TODO: Implement draft navigation
+                                console.log("Navigate to draft:", asset.draftId);
+                              }
                             }}
                           >
                             查看草稿
@@ -774,7 +777,7 @@ export function KnowledgeVaultAppWindow({
                     <Button
                       variant="secondary"
                       size="sm"
-                      icon={<RefreshCw className="h-3.5 w-3.5" />}
+                      icon={<RefreshCw className="h-4 w-4" />}
                       onClick={() => refreshHeroRecommendations()}
                       disabled={heroRecommendationPhase === "loading"}
                     >
@@ -812,10 +815,15 @@ export function KnowledgeVaultAppWindow({
                       {structuredAnswer.sections.map((section, idx) => (
                         <div key={idx}>
                           <div className="text-sm font-semibold text-emerald-950 mb-2">
-                            {section.title}
+                            {section.label}
                           </div>
-                          <div className="text-sm leading-6 text-emerald-900/90 whitespace-pre-wrap">
-                            {section.content}
+                          <div className="text-sm leading-6 text-emerald-900/90">
+                            {section.hits.map((hit, hitIdx) => (
+                              <div key={hitIdx} className="mb-2">
+                                <div className="font-medium">{hit.title}</div>
+                                <div className="text-emerald-900/70">{hit.summary}</div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       ))}

@@ -230,8 +230,8 @@ export function FamilyCalendarAppWindow({
             <Card padding="md">
               <CardHeader
                 title="家庭日程"
-                action={
-                  <Button size="sm" variant="primary" icon={Plus} onClick={createNewEvent}>
+                actions={
+                  <Button size="sm" variant="primary" icon={<Plus className="h-4 w-4" />} onClick={createNewEvent}>
                     新建
                   </Button>
                 }
@@ -272,11 +272,11 @@ export function FamilyCalendarAppWindow({
               <Card padding="md">
                 <CardHeader
                   title="编辑日程"
-                  action={
+                  actions={
                     <Button
                       size="sm"
                       variant="danger"
-                      icon={Trash2}
+                      icon={<Trash2 className="h-4 w-4" />}
                       onClick={() => {
                         removeFamilyEvent(selectedEvent.id);
                         setSelectedEventId(null);
@@ -331,8 +331,8 @@ export function FamilyCalendarAppWindow({
             <Card padding="md">
               <CardHeader
                 title="补货 / 家务"
-                action={
-                  <Button size="sm" variant="primary" icon={Plus} onClick={createNewItem}>
+                actions={
+                  <Button size="sm" variant="primary" icon={<Plus className="h-4 w-4" />} onClick={createNewItem}>
                     新建
                   </Button>
                 }
@@ -373,11 +373,11 @@ export function FamilyCalendarAppWindow({
               <Card padding="md">
                 <CardHeader
                   title="编辑物品"
-                  action={
+                  actions={
                     <Button
                       size="sm"
                       variant="danger"
-                      icon={Trash2}
+                      icon={<Trash2 className="h-4 w-4" />}
                       onClick={() => {
                         removeHouseholdItem(selectedItem.id);
                         setSelectedItemId(null);
@@ -432,14 +432,14 @@ export function FamilyCalendarAppWindow({
                     <Button
                       size="sm"
                       variant="success"
-                      icon={Sparkles}
+                      icon={<Sparkles className="h-4 w-4" />}
                       onClick={generatePlan}
                       disabled={isGenerating}
                       loading={isGenerating}
                     >
                       {isGenerating ? "生成中..." : "生成家庭计划"}
                     </Button>
-                    <Button size="sm" variant="secondary" icon={FilePlus2} onClick={savePlanDraft}>
+                    <Button size="sm" variant="secondary" icon={<FilePlus2 className="h-4 w-4" />} onClick={savePlanDraft}>
                       保存草稿
                     </Button>
                     <Button size="sm" variant="secondary" onClick={queueNeededItems}>

@@ -463,7 +463,7 @@ export function CreatorRadarAppWindow({
               <div className="rounded-2xl border border-gray-200 bg-white p-5">
                 <div className="flex items-center justify-between gap-2">
                   <div className="text-sm font-semibold text-gray-900">Radar briefs</div>
-                  <Button variant="primary" size="sm" icon={Plus} onClick={createNew}>
+                  <Button variant="primary" size="sm" icon={<Plus className="h-4 w-4" />} onClick={createNew}>
                     新建
                   </Button>
                 </div>
@@ -511,7 +511,7 @@ export function CreatorRadarAppWindow({
                           填主题、频道或创作者来源，再生成今日内容雷达。
                         </div>
                       </div>
-                      <Button variant="danger" size="sm" icon={Trash2} onClick={deleteSelected}>
+                      <Button variant="danger" size="sm" icon={<Trash2 className="h-4 w-4" />} onClick={deleteSelected}>
                         删除
                       </Button>
                     </div>
@@ -575,7 +575,7 @@ export function CreatorRadarAppWindow({
                     <Button
                       variant="primary"
                       size="sm"
-                      icon={Sparkles}
+                      icon={<Sparkles className="h-4 w-4" />}
                       onClick={generateDigest}
                       disabled={!selected || isGenerating}
                       loading={isGenerating}
@@ -585,7 +585,7 @@ export function CreatorRadarAppWindow({
                     <Button
                       variant="secondary"
                       size="sm"
-                      icon={FilePlus2}
+                      icon={<FilePlus2 className="h-4 w-4" />}
                       onClick={saveDigest}
                     >
                       存草稿

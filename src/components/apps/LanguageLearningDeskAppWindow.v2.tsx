@@ -274,8 +274,8 @@ export function LanguageLearningDeskAppWindow({
             <Card padding="md">
               <CardHeader
                 title="Practice sessions"
-                action={
-                  <Button size="sm" variant="primary" icon={Plus} onClick={createNew}>
+                actions={
+                  <Button size="sm" variant="primary" icon={<Plus className="h-4 w-4" />} onClick={createNew}>
                     新建
                   </Button>
                 }
@@ -326,7 +326,7 @@ export function LanguageLearningDeskAppWindow({
             </Card>
 
             <div className="grid grid-cols-1 gap-3">
-              <Card padding="sm" variant="info">
+              <Card padding="sm">
                 <CardBody spacing="sm">
                   <div className="flex items-center gap-2 text-sm font-semibold text-blue-900">
                     <Languages className="h-4 w-4" />
@@ -337,7 +337,7 @@ export function LanguageLearningDeskAppWindow({
                   </div>
                 </CardBody>
               </Card>
-              <Card padding="sm" variant="success">
+              <Card padding="sm">
                 <CardBody spacing="sm">
                   <div className="flex items-center gap-2 text-sm font-semibold text-emerald-900">
                     <BookOpenCheck className="h-4 w-4" />
@@ -359,11 +359,11 @@ export function LanguageLearningDeskAppWindow({
                     <CardHeader
                       title="Learning brief"
                       subtitle="录入目标语言、使用场景和素材，生成可直接练的学习包。"
-                      action={
+                      actions={
                         <Button
                           size="sm"
                           variant="ghost"
-                          icon={Trash2}
+                          icon={<Trash2 className="h-4 w-4" />}
                           onClick={deleteSelected}
                           aria-label="删除项目"
                         />
@@ -452,7 +452,7 @@ export function LanguageLearningDeskAppWindow({
                     <CardHeader
                       title="Lesson pack"
                       subtitle="输出翻译重点、场景表达、角色扮演和下一步练习动作。"
-                      action={
+                      actions={
                         <Badge variant="default" size="sm">
                           <Sparkles className="h-3.5 w-3.5" />
                           AI + local fallback
@@ -465,20 +465,20 @@ export function LanguageLearningDeskAppWindow({
                         <Button
                           variant="primary"
                           size="md"
-                          icon={Sparkles}
+                          icon={<Sparkles className="h-4 w-4" />}
                           onClick={generateLessonPack}
                           disabled={isGenerating}
                           loading={isGenerating}
                         >
                           {isGenerating ? "生成中..." : "生成学习包"}
                         </Button>
-                        <Button variant="secondary" size="md" icon={FilePlus2} onClick={saveLessonDraft}>
+                        <Button variant="secondary" size="md" icon={<FilePlus2 className="h-4 w-4" />} onClick={saveLessonDraft}>
                           保存草稿
                         </Button>
-                        <Button variant="secondary" size="md" icon={BookOpenCheck} onClick={sendToVault}>
+                        <Button variant="secondary" size="md" icon={<BookOpenCheck className="h-4 w-4" />} onClick={sendToVault}>
                           沉淀短句库
                         </Button>
-                        <Button variant="secondary" size="md" icon={Languages} onClick={sendToTasks}>
+                        <Button variant="secondary" size="md" icon={<Languages className="h-4 w-4" />} onClick={sendToTasks}>
                           写入复习任务
                         </Button>
                       </div>
@@ -486,7 +486,7 @@ export function LanguageLearningDeskAppWindow({
                       <div className="rounded-[28px] border border-gray-200 bg-gray-50 p-4">
                         <pre className="max-h-[540px] overflow-auto whitespace-pre-wrap break-words text-sm leading-7 text-gray-900">
                           {selected.lessonPack.trim() ||
-                            "点击"生成学习包"后，这里会出现翻译重点、短句、角色扮演和复习动作。"}
+                            "点击「生成学习包」后，这里会出现翻译重点、短句、角色扮演和复习动作。"}
                         </pre>
                       </div>
                     </CardBody>

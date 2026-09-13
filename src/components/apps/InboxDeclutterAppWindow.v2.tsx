@@ -39,7 +39,7 @@ import { Input } from "@/design-system/components/Input";
 import { Textarea } from "@/design-system/components/Textarea";
 import { Card, CardHeader, CardBody } from "@/design-system/components/Card";
 import { Badge } from "@/design-system/components/Badge";
-import { designTokens } from "@/design-system/tokens";
+import { tokens } from "@/design-system/tokens";
 
 const sourceOptions: Array<{ value: InboxSource; label: string }> = [
   { value: "newsletter", label: "Newsletter" },
@@ -361,7 +361,7 @@ export function InboxDeclutterAppWindow({
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: designTokens.spacing.md, padding: designTokens.spacing.lg }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: tokens.spacing[6], padding: tokens.spacing[8] }}>
           <SupportHeroWorkflowPanel
             workflowRunId={activeWorkflowItem?.workflowRunId}
             title={activeWorkflowItem ? `${activeWorkflowItem.title || "未命名问题"} · 消息收拢阶段` : "Inbox Declutter · Support Workflow"}
@@ -379,7 +379,7 @@ export function InboxDeclutterAppWindow({
           />
 
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-            <aside style={{ display: "flex", flexDirection: "column", gap: designTokens.spacing.md }}>
+            <aside style={{ display: "flex", flexDirection: "column", gap: tokens.spacing[6] }}>
               <Card padding="md">
                 <CardBody spacing="md">
                   <div style={{ fontSize: "14px", fontWeight: 600, color: "#111827", marginBottom: "16px" }}>
@@ -394,8 +394,8 @@ export function InboxDeclutterAppWindow({
                         onChange={(e) => setSource(e.target.value as InboxSource)}
                         style={{
                           width: "100%",
-                          borderRadius: designTokens.borderRadius.xl,
-                          border: `1px solid ${designTokens.colors.default.border}`,
+                          borderRadius: tokens.radius.xl,
+                          border: `1px solid ${"#e5e7eb"}`,
                           padding: "10px 16px",
                           fontSize: "14px",
                           color: "#111827",
@@ -437,9 +437,9 @@ export function InboxDeclutterAppWindow({
                       <div
                         key={item.id}
                         style={{
-                          borderRadius: designTokens.borderRadius.xl,
-                          border: `1px solid ${designTokens.colors.default.border}`,
-                          backgroundColor: designTokens.colors.default.background,
+                          borderRadius: tokens.radius.xl,
+                          border: `1px solid ${"#e5e7eb"}`,
+                          backgroundColor: "#f9fafb",
                           padding: "12px",
                         }}
                       >
@@ -457,7 +457,7 @@ export function InboxDeclutterAppWindow({
                             <Button variant="secondary" size="sm" onClick={() => sendItemToEmail(item)}>
                               写邮件
                             </Button>
-                            <Button variant="secondary" size="sm" icon={Trash2} onClick={() => removeInboxItem(item.id)} />
+                            <Button variant="secondary" size="sm" icon={<Trash2 className="h-4 w-4" />} onClick={() => removeInboxItem(item.id)} />
                           </div>
                         </div>
                       </div>
@@ -465,9 +465,9 @@ export function InboxDeclutterAppWindow({
                   ) : (
                     <div
                       style={{
-                        borderRadius: designTokens.borderRadius.xl,
-                        border: `1px dashed ${designTokens.colors.default.border}`,
-                        backgroundColor: designTokens.colors.default.background,
+                        borderRadius: tokens.radius.xl,
+                        border: `1px dashed ${"#e5e7eb"}`,
+                        backgroundColor: "#f9fafb",
                         padding: "16px",
                         fontSize: "14px",
                         color: "#6B7280",
@@ -481,7 +481,7 @@ export function InboxDeclutterAppWindow({
               </Card>
             </aside>
 
-            <main style={{ display: "flex", flexDirection: "column", gap: designTokens.spacing.md }}>
+            <main style={{ display: "flex", flexDirection: "column", gap: tokens.spacing[6] }}>
               <Card padding="md">
                 <CardBody>
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -496,7 +496,7 @@ export function InboxDeclutterAppWindow({
                     <Button
                       variant="success"
                       size="md"
-                      icon={Sparkles}
+                      icon={<Sparkles className="h-4 w-4" />}
                       onClick={generateDigest}
                       disabled={isGenerating}
                       loading={isGenerating}
@@ -512,8 +512,8 @@ export function InboxDeclutterAppWindow({
                 <CardHeader
                   title="Digest 结果"
                   subtitle="支持保存到草稿，供后续转发或整理。"
-                  action={
-                    <Button variant="secondary" size="sm" icon={FilePlus2} onClick={saveDigestDraft}>
+                  actions={
+                    <Button variant="secondary" size="sm" icon={<FilePlus2 className="h-4 w-4" />} onClick={saveDigestDraft}>
                       保存草稿
                     </Button>
                   }
@@ -539,9 +539,9 @@ export function InboxDeclutterAppWindow({
                           minHeight: "320px",
                           alignItems: "center",
                           justifyContent: "center",
-                          borderRadius: designTokens.borderRadius.xl,
-                          border: `1px dashed ${designTokens.colors.default.border}`,
-                          backgroundColor: designTokens.colors.default.background,
+                          borderRadius: tokens.radius.xl,
+                          border: `1px dashed ${"#e5e7eb"}`,
+                          backgroundColor: "#f9fafb",
                           fontSize: "14px",
                           color: "#6B7280",
                         }}
@@ -567,9 +567,9 @@ export function InboxDeclutterAppWindow({
                             setDigest(record.content);
                           }}
                           style={{
-                            borderRadius: designTokens.borderRadius.xl,
-                            border: `1px solid ${designTokens.colors.default.border}`,
-                            backgroundColor: designTokens.colors.default.background,
+                            borderRadius: tokens.radius.xl,
+                            border: `1px solid ${"#e5e7eb"}`,
+                            backgroundColor: "#f9fafb",
                             padding: "16px",
                             textAlign: "left",
                             cursor: "pointer",
@@ -579,7 +579,7 @@ export function InboxDeclutterAppWindow({
                             e.currentTarget.style.backgroundColor = "#F3F4F6";
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = designTokens.colors.default.background;
+                            e.currentTarget.style.backgroundColor = "#f9fafb";
                           }}
                         >
                           <div style={{ fontSize: "12px", fontWeight: 600, color: "#111827" }}>
@@ -603,9 +603,9 @@ export function InboxDeclutterAppWindow({
                     ) : (
                       <div
                         style={{
-                          borderRadius: designTokens.borderRadius.xl,
-                          border: `1px dashed ${designTokens.colors.default.border}`,
-                          backgroundColor: designTokens.colors.default.background,
+                          borderRadius: tokens.radius.xl,
+                          border: `1px dashed ${"#e5e7eb"}`,
+                          backgroundColor: "#f9fafb",
                           padding: "16px",
                           fontSize: "14px",
                           color: "#6B7280",

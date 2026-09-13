@@ -228,13 +228,13 @@ export function ClawRuntimeConsoleAppWindow({
                       variant={
                         item.status === "ready"
                           ? "success"
-                          : item.status === "warn"
+                          : item.status === "attention"
                             ? "warning"
                             : "default"
                       }
                       size="sm"
                     >
-                      {item.status === "ready" ? "Ready" : item.status === "warn" ? "Warning" : "Not ready"}
+                      {item.status === "ready" ? "Ready" : item.status === "attention" ? "Warning" : "Not ready"}
                     </Badge>
                   </div>
                 ))}
@@ -250,7 +250,7 @@ export function ClawRuntimeConsoleAppWindow({
                 <Button
                   variant="primary"
                   size="md"
-                  icon={RefreshCw}
+                  icon={<RefreshCw className="h-4 w-4" />}
                   onClick={checkHealth}
                   disabled={isChecking}
                   loading={isChecking}
@@ -278,7 +278,7 @@ export function ClawRuntimeConsoleAppWindow({
                 <Button
                   variant="secondary"
                   size="sm"
-                  icon={ExternalLink}
+                  icon={<ExternalLink className="h-4 w-4" />}
                   onClick={() => openExternal(baseUrl)}
                 >
                   打开控制台 Dashboard

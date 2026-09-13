@@ -263,8 +263,8 @@ export function WebsiteSeoStudioAppWindow({
             <Card padding="md">
               <CardHeader
                 title="SEO 项目"
-                action={
-                  <Button size="sm" variant="primary" icon={Plus} onClick={createNew}>
+                actions={
+                  <Button size="sm" variant="primary" icon={<Plus className="h-4 w-4" />} onClick={createNew}>
                     新建
                   </Button>
                 }
@@ -384,14 +384,14 @@ export function WebsiteSeoStudioAppWindow({
                       <Button
                         variant="primary"
                         size="md"
-                        icon={Sparkles}
+                        icon={<Sparkles className="h-4 w-4" />}
                         onClick={generateBlueprint}
                         disabled={isGenerating}
                         loading={isGenerating}
                       >
                         {isGenerating ? "生成中..." : "生成网站 SEO 方案"}
                       </Button>
-                      <Button variant="secondary" size="md" icon={FilePlus2} onClick={saveDraft}>
+                      <Button variant="secondary" size="md" icon={<FilePlus2 className="h-4 w-4" />} onClick={saveDraft}>
                         写入草稿
                       </Button>
                       <Button variant="secondary" size="md" onClick={sendToVault}>
@@ -400,7 +400,7 @@ export function WebsiteSeoStudioAppWindow({
                       <Button variant="secondary" size="md" onClick={sendToTasks}>
                         发到任务中心
                       </Button>
-                      <Button variant="danger" size="md" icon={Trash2} onClick={deleteSelected}>
+                      <Button variant="danger" size="md" icon={<Trash2 className="h-4 w-4" />} onClick={deleteSelected}>
                         删除
                       </Button>
                     </div>

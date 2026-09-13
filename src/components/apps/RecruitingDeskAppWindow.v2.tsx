@@ -379,20 +379,20 @@ export function RecruitingDeskAppWindow({
                   <Button
                     variant="primary"
                     size="md"
-                    icon={Sparkles}
+                    icon={<Sparkles className="h-4 w-4" />}
                     onClick={generateScorecard}
                     disabled={isGenerating}
                     loading={isGenerating}
                   >
                     {isGenerating ? "生成中..." : "生成评分卡"}
                   </Button>
-                  <Button variant="secondary" size="md" icon={ClipboardCheck} onClick={saveDraft}>
+                  <Button variant="secondary" size="md" icon={<ClipboardCheck className="h-4 w-4" />} onClick={saveDraft}>
                     写入草稿
                   </Button>
                   <Button variant="secondary" size="md" onClick={pushTasks}>
                     同步后续动作
                   </Button>
-                  <Button variant="secondary" size="md" icon={Mail} onClick={draftFollowUp}>
+                  <Button variant="secondary" size="md" icon={<Mail className="h-4 w-4" />} onClick={draftFollowUp}>
                     生成跟进邮件
                   </Button>
                 </div>

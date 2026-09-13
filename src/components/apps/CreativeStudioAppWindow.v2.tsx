@@ -309,7 +309,7 @@ export function CreativeStudioAppWindow({
             </Button>
 
             <p className="text-xs text-gray-500 leading-relaxed">
-              提示：该 App 只负责"指令交互"。后端可接运行时引擎的{" "}
+              提示：该 App 只负责「指令交互」。后端可接运行时引擎的{" "}
               <span className="font-semibold text-gray-700">video-frames</span>{" "}
               技能返回封面图或视频片段。
             </p>
@@ -359,7 +359,7 @@ export function CreativeStudioAppWindow({
                     {output.videoSrc
                       ? "已生成片段，可直接播放。"
                       : localVideoPreviewSrc
-                        ? "当前展示的是原视频；要生成片段，请在指令中包含"剪/截取…10秒"等。"
+                        ? "当前展示的是原视频；要生成片段，请在指令中包含「剪/截取…10秒」等。"
                         : "引擎返回视频片段后将自动展示。"}
                   </p>
                 </CardBody>
@@ -400,7 +400,7 @@ export function CreativeStudioAppWindow({
                     <Button
                       size="sm"
                       variant="secondary"
-                      icon={Download}
+                      icon={<Download className="h-4 w-4" />}
                       onClick={onDownloadCover}
                       disabled={!output.coverSrc || isSubmitting}
                       title="下载封面"

@@ -747,7 +747,7 @@ export function IndustryHubAppWindow({
             <Button
               variant="secondary"
               size="sm"
-              icon={Layers}
+              icon={<Layers className="h-4 w-4" />}
               onClick={() => requestOpenApp("solutions_hub")}
             >
               {copy.openSolutions}
@@ -811,11 +811,11 @@ export function IndustryHubAppWindow({
                         {bundle.featuredApps.length}
                       </Badge>
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">{bundle.desc}</div>
+                    <div className="mt-1 text-xs text-gray-500">{bundle.summary}</div>
                     <div className="mt-3 flex flex-wrap gap-1">
                       {bundle.featuredApps.slice(0, 6).map((appId) => (
                         <Badge key={appId} variant="default" size="sm">
-                          {getAppDisplayName(appId, interfaceLanguage)}
+                          {getAppDisplayName(appId, appId, interfaceLanguage)}
                         </Badge>
                       ))}
                     </div>
@@ -830,13 +830,13 @@ export function IndustryHubAppWindow({
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <h2 className="text-base font-bold text-gray-900">{selectedBundle.title}</h2>
-                      <p className="mt-1 text-sm text-gray-500">{selectedBundle.desc}</p>
+                      <p className="mt-1 text-sm text-gray-500">{selectedBundle.summary}</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Button
                         variant="primary"
                         size="md"
-                        icon={CheckCircle2}
+                        icon={<CheckCircle2 className="h-4 w-4" />}
                         onClick={() => applyWorkspace(selectedBundle.id)}
                       >
                         {copy.applyWorkspace}
@@ -851,7 +851,7 @@ export function IndustryHubAppWindow({
                       <Button
                         variant="success"
                         size="md"
-                        icon={Rocket}
+                        icon={<Rocket className="h-4 w-4" />}
                         onClick={launchIndustryDesk}
                       >
                         {copy.launchDesk}
@@ -865,7 +865,7 @@ export function IndustryHubAppWindow({
                         {copy.sourceCases}
                       </div>
                       <div className="space-y-1">
-                        {selectedBundle.useCases.map((useCase, index) => (
+                        {selectedBundle.sourceUseCases.map((useCase, index) => (
                           <div
                             key={index}
                             className="flex items-start gap-2 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2"
@@ -884,7 +884,7 @@ export function IndustryHubAppWindow({
                       <div className="flex flex-wrap gap-1">
                         {selectedBundle.featuredApps.map((appId) => (
                           <Badge key={appId} variant="info" size="md">
-                            {getAppDisplayName(appId, interfaceLanguage)}
+                            {getAppDisplayName(appId, appId, interfaceLanguage)}
                           </Badge>
                         ))}
                       </div>
@@ -922,7 +922,7 @@ export function IndustryHubAppWindow({
                           >
                             <div className="flex items-center gap-2">
                               <Badge variant="default" size="sm">
-                                {getAppDisplayName(spotlight.appId, interfaceLanguage)}
+                                {getAppDisplayName(spotlight.appId, spotlight.appId, interfaceLanguage)}
                               </Badge>
                             </div>
                             <div className="mt-1 text-xs text-gray-600">{spotlight.role}</div>
@@ -932,13 +932,13 @@ export function IndustryHubAppWindow({
                     </div>
                   )}
 
-                  {selectedBundle.flows.length > 0 && (
+                  {selectedBundle.quickActions && selectedBundle.quickActions.length > 0 && (
                     <div className="mt-5">
                       <div className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">
                         {copy.quickFlows}
                       </div>
                       <div className="space-y-2">
-                        {selectedBundle.flows.map((flow, index) => (
+                        {selectedBundle.quickActions.map((flow, index) => (
                           <div
                             key={index}
                             className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3"
@@ -947,7 +947,7 @@ export function IndustryHubAppWindow({
                             <Button
                               variant="secondary"
                               size="sm"
-                              icon={PlayCircle}
+                              icon={<PlayCircle className="h-4 w-4" />}
                               onClick={() => runActions(flow.actions)}
                             >
                               {copy.runFlow}
@@ -996,7 +996,7 @@ export function IndustryHubAppWindow({
                                 className="rounded-xl border border-gray-200 bg-gray-50 p-3"
                               >
                                 <div className="mb-2 text-xs font-medium text-gray-900">
-                                  {getAppDisplayName(appId, interfaceLanguage)}
+                                  {getAppDisplayName(appId, appId, interfaceLanguage)}
                                 </div>
                                 <div className="flex gap-1">
                                   <button
@@ -1073,7 +1073,7 @@ export function IndustryHubAppWindow({
                           {copy.applyRoleDesk}
                         </Button>
                       </div>
-                      <div className="mt-2 text-xs text-gray-600">{role.description}</div>
+                      <div className="mt-2 text-xs text-gray-600">{role.desc}</div>
                     </button>
                   );
                 })}
@@ -1088,7 +1088,7 @@ export function IndustryHubAppWindow({
                 </div>
 
                 <div className="space-y-3">
-                  {selectedRoleScenario.workflow.map((stage, index) => {
+                  {selectedRoleScenario.workflowStages.map((stage, index) => {
                     const modeMeta = getWorkflowModeMeta(stage.mode, copy);
                     const Icon = modeMeta.icon;
                     return (
@@ -1106,10 +1106,10 @@ export function IndustryHubAppWindow({
                               {modeMeta.label}
                             </Badge>
                           </div>
-                          <div className="mt-1 text-xs text-gray-600">{stage.description}</div>
-                          {stage.resultAsset && (
+                          <div className="mt-1 text-xs text-gray-600">{stage.desc}</div>
+                          {stage.appIds && stage.appIds.length > 0 && (
                             <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-                              {copy.resultAssets}: {stage.resultAsset}
+                              Apps: {stage.appIds.join(", ")}
                             </div>
                           )}
                         </div>
@@ -1135,7 +1135,7 @@ export function IndustryHubAppWindow({
                         <Button
                           variant="secondary"
                           size="sm"
-                          icon={PlayCircle}
+                          icon={<PlayCircle className="h-4 w-4" />}
                           onClick={(e) => {
                             e.stopPropagation();
                             startSelectedWorkflow(trigger.id);
@@ -1188,7 +1188,7 @@ export function IndustryHubAppWindow({
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <div className="text-sm font-bold text-gray-900">{starter.title}</div>
-                          <div className="mt-1 text-xs text-gray-600">{starter.description}</div>
+                          <div className="mt-1 text-xs text-gray-600">{starter.summary}</div>
                         </div>
                         <Badge variant="default" size="sm">
                           {industries.find((i) => i.id === starter.industryId)?.title.slice(0, 8)}
@@ -1198,17 +1198,17 @@ export function IndustryHubAppWindow({
                       <div className="mt-4 space-y-2">
                         <div>
                           <div className="text-xs font-semibold text-gray-500">{copy.starterTrigger}</div>
-                          <div className="mt-1 text-xs text-gray-700">{starter.trigger}</div>
+                          <div className="mt-1 text-xs text-gray-700">{starter.triggerLabel}</div>
                         </div>
                         <div>
                           <div className="text-xs font-semibold text-gray-500">{copy.starterOutcome}</div>
-                          <div className="mt-1 text-xs text-gray-700">{starter.outcome}</div>
+                          <div className="mt-1 text-xs text-gray-700">{starter.outcomeLabel}</div>
                         </div>
-                        {starter.expectedAssets.length > 0 && (
+                        {starter.assets.length > 0 && (
                           <div>
                             <div className="text-xs font-semibold text-gray-500">{copy.starterAssets}</div>
                             <div className="mt-1 flex flex-wrap gap-1">
-                              {starter.expectedAssets.map((asset, index) => (
+                              {starter.assets.map((asset, index) => (
                                 <div
                                   key={index}
                                   className={["rounded-full border px-2 py-1 text-xs", classes.pill].join(" ")}
@@ -1225,7 +1225,7 @@ export function IndustryHubAppWindow({
                         variant="primary"
                         size="md"
                         fullWidth
-                        icon={Rocket}
+                        icon={<Rocket className="h-4 w-4" />}
                         onClick={() => launchSolutionStarter(starter)}
                         className="mt-4"
                       >

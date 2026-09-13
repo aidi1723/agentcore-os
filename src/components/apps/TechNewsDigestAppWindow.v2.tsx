@@ -237,8 +237,8 @@ export function TechNewsDigestAppWindow({
             <Card padding="md">
               <CardHeader
                 title="Digest briefs"
-                action={
-                  <Button size="sm" variant="primary" icon={Plus} onClick={createNew}>
+                actions={
+                  <Button size="sm" variant="primary" icon={<Plus className="h-4 w-4" />} onClick={createNew}>
                     新建
                   </Button>
                 }
@@ -283,8 +283,8 @@ export function TechNewsDigestAppWindow({
                   <CardHeader
                     title="输入上下文"
                     subtitle="填来源、跟踪主题和关注重点，再生成一份可行动的 digest"
-                    action={
-                      <Button size="sm" variant="danger" icon={Trash2} onClick={deleteSelected}>
+                    actions={
+                      <Button size="sm" variant="danger" icon={<Trash2 className="h-4 w-4" />} onClick={deleteSelected}>
                         删除
                       </Button>
                     }
@@ -340,20 +340,20 @@ export function TechNewsDigestAppWindow({
                     <Button
                       size="sm"
                       variant="primary"
-                      icon={Sparkles}
+                      icon={<Sparkles className="h-4 w-4" />}
                       onClick={generateDigest}
                       disabled={!selected || isGenerating}
                       loading={isGenerating}
                     >
                       {isGenerating ? "生成中..." : "生成摘要"}
                     </Button>
-                    <Button size="sm" variant="secondary" icon={FilePlus2} onClick={saveDigest}>
+                    <Button size="sm" variant="secondary" icon={<FilePlus2 className="h-4 w-4" />} onClick={saveDigest}>
                       存草稿
                     </Button>
-                    <Button size="sm" variant="secondary" icon={Compass} onClick={sendToCreatorRadar}>
+                    <Button size="sm" variant="secondary" icon={<Compass className="h-4 w-4" />} onClick={sendToCreatorRadar}>
                       发到 Creator Radar
                     </Button>
-                    <Button size="sm" variant="secondary" icon={Newspaper} onClick={sendToMorningBrief}>
+                    <Button size="sm" variant="secondary" icon={<Newspaper className="h-4 w-4" />} onClick={sendToMorningBrief}>
                       发到 Morning Brief
                     </Button>
                     <Button size="sm" variant="secondary" onClick={sendToVault}>

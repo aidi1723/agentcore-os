@@ -385,7 +385,7 @@ export function MorningBriefAppWindow({
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
             <aside className="space-y-4">
               <Card padding="md">
-                <CardHeader title="输入今日上下文" icon={<SquarePen className="h-4 w-4" />} />
+                <CardHeader title="输入今日上下文" />
                 <CardBody spacing="md">
                   <Textarea
                     label="今日重点"

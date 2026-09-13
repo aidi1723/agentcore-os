@@ -21,13 +21,12 @@ import { Textarea } from "@/design-system/components/Textarea";
 import { Card, CardHeader, CardBody } from "@/design-system/components/Card";
 import { Badge } from "@/design-system/components/Badge";
 
-type SettingsTab = "personalization" | "openclaw" | "runtime" | "advanced";
+type SettingsTab = "personalization" | "openclaw" | "runtime";
 
 const tabs: Array<{ id: SettingsTab; label: string; icon: typeof SettingsIcon }> = [
   { id: "personalization", label: "个性化", icon: Palette },
   { id: "openclaw", label: "OpenClaw Agent", icon: Sparkles },
   { id: "runtime", label: "运行时", icon: Zap },
-  { id: "advanced", label: "高级", icon: KeyRound },
 ];
 
 const languageOptions: Array<{ id: InterfaceLanguage; label: string }> = [
@@ -178,46 +177,6 @@ export function SettingsAppWindow({
                   </CardBody>
                 </Card>
 
-                <Card padding="md">
-                  <CardHeader
-                    title="输出语言偏好"
-                    subtitle="AI 生成内容时优先使用的语言。"
-                  />
-                  <CardBody spacing="md">
-                    <Input
-                      label="偏好语言"
-                      value={settings.personalization.outputLanguagePreference}
-                      onChange={(e) =>
-                        updatePersonalization({ outputLanguagePreference: e.target.value })
-                      }
-                      placeholder="例如：中文 / English / 日本語"
-                      fullWidth
-                    />
-                  </CardBody>
-                </Card>
-
-                <Card padding="md">
-                  <CardHeader
-                    title="用户身份标识"
-                    subtitle="用于个性化推荐和内容生成。"
-                  />
-                  <CardBody spacing="md">
-                    <Input
-                      label="用户名称"
-                      value={settings.personalization.userName}
-                      onChange={(e) => updatePersonalization({ userName: e.target.value })}
-                      placeholder="你的名字"
-                      fullWidth
-                    />
-                    <Input
-                      label="用户角色"
-                      value={settings.personalization.userRole}
-                      onChange={(e) => updatePersonalization({ userRole: e.target.value })}
-                      placeholder="例如：创作者 / 产品经理 / 开发者"
-                      fullWidth
-                    />
-                  </CardBody>
-                </Card>
               </>
             )}
 
@@ -237,68 +196,13 @@ export function SettingsAppWindow({
                       fullWidth
                     />
                     <Input
-                      label="会话 ID"
-                      value={settings.openclaw.sessionId}
-                      onChange={(e) => updateOpenClaw({ sessionId: e.target.value })}
-                      placeholder="agent:main:main"
+                      label="API Token"
+                      type="password"
+                      value={settings.openclaw.apiToken}
+                      onChange={(e) => updateOpenClaw({ apiToken: e.target.value })}
+                      placeholder="留空则不使用认证"
                       fullWidth
                     />
-                    <Input
-                      label="超时时间（秒）"
-                      type="number"
-                      value={settings.openclaw.timeoutSeconds}
-                      onChange={(e) =>
-                        updateOpenClaw({ timeoutSeconds: parseInt(e.target.value, 10) || 60 })
-                      }
-                      placeholder="60"
-                      fullWidth
-                    />
-                  </CardBody>
-                </Card>
-
-                <Card padding="md">
-                  <CardHeader
-                    title="系统提示词"
-                    subtitle="为 Agent 添加全局系统提示词。"
-                  />
-                  <CardBody spacing="md">
-                    <Textarea
-                      label="全局系统提示词"
-                      value={settings.openclaw.systemPromptOverride}
-                      onChange={(e) => updateOpenClaw({ systemPromptOverride: e.target.value })}
-                      placeholder="留空使用默认提示词..."
-                      rows={6}
-                      fullWidth
-                    />
-                  </CardBody>
-                </Card>
-
-                <Card padding="md">
-                  <CardHeader
-                    title="功能开关"
-                    subtitle="控制 Agent 的行为特性。"
-                  />
-                  <CardBody spacing="md">
-                    <div className="space-y-3">
-                      <label className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={settings.openclaw.enableSkills}
-                          onChange={(e) => updateOpenClaw({ enableSkills: e.target.checked })}
-                          className="h-5 w-5 rounded border-gray-300"
-                        />
-                        <span className="text-sm text-gray-900">启用技能系统</span>
-                      </label>
-                      <label className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={settings.openclaw.enableMemory}
-                          onChange={(e) => updateOpenClaw({ enableMemory: e.target.checked })}
-                          className="h-5 w-5 rounded border-gray-300"
-                        />
-                        <span className="text-sm text-gray-900">启用记忆功能</span>
-                      </label>
-                    </div>
                   </CardBody>
                 </Card>
               </>
@@ -320,10 +224,17 @@ export function SettingsAppWindow({
                       fullWidth
                     />
                     <Input
-                      label="Sidecar 地址"
-                      value={settings.runtime.sidecarAddress}
-                      onChange={(e) => updateRuntime({ sidecarAddress: e.target.value })}
+                      label="Sidecar API URL"
+                      value={settings.runtime.sidecarApiUrl}
+                      onChange={(e) => updateRuntime({ sidecarApiUrl: e.target.value })}
                       placeholder="http://127.0.0.1:18790"
+                      fullWidth
+                    />
+                    <Input
+                      label="Local App URL"
+                      value={settings.runtime.localAppUrl}
+                      onChange={(e) => updateRuntime({ localAppUrl: e.target.value })}
+                      placeholder="http://127.0.0.1:3000"
                       fullWidth
                     />
                   </CardBody>
@@ -336,29 +247,17 @@ export function SettingsAppWindow({
                   />
                   <CardBody spacing="md">
                     <Input
-                      label="LLM Provider"
-                      value={settings.runtime.llmProvider}
-                      onChange={(e) => updateRuntime({ llmProvider: e.target.value })}
-                      placeholder="openai / anthropic / azure"
+                      label="Claw Code Binary Path"
+                      value={settings.runtime.clawCodeBinaryPath}
+                      onChange={(e) => updateRuntime({ clawCodeBinaryPath: e.target.value })}
+                      placeholder="/usr/local/bin/claw"
                       fullWidth
                     />
                     <Input
-                      label="LLM Model"
-                      value={settings.runtime.llmModel}
-                      onChange={(e) => updateRuntime({ llmModel: e.target.value })}
-                      placeholder="gpt-4 / claude-3-opus"
-                      fullWidth
-                    />
-                    <Input
-                      label="最大并发数"
-                      type="number"
-                      value={settings.runtime.maxConcurrentExecutions}
-                      onChange={(e) =>
-                        updateRuntime({
-                          maxConcurrentExecutions: parseInt(e.target.value, 10) || 3,
-                        })
-                      }
-                      placeholder="3"
+                      label="Claw Code Workspace"
+                      value={settings.runtime.clawCodeWorkspace}
+                      onChange={(e) => updateRuntime({ clawCodeWorkspace: e.target.value })}
+                      placeholder="~/workspace"
                       fullWidth
                     />
                   </CardBody>
@@ -374,136 +273,22 @@ export function SettingsAppWindow({
                       <label className="flex items-center gap-3">
                         <input
                           type="checkbox"
-                          checked={settings.runtime.enableAutoRetry}
-                          onChange={(e) => updateRuntime({ enableAutoRetry: e.target.checked })}
+                          checked={settings.runtime.autoBootLocalStack}
+                          onChange={(e) => updateRuntime({ autoBootLocalStack: e.target.checked })}
                           className="h-5 w-5 rounded border-gray-300"
                         />
-                        <span className="text-sm text-gray-900">启用自动重试</span>
+                        <span className="text-sm text-gray-900">启动时自动启动本地堆栈</span>
                       </label>
                       <label className="flex items-center gap-3">
                         <input
                           type="checkbox"
-                          checked={settings.runtime.enableCaching}
-                          onChange={(e) => updateRuntime({ enableCaching: e.target.checked })}
+                          checked={settings.runtime.detectDockerOnLaunch}
+                          onChange={(e) => updateRuntime({ detectDockerOnLaunch: e.target.checked })}
                           className="h-5 w-5 rounded border-gray-300"
                         />
-                        <span className="text-sm text-gray-900">启用结果缓存</span>
-                      </label>
-                      <label className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={settings.runtime.enableTelemetry}
-                          onChange={(e) => updateRuntime({ enableTelemetry: e.target.checked })}
-                          className="h-5 w-5 rounded border-gray-300"
-                        />
-                        <span className="text-sm text-gray-900">启用遥测数据</span>
+                        <span className="text-sm text-gray-900">启动时检测 Docker</span>
                       </label>
                     </div>
-                  </CardBody>
-                </Card>
-              </>
-            )}
-
-            {activeTab === "advanced" && (
-              <>
-                <Card padding="md">
-                  <CardHeader
-                    title="高级配置"
-                    subtitle="专家选项，谨慎修改。"
-                  />
-                  <CardBody spacing="md">
-                    <Input
-                      label="调试模式日志级别"
-                      value={settings.advanced?.logLevel ?? "info"}
-                      onChange={(e) =>
-                        updateSettings({
-                          advanced: { ...settings.advanced, logLevel: e.target.value },
-                        })
-                      }
-                      placeholder="debug / info / warn / error"
-                      fullWidth
-                    />
-                    <Input
-                      label="API 请求超时（毫秒）"
-                      type="number"
-                      value={settings.advanced?.apiTimeout ?? 30000}
-                      onChange={(e) =>
-                        updateSettings({
-                          advanced: {
-                            ...settings.advanced,
-                            apiTimeout: parseInt(e.target.value, 10) || 30000,
-                          },
-                        })
-                      }
-                      placeholder="30000"
-                      fullWidth
-                    />
-                  </CardBody>
-                </Card>
-
-                <Card padding="md">
-                  <CardHeader
-                    title="实验性功能"
-                    subtitle="这些功能可能不稳定，仅用于测试。"
-                  />
-                  <CardBody spacing="md">
-                    <div className="space-y-3">
-                      <label className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={settings.advanced?.enableExperimentalFeatures ?? false}
-                          onChange={(e) =>
-                            updateSettings({
-                              advanced: {
-                                ...settings.advanced,
-                                enableExperimentalFeatures: e.target.checked,
-                              },
-                            })
-                          }
-                          className="h-5 w-5 rounded border-gray-300"
-                        />
-                        <span className="text-sm text-gray-900">启用实验性功能</span>
-                      </label>
-                    </div>
-                  </CardBody>
-                </Card>
-
-                <Card padding="md">
-                  <CardHeader
-                    title="数据管理"
-                    subtitle="管理本地存储的数据。"
-                  />
-                  <CardBody spacing="md">
-                    <div className="space-y-3">
-                      <Button
-                        variant="danger"
-                        size="md"
-                        onClick={() => {
-                          if (confirm("确定要清空所有本地数据吗？此操作不可恢复。")) {
-                            localStorage.clear();
-                            sessionStorage.clear();
-                            showToast("本地数据已清空", "ok");
-                          }
-                        }}
-                      >
-                        清空所有本地数据
-                      </Button>
-                      <p className="text-xs text-gray-500">
-                        这将删除所有草稿、任务、知识库条目和其他本地数据。设置将保留。
-                      </p>
-                    </div>
-                  </CardBody>
-                </Card>
-
-                <Card padding="md">
-                  <CardHeader
-                    title="当前配置"
-                    subtitle="查看完整的配置对象（调试用）。"
-                  />
-                  <CardBody spacing="md">
-                    <pre className="overflow-auto rounded-2xl border border-gray-200 bg-gray-50 p-4 text-xs leading-relaxed text-gray-700">
-                      {JSON.stringify(settings, null, 2)}
-                    </pre>
                   </CardBody>
                 </Card>
               </>

@@ -44,7 +44,7 @@ import { Input } from "@/design-system/components/Input";
 import { Textarea } from "@/design-system/components/Textarea";
 import { Card, CardHeader, CardBody } from "@/design-system/components/Card";
 import { Badge } from "@/design-system/components/Badge";
-import { designTokens } from "@/design-system/tokens";
+import { tokens } from "@/design-system/tokens";
 
 const sourceTypes: Array<{ value: RepurposeSourceType; label: string }> = [
   { value: "youtube", label: "YouTube / 长视频" },
@@ -764,8 +764,8 @@ export function ContentRepurposerAppWindow({
                             }
                             style={{
                               width: "100%",
-                              borderRadius: designTokens.borderRadius.xl,
-                              border: `1px solid ${designTokens.colors.default.border}`,
+                              borderRadius: tokens.radius.xl,
+                              border: `1px solid ${tokens.colors.gray[200]}`,
                               padding: "10px 16px",
                               fontSize: "14px",
                               outline: "none",
@@ -950,7 +950,7 @@ export function ContentRepurposerAppWindow({
                           key={block.id}
                           style={{
                             borderRadius: "24px",
-                            border: `1px solid ${designTokens.colors.default.border}`,
+                            border: `1px solid ${tokens.colors.gray[200]}`,
                             background: "linear-gradient(135deg, #ffffff 0%, #f8fbff 100%)",
                             padding: "16px",
                             boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
@@ -981,7 +981,7 @@ export function ContentRepurposerAppWindow({
                             <Button
                               size="sm"
                               variant="secondary"
-                              icon={<Copy className="h-3.5 w-3.5" />}
+                              icon={<Copy className="h-4 w-4" />}
                               onClick={() => {
                                 void copyBlock(block);
                               }}
@@ -991,7 +991,7 @@ export function ContentRepurposerAppWindow({
                             <Button
                               size="sm"
                               variant="secondary"
-                              icon={<FilePlus2 className="h-3.5 w-3.5" />}
+                              icon={<FilePlus2 className="h-4 w-4" />}
                               onClick={() => saveBlockDraft(block)}
                             >
                               存独立草稿
@@ -999,7 +999,7 @@ export function ContentRepurposerAppWindow({
                             <Button
                               size="sm"
                               variant="success"
-                              icon={<Send className="h-3.5 w-3.5" />}
+                              icon={<Send className="h-4 w-4" />}
                               onClick={() => sendBlockToPublisher(block)}
                             >
                               送去 Publisher

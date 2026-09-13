@@ -26,7 +26,7 @@ import { Input } from "@/design-system/components/Input";
 import { Textarea } from "@/design-system/components/Textarea";
 import { Card, CardHeader, CardBody } from "@/design-system/components/Card";
 import { Badge } from "@/design-system/components/Badge";
-import { designTokens } from "@/design-system/tokens";
+import { tokens } from "@/design-system/tokens";
 
 const documentTypeOptions: Array<{ id: FinancialDocumentType; label: string }> = [
   { id: "invoice", label: "发票 / Invoice" },
@@ -267,12 +267,12 @@ export function FinancialDocumentBotAppWindow({
         </div>
 
         <div className="grid grid-cols-1 gap-6 p-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-          <aside style={{ display: "flex", flexDirection: "column", gap: designTokens.spacing.md }}>
+          <aside style={{ display: "flex", flexDirection: "column", gap: tokens.spacing[6] }}>
             <Card padding="md">
               <CardHeader
                 title="文档列表"
-                action={
-                  <Button variant="primary" size="sm" icon={Plus} onClick={createNew}>
+                actions={
+                  <Button variant="primary" size="sm" icon={<Plus className="h-4 w-4" />} onClick={createNew}>
                     新建
                   </Button>
                 }
@@ -288,9 +288,9 @@ export function FinancialDocumentBotAppWindow({
                         onClick={() => setSelectedId(item.id)}
                         style={{
                           width: "100%",
-                          borderRadius: designTokens.borderRadius.xl,
-                          border: `1px solid ${activeItem ? "#111827" : designTokens.colors.default.border}`,
-                          backgroundColor: activeItem ? "#111827" : designTokens.colors.default.background,
+                          borderRadius: tokens.radius.xl,
+                          border: `1px solid ${activeItem ? "#111827" : "#e5e7eb"}`,
+                          backgroundColor: activeItem ? "#111827" : "#f9fafb",
                           padding: "16px",
                           textAlign: "left",
                           transition: "all 0.15s ease",
@@ -303,7 +303,7 @@ export function FinancialDocumentBotAppWindow({
                         }}
                         onMouseLeave={(e) => {
                           if (!activeItem) {
-                            e.currentTarget.style.backgroundColor = designTokens.colors.default.background;
+                            e.currentTarget.style.backgroundColor = "#f9fafb";
                           }
                         }}
                       >
@@ -331,9 +331,9 @@ export function FinancialDocumentBotAppWindow({
                 ) : (
                   <div
                     style={{
-                      borderRadius: designTokens.borderRadius.xl,
-                      border: `1px dashed ${designTokens.colors.default.border}`,
-                      backgroundColor: designTokens.colors.default.background,
+                      borderRadius: tokens.radius.xl,
+                      border: `1px dashed ${"#e5e7eb"}`,
+                      backgroundColor: "#f9fafb",
                       padding: "24px 16px",
                       fontSize: "14px",
                       color: "#6B7280",
@@ -347,7 +347,7 @@ export function FinancialDocumentBotAppWindow({
             </Card>
           </aside>
 
-          <main style={{ display: "flex", flexDirection: "column", gap: designTokens.spacing.md }}>
+          <main style={{ display: "flex", flexDirection: "column", gap: tokens.spacing[6] }}>
             {selected ? (
               <>
                 <Card padding="lg">
@@ -381,8 +381,8 @@ export function FinancialDocumentBotAppWindow({
                             }
                             style={{
                               width: "100%",
-                              borderRadius: designTokens.borderRadius.xl,
-                              border: `1px solid ${designTokens.colors.default.border}`,
+                              borderRadius: tokens.radius.xl,
+                              border: `1px solid ${"#e5e7eb"}`,
                               padding: "12px 16px",
                               fontSize: "14px",
                               outline: "none",
@@ -411,14 +411,14 @@ export function FinancialDocumentBotAppWindow({
                       <Button
                         variant="primary"
                         size="md"
-                        icon={Sparkles}
+                        icon={<Sparkles className="h-4 w-4" />}
                         onClick={generateExtraction}
                         disabled={isGenerating}
                         loading={isGenerating}
                       >
                         {isGenerating ? "提取中..." : "提取结构化字段"}
                       </Button>
-                      <Button variant="secondary" size="md" icon={FilePlus2} onClick={saveDraft}>
+                      <Button variant="secondary" size="md" icon={<FilePlus2 className="h-4 w-4" />} onClick={saveDraft}>
                         写入草稿
                       </Button>
                       <Button variant="secondary" size="md" onClick={sendToVault}>
@@ -427,7 +427,7 @@ export function FinancialDocumentBotAppWindow({
                       <Button variant="secondary" size="md" onClick={sendToTaskManager}>
                         发送到任务中心
                       </Button>
-                      <Button variant="danger" size="md" icon={Trash2} onClick={deleteSelected}>
+                      <Button variant="danger" size="md" icon={<Trash2 className="h-4 w-4" />} onClick={deleteSelected}>
                         删除
                       </Button>
                     </div>
@@ -441,8 +441,8 @@ export function FinancialDocumentBotAppWindow({
                       style={{
                         minHeight: "280px",
                         whiteSpace: "pre-wrap",
-                        borderRadius: designTokens.borderRadius["2xl"],
-                        border: `1px solid ${designTokens.colors.default.border}`,
+                        borderRadius: tokens.radius["2xl"],
+                        border: `1px solid ${"#e5e7eb"}`,
                         backgroundColor: "#ffffff",
                         padding: "16px",
                         fontSize: "14px",
@@ -458,9 +458,9 @@ export function FinancialDocumentBotAppWindow({
             ) : (
               <div
                 style={{
-                  borderRadius: designTokens.borderRadius["2xl"],
-                  border: `1px dashed ${designTokens.colors.default.border}`,
-                  backgroundColor: designTokens.colors.default.background,
+                  borderRadius: tokens.radius["2xl"],
+                  border: `1px dashed ${"#e5e7eb"}`,
+                  backgroundColor: "#f9fafb",
                   padding: "32px",
                   fontSize: "14px",
                   color: "#6B7280",

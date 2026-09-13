@@ -647,7 +647,7 @@ export function SupportCopilotAppWindow({
                   <Button
                     size="sm"
                     variant="primary"
-                    icon={Plus}
+                    icon={<Plus className="h-4 w-4" />}
                     onClick={createNewTicket}
                   >
                     新建
@@ -697,7 +697,7 @@ export function SupportCopilotAppWindow({
                       <Button
                         size="sm"
                         variant="danger"
-                        icon={Trash2}
+                        icon={<Trash2 className="h-4 w-4" />}
                         onClick={deleteSelected}
                       >
                         删除
@@ -778,7 +778,7 @@ export function SupportCopilotAppWindow({
                     <Button
                       size="sm"
                       variant="success"
-                      icon={Sparkles}
+                      icon={<Sparkles className="h-4 w-4" />}
                       onClick={generateReply}
                       disabled={!selected || isGenerating}
                       loading={isGenerating}
@@ -796,7 +796,7 @@ export function SupportCopilotAppWindow({
                     <Button
                       size="sm"
                       variant="secondary"
-                      icon={FilePlus2}
+                      icon={<FilePlus2 className="h-4 w-4" />}
                       onClick={saveReplyDraft}
                       disabled={!selected}
                     >

@@ -192,10 +192,10 @@ export function SolutionsHubAppWindow({
           : {
               copied: "已复制到剪贴板",
               copyFailed: "复制失败（浏览器权限）",
-              installed: "已安装到"我的 Playbooks"",
+              installed: "已安装到「我的 Playbooks」",
               installFailed: "已存在或安装失败",
               title: "成熟落地方案库",
-              subtitle: "用"方案 → Playbooks → 连接器"把真实业务流程快速装进 WebOS。",
+              subtitle: "用「方案 → Playbooks → 连接器」把真实业务流程快速装进 WebOS。",
               compliant: "合规优先：官方 API / 合规工具 / webhook 连接器",
               localFirst: "本地优先：Playbooks 存在浏览器 localStorage",
               openPlaybooks: "打开 Playbooks",
@@ -207,10 +207,10 @@ export function SolutionsHubAppWindow({
               noMatch: "没有匹配的方案。试试更短的关键词，或直接搜分类/标签。",
               structure: "方案结构",
               playbooks: "Playbooks（可直接安装）",
-              playbooksHint: "点击「安装当前方案」会把这些 Playbooks 写入"我的 Playbooks"。",
+              playbooksHint: "点击「安装当前方案」会把这些 Playbooks 写入「我的 Playbooks」。",
               copyJson: "复制 Playbooks JSON",
               checklist: "搭建清单",
-              checklistHint: "用于把外部工具/连接器"接入"到本 UI（不包含任何平台绕过自动化）。",
+              checklistHint: "用于把外部工具/连接器「接入」到本 UI（不包含任何平台绕过自动化）。",
               copyChecklist: "复制清单",
               openSettings: "打开 设置",
               openPublisher: "打开 发布中心",
@@ -331,7 +331,7 @@ export function SolutionsHubAppWindow({
               <Button
                 variant="secondary"
                 size="md"
-                icon={BookOpen}
+                icon={<BookOpen className="h-4 w-4" />}
                 onClick={() => requestOpenApp("industry_hub")}
               >
                 {displayLanguage === "en" ? "Open Industry App Center" : displayLanguage === "ja" ? "業界アプリセンターを開く" : "打开行业应用中心"}
@@ -339,7 +339,7 @@ export function SolutionsHubAppWindow({
               <Button
                 variant="success"
                 size="md"
-                icon={Plus}
+                icon={<Plus className="h-4 w-4" />}
                 onClick={installSelected}
                 disabled={!visibleSelected}
               >
@@ -530,7 +530,7 @@ export function SolutionsHubAppWindow({
                     <Button
                       variant="secondary"
                       size="sm"
-                      icon={Copy}
+                      icon={<Copy className="h-4 w-4" />}
                       onClick={() => copy(JSON.stringify(visibleSelected.playbooks, null, 2))}
                     >
                       {t.copyJson}
@@ -573,7 +573,7 @@ export function SolutionsHubAppWindow({
                     <Button
                       variant="primary"
                       size="sm"
-                      icon={Copy}
+                      icon={<Copy className="h-4 w-4" />}
                       onClick={() => copy(visibleSelected.setupChecklist)}
                     >
                       {t.copyChecklist}

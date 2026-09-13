@@ -227,8 +227,8 @@ export function SocialMediaAutopilotAppWindow({
             <Card padding="md">
               <CardHeader
                 title="任务列表"
-                action={
-                  <Button size="sm" variant="primary" icon={Plus} onClick={createNew}>
+                actions={
+                  <Button size="sm" variant="primary" icon={<Plus className="h-4 w-4" />} onClick={createNew}>
                     新建
                   </Button>
                 }
@@ -336,23 +336,23 @@ export function SocialMediaAutopilotAppWindow({
                       <Button
                         variant="primary"
                         size="md"
-                        icon={Sparkles}
+                        icon={<Sparkles className="h-4 w-4" />}
                         onClick={generateOutputPack}
                         disabled={isGenerating}
                         loading={isGenerating}
                       >
                         {isGenerating ? "生成中..." : "生成社媒输出包"}
                       </Button>
-                      <Button variant="secondary" size="md" icon={FilePlus2} onClick={saveDraft}>
+                      <Button variant="secondary" size="md" icon={<FilePlus2 className="h-4 w-4" />} onClick={saveDraft}>
                         写入草稿
                       </Button>
-                      <Button variant="secondary" size="md" icon={Send} onClick={sendToPublisher}>
+                      <Button variant="secondary" size="md" icon={<Send className="h-4 w-4" />} onClick={sendToPublisher}>
                         打开发布中心
                       </Button>
-                      <Button variant="secondary" size="md" icon={MessageCircleMore} onClick={openSupportCopilot}>
+                      <Button variant="secondary" size="md" icon={<MessageCircleMore className="h-4 w-4" />} onClick={openSupportCopilot}>
                         打开回复助手
                       </Button>
-                      <Button variant="danger" size="md" icon={Trash2} onClick={deleteSelected}>
+                      <Button variant="danger" size="md" icon={<Trash2 className="h-4 w-4" />} onClick={deleteSelected}>
                         删除
                       </Button>
                     </div>

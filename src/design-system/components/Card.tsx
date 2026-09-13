@@ -113,7 +113,7 @@ Card.displayName = 'Card';
 /**
  * CardHeader 组件
  */
-export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
+export interface CardHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   /**
    * 标题
    */

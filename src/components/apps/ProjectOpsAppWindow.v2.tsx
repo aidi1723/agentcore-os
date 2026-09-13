@@ -389,7 +389,7 @@ export function ProjectOpsAppWindow({
                   <Button
                     variant="primary"
                     size="md"
-                    icon={Sparkles}
+                    icon={<Sparkles className="h-4 w-4" />}
                     onClick={generateBrief}
                     disabled={isGenerating}
                     loading={isGenerating}
@@ -399,7 +399,7 @@ export function ProjectOpsAppWindow({
                   <Button
                     variant="secondary"
                     size="md"
-                    icon={ClipboardList}
+                    icon={<ClipboardList className="h-4 w-4" />}
                     onClick={saveDraft}
                   >
                     写入草稿

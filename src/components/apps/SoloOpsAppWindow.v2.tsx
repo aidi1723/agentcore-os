@@ -142,9 +142,9 @@ export function SoloOpsAppWindow({
               copied: "已复制到剪贴板",
               copyFailed: "复制失败（浏览器权限）",
               saveFailed: "保存失败：标题为空",
-              savedMine: "已保存到"我的 Playbooks"",
+              savedMine: "已保存到「我的 Playbooks」",
               title: "Workflow Playbooks（MVP）",
-              subtitle: "目标：用最少的步骤，把选题→内容→分发→复盘跑成"可复用系统"。",
+              subtitle: "目标：用最少的步骤，把选题→内容→分发→复盘跑成「可复用系统」。",
               start: "开始产出",
               publish: "去发布",
               step1: "1) 定位与选题",
@@ -152,25 +152,25 @@ export function SoloOpsAppWindow({
               step2: "2) 生成内容包",
               step2Desc: "一份选题同时产出：小红书/抖音脚本/公众号长文（可按平台再细化）。",
               step3: "3) 矩阵分发",
-              step3Desc: "选择平台、检查合规与排版；优先走"安全发布预演"，再逐步接入自动发布。",
+              step3Desc: "选择平台、检查合规与排版；优先走「安全发布预演」，再逐步接入自动发布。",
               step4: "4) 复盘迭代",
               step4Desc: "把有效的开头、标题、话术沉淀为模板；形成可复用的内容增长闭环。",
               open: "打开",
               builtins: "成熟应用场景（可直接套用）",
-              builtinsDesc: "这些是当前 WebOS 已经能跑起来的"组合拳"（先手动跑通，再接 webhook 实现自动发布）。",
+              builtinsDesc: "这些是当前 WebOS 已经能跑起来的「组合拳」（先手动跑通，再接 webhook 实现自动发布）。",
               save: "保存",
               mine: "我的 Playbooks",
               exportAll: "导出全部",
               import: "导入",
               importPlaceholder: "粘贴 Playbook JSON（单个对象或数组）",
               cancel: "取消",
-              noPlaybooks: "还没有 Playbook。你可以在左侧的"成熟应用场景"里点「保存」。",
+              noPlaybooks: "还没有 Playbook。你可以在左侧的「成熟应用场景」里点「保存」。",
               export: "导出",
               remove: "删除",
               deleted: "已删除",
               todaySop: "今日 30 分钟 SOP",
               automation: "建议的自动化路线",
-              automationDesc: "1) 先做"发布预演"（可复制粘贴）→ 2) 接入平台授权 → 3) 服务端队列 + 回调 → 4) 指标回流与 A/B 测试。",
+              automationDesc: "1) 先做「发布预演」（可复制粘贴）→ 2) 接入平台授权 → 3) 服务端队列 + 回调 → 4) 指标回流与 A/B 测试。",
               importFailed: "导入失败",
               importDone: "已导入",
             },
@@ -619,7 +619,7 @@ export function SoloOpsAppWindow({
               <Button
                 variant="primary"
                 size="sm"
-                icon={Rocket}
+                icon={<Rocket className="h-4 w-4" />}
                 onClick={() => requestOpenApp("media_ops")}
               >
                 {t.start}
@@ -627,7 +627,7 @@ export function SoloOpsAppWindow({
               <Button
                 variant="success"
                 size="sm"
-                icon={Share2}
+                icon={<Share2 className="h-4 w-4" />}
                 onClick={() => requestOpenApp("publisher")}
               >
                 {t.publish}

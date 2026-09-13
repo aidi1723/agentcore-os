@@ -15,6 +15,9 @@ import type { AppWindowProps } from "@/apps/types";
 import { AppToast } from "@/components/AppToast";
 import { UnifiedAssetConsole } from "@/components/workflows/UnifiedAssetConsole";
 import { AppWindowShell } from "@/components/windows/AppWindowShell";
+import { PipelineFlow } from "@/components/runtime/PipelineFlow/PipelineFlow";
+import { ApprovalCard } from "@/components/runtime/ApprovalCard/ApprovalCard";
+import type { PipelineStep } from "@/components/runtime/PipelineFlow/PipelineFlow";
 import { useRuntimeDoctorReport } from "@/hooks/useRuntimeDoctorReport";
 import { useServerBackedSyncStatuses } from "@/hooks/useServerBackedSyncStatuses";
 import { useRuntimeSidecar } from "@/hooks/useRuntimeSidecar";
@@ -633,6 +636,33 @@ export function ClawRuntimeConsoleAppWindow({
     [filteredControlledRunSummaries, selectedControlledRunId],
   );
 
+  // 转换为 PipelineFlow 步骤数据
+  const pipelineSteps = useMemo<PipelineStep[]>(() => {
+    if (!selectedControlledRunSummary) return [];
+
+    return selectedControlledRunSummary.steps.map((step): PipelineStep => {
+      let pipelineState: PipelineStep['state'] = 'pending';
+
+      if (step.state === 'completed') {
+        pipelineState = 'completed';
+      } else if (step.state === 'running') {
+        pipelineState = 'running';
+      } else if (step.state === 'awaiting_approval') {
+        pipelineState = 'awaiting';
+      } else if (step.state === 'failed') {
+        pipelineState = 'failed';
+      }
+
+      return {
+        id: step.id,
+        title: step.title,
+        state: pipelineState,
+        isApproval: !!step.approvalState,
+        error: step.error,
+      };
+    });
+  }, [selectedControlledRunSummary]);
+
   return (
     <AppWindowShell
       state={state}
@@ -1142,6 +1172,64 @@ export function ClawRuntimeConsoleAppWindow({
             <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4">
               {selectedControlledRunSummary ? (
                 <div>
+                  {/* Pipeline 可视化 */}
+                  {pipelineSteps.length > 0 && (
+                    <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4">
+                      <div className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                        执行流程
+                      </div>
+                      <PipelineFlow
+                        steps={pipelineSteps}
+                        currentStepId={selectedControlledRunSummary.currentStepId}
+                        onStepClick={(stepId) => {
+                          // 可以添加点击步骤的逻辑，比如滚动到该步骤
+                          const stepElement = document.getElementById(`step-${stepId}`);
+                          stepElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* 审批卡片 - 只在有待审批步骤时显示 */}
+                  {selectedControlledRunSummary.canApprove &&
+                   selectedControlledRunSummary.pendingApprovalStepId && (
+                    <div className="mb-6">
+                      <ApprovalCard
+                        playbook={selectedControlledRunSummary.playbookId}
+                        stepTitle={
+                          selectedControlledRunSummary.steps.find(
+                            s => s.id === selectedControlledRunSummary.pendingApprovalStepId
+                          )?.title || '审批步骤'
+                        }
+                        stepId={selectedControlledRunSummary.pendingApprovalStepId}
+                        content={{
+                          preview: selectedControlledRunSummary.steps.find(
+                            s => s.id === selectedControlledRunSummary.pendingApprovalStepId
+                          )?.approvalFeedback || '等待审批...',
+                          metadata: {
+                            '运行 ID': selectedControlledRunSummary.id.substring(0, 8),
+                            '状态': selectedControlledRunSummary.state,
+                          }
+                        }}
+                        loading={controlledRunActionLoading !== null}
+                        onApprove={() => {
+                          void handleResolveControlledApproval(
+                            selectedControlledRunSummary.id,
+                            selectedControlledRunSummary.pendingApprovalStepId!,
+                            true
+                          );
+                        }}
+                        onReject={() => {
+                          void handleResolveControlledApproval(
+                            selectedControlledRunSummary.id,
+                            selectedControlledRunSummary.pendingApprovalStepId!,
+                            false
+                          );
+                        }}
+                      />
+                    </div>
+                  )}
+
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-sm font-semibold text-gray-900">
@@ -1365,7 +1453,11 @@ export function ClawRuntimeConsoleAppWindow({
 
                   <div className="mt-4 space-y-3">
                     {selectedControlledRunSummary.steps.map((step, index) => (
-                      <div key={step.id} className="rounded-2xl border border-gray-200 bg-white px-4 py-4">
+                      <div
+                        key={step.id}
+                        id={`step-${step.id}`}
+                        className="rounded-2xl border border-gray-200 bg-white px-4 py-4"
+                      >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <div className="text-sm font-semibold text-gray-900">

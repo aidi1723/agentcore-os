@@ -2,11 +2,6 @@
 
 > **将 AI Skill 封装为专业应用的可视化操作系统**
 
-[![Beta Version](https://img.shields.io/badge/status-beta-yellow.svg)](https://github.com/aidi1723/agentcore-os/blob/main/BETA_NOTES.md)
-[![Current Version](https://img.shields.io/badge/version-v1.3.0--beta.1-blue.svg)](https://github.com/aidi1723/agentcore-os/releases)
-[![CI](https://github.com/aidi1723/agentcore-os/actions/workflows/ci.yml/badge.svg)](https://github.com/aidi1723/agentcore-os/actions/workflows/ci.yml)
-[![License: GPL v3+](https://img.shields.io/badge/License-GPLv3%2B-blue.svg)](LICENSE)
-
 ## 🎯 项目定位
 
 AgentCore OS 不是传统的应用软件，而是一个**运行在浏览器中的操作系统级 AI 能力执行平台**。它将每个 AI Skill（如"邮件分类"、"会议纪要提取"、"多平台内容改写"）封装为独立的桌面应用窗口，让用户通过可视化界面而非命令行或聊天框来执行 AI 工作流。
@@ -44,6 +39,45 @@ Skill 定义（OpenClaw Runtime）
 - ✅ **UI 可视化**：表单化操作，无需记忆 Prompt
 - ✅ **状态持久化**：执行历史、草稿自动保存
 - ✅ **工作流编排**：Skill 之间自动数据流转
+
+---
+
+## 🏗️ 系统架构
+
+### 三层架构
+
+```
+┌─────────────────────────────────────────────┐
+│   应用层（32 个专业应用窗口）                  │
+│   - InboxDeclutter, MeetingCopilot, ...     │
+│   - 每个应用 = 一个 Skill 的可视化界面         │
+└─────────────────────────────────────────────┘
+                    ↕
+┌─────────────────────────────────────────────┐
+│   平台层（操作系统核心）                        │
+│   - 窗口管理器（拖拽/层级/最小化）              │
+│   - 数据层（localStorage 持久化）              │
+│   - 设计系统（统一 UI 组件）                   │
+└─────────────────────────────────────────────┘
+                    ↕
+┌─────────────────────────────────────────────┐
+│   执行层（OpenClaw AI Runtime）               │
+│   - Skill 执行引擎                            │
+│   - LLM 调用管理                              │
+│   - 本地/云端双模式                            │
+└─────────────────────────────────────────────┘
+```
+
+### 技术栈
+
+```typescript
+React 18 + TypeScript + Next.js 15
+├─ 窗口系统：自研窗口管理器（状态机 + 动画）
+├─ UI 层：Tailwind CSS + 设计令牌系统
+├─ 数据层：localStorage（草稿/任务/配置）
+├─ AI 层：OpenClaw Runtime（统一 Skill 调用接口）
+└─ 构建：Turbopack + ESM
+```
 
 ---
 
@@ -147,122 +181,68 @@ Tech News Digest (行业动态)
 ```
 
 **成果**：
-- ✅ **代码减少 75-80%**：从 40,000+ 行优化到 25,000 行
+- ✅ **代码减少 75-80%**：25,000 行（从 40,000+ 行）
 - ✅ **开发效率提升 60%**：新增应用从 4 小时 → 1.5 小时
 - ✅ **视觉一致性**：32 个应用共享同一套 UI 标准
 
----
-
-## ⚡ 快速开始
-
-### 本地开发体验
-
-```bash
-npm install
-npm run dev
-```
-
-启动后访问：`http://localhost:3000/`
-
-建议本地开发使用 Node.js 22 LTS；当前工程允许 Node.js 20 到 24。
-
-### 运行演示数据
-
-```bash
-# 写入演示数据
-npm run delivery:demo:seed
-
-# 验证演示数据
-npm run delivery:demo:check
-```
-
-刷新浏览器，你会在 Runtime Console 中看到示例任务。
-
-### 命令行安装与运行
-
-当前推荐安装方式只有一种：**GitHub macOS 命令行安装**。
-
-```bash
-git clone https://github.com/aidi1723/agentcore-os.git
-cd agentcore-os
-npm install
-npm run dev
-```
-
-安装说明以 [GitHub macOS 命令行安装](docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md) 为准。
-
----
-
-## 🏗️ 系统架构
-
-### 三层架构
-
-```
-┌─────────────────────────────────────────────┐
-│   应用层（32 个专业应用窗口）                  │
-│   - InboxDeclutter, MeetingCopilot, ...     │
-│   - 每个应用 = 一个 Skill 的可视化界面         │
-└─────────────────────────────────────────────┘
-                    ↕
-┌─────────────────────────────────────────────┐
-│   平台层（操作系统核心）                        │
-│   - 窗口管理器（拖拽/层级/最小化）              │
-│   - 数据层（localStorage 持久化）              │
-│   - 设计系统（统一 UI 组件）                   │
-└─────────────────────────────────────────────┘
-                    ↕
-┌─────────────────────────────────────────────┐
-│   执行层（OpenClaw AI Runtime）               │
-│   - Skill 执行引擎                            │
-│   - LLM 调用管理                              │
-│   - 本地/云端双模式                            │
-└─────────────────────────────────────────────┘
-```
-
-### 技术栈
-
+**设计令牌系统**：
 ```typescript
-React 18 + TypeScript + Next.js 15
-├─ 窗口系统：自研窗口管理器（状态机 + 动画）
-├─ UI 层：Tailwind CSS + 设计令牌系统
-├─ 数据层：localStorage（草稿/任务/配置）
-├─ AI 层：OpenClaw Runtime（统一 Skill 调用接口）
-└─ 构建：Turbopack + ESM
+// 修改一处，全局生效
+tokens.colors.primary = '#3B82F6'  // 32 个应用的主色同步更新
+tokens.spacing.md = '16px'         // 所有卡片间距统一调整
+tokens.borderRadius.xl = '12px'    // 全局圆角风格一键切换
 ```
+
+### 5. 行业场景预设
+
+**Industry Hub** - 开箱即用的行业工作台：
+
+- 📱 **内容创作者** - 选题 → 创作 → 发布 → 数据分析 全流程
+- 🛒 **电商运营** - 商品管理 → 客服 → 订单 → 财务 一站式
+- 👨‍💻 **远程协作** - 会议 → 任务 → 文档 → 沟通 无缝衔接
+- 💼 **销售团队** - 线索 → 跟进 → 成单 → CRM 完整链路
+
+**Solutions Hub** - 60+ 真实案例的 AI 工作流模板：
+
+- "多渠道社媒自动发布"
+- "客户邮件智能分流与回复"
+- "会议纪要自动转任务清单"
+- "财务文档批量解析与归档"
 
 ---
 
-## ⚠️ Beta 版本说明
+## 🎨 设计哲学
 
-**AgentCore OS v1.3.0 目前处于 Public Beta 阶段。** 查看完整说明：[BETA_NOTES.md](BETA_NOTES.md)
+### 1. Skill 优先
 
-**当前状态**：
-- ✅ 核心功能完整且稳定
-- ✅ 本地演示和测试就绪
-- ⚠️ 生产环境硬化进行中
-- ⚠️ 部分高级特性待完善
+**不是"做一个聊天机器人"，而是"让每个 AI 能力都有专属的产品界面"**
 
-**适合场景**：
-- ✅ 本地开发和测试
-- ✅ 概念验证（POC）
-- ✅ 小规模试用
-- ⚠️ 生产环境请谨慎评估
+- 每个应用窗口 = 一个 Skill 的最佳实践封装
+- UI 设计服务于 Skill 的输入输出模式
+- 让用户"填表单执行"而非"手写 Prompt"
 
-**已知限制**：
-- 真实 replay 功能正在完善
-- 生产运维工具待增强
-- Runtime UI 可控性视觉化待集成
+### 2. 操作系统思维
 
-**反馈渠道**：
-- GitHub Issues: [提交问题](https://github.com/aidi1723/agentcore-os/issues)
-- GitHub Discussions: [参与讨论](https://github.com/aidi1723/agentcore-os/discussions)
+**不是"工具集合"，而是"统一操作系统"**
+
+- 窗口化多任务：像桌面 OS 一样管理多个应用
+- 全局数据层：应用间数据自由流转
+- 系统级服务：通知、快捷键、状态栏
+
+### 3. 产品化优先
+
+**不是"技术 Demo"，而是"可交付的产品"**
+
+- 设计系统保证体验一致性
+- 状态持久化保证数据可靠性
+- 工作流编排保证实用性
 
 ---
 
 ## 📊 项目数据
 
 ### 代码规模
-- **25,000+ 行代码**（从 40,000+ 行优化而来）
+- **25,000+ 行代码**（迁移后，原 40,000+ 行）
 - **32 个专业应用**
 - **5 个核心设计组件**（Button, Input, Textarea, Card, Badge）
 - **100% TypeScript 类型覆盖**
@@ -277,6 +257,32 @@ React 18 + TypeScript + Next.js 15
 - **代码减少** 75-80%（硬编码样式 → 设计系统组件）
 - **新应用开发时间** 从 4 小时 → 1.5 小时
 - **UI 一致性** 从手动对齐 → 自动继承
+
+---
+
+## 🚀 快速开始
+
+### 安装依赖
+```bash
+npm install
+```
+
+### 启动开发服务器
+```bash
+npm run dev
+```
+
+### 访问应用
+```
+http://localhost:3000
+```
+
+### 配置 OpenClaw Runtime
+
+在 `Settings` 应用中配置：
+- **Base URL**: 本地运行时地址（如 `http://127.0.0.1:18789`）
+- **LLM Provider**: 选择 OpenAI/Anthropic/其他
+- **API Key**: 填入你的 API 密钥
 
 ---
 
@@ -314,27 +320,104 @@ agentcore-os/
 
 ---
 
-## 📖 文档入口
+## 🎯 典型应用案例
 
-### 核心文档
-- 📘 [项目完整介绍](PROJECT_INTRODUCTION.md) - 详细的项目说明文档
-- 📘 [项目框架总纲（中文）](docs/PROJECT_FRAMEWORK.zh-CN.md)
-- 📘 [可控 Agent Runtime 开发手册](docs/CONTROLLED_AGENT_RUNTIME_DEVELOPMENT_MANUAL.zh-CN.md)
-- 📘 [用户指南（中文）](docs/USER_GUIDE.zh-CN.md)
-- 📘 [文档总入口](docs/DOCUMENTATION_INDEX.zh-CN.md)
+### 案例 1：邮件智能分类（Inbox Declutter）
 
-### 安装与发布相关
-- [GitHub macOS 命令行安装](docs/GITHUB_MACOS_CLI_INSTALL.zh-CN.md)
-- [命令行安装说明](docs/COMMAND_LINE_INSTALL.zh-CN.md)
-- [冷启动安装验收](docs/COLD_START_VALIDATION.zh-CN.md)
-- 当前版本发布说明：[English](docs/releases/v1.3.0.md) / [中文](docs/releases/v1.3.0.zh-CN.md)
+**Skill 定义**：
+- 输入：邮件文本
+- 输出：分类标签 + 优先级 + 回复建议
 
-### 其他核心文档
-- [快速开始](docs/GETTING_STARTED.md)
-- [架构说明](docs/ARCHITECTURE.md)
-- [连接器说明](docs/CONNECTORS.md)
-- [使用场景](docs/USE_CASES.md)
-- [配置说明](docs/CONFIGURATION.md)
+**UI 设计**：
+```typescript
+<Card>
+  <Textarea label="邮件内容" />
+  <Button variant="primary" icon={Sparkles}>
+    智能分类
+  </Button>
+  <Badge variant="info">商务合作</Badge>
+  <Badge variant="warning">高优先级</Badge>
+  <Textarea label="回复建议" readOnly />
+  <Button variant="secondary">保存到草稿</Button>
+</Card>
+```
+
+**数据流转**：
+```
+Inbox Declutter (分类) 
+  → Email Assistant (生成回复) 
+    → Task Manager (添加待办)
+```
+
+### 案例 2：会议纪要提取（Meeting Copilot）
+
+**Skill 定义**：
+- 输入：会议录音/文字记录
+- 输出：关键决策 + 待办事项 + 参与人
+
+**UI 设计**：
+```typescript
+<Card>
+  <Input label="会议主题" />
+  <Textarea label="会议记录" rows={12} />
+  <Button variant="primary" icon={Sparkles}>
+    提取要点
+  </Button>
+  <Card>
+    <CardHeader title="关键决策" />
+    <CardBody>
+      {decisions.map(item => <Badge>{item}</Badge>)}
+    </CardBody>
+  </Card>
+  <Button variant="success">写入任务管理器</Button>
+</Card>
+```
+
+**数据流转**：
+```
+Meeting Copilot (提取) 
+  → Task Manager (创建任务) 
+    → Email Assistant (发送纪要) 
+      → Knowledge Vault (归档)
+```
+
+### 案例 3：多平台内容改写（Content Repurposer）
+
+**Skill 定义**：
+- 输入：长文内容 + 目标平台
+- 输出：小红书版 + Twitter 版 + LinkedIn 版
+
+**UI 设计**：
+```typescript
+<Card>
+  <Input label="内容标题" />
+  <Textarea label="原始内容" rows={8} />
+  <div className="flex gap-2">
+    <Badge>小红书</Badge>
+    <Badge>Twitter</Badge>
+    <Badge>LinkedIn</Badge>
+  </div>
+  <Button variant="primary" icon={Sparkles}>
+    生成内容包
+  </Button>
+  {blocks.map(block => (
+    <Card>
+      <CardHeader title={block.platform} />
+      <CardBody>
+        <Textarea value={block.content} rows={6} />
+        <Button variant="secondary">发送到 Publisher</Button>
+      </CardBody>
+    </Card>
+  ))}
+</Card>
+```
+
+**数据流转**：
+```
+Content Repurposer (改写) 
+  → Publisher (发布) 
+    → Knowledge Vault (归档素材)
+```
 
 ---
 
@@ -362,26 +445,38 @@ agentcore-os/
 
 ## 🤝 贡献指南
 
-我们欢迎任何形式的贡献！详见项目文档。
+我们欢迎任何形式的贡献！
+
+### 如何贡献新应用
+
+1. **定义 Skill**：明确输入输出格式
+2. **设计 UI**：使用设计系统组件
+3. **实现逻辑**：调用 OpenClaw Runtime
+4. **数据流转**：定义与其他应用的联动
+
+详见 `docs/guides/add-new-app.md`
+
+### 如何贡献设计组件
+
+1. **组件设计**：遵循设计令牌系统
+2. **类型定义**：完整的 TypeScript 类型
+3. **文档编写**：使用示例 + API 说明
+
+详见 `docs/guides/design-system.md`
 
 ---
 
-## 📄 开源协议
+## 📄 License
 
-AgentCore OS 当前源代码自本次许可证迁移起采用 **GNU General Public License v3.0 or later（GPL-3.0-or-later）** 开源。
+MIT License - 详见 [LICENSE](./LICENSE)
 
-请注意：
+---
 
-- **当前仓库源代码** 按 GPL-3.0-or-later 许可发布
-- **历史上已经按 Apache-2.0 发布的版本** 继续保留原 Apache-2.0 授权边界；本次迁移不撤销既有授权
-- **Logo、商标、产品名和品牌资产** 不默认随软件许可证一起授权，除非另有明确说明
-- 第三方依赖仍遵循各自原有许可证
+## 📞 联系方式
 
-详见：
-
-- [LICENSE](LICENSE)
-- [NOTICE](NOTICE)
-- [许可证迁移说明](docs/LICENSE_CHANGE_NOTICE.md)
+- **GitHub**: [agentcore-os](https://github.com/your-org/agentcore-os)
+- **文档**: [docs.agentcore.dev](https://docs.agentcore.dev)
+- **问题反馈**: [GitHub Issues](https://github.com/your-org/agentcore-os/issues)
 
 ---
 

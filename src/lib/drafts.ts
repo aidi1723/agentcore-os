@@ -2,6 +2,7 @@ import {
   createServerBackedListState,
   type SyncTombstoneRecord,
 } from "@/lib/server-backed-list-state";
+import { buildAgentCoreApiUrl } from "@/lib/app-api";
 import type { CreatorWorkflowMeta } from "@/lib/creator-workflow";
 import type { WorkflowTriggerType } from "@/lib/workflow-runs";
 
@@ -10,6 +11,12 @@ export type DraftId = string;
 export type DraftSource = "media_ops" | "publisher" | "import";
 
 export type DraftApprovalState = "pending_review" | "approved";
+
+export const PENDING_REVIEW_PUBLISH_ERROR = "待复核草稿不能进入发布队列";
+
+export function draftPublishBlock(draft: { approvalState?: DraftApprovalState } | null | undefined) {
+  return draft?.approvalState === "pending_review" ? PENDING_REVIEW_PUBLISH_ERROR : null;
+}
 
 export type DraftRecord = {
   id: DraftId;
@@ -186,4 +193,27 @@ export function removeDraft(draftId: DraftId) {
   if (current) {
     void draftState.removeItemOnServer(draftId, current.updatedAt);
   }
+}
+
+export async function approveDraft(draftId: DraftId) {
+  const current = draftState.load().find((draft) => draft.id === draftId);
+  if (current?.approvalState !== "pending_review") return false;
+
+  const response = await fetch(
+    buildAgentCoreApiUrl(`/api/runtime/state/drafts/${encodeURIComponent(draftId)}/approve`),
+    { method: "POST" },
+  );
+  const data = (await response.json().catch(() => null)) as
+    | null
+    | { ok?: boolean; data?: { draft?: DraftRecord } };
+  const approved = data?.data?.draft;
+  if (!response.ok || !data?.ok || approved?.id !== draftId || approved.approvalState !== "approved") {
+    return false;
+  }
+
+  draftState.saveLocal(
+    draftState.load().map((draft) => (draft.id === draftId ? { ...draft, ...approved, approvalState: "approved" } : draft)),
+  );
+  draftState.emit();
+  return true;
 }

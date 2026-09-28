@@ -198,6 +198,49 @@ export async function writeDraftsToStore(input: unknown) {
   return normalized;
 }
 
+export async function approveDraftInStore(draftId: string) {
+  const normalizedId = draftId.trim();
+  if (!normalizedId) {
+    return { draft: null, accepted: false, error: "缺少草稿" };
+  }
+
+  let storedDraft: DraftRecord | null = null;
+  let accepted = false;
+  let error: string | null = null;
+
+  await readModifyWrite<unknown[]>(FILE_NAME, [], (current) => {
+    const entries = normalizeEntries(current);
+    const existing = entries.find((entry) => entry.id === normalizedId);
+    if (!existing || isDraftTombstone(existing)) {
+      error = "草稿不存在";
+      return entries;
+    }
+    if (existing.approvalState === "approved") {
+      storedDraft = existing;
+      accepted = true;
+      return entries;
+    }
+    if (existing.approvalState !== "pending_review") {
+      storedDraft = existing;
+      error = "只有待复核草稿可以批准";
+      return entries;
+    }
+
+    const approved: DraftRecord = {
+      ...existing,
+      approvalState: "approved",
+      updatedAt: Date.now(),
+    };
+    storedDraft = approved;
+    accepted = true;
+    return [approved, ...entries.filter((entry) => entry.id !== normalizedId)]
+      .sort((left, right) => right.updatedAt - left.updatedAt)
+      .slice(0, MAX_ITEMS);
+  });
+
+  return { draft: storedDraft, accepted, error };
+}
+
 export async function upsertDraftInStore(input: unknown) {
   const candidate = normalizeDraft(input);
   if (!candidate) {
@@ -211,6 +254,15 @@ export async function upsertDraftInStore(input: unknown) {
   await readModifyWrite<unknown[]>(FILE_NAME, [], (current) => {
     const entries = normalizeEntries(current);
     const existing = entries.find((entry) => entry.id === candidate.id);
+    if (existing && !isDraftTombstone(existing)) {
+      if (existing.approvalState === "pending_review" || existing.approvalState === "approved") {
+        candidate.approvalState = existing.approvalState;
+      } else if (candidate.approvalState === "approved") {
+        candidate.approvalState = undefined;
+      }
+    } else if (candidate.approvalState === "approved") {
+      candidate.approvalState = undefined;
+    }
     if (
       existing &&
       (existing.updatedAt > candidate.updatedAt ||

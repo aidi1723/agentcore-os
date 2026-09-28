@@ -15,7 +15,9 @@ import {
   type CreatorWorkflowMeta,
 } from "@/lib/creator-workflow";
 import {
+  approveDraft,
   createDraft,
+  draftPublishBlock,
   getDrafts,
   removeDraft,
   subscribeDrafts,
@@ -710,10 +712,22 @@ export function PublisherAppWindow({
     });
   };
 
+  const approveSelected = async () => {
+    if (!selectedDraft || selectedDraft.approvalState !== "pending_review") return;
+    const approved = await approveDraft(selectedDraft.id);
+    setResultText(approved ? "草稿已批准，可以预演或自动发布。" : "批准草稿失败");
+  };
+
+  const pendingReviewBlock = draftPublishBlock(selectedDraft);
+
   const dispatch = async () => {
     const nextTitle = title.trim() || "未命名草稿";
     const nextBody = body.trim();
     if (!nextBody || selectedPlatforms.length === 0) return;
+    if (pendingReviewBlock) {
+      setResultText(pendingReviewBlock);
+      return;
+    }
     const workflowContext = buildWorkflowContext();
 
     const draftId = (() => {
@@ -1148,6 +1162,8 @@ export function PublisherAppWindow({
                         <div className="truncate text-sm font-semibold">{draft.title}</div>
                         {draft.approvalState === "pending_review" ? (
                           <div className="mt-1 text-xs text-amber-700">待复核</div>
+                        ) : draft.approvalState === "approved" ? (
+                          <div className="mt-1 text-xs text-emerald-700">已批准</div>
                         ) : null}
                         <div className="mt-1 truncate text-xs text-gray-500">{formatTime(draft.updatedAt)}</div>
                       </button>
@@ -1686,12 +1702,28 @@ export function PublisherAppWindow({
                       onClick={() => {
                         void dispatch();
                       }}
-                      disabled={!body.trim() || selectedPlatforms.length === 0}
+                      disabled={!body.trim() || selectedPlatforms.length === 0 || Boolean(pendingReviewBlock)}
                       className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {dispatchMode === "dry-run" ? "预演发布" : "自动发布"}
                     </button>
+                    {pendingReviewBlock ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void approveSelected();
+                        }}
+                        className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-800 transition-colors hover:bg-amber-100"
+                      >
+                        批准草稿
+                      </button>
+                    ) : null}
                   </div>
+                  {pendingReviewBlock ? (
+                    <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                      {pendingReviewBlock}。批准草稿后才能预演或自动发布。
+                    </div>
+                  ) : null}
 
                   {isDispatching ? (
                     <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">

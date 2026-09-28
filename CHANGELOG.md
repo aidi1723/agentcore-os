@@ -159,6 +159,27 @@ AgentCore OS v1.3.0 首次公开 Beta 版本发布！
 - 新增本地门禁、出站地址和窗口接线回归。
 - 全量 Vitest：合并当天 `origin/main` 后，143 个文件、751 项通过。
 
+### 2026-09-28 待复核草稿
+
+包版本仍为 `1.3.0-beta.1`。窗口清单见 [可控执行演示记录](docs/可控执行-演示记录.md)。
+
+#### Changed
+
+- `approvalState` 为 `pending_review` 的草稿不能创建发布任务。`POST /api/publish/jobs` 返回 409，错误为「待复核草稿不能进入发布队列」，队列中不会新增任务。
+- 发布台选中这种草稿时，「预演发布」和「自动发布」停用。「批准草稿」调用 `POST /api/runtime/state/drafts/:draftId/approve`，只把待复核草稿改成 `approved`。批准后可以入队。
+- 草稿存储保持已有的 `pending_review` 或 `approved`。通用保存不能把待复核改成已批准，也不能新建一份已批准草稿。标题等其他字段仍可更新。
+- 没有 `approvalState` 的手写草稿仍可进入发布队列，也不能通过通用保存直接标成已批准。
+
+#### Documentation
+
+- 晨报读取草稿标题和来源，创作者工作流面板按草稿 id 关联发布任务。这两处还没有读取 `approvalState`。
+- 其余运行中的窗口只调用 `createDraft`。按钮上的「已发送」表示把内容交给另一个窗口，不创建发布任务。
+
+#### Tests
+
+- 新增草稿存储、批准接口、发布接口和发布台按钮回归。
+- 全量 Vitest：145 个文件、760 项通过。`npx tsc --noEmit` 通过。
+
 ### Planned for v1.3.0 (正式版)
 - Runtime Console UI 集成（PipelineFlow/ApprovalCard）
 - TraceTimeline 组件（时间线视图）

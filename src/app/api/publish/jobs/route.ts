@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { draftPublishBlock } from "@/lib/drafts";
+import { listDraftsFromStore } from "@/lib/server/draft-store";
 import { createPublishJobRecord, listPublishJobs } from "@/lib/server/publish-job-store";
 import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import {
@@ -42,8 +44,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "缺少 draftTitle" }, { status: 400 });
     }
 
+    const draftId = typeof body?.draftId === "string" ? body.draftId : undefined;
+    if (draftId) {
+      const draft = (await listDraftsFromStore()).find((item) => item.id === draftId);
+      const block = draftPublishBlock(draft);
+      if (block) {
+        return NextResponse.json({ ok: false, error: block }, { status: 409 });
+      }
+    }
+
     const job = await createPublishJobRecord({
-      draftId: typeof body?.draftId === "string" ? body.draftId : undefined,
+      draftId,
       draftTitle,
       draftBody: typeof body?.draftBody === "string" ? body.draftBody : "",
       platforms: Array.isArray(body?.platforms) ? (body.platforms as any) : [],

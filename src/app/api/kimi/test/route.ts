@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
+import { isAllowedOutboundUrl } from "@/lib/server/network-policy";
 import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
@@ -41,6 +43,10 @@ async function tryFetchModels(url: string, apiKey: string) {
 const TEST_BODY_LIMIT = 1_000_000;
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   try {
     const body = (await readJsonBodyWithLimit(req, TEST_BODY_LIMIT)) as
       | null
@@ -66,6 +72,12 @@ export async function POST(req: Request) {
     const candidates: string[] = [];
     candidates.push(`${baseUrl}/models`);
     if (!/\/v1$/.test(baseUrl)) candidates.push(`${baseUrl}/v1/models`);
+    if (!candidates.every((url) => isAllowedOutboundUrl(url))) {
+      return NextResponse.json(
+        { ok: false, error: "Base URL 不在允许的外连范围内" },
+        { status: 400, headers: { "Cache-Control": "no-store" } },
+      );
+    }
 
     let lastError: string | null = null;
     for (const url of candidates) {

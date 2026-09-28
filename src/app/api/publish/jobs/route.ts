@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createPublishJobRecord, listPublishJobs } from "@/lib/server/publish-job-store";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
@@ -9,12 +10,20 @@ import {
 export const runtime = "nodejs";
 const JOB_BODY_LIMIT = 1_000_000;
 
-export async function GET() {
+export async function GET(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   const jobs = await listPublishJobs();
   return NextResponse.json({ ok: true, data: { jobs } }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   try {
     const body = (await readJsonBodyWithLimit(req, JOB_BODY_LIMIT)) as
       | null

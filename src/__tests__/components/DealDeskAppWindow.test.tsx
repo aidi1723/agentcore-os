@@ -1,6 +1,6 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DealDeskAppWindow } from "@/components/apps/DealDeskAppWindow";
+import { DealDeskAppWindow } from "@/components/apps/DealDeskAppWindow.v2";
 import { createDeal, getDeals } from "@/lib/deals";
 import { upsertSalesAsset } from "@/lib/sales-assets";
 

@@ -746,12 +746,20 @@ export function KnowledgeVaultAppWindow({
                             variant="secondary"
                             size="sm"
                             disabled={!asset.draftId}
-                            onClick={() => {
-                              if (asset.draftId) {
-                                // TODO: Implement draft navigation
-                                console.log("Navigate to draft:", asset.draftId);
-                              }
-                            }}
+                            onClick={() =>
+                              jumpToAssetTarget(
+                                asset.draftId
+                                  ? {
+                                      kind: "publisher",
+                                      prefill: {
+                                        draftId: asset.draftId,
+                                        workflowRunId: asset.workflowRunId,
+                                        workflowScenarioId: asset.scenarioId,
+                                      },
+                                    }
+                                  : null,
+                              )
+                            }
                           >
                             查看草稿
                           </Button>

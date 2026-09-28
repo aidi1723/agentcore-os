@@ -1,6 +1,6 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SupportCopilotAppWindow } from "@/components/apps/SupportCopilotAppWindow";
+import { SupportCopilotAppWindow } from "@/components/apps/SupportCopilotAppWindow.v2";
 import { createSupportTicket, getSupportTickets } from "@/lib/support";
 import { upsertSupportAsset } from "@/lib/support-assets";
 

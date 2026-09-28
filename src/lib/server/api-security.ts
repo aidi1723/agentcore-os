@@ -23,9 +23,10 @@ function splitHost(value: string) {
 export function isLocalRequest(req: Request) {
   const url = new URL(req.url);
   const hostHeader = req.headers.get("host");
-  const requestHost = splitHost(hostHeader || url.host || url.hostname);
   const urlHost = splitHost(url.hostname);
-  return LOCAL_HOSTS.has(requestHost) || LOCAL_HOSTS.has(urlHost);
+  if (!LOCAL_HOSTS.has(urlHost)) return false;
+  if (!hostHeader) return true;
+  return LOCAL_HOSTS.has(splitHost(hostHeader));
 }
 
 function readApiToken() {

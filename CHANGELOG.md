@@ -136,6 +136,29 @@ AgentCore OS v1.3.0 首次公开 Beta 版本发布！
 
 ## [Unreleased]
 
+### 2026-09-28 审查收尾
+
+包版本仍为 `1.3.0-beta.1`。完整说明见 [审查收尾报告](docs/AUDIT_CLOSEOUT_2026-09-28.zh-CN.md)。
+
+#### Security
+
+- 本地 API 同时校验请求 URL 主机和 `Host` 头，两边都必须是本机。
+- 全部 API 路由接入本地门禁；`dev`、`start`、`stable` 绑定 `127.0.0.1`。
+- 服务端 LLM 请求和 `/api/kimi/test` 拒绝回环、私网等不允许的 Base URL。
+- Next.js 与 `eslint-config-next` 固定到 `15.5.26`；PostCSS 固定到 `8.5.28`，清掉嵌套的 `postcss@8.4.31`。
+- CI 执行 `npm test`。安全审计去掉 `continue-on-error`，并改用 `registry.npmjs.org`。
+
+#### Changed
+
+- 32 个应用窗口中，27 个改由设计系统版本运行。设置、发布台、运行控制台、行业应用中心、知识库继续使用完整实现。
+- 删除未接入的设计系统草稿，以及未被引用的 `src/components/design-system`。
+- README、项目介绍、项目总结和技术博客去掉没有实验记录的「100 次邮件分类、错误率 0%」。
+
+#### Tests
+
+- 新增本地门禁、出站地址和窗口接线回归。
+- 全量 Vitest：142 个文件、735 项通过。
+
 ### Planned for v1.3.0 (正式版)
 - Runtime Console UI 集成（PipelineFlow/ApprovalCard）
 - TraceTimeline 组件（时间线视图）

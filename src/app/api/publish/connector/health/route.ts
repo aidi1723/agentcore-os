@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 
@@ -17,7 +18,11 @@ async function fetchWithTimeout(url: string, timeoutMs: number) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   const url = "http://127.0.0.1:8787/health";
   const r = await fetchWithTimeout(url, 1800);
   if (!r.ok) {

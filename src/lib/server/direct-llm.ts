@@ -1,3 +1,4 @@
+import { isAllowedOutboundUrl } from "@/lib/server/network-policy";
 import { normalizeBaseUrl } from "@/lib/url-utils";
 
 export type ServerLlmConfigInput = {
@@ -45,11 +46,16 @@ export async function requestServerLlmText(params: {
     return { ok: false as const, error: "缺少 Kimi Base URL 或 Model" };
   }
 
+  const upstreamUrl = chatCompletionsUrl(config.baseUrl);
+  if (!isAllowedOutboundUrl(upstreamUrl)) {
+    return { ok: false as const, error: "Base URL 不在允许的外连范围内" };
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), Math.max(5_000, params.timeoutMs ?? 60_000));
 
   try {
-    const upstream = await fetch(chatCompletionsUrl(config.baseUrl), {
+    const upstream = await fetch(upstreamUrl, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${config.apiKey}`,

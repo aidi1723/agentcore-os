@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { removeWorkflowRunFromStore } from "@/lib/server/workflow-run-store";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
@@ -8,10 +9,12 @@ import {
 export const runtime = "nodejs";
 const STATE_BODY_LIMIT = 100_000;
 
-export async function DELETE(
-  req: Request,
-  context: { params: Promise<{ runId: string }> },
-) {
+export async function DELETE(req: Request,
+  context: { params: Promise<{ runId: string }> },) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   const { runId } = await context.params;
 
   try {

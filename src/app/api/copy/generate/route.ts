@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
@@ -136,6 +137,10 @@ function genShortVideo(topic: string) {
 }
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   try {
     const body = (await readJsonBodyWithLimit(req, COPY_BODY_LIMIT)) as
       | null

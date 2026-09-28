@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { removePublishJobRecord, updatePublishJobRecord } from "@/lib/server/publish-job-store";
 import type { PublishJobRecord } from "@/lib/publish";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 import {
   getRequestBodyErrorStatus,
   readJsonBodyWithLimit,
@@ -16,6 +17,10 @@ export function generateStaticParams() {
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ jobId: string }> }) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   try {
     const { jobId } = await params;
     const patch = (await readJsonBodyWithLimit(
@@ -36,7 +41,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ jobId:
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: Promise<{ jobId: string }> }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ jobId: string }> }) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   try {
     const { jobId } = await params;
     await removePublishJobRecord(jobId);

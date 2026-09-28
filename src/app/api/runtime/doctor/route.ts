@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 
 import { getRuntimeDoctorReport } from "@/lib/runtime-doctor";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   try {
     return NextResponse.json(
       {

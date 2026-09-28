@@ -8,8 +8,8 @@
     "node": ">=20 <25"
   },
   "scripts": {
-    "dev": "next dev",
-    "dev:clean": "node -e \"require('fs').rmSync('.next-dev',{recursive:true,force:true});\" && next dev -p 3000",
+    "dev": "next dev -H 127.0.0.1",
+    "dev:clean": "node -e \"require('fs').rmSync('.next-dev',{recursive:true,force:true});\" && next dev -H 127.0.0.1 -p 3000",
     "build": "next build",
     "build:desktop-web": "node scripts/desktop-runtime/build-static.mjs",
     "desktop:build-doctor": "node scripts/desktop-runtime/build-doctor.mjs",
@@ -24,8 +24,8 @@
     "tauri": "node scripts/desktop-runtime/run-tauri.mjs",
     "tauri:dev": "node scripts/desktop-runtime/run-tauri.mjs dev",
     "tauri:build": "node scripts/desktop-runtime/run-tauri.mjs build",
-    "start": "next start",
-    "stable": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});\" && next build && next start -p 3000",
+    "start": "next start -H 127.0.0.1",
+    "stable": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});\" && next build && next start -H 127.0.0.1 -p 3000",
     "delivery:demo:seed": "node scripts/delivery-demo/seed-controlled-runtime-demo.mjs",
     "delivery:demo:check": "node --import ./scripts/register-ts-alias-loader.mjs scripts/delivery-demo/check-controlled-runtime-demo.mjs",
     "delivery:ready:check": "node scripts/delivery-ready/check-delivery-ready.mjs",
@@ -95,7 +95,7 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
-    "next": "15.5.20",
+    "next": "15.5.26",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "zustand": "5.0.3"
@@ -111,11 +111,14 @@
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.27",
     "eslint": "^9",
-    "eslint-config-next": "15.5.20",
+    "eslint-config-next": "15.5.26",
     "jsdom": "^25.0.1",
-    "postcss": "^8",
+    "postcss": "8.5.28",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "postcss": "8.5.28"
   }
 }

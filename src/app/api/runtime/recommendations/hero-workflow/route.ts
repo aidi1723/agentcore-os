@@ -6,6 +6,7 @@ import {
   readJsonBodyWithLimit,
 } from "@/lib/server/request-body";
 import { buildRuntimeHeroWorkflowRecommendation } from "@/lib/server/hero-workflow-recommendation";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 
@@ -37,6 +38,10 @@ function normalizeBody(body: HeroWorkflowRecommendationBody | null) {
 }
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   try {
     const body = normalizeBody(
       await readJsonBodyWithLimit<HeroWorkflowRecommendationBody>(req, BODY_LIMIT),

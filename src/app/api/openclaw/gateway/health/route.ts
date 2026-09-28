@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { spawn } from "node:child_process";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 
@@ -28,7 +29,11 @@ function runOpenClaw(args: string[], timeoutMs: number) {
   );
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   const r = await runOpenClaw(["gateway", "call", "health", "--json"], 10_000);
   if (!r.ok) {
     const err = (r.stderr || r.stdout || "").trim();

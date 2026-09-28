@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 
@@ -18,6 +19,10 @@ async function fetchWithTimeout(url: string, timeoutMs: number) {
 }
 
 export async function GET(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   const urlObj = new URL(req.url);
   const limit = urlObj.searchParams.get("limit") || "20";
   const url = `http://127.0.0.1:8787/jobs?limit=${encodeURIComponent(limit)}`;

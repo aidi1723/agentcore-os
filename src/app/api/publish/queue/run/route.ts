@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 
 import { isAuthorizedQueueRequest, isQueueSecretEnabled } from "@/lib/server/publish-queue-auth";
 import { runOneQueuedPublishJob } from "@/lib/server/publish-queue-runner";
+import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   return NextResponse.json(
     {
       ok: true,
@@ -19,6 +24,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const forbidden = rejectUnauthorizedLocalApiRequest(req);
+  if (forbidden) return forbidden;
+
+
   try {
     if (!isAuthorizedQueueRequest(req)) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });

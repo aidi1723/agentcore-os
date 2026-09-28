@@ -1,8 +1,8 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DealDeskAppWindow } from "@/components/apps/DealDeskAppWindow";
 import { createDeal, getDeals } from "@/lib/deals";
-import { upsertSalesAsset } from "@/lib/sales-assets";
+import { getSalesAssets, upsertSalesAsset } from "@/lib/sales-assets";
 
 vi.mock("@/components/windows/AppWindowShell", () => ({
   AppWindowShell: ({ children }: { children: React.ReactNode }) => (
@@ -11,7 +11,19 @@ vi.mock("@/components/windows/AppWindowShell", () => ({
 }));
 
 vi.mock("@/components/workflows/SalesHeroWorkflowPanel", () => ({
-  SalesHeroWorkflowPanel: () => <div data-testid="sales-workflow-panel" />,
+  SalesHeroWorkflowPanel: ({
+    actions,
+  }: {
+    actions?: Array<{ label: string; onClick: () => void; disabled?: boolean }>;
+  }) => (
+    <div data-testid="sales-workflow-panel">
+      {actions?.map((action) => (
+        <button key={action.label} type="button" disabled={action.disabled} onClick={action.onClick}>
+          {action.label}
+        </button>
+      ))}
+    </div>
+  ),
 }));
 
 vi.mock("@/components/recommendations/RecommendationResultBody", () => ({
@@ -146,5 +158,71 @@ describe("DealDeskAppWindow record-level asset focus", () => {
       expect(screen.getByDisplayValue("Late Focus Facades")).toBeInTheDocument();
     });
     expect(getDeals()).toHaveLength(2);
+  });
+
+  it("starts a controlled sales run and does not write a sales asset", async () => {
+    createDeal({ company: "Example Co", contact: "Demo Contact" });
+    const fetchMock = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
+      const href = String(url);
+      if (href.endsWith("/api/runtime/executor/controlled-runs") && init?.method === "POST") {
+        return Response.json({
+          ok: true,
+          data: { run: { id: "demo-deal-1", currentStepId: "human_review" } },
+        });
+      }
+      return Response.json({ ok: true, data: {} });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <DealDeskAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: /Example Co/ }));
+    fireEvent.click(await screen.findByRole("button", { name: "启动受控销售运行" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/runtime/executor/controlled-runs",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ playbookId: "sales-pipeline-v1" }),
+        }),
+      );
+    });
+    expect(getSalesAssets()).toHaveLength(0);
+    expect(getDeals().find((deal) => deal.company === "Example Co")?.workflowRunId).toBe("demo-deal-1");
+  });
+
+  it("does not write a sales asset when generating a brief or opening email", async () => {
+    createDeal({ company: "Brief Co", contact: "Ada", need: "需要报价" });
+
+    render(
+      <DealDeskAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: /Brief Co/ }));
+    fireEvent.click(screen.getByRole("button", { name: "生成简报" }));
+    await waitFor(() => {
+      expect(getDeals().find((deal) => deal.company === "Brief Co")?.brief.length).toBeGreaterThan(0);
+    });
+    fireEvent.click(screen.getByRole("button", { name: "转到 Email Assistant" }));
+
+    expect(getSalesAssets()).toHaveLength(0);
+    expect(getDeals().find((deal) => deal.company === "Brief Co")?.workflowRunId).toBeUndefined();
   });
 });

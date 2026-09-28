@@ -68,10 +68,10 @@
       ],
       "writebackTargets": [
         {
-          "target": "sales_asset",
+          "target": "workflow_run",
           "ok": true,
-          "assetId": "sales-asset-qualify-1",
-          "sourceKey": "controlled-run:run-fixture-1:sales_asset:qualify",
+          "assetId": "workflow-fixture-1",
+          "sourceKey": "controlled-run:run-fixture-1:workflow_run:qualify",
           "workflowRunId": "workflow-fixture-1"
         }
       ]

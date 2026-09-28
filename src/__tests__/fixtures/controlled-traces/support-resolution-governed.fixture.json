@@ -68,10 +68,10 @@
       ],
       "writebackTargets": [
         {
-          "target": "support_asset",
+          "target": "workflow_run",
           "ok": true,
-          "assetId": "support-asset-classify-1",
-          "sourceKey": "controlled-support-asset:support-workflow-fixture-1",
+          "assetId": "support-workflow-fixture-1",
+          "sourceKey": "controlled-run:support-run-fixture-1:workflow_run:classify",
           "workflowRunId": "support-workflow-fixture-1"
         }
       ]

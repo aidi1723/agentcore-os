@@ -457,7 +457,7 @@ describe("writeControlledStepAssets", () => {
     expect((await listKnowledgeAssetStoreSnapshot()).knowledgeAssets).toHaveLength(0);
   });
 
-  it("writes support asset target to the support asset store", async () => {
+  it("records classify as a workflow run and does not create a support asset", async () => {
     const step = supportResolutionPlaybook.steps.find((item) => item.id === "classify")!;
 
     const receipts = await writeControlledStepAssets({
@@ -468,30 +468,8 @@ describe("writeControlledStepAssets", () => {
       approved: true,
     });
 
-    expect(receipts).toEqual([
-      expect.objectContaining({
-        target: "support_asset",
-        ok: true,
-        assetId: "controlled-support-asset:support-workflow-1",
-        sourceKey: "controlled-run:support-run-1:support_asset",
-        workflowRunId: "support-workflow-1",
-      }),
-    ]);
-
-    const snapshot = await listSupportAssetStoreSnapshot();
-    expect(snapshot.supportAssets).toHaveLength(1);
-    expect(snapshot.supportAssets[0]).toMatchObject({
-      id: "controlled-support-asset:support-workflow-1",
-      workflowRunId: "support-workflow-1",
-      scenarioId: "support-ops",
-      customer: "Ada Customer",
-      channel: "email",
-      issueSummary: "Customer reports delayed delivery",
-      nextAction: "confirm logistics ETA",
-      status: "replying",
-    });
-    expect(snapshot.supportAssets[0].latestDigest).toContain("delivery_delay");
-    expect(snapshot.supportAssets[0].latestDigest).toContain("SLA risk");
+    expect(receipts.map((receipt) => receipt.target)).toEqual(["workflow_run"]);
+    expect((await listSupportAssetStoreSnapshot()).supportAssets).toHaveLength(0);
   });
 
   it("writes approved final support output to support and knowledge assets idempotently", async () => {

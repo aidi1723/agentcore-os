@@ -295,6 +295,7 @@ function buildDraftInput(input: WriteControlledStepAssetsInput, writtenAt: numbe
       workflowSourceSummary: stringValue(intake.summary) || undefined,
       workflowBlockLabel: "Controlled Runtime",
       workflowPublishNotes: [...assumptions, ...needsHumanCheck].join("\n") || undefined,
+      approvalState: "pending_review" as const,
       createdAt: input.run.createdAt,
       updatedAt: writtenAt,
     };
@@ -329,6 +330,7 @@ function buildDraftInput(input: WriteControlledStepAssetsInput, writtenAt: numbe
     workflowSourceSummary: stringValue(intake.summary) || undefined,
     workflowBlockLabel: "Controlled Runtime",
     workflowPublishNotes: [...assumptions, ...needsHumanCheck].join("\n") || undefined,
+    approvalState: "pending_review" as const,
     createdAt: input.run.createdAt,
     updatedAt: writtenAt,
   };

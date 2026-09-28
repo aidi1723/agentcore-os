@@ -24,24 +24,16 @@ import {
   getSalesAssetById,
   getSalesAssetByWorkflowRunId,
   subscribeSalesAssets,
-  upsertSalesAsset,
 } from "@/lib/sales-assets";
-import {
-  buildSalesWorkflowMeta,
-  getSalesWorkflowScenario,
-} from "@/lib/sales-workflow";
+import { buildSalesWorkflowMeta } from "@/lib/sales-workflow";
 import { createTask, updateTask } from "@/lib/tasks";
+import { buildAgentCoreApiUrl } from "@/lib/app-api";
 import { buildDealDeskSurfaceRecommendation } from "@/lib/workflow-surface-recommendation";
 import {
   requestComposeEmail,
   type DealDeskPrefill,
 } from "@/lib/ui-events";
-import {
-  advanceWorkflowRun,
-  getWorkflowRun,
-  startWorkflowRun,
-  type WorkflowTriggerType,
-} from "@/lib/workflow-runs";
+
 
 const stages: Array<{ value: DealStage; label: string }> = [
   { value: "new", label: "新线索" },
@@ -98,10 +90,6 @@ function buildLocalBrief(deal: DealRecord) {
     "- 如果匹配度高，尽快安排方案会或发送提案。",
     "- 如果当前阻塞，明确卡点并设置跟进时间。",
   ].join("\n");
-}
-
-function getDefaultTriggerType(deal: DealRecord): WorkflowTriggerType {
-  return deal.workflowTriggerType ?? "web_form";
 }
 
 export function DealDeskAppWindow({
@@ -289,49 +277,40 @@ export function DealDeskAppWindow({
     showToast("线索已删除", "ok");
   };
 
-  const ensureWorkflowForSelected = (triggerType?: WorkflowTriggerType) => {
-    if (!selected) return null;
-    const resolvedTriggerType = triggerType ?? getDefaultTriggerType(selected);
-    if (selected.workflowRunId) return selected.workflowRunId;
-    const scenario = getSalesWorkflowScenario();
-    if (!scenario) return null;
-    const runId = startWorkflowRun(scenario, resolvedTriggerType);
-    patchSelected({
-      workflowRunId: runId,
-      workflowScenarioId: scenario.id,
-      workflowStageId: scenario.workflowStages[0]?.id,
-      workflowTriggerType: resolvedTriggerType,
-      workflowSource: "来自 Deal Desk 的销售询盘录入",
-      workflowNextStep: "先完成线索资格判断，再决定是否进入跟进邮件生成。",
-    });
-    upsertSalesAsset(runId, {
-      scenarioId: scenario.id,
-      dealId: selected.id,
-      company: selected.company,
-      contactName: selected.contact,
-      inquiryChannel: selected.inquiryChannel,
-      preferredLanguage: selected.preferredLanguage,
-      productLine: selected.productLine,
-      requirementSummary: selected.need,
-      preferenceNotes: selected.notes,
-      quoteStatus: "not_started",
-      nextAction: "先完成资格判断，确认是否值得推进。",
-      status: "qualifying",
-    });
-    return runId;
-  };
-
-  const startInquiryWorkflow = () => {
+  const startInquiryWorkflow = async () => {
     if (!selected) {
       showToast("请先选择线索", "error");
       return;
     }
-    const runId = ensureWorkflowForSelected("inbound_message");
-    if (!runId) {
-      showToast("销售流程模板不可用", "error");
-      return;
+    if (selected.workflowRunId) return;
+    try {
+      const res = await fetch(buildAgentCoreApiUrl("/api/runtime/executor/controlled-runs"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playbookId: "sales-pipeline-v1" }),
+      });
+      const data = (await res.json().catch(() => null)) as null | {
+        ok?: boolean;
+        error?: string;
+        data?: { run?: { id?: string; currentStepId?: string } };
+      };
+      const runId = data?.data?.run?.id;
+      if (!res.ok || !data?.ok || !runId) {
+        showToast(data?.error || "受控销售运行没有停在复核步", "error");
+        return;
+      }
+      patchSelected({
+        workflowRunId: runId,
+        workflowScenarioId: "sales-pipeline",
+        workflowStageId: data.data?.run?.currentStepId || "human_review",
+        workflowTriggerType: "inbound_message",
+        workflowSource: "Deal Desk 启动了受控销售运行",
+        workflowNextStep: "在运行控制台批准或驳回 human_review。批准前不会写入销售资产。",
+      });
+      showToast("受控销售运行已停在复核步", "ok");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "受控销售运行请求异常", "error");
     }
-    showToast("已启动销售 Hero Workflow", "ok");
   };
 
   const qualifyDeal = async () => {
@@ -339,7 +318,7 @@ export function DealDeskAppWindow({
       showToast("请先选择线索", "error");
       return;
     }
-    const runId = ensureWorkflowForSelected();
+    const runId = selected.workflowRunId;
     const fallback = buildLocalBrief(selected);
     const taskId = createTask({
       name: "Assistant - Deal qualification",
@@ -401,37 +380,16 @@ export function DealDeskAppWindow({
       } catch {
         reviewNotes = "";
       }
-      const run = runId ? getWorkflowRun(runId) : null;
       patchSelected({
         brief: nextBrief,
-        reviewNotes,
+        reviewNotes: reviewNotes || "",
         stage: selected.stage === "new" ? "qualified" : selected.stage,
-        workflowRunId: runId ?? selected.workflowRunId,
-        workflowScenarioId: selected.workflowScenarioId ?? "sales-pipeline",
-        workflowStageId: run?.currentStageId === "qualify" ? "outreach" : selected.workflowStageId,
+        workflowRunId: runId,
+        workflowScenarioId: selected.workflowScenarioId,
+        workflowStageId: selected.workflowStageId,
         workflowSource: "Deal Desk 已完成线索资格判断",
-        workflowNextStep: "把这条线索送到 Email Assistant 生成首轮跟进邮件，并进行人工审核。",
+        workflowNextStep: "销售资产仍只在受控运行批准后写入。",
       });
-      if (runId) {
-        upsertSalesAsset(runId, {
-          scenarioId: "sales-pipeline",
-          dealId: selected.id,
-          company: selected.company,
-          contactName: selected.contact,
-          inquiryChannel: selected.inquiryChannel,
-          preferredLanguage: selected.preferredLanguage,
-          productLine: selected.productLine,
-          requirementSummary: selected.need || nextBrief,
-          preferenceNotes: selected.notes,
-          nextAction: "进入 Email Assistant 生成并审核首轮跟进邮件。",
-          quoteNotes: nextBrief,
-          quoteStatus: "drafted",
-          status: "qualifying",
-        });
-        if (run?.currentStageId === "qualify") {
-          advanceWorkflowRun(runId);
-        }
-      }
       updateTask(taskId, { status: "done" });
       showToast("线索简报已生成", "ok");
     } catch (err) {
@@ -483,27 +441,11 @@ export function DealDeskAppWindow({
       showToast("请先选择线索", "error");
       return;
     }
-    const runId = ensureWorkflowForSelected();
-    const run = runId ? getWorkflowRun(runId) : null;
-    const nextStep = "在 Email Assistant 生成首轮跟进稿，人工确认后再同步到 Personal CRM。";
+    const nextStep = "在 Email Assistant 生成首轮跟进稿。销售资产仍只在受控运行批准后写入。";
     patchSelected({
-      workflowRunId: runId ?? selected.workflowRunId,
-      workflowStageId: run?.currentStageId === "qualify" ? "outreach" : selected.workflowStageId ?? "outreach",
       workflowSource: "来自 Deal Desk 的已判断线索",
       workflowNextStep: nextStep,
     });
-    if (runId) {
-      upsertSalesAsset(runId, {
-        scenarioId: "sales-pipeline",
-        dealId: selected.id,
-        company: selected.company,
-        contactName: selected.contact,
-        requirementSummary: selected.need || selected.brief,
-        preferenceNotes: selected.notes,
-        nextAction: nextStep,
-        status: "awaiting_review",
-      });
-    }
     requestComposeEmail({
       subject: `关于 ${selected.company || "合作"} 的下一步沟通`,
       recipient: selected.contact,
@@ -523,7 +465,7 @@ export function DealDeskAppWindow({
       ]
         .filter(Boolean)
         .join("\n"),
-      workflowRunId: runId ?? selected.workflowRunId,
+      workflowRunId: selected.workflowRunId,
       workflowScenarioId: "sales-pipeline",
       workflowStageId: "outreach",
       workflowTriggerType: selected.workflowTriggerType,
@@ -573,7 +515,7 @@ export function DealDeskAppWindow({
             nextStep={selected?.workflowNextStep}
             actions={[
               {
-                label: selected?.workflowRunId ? "已绑定询盘流程" : "按客户询盘启动",
+                label: selected?.workflowRunId ? "已绑定受控运行" : "启动受控销售运行",
                 onClick: startInquiryWorkflow,
                 disabled: !selected || Boolean(selected?.workflowRunId),
               },

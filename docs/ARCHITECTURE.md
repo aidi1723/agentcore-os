@@ -1,6 +1,8 @@
 # Architecture
 
-Last updated: 2026-07-06
+Last updated: 2026-09-28
+
+当前目录里可执行的剧本只有 `sales-pipeline-v1` 和 `support-resolution-v1`。
 
 ## Current Architecture Direction
 

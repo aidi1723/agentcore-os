@@ -704,6 +704,7 @@ function resolveControlledPlanIfRequested(request: AgentCoreTaskRequest) {
 export async function runMultiStepTask(
   request: AgentCoreTaskRequest | AgentCoreLegacyTaskRequest,
   callbacks: ExecutionCallbacks,
+  options?: { pauseOnApprovalRequired?: boolean },
 ): Promise<MultiStepTaskResult> {
   const normalizedRequest =
     "executionPolicy" in request &&
@@ -807,6 +808,8 @@ export async function runMultiStepTask(
     }
   }
 
-  const trace = await executeMultiStep(plan, normalizedRequest, callbacks);
+  const trace = await executeMultiStep(plan, normalizedRequest, callbacks, undefined, {
+    pauseOnApprovalRequired: options?.pauseOnApprovalRequired,
+  });
   return { ok: trace.success, trace, error: trace.error };
 }

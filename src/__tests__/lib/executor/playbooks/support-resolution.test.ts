@@ -31,6 +31,16 @@ describe("supportResolutionPlaybook", () => {
     expect(getControlledPlaybookForScenario("support-ops")).toBe(supportResolutionPlaybook);
   });
 
+  it("does not write a support asset before human review", () => {
+    const classify = supportResolutionPlaybook.steps.find((step) => step.id === "classify");
+    expect(classify?.writesTo).toEqual([{ target: "workflow_run", when: "on_success" }]);
+    const earlyBusinessWrites = supportResolutionPlaybook.steps
+      .filter((step) => step.id !== "writeback")
+      .flatMap((step) => step.writesTo ?? [])
+      .filter((target) => target.target === "support_asset" || target.target === "knowledge_asset");
+    expect(earlyBusinessWrites).toEqual([]);
+  });
+
   it("keeps review and manual stages behind approval", () => {
     const approvalSteps = supportResolutionPlaybook.steps.filter((step) => step.requiresApproval);
     expect(approvalSteps.map((step) => step.id)).toEqual(["human_review", "writeback"]);

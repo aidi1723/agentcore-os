@@ -51,7 +51,7 @@ const InboxDeclutterAppWindow = dynamic(() => import("@/components/apps/InboxDec
 const SupportCopilotAppWindow = dynamic(() => import("@/components/apps/SupportCopilotAppWindow.v2").then((m) => m.SupportCopilotAppWindow));
 const SecondBrainAppWindow = dynamic(() => import("@/components/apps/SecondBrainAppWindow.v2").then((m) => m.SecondBrainAppWindow), { loading: () => null });
 const EmailAssistantAppWindow = dynamic(() => import("@/components/apps/EmailAssistantAppWindow.v2").then((m) => m.EmailAssistantAppWindow), { loading: () => null });
-const DealDeskAppWindow = dynamic(() => import("@/components/apps/DealDeskAppWindow.v2").then((m) => m.DealDeskAppWindow));
+const DealDeskAppWindow = dynamic(() => import("@/components/apps/DealDeskAppWindow").then((m) => m.DealDeskAppWindow));
 const FamilyCalendarAppWindow = dynamic(() => import("@/components/apps/FamilyCalendarAppWindow.v2").then((m) => m.FamilyCalendarAppWindow), { loading: () => null });
 const HabitTrackerAppWindow = dynamic(() => import("@/components/apps/HabitTrackerAppWindow.v2").then((m) => m.HabitTrackerAppWindow), { loading: () => null });
 const HealthTrackerAppWindow = dynamic(() => import("@/components/apps/HealthTrackerAppWindow.v2").then((m) => m.HealthTrackerAppWindow), { loading: () => null });

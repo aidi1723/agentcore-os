@@ -20,7 +20,6 @@ const designSystemWindows = [
   "SupportCopilotAppWindow",
   "SecondBrainAppWindow",
   "EmailAssistantAppWindow",
-  "DealDeskAppWindow",
   "FamilyCalendarAppWindow",
   "HabitTrackerAppWindow",
   "HealthTrackerAppWindow",
@@ -40,6 +39,7 @@ const fullImplementationWindows = [
   "SettingsAppWindow",
   "IndustryHubAppWindow",
   "KnowledgeVaultAppWindow",
+  "DealDeskAppWindow",
 ];
 
 describe("app registry wiring", () => {
@@ -47,7 +47,7 @@ describe("app registry wiring", () => {
     for (const name of designSystemWindows) {
       expect(source).toContain(`@/components/apps/${name}.v2`);
     }
-    expect(designSystemWindows).toHaveLength(27);
+    expect(designSystemWindows).toHaveLength(26);
   });
 
   it("keeps the full settings, publisher, and runtime console implementations", () => {

@@ -1146,6 +1146,9 @@ export function PublisherAppWindow({
                         ].join(" ")}
                       >
                         <div className="truncate text-sm font-semibold">{draft.title}</div>
+                        {draft.approvalState === "pending_review" ? (
+                          <div className="mt-1 text-xs text-amber-700">待复核</div>
+                        ) : null}
                         <div className="mt-1 truncate text-xs text-gray-500">{formatTime(draft.updatedAt)}</div>
                       </button>
                     );

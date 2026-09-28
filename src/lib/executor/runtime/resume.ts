@@ -75,7 +75,10 @@ function buildRequestFromRun(
   return {
     taskInput: { userMessage: run.plan.goal },
     session: { id: run.sessionId },
-    metadata: { requestId: run.id, source },
+    metadata: {
+      requestId: run.id,
+      source: run.sessionId === "controlled-demo" ? "controlled-demo" : source,
+    },
     context: {
       systemPrompt: "",
       workspace: {

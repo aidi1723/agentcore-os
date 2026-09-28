@@ -498,6 +498,9 @@ export function PublisherAppWindow({
                         ].join(" ")}
                       >
                         <div className="text-sm font-semibold text-gray-900">{draft.title}</div>
+                        {draft.approvalState === "pending_review" ? (
+                          <div className="mt-1 text-xs text-amber-700">待复核</div>
+                        ) : null}
                         <div className="mt-1 text-xs text-gray-500">
                           {draft.tags?.slice(0, 3).map((tag) => getPlatformLabel(tag as PublishPlatformId)).join(" · ")}
                         </div>

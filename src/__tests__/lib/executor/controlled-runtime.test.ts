@@ -360,6 +360,7 @@ describe("controlled runtime execution", () => {
       title: "Following up on your window inquiry",
       workflowRunId: "controlled-runtime-test",
       workflowStageId: "draft_outreach",
+      approvalState: "pending_review",
     });
   });
 
@@ -394,7 +395,7 @@ describe("controlled runtime execution", () => {
       "writeback",
     ]);
     expect(run?.steps.find((step) => step.stepId === "classify")?.writebackReceipts).toEqual([
-      expect.objectContaining({ target: "support_asset", ok: true }),
+      expect.objectContaining({ target: "workflow_run", ok: true }),
     ]);
     expect(run?.steps.find((step) => step.stepId === "writeback")?.writebackReceipts).toEqual(
       expect.arrayContaining([
@@ -424,6 +425,7 @@ describe("controlled runtime execution", () => {
       id: "controlled-draft:controlled-support-runtime-test",
       workflowRunId: "controlled-support-runtime-test",
       workflowStageId: "draft_reply",
+      approvalState: "pending_review",
     });
   });
 });

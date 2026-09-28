@@ -9,12 +9,15 @@ export type DraftId = string;
 
 export type DraftSource = "media_ops" | "publisher" | "import";
 
+export type DraftApprovalState = "pending_review" | "approved";
+
 export type DraftRecord = {
   id: DraftId;
   title: string;
   body: string;
   tags?: string[];
   source: DraftSource;
+  approvalState?: DraftApprovalState;
   workflowSource?: string;
   workflowNextStep?: string;
   createdAt: number;

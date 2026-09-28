@@ -150,6 +150,7 @@ export function ClawRuntimeConsoleAppWindow({
   const [controlledRunStateFilter, setControlledRunStateFilter] =
     useState<"all" | ControlledExecutionRunState>("all");
   const [controlledRunQuery, setControlledRunQuery] = useState("");
+  const [demoPlaybookId, setDemoPlaybookId] = useState("sales-pipeline-v1");
   const [controlledRunActionLoading, setControlledRunActionLoading] = useState<string | null>(
     null,
   );
@@ -433,6 +434,34 @@ export function ClawRuntimeConsoleAppWindow({
       await refreshControlledRuns();
     } catch (error) {
       showToast(error instanceof Error ? error.message : "审批请求异常", "error");
+    } finally {
+      setControlledRunActionLoading(null);
+    }
+  };
+
+  const handleStartDemoRun = async () => {
+    setControlledRunActionLoading("demo:start");
+    try {
+      const res = await fetch(buildAgentCoreApiUrl("/api/runtime/executor/controlled-runs"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playbookId: demoPlaybookId }),
+      });
+      const data = (await res.json().catch(() => null)) as null | {
+        ok?: boolean;
+        error?: string;
+        data?: { run?: { id?: string } };
+      };
+      if (!res.ok || !data?.ok || !data.data?.run?.id) {
+        showToast(data?.error || "演示运行没有停在复核步", "error");
+        return;
+      }
+      selectedControlledRunIdRef.current = data.data.run.id;
+      setSelectedControlledRunId(data.data.run.id);
+      showToast("演示运行已停在复核步", "ok");
+      await refreshControlledRuns();
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "演示运行请求异常", "error");
     } finally {
       setControlledRunActionLoading(null);
     }
@@ -1077,6 +1106,28 @@ export function ClawRuntimeConsoleAppWindow({
           </div>
 
           <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="text-xs font-semibold text-gray-700" htmlFor="demo-playbook">
+                演示剧本
+              </label>
+              <select
+                id="demo-playbook"
+                value={demoPlaybookId}
+                onChange={(event) => setDemoPlaybookId(event.target.value)}
+                className="min-h-10 rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs text-gray-900"
+              >
+                <option value="sales-pipeline-v1">sales-pipeline-v1</option>
+                <option value="support-resolution-v1">support-resolution-v1</option>
+              </select>
+              <button
+                type="button"
+                onClick={() => void handleStartDemoRun()}
+                disabled={controlledRunActionLoading !== null}
+                className="rounded-xl border border-gray-900 bg-gray-900 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {controlledRunActionLoading === "demo:start" ? "启动中..." : "用演示夹具启动"}
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2">
               {CONTROLLED_RUN_STATE_FILTERS.map((filter) => (
                 <button
@@ -1247,6 +1298,17 @@ export function ClawRuntimeConsoleAppWindow({
                     >
                       {runStateLabel(selectedControlledRunSummary.state)}
                     </div>
+                  </div>
+
+                  <div className="mt-4 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-xs leading-6 text-gray-700">
+                    {(() => {
+                      const receipts = selectedControlledRunSummary.steps.flatMap(
+                        (step) => step.writebackReceipts,
+                      );
+                      const latest = receipts[receipts.length - 1];
+                      if (!latest) return "尚无写回";
+                      return `${latest.target} ${latest.ok ? "ok" : "skipped"} ${latest.summary}`;
+                    })()}
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-3 text-[11px] text-gray-500">

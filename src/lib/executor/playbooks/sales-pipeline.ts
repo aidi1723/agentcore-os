@@ -90,7 +90,7 @@ export const salesPipelinePlaybook: ControlledPlaybook = {
         "缺失关键信息时 priority 应为 blocked 或 medium 以下。",
       ],
       toolCalls: [{ toolName: "llm_generate" }],
-      writesTo: [{ target: "sales_asset", when: "on_success" }],
+      writesTo: [{ target: "workflow_run", when: "on_success" }],
       onFailure: { action: "await_human" },
     },
     {

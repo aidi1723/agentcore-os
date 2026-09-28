@@ -15,6 +15,7 @@ import type { ToolContext } from "@/lib/executor/tools/registry";
 import { executorLog } from "@/lib/executor/logger";
 import { DEFAULT_GUARDRAILS, shouldRequireApproval } from "@/lib/executor/guardrails";
 import { getControlledPlaybook } from "@/lib/executor/playbooks/catalog";
+import { getDemoStepOutput } from "@/lib/executor/runtime/demo-fixtures";
 import { buildControlledStepInput } from "@/lib/executor/runtime/step-input";
 import { validateControlledOutput } from "@/lib/executor/runtime/schema";
 import {
@@ -23,6 +24,7 @@ import {
 } from "@/lib/executor/runtime/writeback";
 import {
   getControlledExecutionRun,
+  requestControlledApproval,
   updateControlledExecutionRun,
   updateControlledExecutionStep,
 } from "@/lib/server/controlled-execution-store";
@@ -94,7 +96,19 @@ async function executeSingleStep(
       toolName: toolSpec.toolName,
     });
 
-    const result = await tool.execute(
+    const demoOutput =
+      request.metadata.source === "controlled-demo" &&
+      (tool.name === "llm_generate" || tool.name === "human_ask")
+        ? getDemoStepOutput(request.controlledPlaybookId, step.id)
+        : null;
+    const result = demoOutput
+      ? {
+          toolName: tool.name,
+          success: true,
+          output: demoOutput,
+          durationMs: 0,
+        }
+      : await tool.execute(
       {
         prompt: step.description,
         description: toolSpec.description,
@@ -233,6 +247,7 @@ export async function executeMultiStep(
             state: "awaiting_approval",
             error: awaitingResult.error,
           }).catch(() => null);
+          await requestControlledApproval(reqId, step.id).catch(() => null);
         }
         break;
       }

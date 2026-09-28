@@ -22,6 +22,16 @@ describe("salesPipelinePlaybook", () => {
     ]);
   });
 
+  it("does not write a sales asset before human review", () => {
+    const qualify = salesPipelinePlaybook.steps.find((step) => step.id === "qualify");
+    expect(qualify?.writesTo).toEqual([{ target: "workflow_run", when: "on_success" }]);
+    const earlyBusinessWrites = salesPipelinePlaybook.steps
+      .filter((step) => step.id !== "writeback")
+      .flatMap((step) => step.writesTo ?? [])
+      .filter((target) => target.target === "sales_asset" || target.target === "knowledge_asset");
+    expect(earlyBusinessWrites).toEqual([]);
+  });
+
   it("keeps review and manual stages behind approval", () => {
     const approvalSteps = salesPipelinePlaybook.steps.filter((step) => step.requiresApproval);
     expect(approvalSteps.map((step) => step.id)).toEqual(["human_review", "writeback"]);

@@ -90,7 +90,7 @@ export const supportResolutionPlaybook: ControlledPlaybook = {
         "退款、赔付、法律、公开投诉类问题必须标记风险。",
       ],
       toolCalls: [{ toolName: "llm_generate" }],
-      writesTo: [{ target: "support_asset", when: "on_success" }],
+      writesTo: [{ target: "workflow_run", when: "on_success" }],
       onFailure: { action: "await_human" },
     },
     {

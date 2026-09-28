@@ -1,4 +1,4 @@
-import type { DraftRecord, DraftSource } from "@/lib/drafts";
+import type { DraftApprovalState, DraftRecord, DraftSource } from "@/lib/drafts";
 import type { PublishPlatformId } from "@/lib/publish";
 import {
   readJsonFile,
@@ -84,6 +84,10 @@ function normalizeDraft(input: unknown): DraftRecord | null {
       typeof item.source === "string" && SOURCES.has(item.source as DraftSource)
         ? (item.source as DraftSource)
         : "publisher",
+    approvalState:
+      item.approvalState === "pending_review" || item.approvalState === "approved"
+        ? (item.approvalState as DraftApprovalState)
+        : undefined,
     workflowRunId: typeof item.workflowRunId === "string" ? item.workflowRunId : undefined,
     workflowScenarioId:
       typeof item.workflowScenarioId === "string" ? item.workflowScenarioId : undefined,

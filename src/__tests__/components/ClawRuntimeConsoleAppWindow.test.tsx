@@ -668,4 +668,66 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
     expect(copiedText).not.toContain("sk-console-secret");
     expect(copiedText).not.toContain("nora@example.com");
   });
+
+  it("posts the selected demo playbook and keeps approval hidden before the review pause", async () => {
+    const runningRun: ControlledExecutionRunRecord = {
+      ...buildRetryableFailedRun(),
+      id: "run-demo-list",
+      state: "running",
+      currentStepId: "intake",
+      error: undefined,
+      steps: [
+        {
+          stepId: "intake",
+          state: "running",
+          input: null,
+          output: null,
+          attempts: 1,
+          toolCallResults: [],
+          writebackReceipts: [],
+        },
+      ],
+    };
+    const fetchMock = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
+      const href = String(url);
+      if (href.endsWith("/api/runtime/executor/sessions")) {
+        return Response.json({ ok: true, data: { sessions: [] } });
+      }
+      if (href.endsWith("/api/runtime/executor/controlled-runs") && init?.method === "POST") {
+        return Response.json({ ok: true, data: { run: { id: "demo-created" } } });
+      }
+      if (href.endsWith("/api/runtime/executor/controlled-runs")) {
+        return Response.json({ ok: true, data: { runs: [runningRun] } });
+      }
+      return Response.json({ ok: true, data: {} });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ClawRuntimeConsoleAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByRole("button", { name: "用演示夹具启动" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "批准步骤" })).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("演示剧本"), { target: { value: "support-resolution-v1" } });
+    fireEvent.click(screen.getByRole("button", { name: "用演示夹具启动" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/runtime/executor/controlled-runs",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ playbookId: "support-resolution-v1" }),
+        }),
+      );
+    });
+  });
 });

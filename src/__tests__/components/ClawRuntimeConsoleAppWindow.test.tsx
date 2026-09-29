@@ -70,6 +70,17 @@ vi.mock("@/lib/settings", () => ({
       shell: "browser",
       sidecarApiUrl: "",
     },
+    llm: {
+      providers: {
+        kimi: { apiKey: "", baseUrl: "https://api.moonshot.cn/v1", model: "moonshot-v1-8k" },
+      },
+    },
+  }),
+  getActiveLlmConfig: (settings: {
+    llm?: { providers?: { kimi?: { apiKey?: string; baseUrl?: string; model?: string } } };
+  }) => ({
+    id: "kimi" as const,
+    config: settings.llm?.providers?.kimi ?? { apiKey: "", baseUrl: "", model: "" },
   }),
 }));
 
@@ -715,6 +726,8 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
     );
 
     expect(await screen.findByRole("button", { name: "用演示夹具启动" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "用模型启动" })).toBeInTheDocument();
+    expect(screen.getByLabelText("销售写回 Webhook")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "批准步骤" })).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("演示剧本"), { target: { value: "support-resolution-v1" } });
@@ -729,5 +742,32 @@ describe("ClawRuntimeConsoleAppWindow controlled run recovery", () => {
         }),
       );
     });
+  });
+
+  it("does not start a model run when the Kimi key is empty", async () => {
+    window.localStorage.removeItem("openclaw.settings.v1");
+    delete window.__AGENTCORE_BOOTSTRAP_SETTINGS__;
+    const fetchMock = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) =>
+      Response.json({ ok: true, data: { runs: [], sessions: [] } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ClawRuntimeConsoleAppWindow
+        state="open"
+        zIndex={1}
+        active
+        onFocus={vi.fn()}
+        onMinimize={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: "用模型启动" }));
+
+    expect(await screen.findByText("请先在设置里填写 Kimi API Key")).toBeInTheDocument();
+    expect(
+      fetchMock.mock.calls.some((call) => String(call[1]?.body ?? "").includes('"mode":"model"')),
+    ).toBe(false);
   });
 });

@@ -10,6 +10,10 @@ import { upsertKnowledgeAssetInStore } from "@/lib/server/knowledge-asset-store"
 import { upsertSalesAssetInStore } from "@/lib/server/sales-asset-store";
 import { upsertSupportAssetInStore } from "@/lib/server/support-asset-store";
 import { upsertWorkflowRunInStore } from "@/lib/server/workflow-run-store";
+import {
+  buildSalesExternalWritebackPayload,
+  deliverSalesExternalWriteback,
+} from "@/lib/executor/runtime/external-writeback";
 
 type WriteControlledStepAssetsInput = {
   run: ControlledExecutionRunRecord;
@@ -456,6 +460,46 @@ export async function writeControlledStepAssets(
   if (!input.step?.writesTo) return [];
   const writtenAt = Date.now();
   const receipts: ControlledWritebackReceipt[] = [];
+  const webhookUrl = input.run.externalWritebackUrl?.trim() ?? "";
+  const shouldDeliverSalesWebhook =
+    Boolean(webhookUrl) &&
+    input.approved &&
+    input.run.playbookId === "sales-pipeline-v1" &&
+    input.step.id === "writeback" &&
+    input.step.writesTo.some(
+      (target) => target.target === "sales_asset" && target.when === "after_approval",
+    );
+
+  if (shouldDeliverSalesWebhook) {
+    const delivery = await deliverSalesExternalWriteback({
+      url: webhookUrl,
+      payload: buildSalesExternalWritebackPayload(input),
+    });
+    if (!delivery.ok) {
+      receipts.push({
+        target: "external_webhook",
+        ok: false,
+        summary: delivery.error,
+        writtenAt,
+      });
+      for (const target of input.step.writesTo) {
+        receipts.push({
+          target: target.target,
+          ok: false,
+          summary: `外部写回失败，本地资产未写入：${delivery.error}`,
+          writtenAt,
+        });
+      }
+      return receipts;
+    }
+    receipts.push({
+      target: "external_webhook",
+      ok: true,
+      summary: `销售终稿已发到外部写回地址，状态 ${delivery.status}`,
+      writtenAt,
+      workflowRunId: input.run.workflowRunId?.trim() || input.run.id,
+    });
+  }
 
   for (const target of input.step.writesTo) {
     if (target.when === "after_approval" && !input.approved) {

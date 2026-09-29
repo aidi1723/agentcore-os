@@ -80,6 +80,7 @@ export type ControlledExecutionRunRecord = {
   updatedAt: number;
   finishedAt?: number;
   error?: string;
+  externalWritebackUrl?: string;
   auditEvents: ControlledRunAuditEvent[];
   plan: ExecutionPlan;
   steps: ControlledExecutionStepRecord[];

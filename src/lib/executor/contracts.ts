@@ -42,6 +42,7 @@ export type AgentCoreExecutionMetadata = {
   requestId: string;
   idempotencyKey?: string;
   source?: string;
+  externalWritebackUrl?: string;
 };
 
 export type AgentCoreExecutionPolicy = {

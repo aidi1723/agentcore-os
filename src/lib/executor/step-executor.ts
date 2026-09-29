@@ -16,6 +16,10 @@ import { executorLog } from "@/lib/executor/logger";
 import { DEFAULT_GUARDRAILS, shouldRequireApproval } from "@/lib/executor/guardrails";
 import { getControlledPlaybook } from "@/lib/executor/playbooks/catalog";
 import { getDemoStepOutput } from "@/lib/executor/runtime/demo-fixtures";
+import {
+  buildControlledHumanOutput,
+  generateControlledModelStep,
+} from "@/lib/executor/runtime/model-step";
 import { buildControlledStepInput } from "@/lib/executor/runtime/step-input";
 import { validateControlledOutput } from "@/lib/executor/runtime/schema";
 import {
@@ -52,6 +56,7 @@ async function executeSingleStep(
   request: AgentCoreTaskRequest,
   callbacks: ExecutionCallbacks,
   guardrails: GuardrailConfig,
+  previousResults: StepResult[],
   abortSignal?: AbortSignal,
 ): Promise<StepResult> {
   const start = Date.now();
@@ -96,10 +101,28 @@ async function executeSingleStep(
       toolName: toolSpec.toolName,
     });
 
+    const modelRun = request.metadata.source === "controlled-model";
     const demoOutput =
       request.metadata.source === "controlled-demo" &&
       (tool.name === "llm_generate" || tool.name === "human_ask")
         ? getDemoStepOutput(request.controlledPlaybookId, step.id)
+        : null;
+    const humanOutput =
+      modelRun && tool.name === "human_ask"
+        ? buildControlledHumanOutput({
+            playbookId: request.controlledPlaybookId,
+            stepId: step.id,
+            previousResults,
+          })
+        : null;
+    const modelOutput =
+      modelRun && tool.name === "llm_generate"
+        ? await generateControlledModelStep({
+            llm: request.modelConfig,
+            userMessage: request.taskInput.userMessage,
+            step,
+            previousResults,
+          })
         : null;
     const result = demoOutput
       ? {
@@ -108,7 +131,30 @@ async function executeSingleStep(
           output: demoOutput,
           durationMs: 0,
         }
-      : await tool.execute(
+      : humanOutput
+        ? {
+            toolName: tool.name,
+            success: true,
+            output: humanOutput,
+            durationMs: 0,
+          }
+        : modelOutput
+          ? {
+              toolName: tool.name,
+              success: modelOutput.ok,
+              output: modelOutput.ok ? modelOutput.output : null,
+              durationMs: 0,
+              sideEffects: modelOutput.ok ? undefined : [modelOutput.error],
+            }
+          : modelRun && tool.name === "human_ask"
+            ? {
+                toolName: tool.name,
+                success: false,
+                output: null,
+                durationMs: 0,
+                sideEffects: ["缺少上一步草稿，不能生成人工复核结果"],
+              }
+        : await tool.execute(
       {
         prompt: step.description,
         description: toolSpec.description,
@@ -302,6 +348,7 @@ export async function executeMultiStep(
         request,
         callbacks,
         config,
+        trace.stepResults,
         abortController.signal,
       );
       if (result.status === "completed") break;
@@ -366,6 +413,11 @@ export async function executeMultiStep(
               approved: approvedForWriteback,
             })
         : [];
+    const externalReceipt = writebackReceipts.find((receipt) => receipt.target === "external_webhook");
+    if (externalReceipt && !externalReceipt.ok && result.status === "completed") {
+      result.status = "failed";
+      result.error = externalReceipt.summary;
+    }
     trace.stepResults.push(result);
     if (shouldPersistControlledTrace) {
       await updateControlledExecutionStep(reqId, step.id, {

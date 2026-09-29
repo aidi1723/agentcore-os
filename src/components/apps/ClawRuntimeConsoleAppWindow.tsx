@@ -40,7 +40,7 @@ import type {
   ControlledExecutionRunState,
 } from "@/lib/executor/runtime/types";
 import { addRuntimeEventListener, RuntimeEventNames } from "@/lib/runtime-events";
-import { loadSettings, type AppSettings, type InterfaceLanguage } from "@/lib/settings";
+import { loadSettings, getActiveLlmConfig, type AppSettings, type InterfaceLanguage } from "@/lib/settings";
 import {
   requestOpenDealDesk,
   requestOpenIndustryHub,
@@ -151,6 +151,7 @@ export function ClawRuntimeConsoleAppWindow({
     useState<"all" | ControlledExecutionRunState>("all");
   const [controlledRunQuery, setControlledRunQuery] = useState("");
   const [demoPlaybookId, setDemoPlaybookId] = useState("sales-pipeline-v1");
+  const [externalWritebackUrl, setExternalWritebackUrl] = useState("");
   const [controlledRunActionLoading, setControlledRunActionLoading] = useState<string | null>(
     null,
   );
@@ -439,13 +440,34 @@ export function ClawRuntimeConsoleAppWindow({
     }
   };
 
-  const handleStartDemoRun = async () => {
+  const handleStartDemoRun = async (mode: "fixture" | "model" = "fixture") => {
+    const llm = mode === "model" ? getActiveLlmConfig(settings).config : null;
+    if (mode === "model" && !llm?.apiKey.trim()) {
+      showToast("请先在设置里填写 Kimi API Key", "error");
+      return;
+    }
     setControlledRunActionLoading("demo:start");
     try {
       const res = await fetch(buildAgentCoreApiUrl("/api/runtime/executor/controlled-runs"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ playbookId: demoPlaybookId }),
+        body: JSON.stringify({
+          playbookId: demoPlaybookId,
+          ...(demoPlaybookId === "sales-pipeline-v1" && externalWritebackUrl.trim()
+            ? { externalWritebackUrl: externalWritebackUrl.trim() }
+            : {}),
+          ...(mode === "model"
+            ? {
+                mode: "model",
+                llm: {
+                  provider: "kimi",
+                  apiKey: llm?.apiKey,
+                  baseUrl: llm?.baseUrl,
+                  model: llm?.model,
+                },
+              }
+            : {}),
+        }),
       });
       const data = (await res.json().catch(() => null)) as null | {
         ok?: boolean;
@@ -1119,6 +1141,16 @@ export function ClawRuntimeConsoleAppWindow({
                 <option value="sales-pipeline-v1">sales-pipeline-v1</option>
                 <option value="support-resolution-v1">support-resolution-v1</option>
               </select>
+              <label className="text-xs font-semibold text-gray-700" htmlFor="sales-writeback-url">
+                销售写回 Webhook
+              </label>
+              <input
+                id="sales-writeback-url"
+                value={externalWritebackUrl}
+                onChange={(event) => setExternalWritebackUrl(event.target.value)}
+                placeholder="https://example.com/sales-writeback"
+                className="min-h-10 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs text-gray-900 outline-none placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-sky-500 sm:w-72"
+              />
               <button
                 type="button"
                 onClick={() => void handleStartDemoRun()}
@@ -1126,6 +1158,14 @@ export function ClawRuntimeConsoleAppWindow({
                 className="rounded-xl border border-gray-900 bg-gray-900 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {controlledRunActionLoading === "demo:start" ? "启动中..." : "用演示夹具启动"}
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleStartDemoRun("model")}
+                disabled={controlledRunActionLoading !== null}
+                className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                用模型启动
               </button>
             </div>
             <div className="flex flex-wrap gap-2">

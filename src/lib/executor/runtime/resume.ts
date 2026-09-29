@@ -77,7 +77,11 @@ function buildRequestFromRun(
     session: { id: run.sessionId },
     metadata: {
       requestId: run.id,
-      source: run.sessionId === "controlled-demo" ? "controlled-demo" : source,
+      source: run.sessionId === "controlled-demo"
+        ? "controlled-demo"
+        : run.sessionId === "controlled-model"
+          ? "controlled-model"
+          : source,
     },
     context: {
       systemPrompt: "",

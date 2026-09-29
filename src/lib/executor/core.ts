@@ -804,6 +804,7 @@ export async function runMultiStepTask(
         playbookId: playbook.id,
         playbookVersion: playbook.version,
         plan,
+        externalWritebackUrl: normalizedRequest.metadata.externalWritebackUrl,
       });
     }
   }

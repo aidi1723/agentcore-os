@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 
-import type { AgentCoreTaskRequest, ExecutionCallbacks } from "@/lib/executor/contracts";
+import type { AgentCoreExecutorLlmConfig, AgentCoreTaskRequest, ExecutionCallbacks } from "@/lib/executor/contracts";
 import { runMultiStepTask } from "@/lib/executor/core";
 import { getControlledPlaybook } from "@/lib/executor/playbooks/catalog";
 import { isDemoPlaybookId, getDemoFixture } from "@/lib/executor/runtime/demo-fixtures";
 import { rejectUnauthorizedLocalApiRequest } from "@/lib/server/api-security";
+import { isAllowedOutboundUrl } from "@/lib/server/network-policy";
 import { RequestBodyError, readJsonBodyWithLimit } from "@/lib/server/request-body";
 import {
   getControlledExecutionRun,
@@ -46,9 +47,19 @@ export async function POST(req: Request) {
   const forbidden = rejectUnauthorizedLocalApiRequest(req);
   if (forbidden) return forbidden;
 
-  let body: null | { playbookId?: unknown };
+  let body: null | {
+    playbookId?: unknown;
+    mode?: unknown;
+    llm?: AgentCoreExecutorLlmConfig | null;
+    externalWritebackUrl?: unknown;
+  };
   try {
-    body = (await readJsonBodyWithLimit(req, 20_000)) as null | { playbookId?: unknown };
+    body = (await readJsonBodyWithLimit(req, 20_000)) as null | {
+      playbookId?: unknown;
+      mode?: unknown;
+      llm?: AgentCoreExecutorLlmConfig | null;
+      externalWritebackUrl?: unknown;
+    };
   } catch (error) {
     const message = error instanceof RequestBodyError ? error.message : "Invalid request body";
     const status = error instanceof RequestBodyError ? error.status : 400;
@@ -61,6 +72,25 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
+  const mode = body?.mode === "model" ? "model" : "fixture";
+  const apiKey = String(body?.llm?.apiKey ?? "").trim();
+  if (mode === "model" && !apiKey) {
+    return NextResponse.json({ ok: false, error: "缺少 Kimi API Key" }, { status: 400 });
+  }
+  const externalWritebackUrl =
+    typeof body?.externalWritebackUrl === "string" ? body.externalWritebackUrl.trim() : "";
+  if (externalWritebackUrl && playbookId !== "sales-pipeline-v1") {
+    return NextResponse.json(
+      { ok: false, error: "外部写回目前只接销售剧本的批准结果" },
+      { status: 400 },
+    );
+  }
+  if (externalWritebackUrl && !isAllowedOutboundUrl(externalWritebackUrl)) {
+    return NextResponse.json(
+      { ok: false, error: "写回地址不在允许的外连范围内" },
+      { status: 400 },
+    );
+  }
 
   const playbook = getControlledPlaybook(playbookId);
   if (!playbook) {
@@ -68,18 +98,32 @@ export async function POST(req: Request) {
   }
 
   const fixture = getDemoFixture(playbookId);
-  const requestId = `demo-${crypto.randomUUID()}`;
+  const requestId = `${mode === "model" ? "model" : "demo"}-${crypto.randomUUID()}`;
   const request: AgentCoreTaskRequest = {
     taskInput: { userMessage: fixture.userMessage },
-    session: { id: "controlled-demo" },
-    metadata: { requestId, idempotencyKey: requestId, source: "controlled-demo" },
+    session: { id: mode === "model" ? "controlled-model" : "controlled-demo" },
+    metadata: {
+      requestId,
+      idempotencyKey: requestId,
+      source: mode === "model" ? "controlled-model" : "controlled-demo",
+      ...(externalWritebackUrl ? { externalWritebackUrl } : {}),
+    },
     context: {
       systemPrompt: "",
       workspace: { activeScenarioId: playbook.scenarioId, workflowRunId: requestId },
     },
     skillPolicy: { enabled: false, mode: "off" },
+    modelConfig:
+      mode === "model"
+        ? {
+            provider: body?.llm?.provider || "kimi",
+            apiKey,
+            baseUrl: body?.llm?.baseUrl,
+            model: body?.llm?.model,
+          }
+        : undefined,
     executionPolicy: {
-      timeoutSeconds: 30,
+      timeoutSeconds: mode === "model" ? 90 : 30,
       maxAttempts: 1,
       retryBackoffMs: 0,
       allowFallbackToOpenClaw: false,

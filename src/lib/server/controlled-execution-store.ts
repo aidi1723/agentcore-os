@@ -198,6 +198,10 @@ function normalizeRun(input: unknown): ControlledExecutionRunRecord | null {
     updatedAt: Number.isFinite(item.updatedAt) ? item.updatedAt : now(),
     finishedAt: Number.isFinite(item.finishedAt) ? item.finishedAt : undefined,
     error: clipError(item.error),
+    externalWritebackUrl:
+      typeof item.externalWritebackUrl === "string" && item.externalWritebackUrl.trim()
+        ? item.externalWritebackUrl.trim()
+        : undefined,
     auditEvents: Array.isArray(item.auditEvents)
       ? item.auditEvents
           .map(normalizeAuditEvent)
@@ -238,6 +242,7 @@ export async function createControlledExecutionRun(input: {
   playbookId: string;
   playbookVersion: string;
   plan: ExecutionPlan;
+  externalWritebackUrl?: string;
 }) {
   const timestamp = now();
   const run: ControlledExecutionRunRecord = {
@@ -252,6 +257,7 @@ export async function createControlledExecutionRun(input: {
     state: "running",
     createdAt: timestamp,
     updatedAt: timestamp,
+    externalWritebackUrl: input.externalWritebackUrl?.trim() || undefined,
     auditEvents: [],
     plan: input.plan,
     steps: buildInitialSteps(input.plan),
